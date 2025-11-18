@@ -135,7 +135,7 @@ function extractTags(student: any): string[] {
     }
   })
 
-  return [...new Set(tags)].slice(0, 5) // Unique tags, max 5
+  return Array.from(new Set(tags)).slice(0, 5) // Unique tags, max 5
 }
 
 export async function POST(req: NextRequest) {

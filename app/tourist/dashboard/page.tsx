@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useSession } from 'next-auth/react'
+import { useSession, signOut } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
@@ -67,6 +67,10 @@ export default function TouristDashboard() {
     }
   }
 
+  const handleLogout = async () => {
+    await signOut({ callbackUrl: '/tourist/signin' })
+  }
+
   const getStatusBadge = (status: string) => {
     const styles = {
       PENDING: 'bg-yellow-100 text-yellow-800',
@@ -111,7 +115,7 @@ export default function TouristDashboard() {
           <div className="flex justify-between items-center">
             <div>
               <h1 className="text-3xl font-bold text-gray-900">Tourist Dashboard</h1>
-              <p className="mt-2 text-gray-600">Logged in as {email}</p>
+              <p className="mt-2 text-gray-600">Logged in as {session?.user?.email}</p>
             </div>
             <div className="flex gap-4">
               <a

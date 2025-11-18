@@ -1,21 +1,39 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { BookingForm } from '@/components/booking/BookingForm'
 import { useSession, signIn } from 'next-auth/react'
 import { Button } from '@/components/ui/button'
+import { Globe, AlertTriangle, Lock } from 'lucide-react'
 
 export default function BookingPage() {
   const { data: session, status } = useSession()
   const isTourist = session?.user?.userType === 'tourist'
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen relative">
+      {/* Background Image */}
+      <div className="absolute inset-0">
+        <Image
+          src="/images/backgrounds/cafe-ambiance.jpg"
+          alt="Cafe ambiance"
+          fill
+          className="object-cover opacity-10"
+          priority
+        />
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-50/95 via-white/98 to-purple-50/95" />
+      </div>
+      <div className="absolute inset-0 pattern-dots opacity-20" />
+
+      <div className="relative z-10">
       {/* Header */}
-      <header className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50">
+      <header className="border-b bg-white/90 backdrop-blur-md sticky top-0 z-50 shadow-sm">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <Link href="/" className="flex items-center space-x-2">
-            <span className="text-2xl">🌍</span>
+          <Link href="/" className="flex items-center space-x-2 group">
+            <div className="p-1.5 rounded-lg bg-gradient-primary text-white group-hover:scale-110 transition-transform duration-300">
+              <Globe className="w-6 h-6" />
+            </div>
             <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
               WanderNest
             </h1>
@@ -50,12 +68,14 @@ export default function BookingPage() {
         </div>
 
         {/* Marketplace Disclaimer */}
-        <div className="bg-yellow-50 border-2 border-yellow-400 rounded-xl p-6 mb-8 max-w-4xl mx-auto">
-          <div className="flex items-start space-x-3">
-            <div className="text-2xl flex-shrink-0">⚠️</div>
+        <div className="bg-gradient-to-br from-amber-50 to-yellow-100/50 border border-amber-300 rounded-2xl p-6 mb-8 max-w-4xl mx-auto shadow-lg">
+          <div className="flex items-start space-x-4">
+            <div className="flex-shrink-0 p-3 rounded-xl bg-amber-500 text-white">
+              <AlertTriangle className="w-6 h-6" />
+            </div>
             <div>
-              <h3 className="font-bold text-yellow-900 mb-2">Marketplace Notice</h3>
-              <p className="text-sm text-yellow-800">
+              <h3 className="font-bold text-amber-900 mb-2 text-lg">Marketplace Notice</h3>
+              <p className="text-sm text-amber-900 leading-relaxed">
                 <strong>WanderNest is a connection platform only.</strong> We do not handle payments, guarantee service quality, or assume liability. All services and payments are arranged directly between you and your chosen guide.
               </p>
             </div>
@@ -69,9 +89,11 @@ export default function BookingPage() {
             <p className="mt-4 text-gray-600">Loading...</p>
           </div>
         ) : !isTourist ? (
-          <div className="max-w-2xl mx-auto bg-white rounded-xl shadow-lg border p-8">
+          <div className="max-w-2xl mx-auto bg-white/90 backdrop-blur-md rounded-2xl shadow-xl border border-gray-200 p-8">
             <div className="text-center space-y-6">
-              <div className="text-5xl">🔒</div>
+              <div className="inline-flex p-4 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 text-white mx-auto">
+                <Lock className="w-10 h-10" />
+              </div>
               <h2 className="text-2xl font-bold">Sign In Required</h2>
               <p className="text-gray-600">
                 To prevent spam and ensure a secure booking experience, please sign in with Google before creating a booking request.
@@ -112,6 +134,7 @@ export default function BookingPage() {
           <BookingForm />
         )}
       </main>
+      </div>
     </div>
   )
 }

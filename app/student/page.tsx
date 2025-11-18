@@ -1,18 +1,23 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { Globe, DollarSign, Clock, Users, Shield, ChevronLeft, CheckCircle } from 'lucide-react'
 
 export default function StudentLandingPage() {
   return (
     <div className="min-h-screen flex flex-col relative overflow-hidden">
-      {/* Enhanced Background */}
-      <div className="absolute inset-0 gradient-mesh-vibrant" />
-      <div className="absolute inset-0 bg-dots opacity-10" />
-
-      {/* Animated Floating Orbs */}
-      <div className="absolute top-20 right-10 w-64 h-64 bg-purple-400 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-float" />
-      <div className="absolute top-60 left-20 w-64 h-64 bg-blue-400 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-float delay-300" />
-      <div className="absolute bottom-40 right-1/4 w-64 h-64 bg-pink-400 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-float delay-700" />
+      {/* Background with Paris imagery */}
+      <div className="absolute inset-0">
+        <Image
+          src="/images/paris/paris-street.jpg"
+          alt="Paris street"
+          fill
+          className="object-cover opacity-15"
+          priority
+        />
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-50/95 via-white/98 to-blue-50/95" />
+      </div>
+      <div className="absolute inset-0 pattern-grid opacity-30" />
 
       {/* Content */}
       <div className="relative z-10">
@@ -71,11 +76,20 @@ export default function StudentLandingPage() {
             </div>
 
             {/* Value Proposition */}
-            <div className="glass-card rounded-3xl p-8 md:p-12 shadow-premium hover:shadow-elevated border-2 border-white/40 animate-fade-in-up delay-400">
-              <h3 className="text-4xl font-bold text-center mb-12 text-gradient-vibrant">Why Guide with WanderNest?</h3>
-              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div className="bg-gradient-to-br from-blue-50 to-blue-100/50 rounded-2xl p-6 shadow-soft hover:shadow-premium hover-lift-lg group border-2 border-blue-100/60 hover:border-blue-300/60 transition-all">
-                  <div className="inline-flex p-3 rounded-xl gradient-ocean text-white mb-4 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-glow-blue">
+            <div className="bg-white/90 backdrop-blur-md rounded-3xl shadow-xl border border-gray-200 animate-fade-in-up relative overflow-hidden">
+              <div className="absolute inset-0 opacity-5">
+                <Image
+                  src="/images/paris/arc-de-triomphe.jpg"
+                  alt="Arc de Triomphe"
+                  fill
+                  className="object-cover"
+                />
+              </div>
+              <div className="relative z-10 p-8 md:p-12">
+                <h3 className="text-4xl font-bold text-center mb-12">Why Guide with WanderNest?</h3>
+                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="bg-gradient-to-br from-blue-50 to-blue-100/50 rounded-2xl p-6 shadow-sm hover-lift group">
+                  <div className="inline-flex p-3 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 text-white mb-4 group-hover:scale-110 transition-transform duration-300">
                     <DollarSign className="w-7 h-7" />
                   </div>
                   <h4 className="font-bold text-lg mb-2 group-hover:text-blue-700 transition-colors">Earn More</h4>
@@ -112,6 +126,7 @@ export default function StudentLandingPage() {
                   <p className="text-sm text-gray-700 leading-relaxed font-medium">
                     All users are verified. We screen profiles for your safety
                   </p>
+                </div>
                 </div>
               </div>
             </div>

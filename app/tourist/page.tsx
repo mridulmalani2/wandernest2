@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { useSession, signIn } from 'next-auth/react'
 import { Globe, GraduationCap, MessageCircle, Star, AlertTriangle, ChevronLeft } from 'lucide-react'
@@ -11,14 +12,18 @@ export default function TouristLanding() {
 
   return (
     <div className="min-h-screen flex flex-col relative overflow-hidden">
-      {/* Enhanced Background */}
-      <div className="absolute inset-0 gradient-mesh-vibrant" />
-      <div className="absolute inset-0 bg-dots opacity-10" />
-
-      {/* Animated Floating Orbs */}
-      <div className="absolute top-20 left-10 w-64 h-64 bg-blue-400 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-float" />
-      <div className="absolute top-60 right-20 w-64 h-64 bg-purple-400 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-float delay-300" />
-      <div className="absolute bottom-40 left-1/4 w-64 h-64 bg-pink-400 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-float delay-700" />
+      {/* Background with London imagery */}
+      <div className="absolute inset-0">
+        <Image
+          src="/images/london/thames.jpg"
+          alt="Thames River"
+          fill
+          className="object-cover opacity-15"
+          priority
+        />
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-50/95 via-white/98 to-indigo-50/95" />
+      </div>
+      <div className="absolute inset-0 pattern-dots opacity-30" />
 
       {/* Content */}
       <div className="relative z-10">
@@ -114,41 +119,62 @@ export default function TouristLanding() {
             </div>
 
             {/* Features */}
-            <div className="grid md:grid-cols-3 gap-8 pt-8">
-              <div className="glass-card rounded-2xl p-8 shadow-premium hover:shadow-elevated border-2 border-white/40 hover:border-blue-300/60 hover-lift-lg group animate-fade-in-up delay-500 relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-400/5 via-cyan-400/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                <div className="relative z-10">
-                  <div className="inline-flex p-4 rounded-2xl gradient-ocean text-white mb-6 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-glow-blue">
+            <div className="grid md:grid-cols-3 gap-8 pt-8 animate-fade-in-up delay-100">
+              <div className="bg-white/90 backdrop-blur-md rounded-2xl shadow-lg border border-gray-200 hover-lift group relative overflow-hidden">
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-500">
+                  <Image
+                    src="/images/london/big-ben.jpg"
+                    alt="Big Ben"
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+                <div className="relative z-10 p-8">
+                  <div className="inline-flex p-4 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 text-white mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
                     <GraduationCap className="w-8 h-8" />
                   </div>
-                  <h3 className="text-xl font-bold mb-3 group-hover:text-blue-700 transition-colors">Verified Students</h3>
-                  <p className="text-gray-700 leading-relaxed font-medium">
+                  <h3 className="text-xl font-bold mb-3">Verified Students</h3>
+                  <p className="text-gray-600 leading-relaxed">
                     All guides are verified university students with local knowledge
                   </p>
                 </div>
               </div>
 
-              <div className="glass-card rounded-2xl p-8 shadow-premium hover:shadow-elevated border-2 border-white/40 hover:border-purple-300/60 hover-lift-lg group animate-fade-in-up delay-700 relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-purple-400/5 via-pink-400/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                <div className="relative z-10">
-                  <div className="inline-flex p-4 rounded-2xl gradient-vibrant text-white mb-6 group-hover:scale-110 group-hover:-rotate-3 transition-all duration-300 shadow-glow-purple">
+              <div className="bg-white/90 backdrop-blur-md rounded-2xl shadow-lg border border-gray-200 hover-lift group relative overflow-hidden">
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-500">
+                  <Image
+                    src="/images/paris/paris-cafe.jpg"
+                    alt="Paris cafe"
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+                <div className="relative z-10 p-8">
+                  <div className="inline-flex p-4 rounded-2xl bg-gradient-to-br from-purple-500 to-purple-600 text-white mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
                     <MessageCircle className="w-8 h-8" />
                   </div>
-                  <h3 className="text-xl font-bold mb-3 group-hover:text-purple-700 transition-colors">Personalized Experience</h3>
-                  <p className="text-gray-700 leading-relaxed font-medium">
+                  <h3 className="text-xl font-bold mb-3">Personalized Experience</h3>
+                  <p className="text-gray-600 leading-relaxed">
                     Get custom itineraries based on your interests and preferences
                   </p>
                 </div>
               </div>
 
-              <div className="glass-card rounded-2xl p-8 shadow-premium hover:shadow-elevated border-2 border-white/40 hover:border-pink-300/60 hover-lift-lg group animate-fade-in-up delay-1000 relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-pink-400/5 via-rose-400/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                <div className="relative z-10">
-                  <div className="inline-flex p-4 rounded-2xl gradient-sunset text-white mb-6 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-soft">
+              <div className="bg-white/90 backdrop-blur-md rounded-2xl shadow-lg border border-gray-200 hover-lift group relative overflow-hidden">
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-500">
+                  <Image
+                    src="/images/london/london-bridge.jpg"
+                    alt="London bridge"
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+                <div className="relative z-10 p-8">
+                  <div className="inline-flex p-4 rounded-2xl bg-gradient-to-br from-pink-500 to-pink-600 text-white mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
                     <Star className="w-8 h-8" />
                   </div>
-                  <h3 className="text-xl font-bold mb-3 group-hover:text-pink-700 transition-colors">Authentic Adventures</h3>
-                  <p className="text-gray-700 leading-relaxed font-medium">
+                  <h3 className="text-xl font-bold mb-3">Authentic Adventures</h3>
+                  <p className="text-gray-600 leading-relaxed">
                     Discover hidden gems and local favorites off the beaten path
                   </p>
                 </div>
