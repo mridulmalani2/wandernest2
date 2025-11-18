@@ -1,27 +1,76 @@
 'use client';
 
-import { useEffect } from 'react';
-import { useSession } from 'next-auth/react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { OnboardingWizard } from '@/components/student/OnboardingWizard';
 
 export default function StudentOnboarding() {
-  const { data: session, status } = useSession();
   const router = useRouter();
+  const [session, setSession] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Redirect if not authenticated
-    if (status === 'unauthenticated') {
-      router.push('/student/signin');
-    }
+    const validateSession = async () => {
+      try {
+        // Get token from localStorage or cookie
+        const token = localStorage.getItem('student_token') ||
+                     document.cookie
+                       .split('; ')
+                       .find(row => row.startsWith('student_token='))
+                       ?.split('=')[1];
 
-    // Redirect if already onboarded
-    if (status === 'authenticated' && session?.user?.hasCompletedOnboarding) {
-      router.push('/student/dashboard');
-    }
-  }, [status, session, router]);
+        if (!token) {
+          router.push('/student/signin');
+          return;
+        }
 
-  if (status === 'loading') {
+        // Validate session with backend
+        const response = await fetch('/api/student/auth/session', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) {
+          // Session invalid or expired
+          localStorage.removeItem('student_token');
+          document.cookie = 'student_token=; path=/; max-age=0';
+          router.push('/student/signin');
+          return;
+        }
+
+        const data = await response.json();
+
+        if (data.success) {
+          // Check if already onboarded
+          if (data.student.hasCompletedOnboarding) {
+            router.push('/student/dashboard');
+            return;
+          }
+
+          // Create a session-like object for OnboardingWizard
+          setSession({
+            user: {
+              id: data.student.id,
+              email: data.student.email,
+              name: data.student.name,
+            },
+          });
+        } else {
+          router.push('/student/signin');
+        }
+      } catch (error) {
+        console.error('Session validation error:', error);
+        router.push('/student/signin');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    validateSession();
+  }, [router]);
+
+  if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">

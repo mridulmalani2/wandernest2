@@ -41,18 +41,19 @@ enum AdminRole {
 model Student {
   id                String   @id @default(cuid())
   email             String   @unique
-  googleId          String   @unique
-  name              String
-  gender            String   // male, female, prefer_not_to_say
-  nationality       String
-  institute         String
+  emailVerified     Boolean  @default(false)
+  googleId          String?  @unique  // Now optional - supports both Google OAuth and email verification
+  name              String?  // Optional until onboarding is completed
+  gender            String?  // male, female, prefer_not_to_say
+  nationality       String?
+  institute         String?
   idCardUrl         String?
-  coverLetter       String   @db.Text
-  languages         String[] // Array of language codes
-  interests         String[] // Array of interest tags
+  coverLetter       String?  @db.Text
+  languages         String[] @default([])  // Array of language codes
+  interests         String[] @default([])  // Array of interest tags
   bio               String?  @db.Text
   status            StudentStatus @default(PENDING_APPROVAL)
-  city              String
+  city              String?
   priceRange        Json?    // {min: number, max: number}
 
   // Metrics
@@ -210,8 +211,23 @@ model TouristSession {
   @@index([token])
 }
 
+model StudentSession {
+  id                String   @id @default(cuid())
+  email             String
+  studentId         String?  // Links to Student model after onboarding
+  token             String   @unique
+  isVerified        Boolean  @default(false)
+  expiresAt         DateTime
+
+  createdAt         DateTime @default(now())
+
+  @@index([email])
+  @@index([token])
+  @@index([studentId])
+}
+
 // ============================================
-// NEXTAUTH MODELS (for Student Google OAuth)
+// NEXTAUTH MODELS (for Student Google OAuth - Legacy)
 // ============================================
 
 model Account {

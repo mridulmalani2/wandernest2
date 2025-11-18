@@ -14,6 +14,11 @@ export default function StudentLandingPage() {
             </h1>
           </Link>
           <nav className="flex items-center space-x-4">
+            <Link href="/">
+              <Button variant="ghost">
+                <span className="mr-1">←</span> Back to Home
+              </Button>
+            </Link>
             <Link href="/student/signin">
               <Button variant="outline">Sign In</Button>
             </Link>
@@ -147,17 +152,6 @@ export default function StudentLandingPage() {
                 <p className="text-gray-600 pt-3">
                   Most experiences are 3-4 hours. You set your own availability blocks and can update them anytime.
                   You're in complete control of when you're available to guide.
-                </p>
-              </details>
-
-              <details className="group">
-                <summary className="font-bold cursor-pointer list-none flex justify-between items-center py-3 border-b">
-                  <span>Is it safe?</span>
-                  <span className="group-open:rotate-180 transition-transform">▼</span>
-                </summary>
-                <p className="text-gray-600 pt-3">
-                  Yes. All tourists are verified through email, and we screen all profiles.
-                  You can see tourist information before accepting any request, and you always meet in public places.
                 </p>
               </details>
 

@@ -15,7 +15,9 @@ export default function TouristLanding() {
           </div>
           <nav className="flex items-center space-x-4">
             <Link href="/">
-              <Button variant="ghost">Home</Button>
+              <Button variant="ghost">
+                <span className="mr-1">←</span> Back to Home
+              </Button>
             </Link>
             <Link href="/booking">
               <Button>Book a Guide</Button>
