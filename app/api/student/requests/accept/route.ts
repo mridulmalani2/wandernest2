@@ -1,3 +1,6 @@
+// Force dynamic rendering for Vercel
+export const dynamic = 'force-dynamic'
+
 import { NextRequest, NextResponse } from 'next/server'
 import { acceptRequest } from '../accept-request'
 import { prisma } from '@/lib/prisma'

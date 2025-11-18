@@ -2,7 +2,7 @@ import { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@auth/prisma-adapter";
-import { prisma } from "@/lib/db";
+import { prisma } from "@/lib/prisma";
 
 // Valid student email domains
 const STUDENT_EMAIL_DOMAINS = [
@@ -138,7 +138,7 @@ export const authOptions: NextAuthOptions = {
         });
 
         const userType = dbUser?.userType || "tourist";
-        session.user.userType = userType;
+        session.user.userType = (userType === "student" || userType === "tourist") ? userType : "tourist";
 
         if (userType === "student") {
           // Check if student profile exists

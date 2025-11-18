@@ -5,7 +5,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-producti
 
 // Generate JWT token
 export function generateToken(payload: object, expiresIn: string = '1h'): string {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn })
+  return jwt.sign(payload, JWT_SECRET, { expiresIn } as jwt.SignOptions)
 }
 
 // Verify JWT token

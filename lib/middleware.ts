@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyToken } from './auth'
-import { prisma } from './db'
+import { prisma } from './prisma'
 
 export interface AuthenticatedRequest extends NextRequest {
   admin?: {

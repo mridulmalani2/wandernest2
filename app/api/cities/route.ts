@@ -1,3 +1,6 @@
+// Force dynamic rendering for Vercel
+export const dynamic = 'force-dynamic'
+
 import { NextResponse } from 'next/server'
 
 // In a real application, this would come from the database

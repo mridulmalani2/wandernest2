@@ -330,7 +330,7 @@ export default function StudentDashboard() {
               {data.pendingRequests.map((pending) => {
                 const request = pending.request
                 const isProcessing = processingRequests.has(request.id)
-                const isExpired = request.expiresAt && new Date() > new Date(request.expiresAt)
+                const isExpired = !!(request.expiresAt && new Date() > new Date(request.expiresAt))
 
                 return (
                   <Card key={pending.id} className="bg-white">

@@ -1,3 +1,6 @@
+// Force dynamic rendering for Vercel
+export const dynamic = 'force-dynamic'
+
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
@@ -15,11 +18,11 @@ interface MatchingCriteria {
 interface ScoredStudent {
   id: string
   maskedId: string
-  name: string // Will be masked for display
-  nationality: string
+  name: string | null // Will be masked for display
+  nationality: string | null
   languages: string[]
-  institute: string
-  gender: string
+  institute: string | null
+  gender: string | null
   tripsHosted: number
   averageRating: number | null
   noShowCount: number
@@ -27,7 +30,7 @@ interface ScoredStudent {
   interests: string[]
   priceRange: any
   bio: string | null
-  coverLetter: string
+  coverLetter: string | null
   score: number
   matchReasons: string[]
 }
@@ -120,7 +123,7 @@ function extractTags(student: any): string[] {
   const tags: string[] = []
 
   // Extract from cover letter and bio (simple keyword extraction)
-  const text = `${student.coverLetter} ${student.bio || ''}`.toLowerCase()
+  const text = `${student.coverLetter || ''} ${student.bio || ''}`.toLowerCase()
 
   const tagKeywords = [
     'food', 'cafes', 'restaurants', 'first-time', 'kids', 'kid-friendly',
@@ -285,7 +288,8 @@ export async function POST(req: NextRequest) {
   }
 }
 
-function maskName(fullName: string): string {
+function maskName(fullName: string | null): string {
+  if (!fullName) return 'Anonymous'
   const parts = fullName.trim().split(' ')
   if (parts.length === 1) {
     return parts[0]

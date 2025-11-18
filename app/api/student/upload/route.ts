@@ -1,7 +1,7 @@
+// Force dynamic rendering for Vercel
+export const dynamic = 'force-dynamic'
+
 import { NextRequest, NextResponse } from 'next/server';
-import { writeFile, mkdir } from 'fs/promises';
-import { join } from 'path';
-import { existsSync } from 'fs';
 
 export async function POST(req: NextRequest) {
   try {
@@ -34,31 +34,19 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Create upload directory if it doesn't exist
-    const uploadDir = join(process.cwd(), 'public', 'uploads', 'student-ids');
-    if (!existsSync(uploadDir)) {
-      await mkdir(uploadDir, { recursive: true });
-    }
-
-    // Generate unique filename
-    const timestamp = Date.now();
-    const randomString = Math.random().toString(36).substring(2, 15);
-    const extension = file.name.split('.').pop();
-    const filename = `${timestamp}-${randomString}.${extension}`;
-    const filepath = join(uploadDir, filename);
-
-    // Convert file to buffer and save
+    // Convert file to Base64 for database storage
+    // This is suitable for Vercel serverless functions where filesystem is read-only
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
-    await writeFile(filepath, buffer);
+    const base64 = buffer.toString('base64');
 
-    // Return public URL
-    const url = `/uploads/student-ids/${filename}`;
+    // Create data URL with mime type
+    const dataUrl = `data:${file.type};base64,${base64}`;
 
     return NextResponse.json({
       success: true,
-      url,
-      filename,
+      url: dataUrl, // Return data URL instead of file path
+      filename: file.name,
     });
   } catch (error) {
     console.error('File upload error:', error);

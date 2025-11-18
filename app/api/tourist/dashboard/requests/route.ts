@@ -1,5 +1,8 @@
+// Force dynamic rendering for Vercel
+export const dynamic = 'force-dynamic'
+
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/db'
+import { prisma } from '@/lib/prisma'
 import { verifyTourist } from '@/lib/middleware'
 
 // Get tourist's past requests
