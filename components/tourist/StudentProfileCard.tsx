@@ -45,9 +45,12 @@ export function StudentProfileCard({
 
   return (
     <Card
-      className={`relative transition-all duration-200 hover:shadow-lg ${
-        isSelected ? 'ring-2 ring-blue-500 shadow-lg' : ''
+      className={`relative transition-all duration-300 hover-lift-lg cursor-pointer group ${
+        isSelected
+          ? 'ring-4 ring-blue-400 shadow-glow-blue bg-gradient-to-br from-blue-50/50 to-white'
+          : 'shadow-premium hover:shadow-elevated bg-white border-2 border-gray-100 hover:border-blue-200'
       }`}
+      onClick={() => onToggleSelect(student.studentId)}
     >
       <CardContent className="p-6">
         {/* Selection Checkbox */}
@@ -86,31 +89,31 @@ export function StudentProfileCard({
         </div>
 
         {/* Experience Stats */}
-        <div className="grid grid-cols-2 gap-4 mb-4 p-3 bg-gray-50 rounded-lg">
+        <div className="grid grid-cols-2 gap-4 mb-4 p-4 bg-gradient-to-br from-gray-50 to-blue-50/30 rounded-xl border border-gray-200/50 shadow-soft">
           <div>
-            <div className="flex items-center gap-1 text-gray-600 mb-1">
+            <div className="flex items-center gap-1 text-blue-600 mb-1">
               <TrendingUp className="h-4 w-4" />
-              <span className="text-xs font-medium">Experience</span>
+              <span className="text-xs font-semibold">Experience</span>
             </div>
-            <p className="text-lg font-bold text-gray-800">
+            <p className="text-lg font-bold text-gray-900">
               {student.tripsHosted} trips
             </p>
           </div>
 
           <div>
-            <div className="flex items-center gap-1 text-gray-600 mb-1">
-              <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-              <span className="text-xs font-medium">Rating</span>
+            <div className="flex items-center gap-1 text-amber-600 mb-1">
+              <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
+              <span className="text-xs font-semibold">Rating</span>
             </div>
             {student.averageRating ? (
-              <p className="text-lg font-bold text-gray-800">
+              <p className="text-lg font-bold text-gray-900">
                 {student.averageRating.toFixed(1)}/5
-                <span className="text-xs text-gray-500 ml-1">
+                <span className="text-xs text-gray-600 ml-1 font-medium">
                   ({student.reviewCount})
                 </span>
               </p>
             ) : (
-              <p className="text-sm text-gray-500">No ratings yet</p>
+              <p className="text-sm text-gray-600 font-medium">No ratings yet</p>
             )}
           </div>
         </div>
@@ -151,14 +154,15 @@ export function StudentProfileCard({
 
         {/* Match Reasons */}
         {student.matchReasons.length > 0 && (
-          <div className="mb-4 p-3 bg-blue-50 rounded-lg border border-blue-100">
-            <p className="text-xs font-semibold text-blue-700 uppercase mb-2">
+          <div className="mb-4 p-4 bg-gradient-to-br from-blue-50 to-cyan-50/50 rounded-xl border-2 border-blue-200/60 shadow-soft">
+            <p className="text-xs font-bold text-blue-700 uppercase mb-2 flex items-center gap-1">
+              <CheckCircle2 className="h-3 w-3" />
               Why this guide?
             </p>
-            <ul className="space-y-1">
+            <ul className="space-y-1.5">
               {student.matchReasons.slice(0, 3).map((reason, index) => (
-                <li key={index} className="text-sm text-blue-800 flex items-start">
-                  <span className="mr-2">•</span>
+                <li key={index} className="text-sm text-blue-900 flex items-start font-medium">
+                  <span className="mr-2 text-blue-500">•</span>
                   <span>{reason}</span>
                 </li>
               ))}

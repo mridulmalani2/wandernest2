@@ -1,5 +1,6 @@
 import { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
+import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "@/lib/prisma";
 
@@ -22,10 +23,61 @@ function isStudentEmail(email: string): boolean {
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma) as any,
   providers: [
+    // ====== TEMPORARY DEV BYPASS - REMOVE IN PRODUCTION ======
+    // This credentials provider allows local testing without Google OAuth
+    CredentialsProvider({
+      id: 'dev-bypass',
+      name: 'Dev Bypass',
+      credentials: {},
+      async authorize() {
+        // Only allow in development
+        if (process.env.NODE_ENV !== 'production') {
+          // Create or get a dummy tourist user
+          const dummyEmail = 'dev.tourist@wandernest.local';
+
+          // Check if user exists, if not create it
+          const existingUser = await prisma.user.findUnique({
+            where: { email: dummyEmail },
+          });
+
+          if (!existingUser) {
+            // Create user
+            await prisma.user.create({
+              data: {
+                email: dummyEmail,
+                name: 'Dev Tourist',
+                userType: 'tourist',
+              },
+            });
+
+            // Create tourist profile
+            await prisma.tourist.create({
+              data: {
+                email: dummyEmail,
+                name: 'Dev Tourist',
+                googleId: 'dev-bypass-id',
+              },
+            });
+          }
+
+          return {
+            id: existingUser?.id || 'temp-id',
+            email: dummyEmail,
+            name: 'Dev Tourist',
+          };
+        }
+        return null;
+      },
+    }),
+    // ====== END TEMPORARY DEV BYPASS ======
+
+    // ====== PRODUCTION GOOGLE AUTH (CURRENTLY COMMENTED FOR LOCAL DEV) ======
+    // Uncomment this when ready to use real Google authentication
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID || "",
       clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
     }),
+    // ====== END GOOGLE AUTH ======
   ],
   pages: {
     signIn: "/tourist/signin",  // Default to tourist signin

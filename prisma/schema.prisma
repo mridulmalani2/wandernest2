@@ -34,6 +34,13 @@ enum AdminRole {
   SUPPORT
 }
 
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  REFUNDED
+}
+
 // ============================================
 // MODELS
 // ============================================
@@ -99,6 +106,7 @@ model Tourist {
 
   // Relations
   requests          TouristRequest[]
+  payments          Payment[]
 
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
@@ -145,6 +153,7 @@ model TouristRequest {
 
   selections        RequestSelection[]
   review            Review?
+  payments          Payment[]
 
   createdAt         DateTime @default(now())
   expiresAt         DateTime
@@ -177,9 +186,12 @@ model Review {
   id                String         @id @default(cuid())
   requestId         String         @unique
   studentId         String
-  rating            Int            // 1-5
-  comment           String?        @db.Text
-  wasNoShow         Boolean        @default(false)
+  rating            Int            // 1-5 (required)
+  text              String?        @db.Text // optional, max 500 chars (enforced in app layer)
+  attributes        String[]       // predefined list of attributes
+  noShow            Boolean        @default(false)
+  pricePaid         Float?         // optional
+  isAnonymous       Boolean        @default(false)
 
   request           TouristRequest @relation(fields: [requestId], references: [id])
   student           Student        @relation(fields: [studentId], references: [id])
@@ -187,6 +199,7 @@ model Review {
   createdAt         DateTime       @default(now())
 
   @@index([studentId])
+  @@index([createdAt])
 }
 
 model Report {
@@ -303,4 +316,35 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+model Payment {
+  id                String        @id @default(cuid())
+  touristId         String?
+  tourist           Tourist?      @relation(fields: [touristId], references: [id])
+  requestId         String?       // Optional: link to specific tourist request
+  request           TouristRequest? @relation(fields: [requestId], references: [id])
+
+  // Payment Details
+  amount            Float         // in INR
+  currency          String        @default("INR")
+  status            PaymentStatus @default(PENDING)
+
+  // Razorpay Details
+  razorpayOrderId   String        @unique
+  razorpayPaymentId String?       @unique
+  razorpaySignature String?
+
+  // Metadata
+  email             String
+  phone             String?
+  description       String        @default("Discovery Fee - WanderNest")
+
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  @@index([touristId])
+  @@index([requestId])
+  @@index([status])
+  @@index([email])
 }
