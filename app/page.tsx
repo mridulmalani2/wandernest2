@@ -47,6 +47,28 @@ export default function Home() {
             </Link>
           </div>
 
+          {/* Marketplace Disclaimer */}
+          <div className="bg-yellow-50 border-2 border-yellow-400 rounded-xl p-6 mt-8 max-w-3xl mx-auto">
+            <div className="flex items-start space-x-3">
+              <div className="text-2xl">⚠️</div>
+              <div>
+                <h3 className="font-bold text-yellow-900 mb-2">Important Notice</h3>
+                <p className="text-sm text-yellow-800">
+                  <strong>WanderNest is a marketplace connector only.</strong> We facilitate connections between tourists and local student guides but do not:
+                </p>
+                <ul className="list-disc list-inside text-sm text-yellow-800 mt-2 space-y-1">
+                  <li>Handle any payments or financial transactions</li>
+                  <li>Guarantee the quality of services provided</li>
+                  <li>Act as an employer or agency for guides</li>
+                  <li>Assume liability for guide-tourist interactions</li>
+                </ul>
+                <p className="text-sm text-yellow-800 mt-2">
+                  All arrangements, payments, and services are agreed upon directly between you and your guide.
+                </p>
+              </div>
+            </div>
+          </div>
+
           {/* Features */}
           <div className="grid md:grid-cols-3 gap-8 pt-16">
             <div className="bg-white rounded-xl p-6 shadow-lg border">

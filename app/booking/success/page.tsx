@@ -53,6 +53,31 @@ export default function SuccessPage({
             </div>
           )}
 
+          {/* Marketplace Reminder */}
+          <div className="bg-yellow-50 border-2 border-yellow-400 rounded-lg p-6 text-left mb-4">
+            <h2 className="text-xl font-bold text-yellow-900 mb-3 flex items-center">
+              <span className="mr-2">⚠️</span>
+              Important Reminder
+            </h2>
+            <p className="text-sm text-yellow-800 mb-2">
+              <strong>WanderNest is a marketplace platform only.</strong> Please remember:
+            </p>
+            <ul className="space-y-2 text-sm text-yellow-800">
+              <li className="flex items-start">
+                <span className="mr-2">•</span>
+                <span>All payments are negotiated and handled directly between you and your guide</span>
+              </li>
+              <li className="flex items-start">
+                <span className="mr-2">•</span>
+                <span>We do not guarantee service quality or assume liability</span>
+              </li>
+              <li className="flex items-start">
+                <span className="mr-2">•</span>
+                <span>You are responsible for vetting guides and making your own arrangements</span>
+              </li>
+            </ul>
+          </div>
+
           {/* What's Next */}
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 text-left">
             <h2 className="text-xl font-bold text-blue-900 mb-4">What's Next?</h2>

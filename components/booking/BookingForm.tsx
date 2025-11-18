@@ -30,6 +30,7 @@ export type BookingFormData = {
   contactMethod: 'email' | 'phone' | 'whatsapp' | ''
   tripNotes?: string
   accessibilityNeeds?: string
+  termsAccepted?: boolean
 }
 
 const STEPS = [
@@ -92,6 +93,9 @@ export function BookingForm() {
       }
       if (!formData.contactMethod) {
         newErrors.contactMethod = 'Contact method is required'
+      }
+      if (!formData.termsAccepted) {
+        newErrors.termsAccepted = 'You must accept the terms and conditions'
       }
     }
 

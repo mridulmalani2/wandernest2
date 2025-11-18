@@ -159,6 +159,26 @@ export function ContactStep({ data, errors, updateData }: Props) {
         </p>
       </div>
 
+      {/* Legal Consent */}
+      <div className="space-y-3 pt-4">
+        <div className="flex items-start space-x-3">
+          <Checkbox
+            id="termsConsent"
+            checked={data.termsAccepted || false}
+            onCheckedChange={(checked) => updateData({ termsAccepted: checked as boolean })}
+            className="mt-1"
+          />
+          <Label htmlFor="termsConsent" className="font-normal text-sm cursor-pointer leading-relaxed">
+            I agree to the Terms of Service and Privacy Policy, and I understand that{' '}
+            <strong>WanderNest is a marketplace connector only</strong> and does not handle payments, guarantee service quality, or assume liability for guide interactions.
+            <span className="text-red-500 ml-1">*</span>
+          </Label>
+        </div>
+        {errors.termsAccepted && (
+          <p className="text-sm text-red-500">{errors.termsAccepted}</p>
+        )}
+      </div>
+
       {/* Privacy Notice */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
         <h3 className="font-semibold text-blue-900 mb-2">🔒 Privacy Notice</h3>

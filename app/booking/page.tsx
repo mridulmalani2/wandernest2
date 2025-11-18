@@ -26,6 +26,19 @@ export default function BookingPage() {
           </p>
         </div>
 
+        {/* Marketplace Disclaimer */}
+        <div className="bg-yellow-50 border-2 border-yellow-400 rounded-xl p-6 mb-8 max-w-4xl mx-auto">
+          <div className="flex items-start space-x-3">
+            <div className="text-2xl flex-shrink-0">⚠️</div>
+            <div>
+              <h3 className="font-bold text-yellow-900 mb-2">Marketplace Notice</h3>
+              <p className="text-sm text-yellow-800">
+                <strong>WanderNest is a connection platform only.</strong> We do not handle payments, guarantee service quality, or assume liability. All services and payments are arranged directly between you and your chosen guide.
+              </p>
+            </div>
+          </div>
+        </div>
+
         <BookingForm />
       </main>
     </div>
