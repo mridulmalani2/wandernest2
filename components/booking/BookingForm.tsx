@@ -1,11 +1,12 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useSession } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { TripDetailsStep } from './TripDetailsStep'
 import { PreferencesStep } from './PreferencesStep'
 import { ContactStep } from './ContactStep'
-import { VerificationModal } from './VerificationModal'
 
 export type BookingFormData = {
   // Step 1: Trip Details
@@ -14,6 +15,7 @@ export type BookingFormData = {
   preferredTime: 'morning' | 'afternoon' | 'evening' | ''
   numberOfGuests: number
   groupType: 'family' | 'friends' | 'solo' | 'business' | ''
+  accessibilityNeeds?: string
 
   // Step 2: Preferences
   preferredNationality?: string
@@ -29,7 +31,6 @@ export type BookingFormData = {
   whatsapp?: string
   contactMethod: 'email' | 'phone' | 'whatsapp' | ''
   tripNotes?: string
-  accessibilityNeeds?: string
   termsAccepted?: boolean
 }
 
@@ -40,8 +41,9 @@ const STEPS = [
 ]
 
 export function BookingForm() {
+  const { data: session } = useSession()
+  const router = useRouter()
   const [currentStep, setCurrentStep] = useState(1)
-  const [showVerification, setShowVerification] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [formData, setFormData] = useState<BookingFormData>({
     city: '',
@@ -56,6 +58,13 @@ export function BookingForm() {
     contactMethod: '',
   })
   const [errors, setErrors] = useState<Record<string, string>>({})
+
+  // Pre-fill email from session
+  useEffect(() => {
+    if (session?.user?.email) {
+      setFormData((prev) => ({ ...prev, email: session.user.email! }))
+    }
+  }, [session])
 
   const updateFormData = (data: Partial<BookingFormData>) => {
     setFormData((prev) => ({ ...prev, ...data }))
@@ -125,16 +134,35 @@ export function BookingForm() {
 
     setIsSubmitting(true)
     try {
-      const response = await fetch('/api/tourist/request/initiate', {
+      // Use the new authenticated endpoint
+      const response = await fetch('/api/tourist/request/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          city: formData.city,
+          dates: formData.dates,
+          preferredTime: formData.preferredTime,
+          numberOfGuests: formData.numberOfGuests,
+          groupType: formData.groupType,
+          accessibilityNeeds: formData.accessibilityNeeds,
+          preferredNationality: formData.preferredNationality,
+          preferredLanguages: formData.preferredLanguages,
+          preferredGender: formData.preferredGender,
+          serviceType: formData.serviceType,
+          interests: formData.interests,
+          budget: formData.budget,
+          phone: formData.phone,
+          whatsapp: formData.whatsapp,
+          contactMethod: formData.contactMethod,
+          tripNotes: formData.tripNotes,
+        }),
       })
 
       const data = await response.json()
 
-      if (data.success) {
-        setShowVerification(true)
+      if (data.success && data.requestId) {
+        // Redirect to matching page
+        router.push(`/booking/select-guide?requestId=${data.requestId}`)
       } else {
         alert(data.error || 'Failed to submit booking request')
       }
@@ -144,11 +172,6 @@ export function BookingForm() {
     } finally {
       setIsSubmitting(false)
     }
-  }
-
-  const handleVerificationSuccess = (requestId: string) => {
-    // Redirect to guide selection page to choose from matched students
-    window.location.href = `/booking/select-guide?requestId=${requestId}`
   }
 
   return (
@@ -234,23 +257,13 @@ export function BookingForm() {
             disabled={isSubmitting}
           >
             {currentStep === 3 ? (
-              isSubmitting ? 'Submitting...' : 'Submit & Verify'
+              isSubmitting ? 'Creating Booking...' : 'Create Booking'
             ) : (
               'Next'
             )}
           </Button>
         </div>
       </div>
-
-      {/* Verification Modal */}
-      {showVerification && (
-        <VerificationModal
-          email={formData.email}
-          formData={formData}
-          onSuccess={handleVerificationSuccess}
-          onClose={() => setShowVerification(false)}
-        />
-      )}
     </div>
   )
 }

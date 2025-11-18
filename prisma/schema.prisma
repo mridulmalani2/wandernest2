@@ -90,11 +90,32 @@ model StudentAvailability {
   @@index([studentId])
 }
 
+model Tourist {
+  id                String   @id @default(cuid())
+  email             String   @unique
+  name              String?
+  image             String?  // Profile picture from Google
+  googleId          String?  @unique  // Google OAuth ID
+
+  // Relations
+  requests          TouristRequest[]
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([email])
+  @@index([googleId])
+}
+
 model TouristRequest {
   id                String   @id @default(cuid())
   email             String
   emailVerified     Boolean  @default(false)
   verificationCode  String?
+
+  // Link to authenticated tourist (optional for backward compatibility)
+  touristId         String?
+  tourist           Tourist? @relation(fields: [touristId], references: [id])
 
   // Trip Details
   city              String
@@ -131,6 +152,7 @@ model TouristRequest {
   @@index([city])
   @@index([status])
   @@index([email])
+  @@index([touristId])
 }
 
 model RequestSelection {
@@ -266,10 +288,13 @@ model User {
   email         String?   @unique
   emailVerified DateTime?
   image         String?
+  userType      String    @default("tourist")  // "tourist" or "student" (legacy)
+  touristId     String?   // Link to Tourist model
   accounts      Account[]
   sessions      Session[]
 
   @@index([email])
+  @@index([touristId])
 }
 
 model VerificationToken {

@@ -8,9 +8,13 @@ declare module "next-auth" {
       email: string;
       name?: string | null;
       image?: string | null;
+      userType?: "student" | "tourist";
+      // Student-specific fields
       studentId?: string;
       studentStatus?: StudentStatus;
       hasCompletedOnboarding?: boolean;
+      // Tourist-specific fields
+      touristId?: string;
     };
   }
 
@@ -19,5 +23,6 @@ declare module "next-auth" {
     email: string;
     name?: string | null;
     image?: string | null;
+    userType?: string;
   }
 }

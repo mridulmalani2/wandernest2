@@ -1,7 +1,13 @@
+'use client'
+
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
+import { useSession, signOut } from 'next-auth/react'
 
 export default function TouristLanding() {
+  const { data: session, status } = useSession()
+  const isTourist = session?.user?.userType === 'tourist'
+
   return (
     <div className="min-h-screen flex flex-col">
       {/* Header */}
@@ -19,9 +25,28 @@ export default function TouristLanding() {
                 <span className="mr-1">←</span> Back to Home
               </Button>
             </Link>
-            <Link href="/booking">
-              <Button>Book a Guide</Button>
-            </Link>
+            {isTourist ? (
+              <>
+                <Link href="/tourist/dashboard">
+                  <Button variant="outline">My Bookings</Button>
+                </Link>
+                <Link href="/booking">
+                  <Button>Book a Guide</Button>
+                </Link>
+                <Button variant="ghost" onClick={() => signOut({ callbackUrl: '/tourist' })}>
+                  Sign Out
+                </Button>
+              </>
+            ) : (
+              <>
+                <Link href="/tourist/signin">
+                  <Button variant="outline">Sign In</Button>
+                </Link>
+                <Link href="/booking">
+                  <Button>Book a Guide</Button>
+                </Link>
+              </>
+            )}
           </nav>
         </div>
       </header>

@@ -28,16 +28,50 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   pages: {
-    signIn: "/student/signin",
-    error: "/student/signin", // Error page
+    signIn: "/tourist/signin",  // Default to tourist signin
+    error: "/tourist/signin", // Error page
   },
   callbacks: {
     async signIn({ user, account, profile }) {
-      // Check if email is a valid student email
-      if (user.email && !isStudentEmail(user.email)) {
-        // Redirect to error page with message
-        return '/student/signin?error=invalid_email';
+      if (!user.email) return false;
+
+      // Determine if this is a student or tourist based on email domain
+      const isStudent = isStudentEmail(user.email);
+
+      // Update or create the User record with userType
+      await prisma.user.upsert({
+        where: { email: user.email },
+        create: {
+          email: user.email,
+          name: user.name,
+          image: user.image,
+          userType: isStudent ? "student" : "tourist",
+        },
+        update: {
+          name: user.name,
+          image: user.image,
+          userType: isStudent ? "student" : "tourist",
+        },
+      });
+
+      // If tourist, create or update Tourist record
+      if (!isStudent && account?.providerAccountId) {
+        await prisma.tourist.upsert({
+          where: { email: user.email },
+          create: {
+            email: user.email,
+            name: user.name,
+            image: user.image,
+            googleId: account.providerAccountId,
+          },
+          update: {
+            name: user.name,
+            image: user.image,
+            googleId: account.providerAccountId,
+          },
+        });
       }
+
       return true;
     },
     async session({ session, user }) {
@@ -45,26 +79,49 @@ export const authOptions: NextAuthOptions = {
       if (session.user) {
         session.user.id = user.id;
 
-        // Check if student profile exists
-        const student = await prisma.student.findUnique({
-          where: { email: user.email || undefined },
-          select: {
-            id: true,
-            status: true,
-            name: true,
-            city: true,
-          },
+        // Get the full user record to check userType
+        const dbUser = await prisma.user.findUnique({
+          where: { id: user.id },
+          select: { userType: true },
         });
 
-        // Add student info to session
-        session.user.studentId = student?.id;
-        session.user.studentStatus = student?.status;
-        session.user.hasCompletedOnboarding = !!student;
+        const userType = dbUser?.userType || "tourist";
+        session.user.userType = userType;
+
+        if (userType === "student") {
+          // Check if student profile exists
+          const student = await prisma.student.findUnique({
+            where: { email: user.email || undefined },
+            select: {
+              id: true,
+              status: true,
+              name: true,
+              city: true,
+            },
+          });
+
+          // Add student info to session
+          session.user.studentId = student?.id;
+          session.user.studentStatus = student?.status;
+          session.user.hasCompletedOnboarding = !!student;
+        } else {
+          // Check if tourist profile exists
+          const tourist = await prisma.tourist.findUnique({
+            where: { email: user.email || undefined },
+            select: {
+              id: true,
+              name: true,
+            },
+          });
+
+          // Add tourist info to session
+          session.user.touristId = tourist?.id;
+        }
       }
       return session;
     },
     async redirect({ url, baseUrl }) {
-      // After sign in, check if user has completed onboarding
+      // After sign in, check user type and redirect accordingly
       return url.startsWith(baseUrl) ? url : baseUrl;
     },
   },
