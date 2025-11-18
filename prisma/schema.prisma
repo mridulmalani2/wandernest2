@@ -186,9 +186,12 @@ model Review {
   id                String         @id @default(cuid())
   requestId         String         @unique
   studentId         String
-  rating            Int            // 1-5
-  comment           String?        @db.Text
-  wasNoShow         Boolean        @default(false)
+  rating            Int            // 1-5 (required)
+  text              String?        @db.Text // optional, max 500 chars (enforced in app layer)
+  attributes        String[]       // predefined list of attributes
+  noShow            Boolean        @default(false)
+  pricePaid         Float?         // optional
+  isAnonymous       Boolean        @default(false)
 
   request           TouristRequest @relation(fields: [requestId], references: [id])
   student           Student        @relation(fields: [studentId], references: [id])
@@ -196,6 +199,7 @@ model Review {
   createdAt         DateTime       @default(now())
 
   @@index([studentId])
+  @@index([createdAt])
 }
 
 model Report {
