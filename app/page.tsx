@@ -1,13 +1,23 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { Globe, Plane, GraduationCap } from 'lucide-react'
 
 export default function MainLanding() {
   return (
     <div className="min-h-screen flex flex-col relative overflow-hidden">
-      {/* Gradient Mesh Background */}
-      <div className="absolute inset-0 gradient-mesh" />
-      <div className="absolute inset-0 bg-pattern opacity-30" />
+      {/* Background Image with Overlay */}
+      <div className="absolute inset-0">
+        <Image
+          src="/images/backgrounds/paris-blur.jpg"
+          alt="Paris background"
+          fill
+          className="object-cover opacity-20"
+          priority
+        />
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-50/90 via-white/95 to-purple-50/90" />
+      </div>
+      <div className="absolute inset-0 pattern-dots opacity-40" />
 
       {/* Content */}
       <div className="relative z-10 flex flex-col min-h-screen">
@@ -58,11 +68,20 @@ export default function MainLanding() {
             <div className="grid md:grid-cols-2 gap-8 pt-8 max-w-5xl mx-auto">
               {/* Tourist CTA */}
               <Link href="/tourist" className="animate-fade-in-up">
-                <div className="group cursor-pointer bg-white/80 backdrop-blur-sm rounded-3xl p-10 shadow-lg hover:shadow-2xl border border-gray-200 hover:border-blue-400 transition-all duration-500 hover-lift relative overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="group cursor-pointer bg-white/90 backdrop-blur-md rounded-3xl shadow-lg hover:shadow-2xl border border-gray-200 hover:border-blue-400 transition-all duration-500 hover-lift relative overflow-hidden">
+                  {/* Background Image */}
+                  <div className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-500">
+                    <Image
+                      src="/images/london/london-eye.jpg"
+                      alt="London"
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-                  <div className="relative z-10">
-                    <div className="inline-flex p-4 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 text-white mb-6 group-hover:scale-110 transition-transform duration-300">
+                  <div className="relative z-10 p-10">
+                    <div className="inline-flex p-4 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 text-white mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
                       <Plane className="w-10 h-10" />
                     </div>
 
@@ -84,11 +103,20 @@ export default function MainLanding() {
 
               {/* Student CTA */}
               <Link href="/student" className="animate-fade-in-up delay-100">
-                <div className="group cursor-pointer bg-white/80 backdrop-blur-sm rounded-3xl p-10 shadow-lg hover:shadow-2xl border border-gray-200 hover:border-purple-400 transition-all duration-500 hover-lift relative overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-br from-purple-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="group cursor-pointer bg-white/90 backdrop-blur-md rounded-3xl shadow-lg hover:shadow-2xl border border-gray-200 hover:border-purple-400 transition-all duration-500 hover-lift relative overflow-hidden">
+                  {/* Background Image */}
+                  <div className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-500">
+                    <Image
+                      src="/images/paris/eiffel-tower.jpg"
+                      alt="Paris"
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                  <div className="absolute inset-0 bg-gradient-to-br from-purple-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-                  <div className="relative z-10">
-                    <div className="inline-flex p-4 rounded-2xl bg-gradient-to-br from-purple-500 to-purple-600 text-white mb-6 group-hover:scale-110 transition-transform duration-300">
+                  <div className="relative z-10 p-10">
+                    <div className="inline-flex p-4 rounded-2xl bg-gradient-to-br from-purple-500 to-purple-600 text-white mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
                       <GraduationCap className="w-10 h-10" />
                     </div>
 

@@ -1,12 +1,23 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { Globe, DollarSign, Clock, Users, Shield, ChevronLeft, CheckCircle } from 'lucide-react'
 
 export default function StudentLandingPage() {
   return (
     <div className="min-h-screen flex flex-col relative overflow-hidden">
-      {/* Background */}
-      <div className="absolute inset-0 gradient-mesh" />
+      {/* Background with Paris imagery */}
+      <div className="absolute inset-0">
+        <Image
+          src="/images/paris/paris-street.jpg"
+          alt="Paris street"
+          fill
+          className="object-cover opacity-15"
+          priority
+        />
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-50/95 via-white/98 to-blue-50/95" />
+      </div>
+      <div className="absolute inset-0 pattern-grid opacity-30" />
 
       {/* Content */}
       <div className="relative z-10">
@@ -64,9 +75,18 @@ export default function StudentLandingPage() {
             </div>
 
             {/* Value Proposition */}
-            <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-8 md:p-12 shadow-xl border border-gray-200 animate-fade-in-up">
-              <h3 className="text-4xl font-bold text-center mb-12">Why Guide with WanderNest?</h3>
-              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="bg-white/90 backdrop-blur-md rounded-3xl shadow-xl border border-gray-200 animate-fade-in-up relative overflow-hidden">
+              <div className="absolute inset-0 opacity-5">
+                <Image
+                  src="/images/paris/arc-de-triomphe.jpg"
+                  alt="Arc de Triomphe"
+                  fill
+                  className="object-cover"
+                />
+              </div>
+              <div className="relative z-10 p-8 md:p-12">
+                <h3 className="text-4xl font-bold text-center mb-12">Why Guide with WanderNest?</h3>
+                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <div className="bg-gradient-to-br from-blue-50 to-blue-100/50 rounded-2xl p-6 shadow-sm hover-lift group">
                   <div className="inline-flex p-3 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 text-white mb-4 group-hover:scale-110 transition-transform duration-300">
                     <DollarSign className="w-7 h-7" />
@@ -105,6 +125,7 @@ export default function StudentLandingPage() {
                   <p className="text-sm text-gray-600 leading-relaxed">
                     All users are verified. We screen profiles for your safety
                   </p>
+                </div>
                 </div>
               </div>
             </div>
