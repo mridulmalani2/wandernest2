@@ -1,305 +1,264 @@
-# WanderNest - Guide Matching System
+# WanderNest - Multi-Step Booking Form
 
-A sophisticated matching algorithm that connects tourists with local student guides based on availability, ratings, reliability, and shared interests.
+A comprehensive booking platform connecting tourists with local student guides through an intuitive multi-step form with email verification.
 
 ## Features
 
-- **Priority-Based Matching Algorithm** with scoring system
-- **Anonymized Guide Display** for privacy protection
-- **Multi-Select Interface** for choosing multiple guides
-- **Real-time Availability Checking**
-- **Comprehensive Scoring** (100-point system)
+### Multi-Step Booking Form
 
-## Matching Algorithm
+#### Step 1: Trip Details
+- **City dropdown** - Populated from database
+- **Date picker** - Min: today, Max: 6 months ahead
+- **Time preference** - Radio buttons (morning/afternoon/evening)
+- **Guest count** - Number input (1-10)
+- **Group type** - Select (family/friends/solo/business)
+- **Accessibility needs** - Optional textarea
 
-### Scoring System (100 Points Total)
+#### Step 2: Preferences
+- **Nationality** - Optional text input
+- **Languages** - Multi-select checkboxes (8 languages)
+- **Gender preference** - Radio buttons (male/female/no_preference)
+- **Service type** - Radio with descriptions:
+  - Itinerary Planning Help
+  - Full Guided Experience
+- **Interests** - Checkbox group (8 interests with emojis)
+- **Budget range** - Slider ($50-$500+ per day)
 
-The algorithm evaluates guides based on four key criteria:
+#### Step 3: Contact & Verification
+- **Email** - Required, validated
+- **Phone** - Optional with country code
+- **WhatsApp** - Checkbox to use phone number
+- **Contact method** - Radio (email/phone/whatsapp)
+- **Trip notes** - Optional textarea
 
-#### 1. Availability Match (40 Points)
-- Checks if the guide is available during requested dates
-- Full points if available, zero if not
-- Considers day-of-week availability patterns
+### Email Verification Flow
 
-#### 2. Rating (20 Points)
-- Based on average rating from previous tourists
-- Formula: `rating * 4` (max 20 for 5-star rating)
-- Default rating of 3.0 for new guides
+1. **Generate Code**: 6-digit code using `Math.floor(100000 + Math.random() * 900000)`
+2. **Store in Redis**: 10-minute TTL
+3. **Send Email**: Beautiful HTML email with verification code
+4. **Verification Modal**: 6 individual input fields for code
+5. **Attempt Tracking**: Maximum 3 attempts before requiring regeneration
+6. **Success**: Creates TouristRequest in database and redirects to success page
 
-#### 3. Reliability (20 Points)
-- Rewards guides with good attendance records
-- Perfect record (no no-shows): 20 points
-- Each no-show reduces score by 5 points
-- Formula: `max(0, 20 - (noShowCount * 5))`
+### API Endpoints
 
-#### 4. Interest Overlap (20 Points)
-- Matches common interests between tourist and guide
-- Formula: `(overlap_count / total_interests) * 20`
-- Example: 2 matching interests out of 4 = 10 points
+- **POST `/api/tourist/request/initiate`**
+  - Validates booking data
+  - Generates verification code
+  - Stores in Redis (10-min TTL)
+  - Sends verification email
+  - Returns success status
 
-### Filtering Criteria
+- **POST `/api/tourist/request/verify`**
+  - Validates verification code
+  - Checks attempt count (max 3)
+  - Creates TouristRequest in database
+  - Sends confirmation email
+  - Returns requestId
 
-Before scoring, guides are filtered by:
-- **City**: Must match tourist's destination
-- **Status**: Only APPROVED guides are considered
-- **Nationality**: Optional preference filter
-- **Languages**: Must speak at least one preferred language
-- **Gender**: Optional preference (supports "no_preference")
+- **GET `/api/cities`**
+  - Returns list of available cities
 
-### Results
+## Tech Stack
 
-- Returns **top 4 matches** sorted by score
-- Scores are rounded to 1 decimal place
-- Each guide includes anonymized information for privacy
+- **Next.js 14** - React framework with App Router
+- **TypeScript** - Type safety
+- **Tailwind CSS** - Styling
+- **Radix UI** - Accessible component primitives
+- **Prisma** - Database ORM (PostgreSQL)
+- **Redis (ioredis)** - Verification code storage
+- **Nodemailer** - Email sending
+- **Zod** - Schema validation
 
-## API Endpoints
+## Setup
 
-### GET /api/matches?requestId={id}
+### Prerequisites
 
-Fetch matching guides for a tourist request.
+- Node.js 18+
+- PostgreSQL database
+- Redis server
+- SMTP email credentials (Gmail, SendGrid, etc.)
 
-**Response:**
-```json
-{
-  "success": true,
-  "matches": [
-    {
-      "id": "abc123",
-      "anonymousId": "Guide #0042",
-      "university": "City University",
-      "languages": ["English", "Spanish"],
-      "tripsHosted": 15,
-      "rating": 4.8,
-      "badge": "gold",
-      "score": 92.5
-    }
-  ],
-  "count": 4
-}
+### Installation
+
+1. **Install dependencies:**
+   ```bash
+   npm install
+   ```
+
+2. **Set up environment variables:**
+   ```bash
+   cp .env.example .env
+   ```
+
+   Edit `.env` with your credentials:
+   ```env
+   DATABASE_URL="postgresql://user:password@localhost:5432/wandernest"
+   REDIS_URL="redis://localhost:6379"
+   EMAIL_HOST="smtp.gmail.com"
+   EMAIL_PORT=587
+   EMAIL_USER="your-email@gmail.com"
+   EMAIL_PASSWORD="your-app-password"
+   EMAIL_FROM="WanderNest <noreply@wandernest.com>"
+   NEXT_PUBLIC_APP_URL="http://localhost:3000"
+   VERIFICATION_CODE_EXPIRY=600
+   ```
+
+3. **Set up database:**
+   ```bash
+   npx prisma migrate dev --name init
+   npx prisma generate
+   ```
+
+4. **Start Redis:**
+   ```bash
+   redis-server
+   ```
+
+5. **Run development server:**
+   ```bash
+   npm run dev
+   ```
+
+6. **Open browser:**
+   Navigate to [http://localhost:3000](http://localhost:3000)
+
+## Project Structure
+
+```
+wandernest/
+├── app/
+│   ├── api/
+│   │   ├── cities/
+│   │   │   └── route.ts
+│   │   └── tourist/
+│   │       └── request/
+│   │           ├── initiate/
+│   │           │   └── route.ts
+│   │           └── verify/
+│   │               └── route.ts
+│   ├── booking/
+│   │   ├── success/
+│   │   │   └── page.tsx
+│   │   └── page.tsx
+│   ├── globals.css
+│   ├── layout.tsx
+│   └── page.tsx
+├── components/
+│   ├── booking/
+│   │   ├── BookingForm.tsx
+│   │   ├── TripDetailsStep.tsx
+│   │   ├── PreferencesStep.tsx
+│   │   ├── ContactStep.tsx
+│   │   └── VerificationModal.tsx
+│   └── ui/
+│       ├── button.tsx
+│       ├── input.tsx
+│       ├── label.tsx
+│       ├── radio-group.tsx
+│       ├── checkbox.tsx
+│       ├── select.tsx
+│       ├── slider.tsx
+│       ├── dialog.tsx
+│       └── textarea.tsx
+├── lib/
+│   ├── prisma.ts
+│   ├── redis.ts
+│   ├── email.ts
+│   └── utils.ts
+├── prisma/
+│   └── schema.prisma
+├── .env.example
+├── .gitignore
+├── next.config.js
+├── package.json
+├── postcss.config.js
+├── tailwind.config.ts
+└── tsconfig.json
 ```
 
-### POST /api/matches
+## Email Verification Details
 
-Generate new matches for a request.
-
-**Request Body:**
-```json
-{
-  "requestId": "request123"
-}
+### Code Generation
+```typescript
+Math.floor(100000 + Math.random() * 900000) // 6-digit code
 ```
 
-### POST /api/matches/select
+### Redis Storage
+- **Key pattern**: `verification:{email}`
+- **Value**: JSON with `{ code: string, attempts: number }`
+- **TTL**: 10 minutes (600 seconds)
 
-Save tourist's guide selections.
+### Attempt Tracking
+- **Max attempts**: 3
+- **On failure**: Increment attempt counter
+- **After 3 failures**: Require code regeneration
 
-**Request Body:**
-```json
-{
-  "requestId": "request123",
-  "selectedGuideIds": ["guide1", "guide2"]
-}
-```
+### Email Template
+- Beautiful HTML design with gradient header
+- Code displayed in large, monospace font
+- 10-minute expiry notice
+- Security warning for unsolicited emails
 
-## Frontend Components
+## Validation
 
-### GuideCard
+All form fields are validated using Zod schemas:
 
-Displays anonymized guide information:
-- Anonymous ID (e.g., "Guide #0042")
-- University
-- Languages spoken
-- Number of trips hosted
-- Star rating with visual display
-- Reliability badge (Bronze/Silver/Gold)
-- Selection checkbox
-
-**Usage:**
-```tsx
-<GuideCard
-  guide={guide}
-  isSelected={selectedGuides.has(guide.id)}
-  onSelect={handleGuideSelect}
-/>
-```
-
-### GuideSelection
-
-Main component for guide matching and selection:
-- Fetches matches from API
-- Displays guide cards in grid layout
-- Handles multi-selection state
-- Submits selections to backend
-
-**Usage:**
-```tsx
-<GuideSelection
-  requestId="request123"
-  onSelectionComplete={(guides) => console.log(guides)}
-/>
-```
-
-## Privacy Features
-
-### Anonymization
-
-Guides are displayed with anonymized IDs to protect privacy:
-- Format: "Guide #XXXX"
-- Generated from hashed student ID
-- Consistent across sessions for same guide
-- Only reveals: university, languages, trips, rating, badge
-
-### Information Hidden
-- Real name
-- Email address
-- Phone number
-- Photo
-- Bio/personal details
-- Exact location
+- **Email**: Valid email format
+- **City**: Required, must be from available cities
+- **Dates**: Start date required, must be within next 6 months
+- **Guests**: Number between 1-10
+- **Languages**: At least one required
+- **Interests**: At least one required
+- **Service Type**: Required
+- **Contact Method**: Required
 
 ## Database Schema
-
-### Student Model
-```prisma
-model Student {
-  id                String
-  email             String
-  name              String
-  gender            String
-  nationality       String
-  institute         String
-  languages         String[]
-  interests         String[]
-  status            StudentStatus
-  city              String
-
-  // Metrics
-  tripsHosted       Int
-  averageRating     Float?
-  noShowCount       Int
-  reliabilityBadge  String?
-
-  availability      StudentAvailability[]
-}
-```
 
 ### TouristRequest Model
 ```prisma
 model TouristRequest {
-  id                   String
+  id                   String   @id @default(cuid())
+  email                String
+  emailVerified        Boolean  @default(false)
   city                 String
   dates                Json
+  preferredTime        String
+  numberOfGuests       Int
+  groupType            String
   preferredNationality String?
   preferredLanguages   String[]
   preferredGender      String?
+  serviceType          String
   interests            String[]
-  status               RequestStatus
-  selections           RequestSelection[]
+  budget               Float?
+  phone                String?
+  whatsapp             String?
+  contactMethod        String
+  tripNotes            String?
+  accessibilityNeeds   String?
+  status               RequestStatus @default(PENDING)
+  expiresAt            DateTime
+  createdAt            DateTime @default(now())
 }
 ```
 
-### StudentAvailability Model
-```prisma
-model StudentAvailability {
-  id          String
-  studentId   String
-  dayOfWeek   Int      // 0-6 (Sunday-Saturday)
-  startTime   String   // "09:00"
-  endTime     String   // "17:00"
-}
-```
+## Pages
 
-## Setup
+- **`/`** - Landing page with hero section
+- **`/booking`** - Multi-step booking form
+- **`/booking/success`** - Success page with request ID
 
-1. **Install dependencies:**
-```bash
-npm install
-```
+## Future Enhancements
 
-2. **Set up environment variables:**
-```bash
-cp .env.example .env
-# Edit .env with your database URL
-```
-
-3. **Initialize database:**
-```bash
-npx prisma generate
-npx prisma db push
-```
-
-4. **Run development server:**
-```bash
-npm run dev
-```
-
-5. **Access the app:**
-```
-http://localhost:3000/matches/{requestId}
-```
-
-## Example Flow
-
-1. **Tourist submits request** with preferences
-2. **Algorithm finds matches** using scoring system
-3. **Top 4 guides displayed** with anonymized cards
-4. **Tourist selects guides** using checkboxes
-5. **Selections saved** to database
-6. **Guides notified** to accept/reject
-7. **Connection established** upon acceptance
-
-## Testing the Algorithm
-
-### Example Scoring Scenario
-
-**Guide Profile:**
-- Availability: Available on requested dates ✓
-- Rating: 4.5 stars
-- No-shows: 0
-- Interests: Photography, Food, History
-- Tourist interests: Photography, Food
-
-**Score Calculation:**
-- Availability: 40 points
-- Rating: 4.5 × 4 = 18 points
-- Reliability: 20 points (no no-shows)
-- Interest overlap: (2/2) × 20 = 20 points
-- **Total: 98 points**
-
-## Configuration
-
-### Adjust Match Count
-
-To change the number of matches returned (default: 4):
-
-```typescript
-// In lib/matching/algorithm.ts
-return scored
-  .sort((a, b) => b.score - a.score)
-  .slice(0, 4) // Change this number
-```
-
-### Modify Scoring Weights
-
-To adjust scoring priorities:
-
-```typescript
-// In calculateScore function
-if (checkAvailability(student, request.dates)) score += 40 // Change weight
-score += (student.averageRating || 3) * 4                 // Change multiplier
-// ... etc
-```
-
-## Production Considerations
-
-1. **Caching**: Implement Redis caching for match results
-2. **Pagination**: Add pagination for large result sets
-3. **Real-time Updates**: WebSocket support for live availability
-4. **A/B Testing**: Test different scoring weights
-5. **Analytics**: Track match acceptance rates
-6. **Rate Limiting**: Prevent API abuse
-7. **Error Handling**: Comprehensive error messages
-8. **Logging**: Monitor algorithm performance
+- [ ] Admin dashboard for managing requests
+- [ ] Student guide portal
+- [ ] Real-time matching algorithm
+- [ ] Payment integration
+- [ ] Review system
+- [ ] Mobile app
+- [ ] Multi-language support
+- [ ] SMS verification option
 
 ## License
 
@@ -307,4 +266,4 @@ MIT
 
 ## Support
 
-For issues or questions, please contact support@wandernest.com
+For issues or questions, contact: support@wandernest.com

@@ -28,6 +28,19 @@ enum RequestStatus {
   CANCELLED
 }
 
+enum AdminRole {
+  SUPER_ADMIN
+  MODERATOR
+  SUPPORT
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  REFUNDED
+}
+
 // ============================================
 // MODELS
 // ============================================
@@ -35,18 +48,19 @@ enum RequestStatus {
 model Student {
   id                String   @id @default(cuid())
   email             String   @unique
-  googleId          String   @unique
-  name              String
-  gender            String   // male, female, prefer_not_to_say
-  nationality       String
-  institute         String
+  emailVerified     Boolean  @default(false)
+  googleId          String?  @unique  // Now optional - supports both Google OAuth and email verification
+  name              String?  // Optional until onboarding is completed
+  gender            String?  // male, female, prefer_not_to_say
+  nationality       String?
+  institute         String?
   idCardUrl         String?
-  coverLetter       String   @db.Text
-  languages         String[] // Array of language codes
-  interests         String[] // Array of interest tags
+  coverLetter       String?  @db.Text
+  languages         String[] @default([])  // Array of language codes
+  interests         String[] @default([])  // Array of interest tags
   bio               String?  @db.Text
   status            StudentStatus @default(PENDING_APPROVAL)
-  city              String
+  city              String?
   priceRange        Json?    // {min: number, max: number}
 
   // Metrics
@@ -83,11 +97,33 @@ model StudentAvailability {
   @@index([studentId])
 }
 
+model Tourist {
+  id                String   @id @default(cuid())
+  email             String   @unique
+  name              String?
+  image             String?  // Profile picture from Google
+  googleId          String?  @unique  // Google OAuth ID
+
+  // Relations
+  requests          TouristRequest[]
+  payments          Payment[]
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([email])
+  @@index([googleId])
+}
+
 model TouristRequest {
   id                String   @id @default(cuid())
   email             String
   emailVerified     Boolean  @default(false)
   verificationCode  String?
+
+  // Link to authenticated tourist (optional for backward compatibility)
+  touristId         String?
+  tourist           Tourist? @relation(fields: [touristId], references: [id])
 
   // Trip Details
   city              String
@@ -117,6 +153,7 @@ model TouristRequest {
 
   selections        RequestSelection[]
   review            Review?
+  payments          Payment[]
 
   createdAt         DateTime @default(now())
   expiresAt         DateTime
@@ -124,6 +161,7 @@ model TouristRequest {
   @@index([city])
   @@index([status])
   @@index([email])
+  @@index([touristId])
 }
 
 model RequestSelection {
@@ -132,11 +170,13 @@ model RequestSelection {
   studentId         String
   status            String         // pending, accepted, rejected
   message           String?        @db.Text
+  pricePaid         Float?         // Actual price paid for the service
 
   request           TouristRequest @relation(fields: [requestId], references: [id])
   student           Student        @relation(fields: [studentId], references: [id])
 
   createdAt         DateTime       @default(now())
+  acceptedAt        DateTime?      // For analytics - response time calculation
 
   @@index([requestId])
   @@index([studentId])
@@ -171,4 +211,136 @@ model Report {
 
   @@index([studentId])
   @@index([status])
+}
+
+model Admin {
+  id                String   @id @default(cuid())
+  email             String   @unique
+  passwordHash      String
+  name              String
+  role              AdminRole @default(MODERATOR)
+  isActive          Boolean  @default(true)
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([email])
+  @@index([role])
+}
+
+model TouristSession {
+  id                String   @id @default(cuid())
+  email             String
+  verificationCode  String
+  token             String?  @unique
+  isVerified        Boolean  @default(false)
+  expiresAt         DateTime
+
+  createdAt         DateTime @default(now())
+
+  @@index([email])
+  @@index([token])
+}
+
+model StudentSession {
+  id                String   @id @default(cuid())
+  email             String
+  studentId         String?  // Links to Student model after onboarding
+  token             String   @unique
+  isVerified        Boolean  @default(false)
+  expiresAt         DateTime
+
+  createdAt         DateTime @default(now())
+
+  @@index([email])
+  @@index([token])
+  @@index([studentId])
+}
+
+// ============================================
+// NEXTAUTH MODELS (for Student Google OAuth - Legacy)
+// ============================================
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  userType      String    @default("tourist")  // "tourist" or "student" (legacy)
+  touristId     String?   // Link to Tourist model
+  accounts      Account[]
+  sessions      Session[]
+
+  @@index([email])
+  @@index([touristId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Payment {
+  id                String        @id @default(cuid())
+  touristId         String?
+  tourist           Tourist?      @relation(fields: [touristId], references: [id])
+  requestId         String?       // Optional: link to specific tourist request
+  request           TouristRequest? @relation(fields: [requestId], references: [id])
+
+  // Payment Details
+  amount            Float         // in INR
+  currency          String        @default("INR")
+  status            PaymentStatus @default(PENDING)
+
+  // Razorpay Details
+  razorpayOrderId   String        @unique
+  razorpayPaymentId String?       @unique
+  razorpaySignature String?
+
+  // Metadata
+  email             String
+  phone             String?
+  description       String        @default("Discovery Fee - WanderNest")
+
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  @@index([touristId])
+  @@index([requestId])
+  @@index([status])
+  @@index([email])
 }
