@@ -138,22 +138,26 @@ function SelectGuideContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4">
-      <div className="max-w-6xl mx-auto">
+    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-blue-50 via-white to-purple-50 py-12 px-4">
+      {/* Background Effects */}
+      <div className="absolute inset-0 gradient-mesh-vibrant opacity-30" />
+      <div className="absolute inset-0 bg-dots opacity-10" />
+
+      <div className="relative z-10 max-w-6xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">
+        <div className="text-center mb-8 animate-fade-in-down">
+          <h1 className="text-4xl md:text-5xl font-bold text-gradient-vibrant mb-4">
             Choose Your Student Guide
           </h1>
-          <p className="text-lg text-gray-600 mb-4">
+          <p className="text-lg md:text-xl text-gray-700 mb-6 font-medium">
             We've found {matches.length} guide{matches.length > 1 ? 's' : ''} that match
             your preferences
           </p>
 
           {/* Important Note */}
-          <Alert className="max-w-3xl mx-auto mb-6 border-blue-200 bg-blue-50">
-            <Info className="h-4 w-4 text-blue-600" />
-            <AlertDescription className="text-sm text-blue-900">
+          <Alert className="max-w-3xl mx-auto mb-6 border-2 border-blue-300/60 glass-card shadow-premium hover-lift animate-fade-in-up delay-200">
+            <Info className="h-5 w-5 text-blue-600" />
+            <AlertDescription className="text-sm text-blue-900 font-medium">
               <strong>How it works:</strong> Select one or more guides you're comfortable
               with. We'll notify them about your request, and the first one to accept will
               be your guide. Student identities are partially hidden for privacy until they
@@ -164,18 +168,18 @@ function SelectGuideContent() {
 
         {/* Suggested Price Range */}
         {suggestedPrice && (
-          <div className="max-w-3xl mx-auto mb-8 p-4 bg-white rounded-lg border border-gray-200">
-            <h3 className="font-semibold text-gray-800 mb-1">
+          <div className="max-w-3xl mx-auto mb-8 p-6 glass-card rounded-2xl border-2 border-white/40 shadow-premium hover-lift animate-fade-in-up delay-300">
+            <h3 className="font-bold text-gray-900 mb-2 text-lg">
               Suggested Price Range
             </h3>
-            <p className="text-2xl font-bold text-blue-600 mb-1">
+            <p className="text-3xl font-bold text-gradient-vibrant mb-2">
               {suggestedPrice.min}-{suggestedPrice.max} {suggestedPrice.currency}
               {suggestedPrice.type === 'hourly' && (
                 <span className="text-sm font-normal text-gray-600">/hour</span>
               )}
             </p>
-            <p className="text-sm text-gray-600">{suggestedPrice.note}</p>
-            <p className="text-xs text-gray-500 mt-2">
+            <p className="text-sm text-gray-700 font-medium">{suggestedPrice.note}</p>
+            <p className="text-xs text-gray-600 mt-2">
               Note: Rates are suggested based on student job benchmarks and city pricing.
               You agree on the final price directly with the student.
             </p>
@@ -195,12 +199,12 @@ function SelectGuideContent() {
         </div>
 
         {/* Action Buttons */}
-        <div className="max-w-3xl mx-auto flex flex-col sm:flex-row gap-4 justify-center">
+        <div className="max-w-3xl mx-auto flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up delay-500">
           <Button
             variant="outline"
             onClick={() => router.push('/booking')}
             disabled={submitting}
-            className="w-full sm:w-auto"
+            className="w-full sm:w-auto hover-lift border-2 hover:border-blue-400 hover:text-blue-600"
           >
             Modify Request
           </Button>
@@ -208,7 +212,7 @@ function SelectGuideContent() {
           <Button
             onClick={handleSubmitSelection}
             disabled={selectedStudents.length === 0 || submitting}
-            className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700"
+            className="w-full sm:w-auto gradient-ocean hover:shadow-glow-blue shadow-premium text-white font-semibold group"
           >
             {submitting ? (
               <>
@@ -219,6 +223,7 @@ function SelectGuideContent() {
               <>
                 Confirm & Send Request
                 {selectedStudents.length > 0 && ` (${selectedStudents.length})`}
+                <span className="ml-2 group-hover:translate-x-1 transition-transform inline-block">→</span>
               </>
             )}
           </Button>
@@ -226,8 +231,8 @@ function SelectGuideContent() {
 
         {/* Selection Summary */}
         {selectedStudents.length > 0 && (
-          <div className="max-w-3xl mx-auto mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
-            <p className="text-sm text-green-800 text-center">
+          <div className="max-w-3xl mx-auto mt-6 p-5 bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-300/60 rounded-xl shadow-soft animate-scale-in">
+            <p className="text-sm text-green-900 text-center font-medium">
               You've selected <strong>{selectedStudents.length}</strong> guide
               {selectedStudents.length > 1 ? 's' : ''}. They will all receive your request,
               and the first to accept will become your guide.
