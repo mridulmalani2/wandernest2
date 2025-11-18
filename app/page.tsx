@@ -10,7 +10,7 @@ export default function Home() {
           <div className="flex items-center space-x-2">
             <span className="text-2xl">🌍</span>
             <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              WanderNest
+              WanderNest Wander
             </h1>
           </div>
           <nav className="flex items-center space-x-4">
