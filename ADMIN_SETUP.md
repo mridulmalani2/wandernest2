@@ -80,7 +80,7 @@ Create your first admin user using Prisma Studio or a seed script:
 ```typescript
 // seed-admin.ts
 import { PrismaClient } from '@prisma/client'
-import bcrypt from 'bcrypt'
+import bcrypt from 'bcryptjs'
 
 const prisma = new PrismaClient()
 
@@ -216,7 +216,7 @@ npm run dev
 - **Authentication**: JWT tokens
 - **Email**: Nodemailer
 - **Syntax Highlighting**: highlight.js
-- **Password Hashing**: bcrypt
+- **Password Hashing**: bcryptjs
 
 ## Troubleshooting
 

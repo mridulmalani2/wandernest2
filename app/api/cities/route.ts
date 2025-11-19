@@ -1,5 +1,6 @@
-// Force dynamic rendering for Vercel
-export const dynamic = 'force-dynamic'
+// Optimized for static generation with daily revalidation
+export const dynamic = 'force-static'
+export const revalidate = 86400 // 24 hours
 
 import { NextResponse } from 'next/server'
 
@@ -21,5 +22,12 @@ const cities = [
 ]
 
 export async function GET() {
-  return NextResponse.json({ cities })
+  return NextResponse.json(
+    { cities },
+    {
+      headers: {
+        'Cache-Control': 'public, s-maxage=86400, stale-while-revalidate=604800',
+      },
+    }
+  )
 }

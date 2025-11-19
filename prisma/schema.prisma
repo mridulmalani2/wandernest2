@@ -130,6 +130,9 @@ model Student {
   @@index([nationality])
   @@index([status])
   @@index([email])
+  @@index([city, status])
+  @@index([status, averageRating])
+  @@index([email, status])
 }
 
 model StudentAvailability {
@@ -222,6 +225,8 @@ model TouristRequest {
   @@index([status])
   @@index([email])
   @@index([touristId])
+  @@index([city, status])
+  @@index([status, createdAt])
 }
 
 model RequestSelection {

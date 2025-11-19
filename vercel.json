@@ -1,11 +1,44 @@
 {
   "buildCommand": "prisma generate && prisma migrate deploy && next build",
   "framework": "nextjs",
-  "installCommand": "npm install",
+  "installCommand": "npm ci",
   "regions": ["iad1"],
   "functions": {
+    "app/api/cities/route.ts": {
+      "maxDuration": 5,
+      "memory": 512
+    },
+    "app/api/matches/route.ts": {
+      "maxDuration": 10,
+      "memory": 1024
+    },
+    "app/api/matches/select/route.ts": {
+      "maxDuration": 10,
+      "memory": 512
+    },
+    "app/api/admin/analytics/route.ts": {
+      "maxDuration": 15,
+      "memory": 1024
+    },
+    "app/api/admin/students/route.ts": {
+      "maxDuration": 10,
+      "memory": 1024
+    },
+    "app/api/payment/create-order/route.ts": {
+      "maxDuration": 10,
+      "memory": 512
+    },
+    "app/api/payment/verify/route.ts": {
+      "maxDuration": 10,
+      "memory": 512
+    },
+    "app/api/tourist/request/create/route.ts": {
+      "maxDuration": 10,
+      "memory": 512
+    },
     "app/api/**/*.ts": {
-      "maxDuration": 30
+      "maxDuration": 8,
+      "memory": 512
     }
   },
   "headers": [

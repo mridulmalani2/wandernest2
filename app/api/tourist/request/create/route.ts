@@ -1,5 +1,6 @@
-// Force dynamic rendering for Vercel
+// Optimized for Vercel serverless functions
 export const dynamic = 'force-dynamic'
+export const maxDuration = 10
 
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';

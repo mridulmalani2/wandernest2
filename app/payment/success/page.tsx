@@ -91,7 +91,7 @@ export default function PaymentSuccessPage() {
 
             {paymentDetails && (
               <div className="bg-gray-50 rounded-lg p-6 mb-6 text-left">
-                <h3 className="font-semibold mb-3">Payment Details</h3>
+                <h2 className="font-semibold mb-3">Payment Details</h2>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
                     <span className="text-gray-600">Payment ID:</span>
