@@ -6,8 +6,9 @@ function getBaseUrl(): string {
   return process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXTAUTH_URL || 'http://localhost:3000'
 }
 
-// Mock mode - set to true to bypass actual email sending
-const MOCK_EMAIL_MODE = process.env.MOCK_EMAIL === 'true' || true
+// Mock mode - only enabled in development OR when email is not configured
+// In production, emails will be sent if EMAIL_HOST is configured
+const MOCK_EMAIL_MODE = process.env.NODE_ENV !== 'production' || !process.env.EMAIL_HOST
 
 const transporter = MOCK_EMAIL_MODE
   ? null
