@@ -16,7 +16,7 @@ export default function TouristLanding() {
           alt="Beautiful London Thames River with iconic architecture"
           fill
           priority
-          quality={85}
+          quality={70}
           sizes="100vw"
           className="object-cover"
         />
@@ -107,7 +107,7 @@ export default function TouristLanding() {
                     src="https://images.unsplash.com/photo-1529667083337-e36bedc13cfa?w=800&q=80"
                     alt="University students learning and collaborating"
                     fill
-                    quality={75}
+                    quality={60}
                     sizes="(max-width: 768px) 100vw, 33vw"
                     className="object-cover"
                   />
@@ -131,7 +131,7 @@ export default function TouristLanding() {
                     src="https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=800&q=80"
                     alt="Cozy Parisian cafe with authentic ambiance"
                     fill
-                    quality={75}
+                    quality={60}
                     sizes="(max-width: 768px) 100vw, 33vw"
                     className="object-cover"
                   />
@@ -155,7 +155,7 @@ export default function TouristLanding() {
                     src="https://images.unsplash.com/photo-1533929736458-ca588d08c8be?w=800&q=80"
                     alt="Iconic London bridge and cityscape"
                     fill
-                    quality={75}
+                    quality={60}
                     sizes="(max-width: 768px) 100vw, 33vw"
                     className="object-cover"
                   />
@@ -217,7 +217,7 @@ export default function TouristLanding() {
                   src="https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=600&q=80"
                   alt="Iconic Paris architecture and streets"
                   fill
-                  quality={80}
+                  quality={70}
                   sizes="(max-width: 768px) 100vw, 33vw"
                   className="object-cover group-hover:scale-110 transition-transform duration-500"
                 />
@@ -230,7 +230,7 @@ export default function TouristLanding() {
                   src="https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=600&q=80"
                   alt="Iconic London landmarks and architecture"
                   fill
-                  quality={80}
+                  quality={70}
                   sizes="(max-width: 768px) 100vw, 33vw"
                   className="object-cover group-hover:scale-110 transition-transform duration-500"
                 />
@@ -243,7 +243,7 @@ export default function TouristLanding() {
                   src="https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=600&q=80"
                   alt="Beautiful Rome cityscape with historic architecture"
                   fill
-                  quality={80}
+                  quality={70}
                   sizes="(max-width: 768px) 100vw, 33vw"
                   className="object-cover group-hover:scale-110 transition-transform duration-500"
                 />
