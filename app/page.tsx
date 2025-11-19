@@ -49,9 +49,9 @@ export default function MainLanding() {
           <div className="max-w-5xl mx-auto text-center space-y-12">
             {/* Hero Title */}
             <div className="space-y-6 animate-slide-up-fade">
-              <h1 className="text-5xl md:text-7xl font-bold leading-tight tracking-tight text-white text-shadow-lg">
+              <h1 className="text-5xl md:text-7xl font-bold leading-tight tracking-tight text-white dark:text-white text-shadow-lg">
                 Experience{' '}
-                <span className="text-gradient-vibrant animate-gradient-shift inline-block bg-white/10 px-4 py-2 rounded-2xl">
+                <span className="text-gradient-vibrant animate-gradient-shift inline-block bg-white/10 dark:bg-white/10 px-4 py-2 rounded-2xl">
                   Authentic Travel
                 </span>
                 <br />
@@ -61,7 +61,7 @@ export default function MainLanding() {
                 </span>
               </h1>
 
-              <p className="text-xl md:text-2xl text-white max-w-3xl mx-auto leading-relaxed font-medium animate-fade-in-up delay-200 text-shadow">
+              <p className="text-xl md:text-2xl text-white dark:text-white max-w-3xl mx-auto leading-relaxed font-medium animate-fade-in-up delay-200 text-shadow">
                 Connect with verified university students who will show you their city
                 through a local&apos;s eyes. Get personalized recommendations and authentic
                 experiences.
@@ -72,9 +72,9 @@ export default function MainLanding() {
             <div className="grid md:grid-cols-2 gap-8 pt-8 max-w-5xl mx-auto">
               {/* Tourist CTA */}
               <Link href="/tourist" className="animate-fade-in-up">
-                <div className="group cursor-pointer backdrop-blur-md rounded-3xl shadow-xl hover:shadow-2xl border-2 border-white/40 hover:border-blue-400/80 transition-all duration-500 hover-lift relative overflow-hidden">
+                <div className="group cursor-pointer backdrop-blur-md rounded-3xl shadow-xl hover:shadow-2xl border-2 border-slate-200/60 dark:border-white/40 hover:border-blue-400/80 dark:hover:border-blue-400/80 transition-all duration-500 hover-lift relative overflow-hidden">
                   {/* Background Image */}
-                  <div className="absolute inset-0 opacity-20 group-hover:opacity-30 transition-opacity duration-500">
+                  <div className="absolute inset-0 opacity-20 dark:opacity-20 group-hover:opacity-30 transition-opacity duration-500">
                     <Image
                       src="https://images.unsplash.com/photo-1503220317375-aaad61436b1b?w=800&q=80"
                       alt="Beautiful London cityscape with iconic architecture"
@@ -85,19 +85,19 @@ export default function MainLanding() {
                       className="object-cover"
                     />
                   </div>
-                  <div className="absolute inset-0 bg-gradient-to-br from-blue-500/40 via-blue-400/30 to-cyan-500/40" />
-                  <div className="absolute inset-0 bg-white/75 backdrop-blur-md" />
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 via-blue-400/15 to-cyan-500/20 dark:from-blue-500/40 dark:via-blue-400/30 dark:to-cyan-500/40" />
+                  <div className="absolute inset-0 bg-white/85 dark:bg-slate-900/75 backdrop-blur-md" />
 
                   <div className="relative z-10 p-10">
                     <div className="inline-flex p-4 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 text-white mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
                       <Plane className="w-10 h-10" />
                     </div>
 
-                    <h2 className="text-3xl font-bold text-gray-900 mb-4 group-hover:text-blue-700 transition-colors">
+                    <h2 className="text-3xl font-bold text-gray-900 dark:text-slate-100 mb-4 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                       I&apos;m a Tourist
                     </h2>
 
-                    <p className="text-gray-700 mb-8 text-lg leading-relaxed font-medium">
+                    <p className="text-gray-700 dark:text-slate-300 mb-8 text-lg leading-relaxed font-medium">
                       Find local student guides to show you authentic experiences in your destination city
                     </p>
 
@@ -114,9 +114,9 @@ export default function MainLanding() {
               {/* Temporary redirect to Google Form while building student onboarding flow */}
               {/* <Link href="/student" className="animate-fade-in-up delay-100"> */}
               <a href={STUDENT_SIGNUP_FORM_URL} target="_blank" rel="noopener noreferrer" className="animate-fade-in-up delay-100">
-                <div className="group cursor-pointer backdrop-blur-md rounded-3xl shadow-xl hover:shadow-2xl border-2 border-white/40 hover:border-purple-400/80 transition-all duration-500 hover-lift relative overflow-hidden">
+                <div className="group cursor-pointer backdrop-blur-md rounded-3xl shadow-xl hover:shadow-2xl border-2 border-slate-200/60 dark:border-white/40 hover:border-purple-400/80 dark:hover:border-purple-400/80 transition-all duration-500 hover-lift relative overflow-hidden">
                   {/* Background Image */}
-                  <div className="absolute inset-0 opacity-20 group-hover:opacity-30 transition-opacity duration-500">
+                  <div className="absolute inset-0 opacity-20 dark:opacity-20 group-hover:opacity-30 transition-opacity duration-500">
                     <Image
                       src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=800&q=80"
                       alt="University students collaborating and learning together"
@@ -127,19 +127,19 @@ export default function MainLanding() {
                       className="object-cover"
                     />
                   </div>
-                  <div className="absolute inset-0 bg-gradient-to-br from-purple-500/40 via-purple-400/30 to-pink-500/40" />
-                  <div className="absolute inset-0 bg-white/75 backdrop-blur-md" />
+                  <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 via-purple-400/15 to-pink-500/20 dark:from-purple-500/40 dark:via-purple-400/30 dark:to-pink-500/40" />
+                  <div className="absolute inset-0 bg-white/85 dark:bg-slate-900/75 backdrop-blur-md" />
 
                   <div className="relative z-10 p-10">
                     <div className="inline-flex p-4 rounded-2xl bg-gradient-to-br from-purple-500 to-purple-600 text-white mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
                       <GraduationCap className="w-10 h-10" />
                     </div>
 
-                    <h2 className="text-3xl font-bold text-gray-900 mb-4 group-hover:text-purple-700 transition-colors">
+                    <h2 className="text-3xl font-bold text-gray-900 dark:text-slate-100 mb-4 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
                       I&apos;m a Student
                     </h2>
 
-                    <p className="text-gray-700 mb-8 text-lg leading-relaxed font-medium">
+                    <p className="text-gray-700 dark:text-slate-300 mb-8 text-lg leading-relaxed font-medium">
                       Become a guide and earn money by showing travelers around your city
                     </p>
 
@@ -155,31 +155,31 @@ export default function MainLanding() {
 
             {/* Visual Features Section with Images */}
             <div className="pt-16 space-y-12 animate-fade-in-up delay-300">
-              <h2 className="text-4xl md:text-5xl font-bold text-center text-white text-shadow-lg">
+              <h2 className="text-4xl md:text-5xl font-bold text-center text-white dark:text-white text-shadow-lg">
                 Why Choose WanderNest?
               </h2>
 
               {/* Feature 1 - Authentic Local Experiences */}
               <div className="grid md:grid-cols-2 gap-8 items-center">
-                <div className="space-y-4 order-2 md:order-1 bg-white/90 backdrop-blur-md rounded-2xl p-8 shadow-xl">
-                  <h3 className="text-3xl font-bold text-gray-900">Authentic Local Experiences</h3>
-                  <p className="text-lg text-gray-700 leading-relaxed">
+                <div className="space-y-4 order-2 md:order-1 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md rounded-2xl p-8 shadow-xl">
+                  <h3 className="text-3xl font-bold text-gray-900 dark:text-slate-100">Authentic Local Experiences</h3>
+                  <p className="text-lg text-gray-700 dark:text-slate-300 leading-relaxed">
                     Skip the tourist traps and discover the real city. Our student guides know the
                     best local cafes, hidden viewpoints, and authentic experiences that guidebooks
                     miss. Connect with the culture through someone who lives it every day.
                   </p>
                   <ul className="space-y-2">
                     <li className="flex items-start">
-                      <span className="mr-2 text-blue-600 font-bold">✓</span>
-                      <span className="text-gray-700">Hidden local spots and neighborhood favorites</span>
+                      <span className="mr-2 text-blue-600 dark:text-blue-400 font-bold">✓</span>
+                      <span className="text-gray-700 dark:text-slate-300">Hidden local spots and neighborhood favorites</span>
                     </li>
                     <li className="flex items-start">
-                      <span className="mr-2 text-blue-600 font-bold">✓</span>
-                      <span className="text-gray-700">Cultural insights from a local perspective</span>
+                      <span className="mr-2 text-blue-600 dark:text-blue-400 font-bold">✓</span>
+                      <span className="text-gray-700 dark:text-slate-300">Cultural insights from a local perspective</span>
                     </li>
                     <li className="flex items-start">
-                      <span className="mr-2 text-blue-600 font-bold">✓</span>
-                      <span className="text-gray-700">Personalized recommendations for your interests</span>
+                      <span className="mr-2 text-blue-600 dark:text-blue-400 font-bold">✓</span>
+                      <span className="text-gray-700 dark:text-slate-300">Personalized recommendations for your interests</span>
                     </li>
                   </ul>
                 </div>
@@ -211,25 +211,25 @@ export default function MainLanding() {
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
                 </div>
-                <div className="space-y-4 bg-white/90 backdrop-blur-md rounded-2xl p-8 shadow-xl">
-                  <h3 className="text-3xl font-bold text-gray-900">Verified University Students</h3>
-                  <p className="text-lg text-gray-700 leading-relaxed">
+                <div className="space-y-4 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md rounded-2xl p-8 shadow-xl">
+                  <h3 className="text-3xl font-bold text-gray-900 dark:text-slate-100">Verified University Students</h3>
+                  <p className="text-lg text-gray-700 dark:text-slate-300 leading-relaxed">
                     All our guides are verified university students with proven local knowledge.
                     They are passionate about sharing their city and creating meaningful connections
                     with travelers from around the world.
                   </p>
                   <ul className="space-y-2">
                     <li className="flex items-start">
-                      <span className="mr-2 text-purple-600 font-bold">✓</span>
-                      <span className="text-gray-700">Background-verified student credentials</span>
+                      <span className="mr-2 text-purple-600 dark:text-purple-400 font-bold">✓</span>
+                      <span className="text-gray-700 dark:text-slate-300">Background-verified student credentials</span>
                     </li>
                     <li className="flex items-start">
-                      <span className="mr-2 text-purple-600 font-bold">✓</span>
-                      <span className="text-gray-700">Multilingual guides for better communication</span>
+                      <span className="mr-2 text-purple-600 dark:text-purple-400 font-bold">✓</span>
+                      <span className="text-gray-700 dark:text-slate-300">Multilingual guides for better communication</span>
                     </li>
                     <li className="flex items-start">
-                      <span className="mr-2 text-purple-600 font-bold">✓</span>
-                      <span className="text-gray-700">Rated and reviewed by past travelers</span>
+                      <span className="mr-2 text-purple-600 dark:text-purple-400 font-bold">✓</span>
+                      <span className="text-gray-700 dark:text-slate-300">Rated and reviewed by past travelers</span>
                     </li>
                   </ul>
                 </div>
@@ -237,25 +237,25 @@ export default function MainLanding() {
 
               {/* Feature 3 - Flexible & Personal */}
               <div className="grid md:grid-cols-2 gap-8 items-center">
-                <div className="space-y-4 order-2 md:order-1 bg-white/90 backdrop-blur-md rounded-2xl p-8 shadow-xl">
-                  <h3 className="text-3xl font-bold text-gray-900">Flexible and Personalized</h3>
-                  <p className="text-lg text-gray-700 leading-relaxed">
+                <div className="space-y-4 order-2 md:order-1 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md rounded-2xl p-8 shadow-xl">
+                  <h3 className="text-3xl font-bold text-gray-900 dark:text-slate-100">Flexible and Personalized</h3>
+                  <p className="text-lg text-gray-700 dark:text-slate-300 leading-relaxed">
                     Every traveler is unique. Whether you want to explore historic landmarks, find
                     the best street food, or discover nightlife hotspots, your guide will customize
                     the experience to match your interests and pace.
                   </p>
                   <ul className="space-y-2">
                     <li className="flex items-start">
-                      <span className="mr-2 text-green-600 font-bold">✓</span>
-                      <span className="text-gray-700">Customized itineraries based on your preferences</span>
+                      <span className="mr-2 text-green-600 dark:text-green-400 font-bold">✓</span>
+                      <span className="text-gray-700 dark:text-slate-300">Customized itineraries based on your preferences</span>
                     </li>
                     <li className="flex items-start">
-                      <span className="mr-2 text-green-600 font-bold">✓</span>
-                      <span className="text-gray-700">Flexible scheduling around your travel plans</span>
+                      <span className="mr-2 text-green-600 dark:text-green-400 font-bold">✓</span>
+                      <span className="text-gray-700 dark:text-slate-300">Flexible scheduling around your travel plans</span>
                     </li>
                     <li className="flex items-start">
-                      <span className="mr-2 text-green-600 font-bold">✓</span>
-                      <span className="text-gray-700">Small group or one-on-one experiences</span>
+                      <span className="mr-2 text-green-600 dark:text-green-400 font-bold">✓</span>
+                      <span className="text-gray-700 dark:text-slate-300">Small group or one-on-one experiences</span>
                     </li>
                   </ul>
                 </div>
@@ -275,7 +275,7 @@ export default function MainLanding() {
             </div>
 
             {/* Footer Note */}
-            <p className="text-sm text-white/80 pt-16 animate-fade-in text-shadow">
+            <p className="text-sm text-white/90 dark:text-white/80 pt-16 animate-fade-in text-shadow">
               © {new Date().getFullYear()} WanderNest. Connecting cultures, one guide at a time.
             </p>
           </div>

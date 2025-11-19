@@ -100,12 +100,25 @@ export default function RootLayout({
 
         {/* Preconnect to image CDN for faster image loading */}
         <link rel="preconnect" href="https://images.unsplash.com" />
+
+        {/* Theme initialization script - prevents FOUC */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                const theme = localStorage.getItem('theme') ||
+                  (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+                document.documentElement.classList.add(theme);
+              })();
+            `,
+          }}
+        />
       </head>
       <body className={inter.className}>
         <Providers>
           <div className="min-h-screen relative">
-            {/* Gradient overlay - background image removed for faster LCP */}
-            <div className="fixed inset-0 z-0 bg-gradient-to-br from-cyan-50/95 via-purple-50/90 to-orange-50/95 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900" />
+            {/* Theme-aware gradient background */}
+            <div className="fixed inset-0 z-0 bg-gradient-to-br from-slate-50 via-blue-50/50 to-purple-50/50 dark:from-slate-950 dark:via-blue-950/30 dark:to-purple-950/30 transition-colors duration-300" />
             <div className="relative z-10">
               {children}
             </div>

@@ -22,6 +22,12 @@
     --accent-foreground: 0 0% 100%;
     --border: 214.3 31.8% 91.4%;
     --radius: 0.5rem;
+
+    /* Glass morphism variables for light mode */
+    --glass-bg-light: rgba(255, 255, 255, 0.7);
+    --glass-border-light: rgba(255, 255, 255, 0.5);
+    --glass-bg-dark: rgba(15, 23, 42, 0.7);
+    --glass-border-dark: rgba(255, 255, 255, 0.1);
   }
 
   .dark {
@@ -34,6 +40,12 @@
     --accent: 14 91% 70%;
     --accent-foreground: 222.2 47.4% 11.2%;
     --border: 217.2 32.6% 17.5%;
+
+    /* Override glass variables for dark mode */
+    --glass-bg-light: rgba(255, 255, 255, 0.05);
+    --glass-border-light: rgba(255, 255, 255, 0.1);
+    --glass-bg-dark: rgba(15, 23, 42, 0.8);
+    --glass-border-dark: rgba(255, 255, 255, 0.15);
   }
 }
 

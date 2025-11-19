@@ -6,6 +6,7 @@ import { Globe, Menu, X, User, LogOut, LayoutDashboard, ChevronLeft } from 'luci
 import { useSession, signOut } from 'next-auth/react'
 import { useState } from 'react'
 import { STUDENT_SIGNUP_FORM_URL } from '@/lib/constants'
+import { ThemeToggle } from './ThemeToggle'
 
 interface NavigationProps {
   variant?: 'default' | 'tourist' | 'student' | 'admin'
@@ -22,7 +23,7 @@ export default function Navigation({ variant = 'default', showBackButton = false
   }
 
   return (
-    <header className="border-b border-white/20 glass-card sticky top-0 z-50 shadow-premium animate-fade-in-down backdrop-blur-xl">
+    <header className="border-b border-slate-200/60 dark:border-white/20 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl sticky top-0 z-50 shadow-soft dark:shadow-premium animate-fade-in-down transition-colors">
       <div className="container mx-auto px-4 py-4">
         <div className="flex justify-between items-center">
           {/* Logo */}
@@ -37,9 +38,11 @@ export default function Navigation({ variant = 'default', showBackButton = false
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-3">
+            {/* Theme Toggle */}
+            <ThemeToggle />
             {showBackButton && (
               <Link href={backHref}>
-                <Button variant="ghost" className="hover-lift hover:bg-secondary/10 hover:text-secondary" aria-label="Go back">
+                <Button variant="ghost" className="hover-lift hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-900 dark:text-slate-100" aria-label="Go back">
                   <ChevronLeft className="w-4 h-4 mr-1" /> Back
                 </Button>
               </Link>
@@ -51,7 +54,7 @@ export default function Navigation({ variant = 'default', showBackButton = false
                 {/* Temporary redirect to Google Form while building student onboarding flow */}
                 {/* <Link href="/student"> */}
                 <a href={STUDENT_SIGNUP_FORM_URL} target="_blank" rel="noopener noreferrer">
-                  <Button variant="outline" className="hover-lift border-2 hover:border-secondary hover:text-secondary transition-all">
+                  <Button variant="outline" className="hover-lift border-2 border-slate-300 dark:border-slate-600 hover:border-purple-500 dark:hover:border-purple-400 text-slate-900 dark:text-slate-100 hover:text-purple-600 dark:hover:text-purple-400 transition-all">
                     I&apos;m a Student
                   </Button>
                 </a>
@@ -67,7 +70,7 @@ export default function Navigation({ variant = 'default', showBackButton = false
             {!session && variant === 'tourist' && (
               <>
                 <Link href="/">
-                  <Button variant="ghost" className="hover-lift hover:bg-secondary/10 hover:text-secondary">
+                  <Button variant="ghost" className="hover-lift hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-900 dark:text-slate-100">
                     <ChevronLeft className="w-4 h-4 mr-1" /> Back to Home
                   </Button>
                 </Link>
@@ -82,12 +85,12 @@ export default function Navigation({ variant = 'default', showBackButton = false
             {!session && variant === 'student' && (
               <>
                 <Link href="/">
-                  <Button variant="ghost" className="hover-lift hover:bg-secondary/10 hover:text-secondary">
+                  <Button variant="ghost" className="hover-lift hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-900 dark:text-slate-100">
                     <ChevronLeft className="w-4 h-4 mr-1" /> Back to Home
                   </Button>
                 </Link>
                 <Link href="/student/signin">
-                  <Button variant="outline" className="hover-lift border-2 hover:border-secondary hover:text-secondary">
+                  <Button variant="outline" className="hover-lift border-2 border-slate-300 dark:border-slate-600 hover:border-purple-500 dark:hover:border-purple-400 text-slate-900 dark:text-slate-100">
                     Sign In
                   </Button>
                 </Link>
@@ -98,7 +101,7 @@ export default function Navigation({ variant = 'default', showBackButton = false
               <>
                 {session.user?.userType === 'tourist' && (
                   <Link href="/tourist/dashboard">
-                    <Button variant="ghost" className="hover-lift hover:bg-secondary/10 hover:text-secondary">
+                    <Button variant="ghost" className="hover-lift hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-900 dark:text-slate-100">
                       <LayoutDashboard className="w-4 h-4 mr-2" />
                       Dashboard
                     </Button>
@@ -106,18 +109,18 @@ export default function Navigation({ variant = 'default', showBackButton = false
                 )}
                 {session.user?.userType === 'student' && (
                   <Link href="/student/dashboard">
-                    <Button variant="ghost" className="hover-lift hover:bg-secondary/10 hover:text-secondary">
+                    <Button variant="ghost" className="hover-lift hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-900 dark:text-slate-100">
                       <LayoutDashboard className="w-4 h-4 mr-2" />
                       Dashboard
                     </Button>
                   </Link>
                 )}
-                <div className="flex items-center space-x-3 pl-3 border-l border-border">
+                <div className="flex items-center space-x-3 pl-3 border-l border-slate-300 dark:border-slate-600">
                   <div className="flex items-center space-x-2">
                     <div className="w-8 h-8 rounded-full gradient-vibrant flex items-center justify-center text-white font-semibold text-sm shadow-soft">
                       {session.user?.name?.charAt(0).toUpperCase() || <User className="w-4 h-4" />}
                     </div>
-                    <span className="text-sm font-medium text-foreground max-w-[120px] truncate">
+                    <span className="text-sm font-medium text-slate-900 dark:text-slate-100 max-w-[120px] truncate">
                       {session.user?.name}
                     </span>
                   </div>
@@ -125,7 +128,7 @@ export default function Navigation({ variant = 'default', showBackButton = false
                     variant="ghost"
                     size="sm"
                     onClick={handleSignOut}
-                    className="hover:bg-destructive/10 hover:text-destructive transition-colors"
+                    className="hover:bg-red-100 dark:hover:bg-red-900/30 hover:text-red-600 dark:hover:text-red-400 transition-colors"
                     aria-label="Sign out"
                   >
                     <LogOut className="w-4 h-4" />
@@ -135,27 +138,30 @@ export default function Navigation({ variant = 'default', showBackButton = false
             )}
           </nav>
 
-          {/* Mobile Menu Button */}
-          <button
-            className="md:hidden p-2 rounded-lg hover:bg-muted/20 transition-colors"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-label="Toggle mobile menu"
-            aria-expanded={mobileMenuOpen}
-          >
-            {mobileMenuOpen ? (
-              <X className="w-6 h-6 text-foreground" />
-            ) : (
-              <Menu className="w-6 h-6 text-foreground" />
-            )}
-          </button>
+          {/* Mobile Menu Button and Theme Toggle */}
+          <div className="md:hidden flex items-center space-x-2">
+            <ThemeToggle />
+            <button
+              className="p-2 rounded-lg hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label="Toggle mobile menu"
+              aria-expanded={mobileMenuOpen}
+            >
+              {mobileMenuOpen ? (
+                <X className="w-6 h-6 text-slate-900 dark:text-slate-100" />
+              ) : (
+                <Menu className="w-6 h-6 text-slate-900 dark:text-slate-100" />
+              )}
+            </button>
+          </div>
         </div>
 
         {/* Mobile Navigation */}
         {mobileMenuOpen && (
-          <nav className="md:hidden mt-4 pb-4 space-y-2 border-t border-border/30 pt-4 animate-fade-in-up glass-frosted rounded-lg">
+          <nav className="md:hidden mt-4 pb-4 space-y-2 border-t border-slate-200 dark:border-slate-700 pt-4 animate-fade-in-up bg-white/80 dark:bg-slate-900/80 backdrop-blur-md rounded-lg">
             {showBackButton && (
               <Link href={backHref} onClick={() => setMobileMenuOpen(false)}>
-                <Button variant="ghost" className="w-full justify-start hover:bg-secondary/10 hover:text-secondary">
+                <Button variant="ghost" className="w-full justify-start hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-900 dark:text-slate-100">
                   <ChevronLeft className="w-4 h-4 mr-2" /> Back
                 </Button>
               </Link>
@@ -172,7 +178,7 @@ export default function Navigation({ variant = 'default', showBackButton = false
                   rel="noopener noreferrer"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  <Button variant="outline" className="w-full border-2 hover:border-secondary hover:text-secondary">
+                  <Button variant="outline" className="w-full border-2 border-slate-300 dark:border-slate-600 hover:border-purple-500 dark:hover:border-purple-400 text-slate-900 dark:text-slate-100">
                     I&apos;m a Student
                   </Button>
                 </a>
@@ -188,7 +194,7 @@ export default function Navigation({ variant = 'default', showBackButton = false
             {!session && variant === 'tourist' && (
               <>
                 <Link href="/" onClick={() => setMobileMenuOpen(false)}>
-                  <Button variant="ghost" className="w-full justify-start hover:bg-secondary/10 hover:text-secondary">
+                  <Button variant="ghost" className="w-full justify-start hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-900 dark:text-slate-100">
                     <ChevronLeft className="w-4 h-4 mr-2" /> Back to Home
                   </Button>
                 </Link>
@@ -203,12 +209,12 @@ export default function Navigation({ variant = 'default', showBackButton = false
             {!session && variant === 'student' && (
               <>
                 <Link href="/" onClick={() => setMobileMenuOpen(false)}>
-                  <Button variant="ghost" className="w-full justify-start hover:bg-secondary/10 hover:text-secondary">
+                  <Button variant="ghost" className="w-full justify-start hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-900 dark:text-slate-100">
                     <ChevronLeft className="w-4 h-4 mr-2" /> Back to Home
                   </Button>
                 </Link>
                 <Link href="/student/signin" onClick={() => setMobileMenuOpen(false)}>
-                  <Button variant="outline" className="w-full border-2 hover:border-secondary hover:text-secondary">
+                  <Button variant="outline" className="w-full border-2 border-slate-300 dark:border-slate-600 hover:border-purple-500 dark:hover:border-purple-400 text-slate-900 dark:text-slate-100">
                     Sign In
                   </Button>
                 </Link>
@@ -217,17 +223,17 @@ export default function Navigation({ variant = 'default', showBackButton = false
 
             {session && (
               <>
-                <div className="flex items-center space-x-2 px-3 py-2 glass rounded-lg">
+                <div className="flex items-center space-x-2 px-3 py-2 bg-slate-100 dark:bg-slate-800/50 rounded-lg">
                   <div className="w-8 h-8 rounded-full gradient-vibrant flex items-center justify-center text-white font-semibold text-sm shadow-soft">
                     {session.user?.name?.charAt(0).toUpperCase() || <User className="w-4 h-4" />}
                   </div>
-                  <span className="text-sm font-medium text-foreground">
+                  <span className="text-sm font-medium text-slate-900 dark:text-slate-100">
                     {session.user?.name}
                   </span>
                 </div>
                 {session.user?.userType === 'tourist' && (
                   <Link href="/tourist/dashboard" onClick={() => setMobileMenuOpen(false)}>
-                    <Button variant="ghost" className="w-full justify-start hover:bg-secondary/10 hover:text-secondary">
+                    <Button variant="ghost" className="w-full justify-start hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-900 dark:text-slate-100">
                       <LayoutDashboard className="w-4 h-4 mr-2" />
                       Dashboard
                     </Button>
@@ -235,7 +241,7 @@ export default function Navigation({ variant = 'default', showBackButton = false
                 )}
                 {session.user?.userType === 'student' && (
                   <Link href="/student/dashboard" onClick={() => setMobileMenuOpen(false)}>
-                    <Button variant="ghost" className="w-full justify-start hover:bg-secondary/10 hover:text-secondary">
+                    <Button variant="ghost" className="w-full justify-start hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-900 dark:text-slate-100">
                       <LayoutDashboard className="w-4 h-4 mr-2" />
                       Dashboard
                     </Button>
@@ -247,7 +253,7 @@ export default function Navigation({ variant = 'default', showBackButton = false
                     setMobileMenuOpen(false)
                     handleSignOut()
                   }}
-                  className="w-full justify-start hover:bg-destructive/10 hover:text-destructive"
+                  className="w-full justify-start hover:bg-red-100 dark:hover:bg-red-900/30 hover:text-red-600 dark:hover:text-red-400"
                 >
                   <LogOut className="w-4 h-4 mr-2" />
                   Sign Out
