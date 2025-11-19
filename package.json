@@ -21,7 +21,9 @@
     "@radix-ui/react-slider": "^1.1.2",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/nodemailer": "^7.0.4",
+    "@vercel/analytics": "^1.5.0",
     "@vercel/blob": "^0.23.4",
+    "@vercel/speed-insights": "^1.2.0",
     "bcryptjs": "^2.4.3",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",
@@ -43,6 +45,7 @@
     "zod": "^3.22.4"
   },
   "devDependencies": {
+    "@next/bundle-analyzer": "^16.0.3",
     "@types/bcryptjs": "^2.4.6",
     "@types/node": "^20",
     "@types/react": "^18",

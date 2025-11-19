@@ -2,24 +2,27 @@ import type { Metadata } from 'next'
 import { Inter, Playfair_Display } from 'next/font/google'
 import './critical.css'
 import { Providers } from './providers'
-import Script from 'next/script'
+import { Analytics } from '@vercel/analytics/react'
+import { SpeedInsights } from '@vercel/speed-insights/next'
 
 const inter = Inter({
   subsets: ['latin'],
-  weight: ['400', '600', '700'], // Reduced from 5 to 3 weights
+  weight: ['400', '600', '700'],
   variable: '--font-inter',
   display: 'swap',
   preload: true,
   fallback: ['system-ui', '-apple-system', 'sans-serif'],
+  adjustFontFallback: true,
 })
 
 const playfair = Playfair_Display({
   subsets: ['latin'],
-  weight: ['400', '600', '700', '900'], // Reduced from 6 to 4 weights
+  weight: ['400', '600', '700', '900'],
   variable: '--font-playfair',
   display: 'swap',
   preload: true,
   fallback: ['Georgia', 'serif'],
+  adjustFontFallback: true,
 })
 
 export const metadata: Metadata = {
@@ -81,35 +84,13 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
       <head>
-        {/* Preconnect to Google Fonts for faster font loading */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-
-        {/* Preconnect to image CDN */}
+        {/* DNS prefetch for image CDN - Next.js handles font preconnects automatically */}
         <link rel="dns-prefetch" href="https://images.unsplash.com" />
       </head>
       <body className={inter.className}>
-        {/* Defer non-critical CSS loading */}
-        <Script
-          id="load-non-critical-css"
-          strategy="afterInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                var link = document.createElement('link');
-                link.rel = 'stylesheet';
-                link.href = '/non-critical.css';
-                link.media = 'print';
-                link.onload = function() { this.media = 'all'; };
-                document.head.appendChild(link);
-              })();
-            `
-          }}
-        />
-
         <Providers>
           <div className="min-h-screen relative">
-            {/* Gradient overlay with new color scheme - removed background image for faster LCP */}
+            {/* Gradient overlay - background image removed for faster LCP */}
             <div className="fixed inset-0 z-0 bg-gradient-to-br from-cyan-50/95 via-purple-50/90 to-orange-50/95 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900" />
             <div className="relative z-10">
               {children}
