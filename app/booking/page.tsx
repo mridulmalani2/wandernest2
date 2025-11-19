@@ -80,7 +80,7 @@ export default function BookingPage() {
                 <AlertTriangle className="w-6 h-6" />
               </div>
               <div>
-                <h3 className="font-bold text-amber-900 mb-2 text-lg">Marketplace Notice</h3>
+                <h2 className="font-bold text-amber-900 mb-2 text-lg">Marketplace Notice</h2>
                 <p className="text-sm text-amber-900 leading-relaxed">
                   <strong>WanderNest is a connection platform only.</strong> We do not handle payments, guarantee service quality, or assume liability. All services and payments are arranged directly between you and your chosen guide.
                 </p>

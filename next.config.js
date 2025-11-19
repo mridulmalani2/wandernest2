@@ -3,68 +3,23 @@ const nextConfig = {
   // Optimize for Vercel serverless functions
   output: 'standalone',
 
-  // SWC Compiler optimizations for modern browsers
-  // Next.js 14+ uses SWC by default (no Babel)
+  // Production optimizations
+  swcMinify: true, // Enable SWC-based minification (default in Next.js 14, but explicit is better)
+
+  // Compiler optimizations for production
   compiler: {
-    // Remove console logs in production for better performance
+    // Remove console logs in production
     removeConsole: process.env.NODE_ENV === 'production' ? {
       exclude: ['error', 'warn'],
     } : false,
   },
 
-  // Enable modern JavaScript features and optimizations
-  swcMinify: true, // Use SWC minifier (faster than Terser)
+  // Production-specific settings
+  productionBrowserSourceMaps: false, // Disable source maps in production for smaller bundles
 
-  // Experimental features for better performance
+  // Optimize JavaScript bundles
   experimental: {
-    // Enable optimized package imports
     optimizePackageImports: ['lucide-react', '@radix-ui/react-dialog', '@radix-ui/react-select'],
-
-    // Optimize CSS imports
-    optimizeCss: true,
-  },
-
-  // Webpack configuration for module optimization
-  webpack: (config, { isServer }) => {
-    // Optimize module resolution
-    config.resolve.extensionAlias = {
-      '.js': ['.ts', '.tsx', '.js', '.jsx'],
-      '.mjs': ['.mts', '.mjs'],
-      '.cjs': ['.cts', '.cjs'],
-    };
-
-    // Enable modern JavaScript output
-    if (!isServer) {
-      config.optimization = {
-        ...config.optimization,
-        // Split chunks for better caching
-        splitChunks: {
-          chunks: 'all',
-          cacheGroups: {
-            default: false,
-            vendors: false,
-            // Vendor chunk for node_modules
-            vendor: {
-              name: 'vendor',
-              chunks: 'all',
-              test: /node_modules/,
-              priority: 20,
-            },
-            // Common chunk for shared code
-            common: {
-              name: 'common',
-              minChunks: 2,
-              chunks: 'all',
-              priority: 10,
-              reuseExistingChunk: true,
-              enforce: true,
-            },
-          },
-        },
-      };
-    }
-
-    return config;
   },
 
   // Enable image optimization with external domains
@@ -87,6 +42,37 @@ const nextConfig = {
     formats: ['image/avif', 'image/webp'],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+  },
+
+  // Compiler optimizations for modern browsers
+  compiler: {
+    // Remove console logs in production
+    removeConsole: process.env.NODE_ENV === 'production' ? {
+      exclude: ['error', 'warn'],
+    } : false,
+  },
+
+  // Experimental features for better optimization
+  experimental: {
+    // Optimize package imports to reduce bundle size
+    optimizePackageImports: [
+      'lucide-react',
+      '@radix-ui/react-select',
+      '@radix-ui/react-dialog',
+      '@radix-ui/react-checkbox',
+      '@radix-ui/react-label',
+      '@radix-ui/react-radio-group',
+      '@radix-ui/react-slider',
+      'date-fns',
+    ],
+  },
+
+  // Webpack configuration for modern output
+  webpack: (config, { isServer }) => {
+    // Target modern browsers with ES2020+ features
+    config.target = isServer ? 'node16' : ['web', 'es2020'];
+
+    return config;
   },
 
   // Headers are now configured in vercel.json for better Vercel integration

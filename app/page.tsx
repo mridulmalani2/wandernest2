@@ -3,35 +3,11 @@ import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import Navigation from '@/components/Navigation'
 import { Plane, GraduationCap } from 'lucide-react'
-
-export const metadata = {
-  title: 'WanderNest - Connect with Local Student Guides for Authentic Travel',
-  description: 'Experience authentic travel with verified local student guides. Discover hidden gems, get personalized recommendations, and explore cities like a local.',
-}
+import { getWebsiteStructuredData, getOrganizationStructuredData } from '@/lib/structuredData'
 
 export default function MainLanding() {
-  const structuredData = {
-    '@context': 'https://schema.org',
-    '@type': 'WebSite',
-    name: 'WanderNest',
-    url: 'https://wandernest.vercel.app',
-    description: 'Marketplace connecting tourists with local student guides for authentic travel experiences',
-    potentialAction: {
-      '@type': 'SearchAction',
-      target: 'https://wandernest.vercel.app/booking?q={search_term_string}',
-      'query-input': 'required name=search_term_string',
-    },
-  }
-
-  const organizationData = {
-    '@context': 'https://schema.org',
-    '@type': 'Organization',
-    name: 'WanderNest',
-    url: 'https://wandernest.vercel.app',
-    logo: 'https://wandernest.vercel.app/logo.png',
-    description: 'Marketplace platform connecting tourists with verified local student guides',
-    sameAs: [],
-  }
+  const structuredData = getWebsiteStructuredData()
+  const organizationData = getOrganizationStructuredData()
 
   return (
     <div className="min-h-screen flex flex-col relative overflow-hidden">
@@ -44,15 +20,17 @@ export default function MainLanding() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationData) }}
       />
-      {/* Full-bleed Background Image with Overlay */}
-      <div
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{
-          backgroundImage: 'url(https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=1920&q=80)',
-        }}
-        role="img"
-        aria-label="Beautiful Paris cityscape with Eiffel Tower"
-      >
+      {/* Full-bleed Background Image with Overlay - Optimized with Next.js Image */}
+      <div className="absolute inset-0">
+        <Image
+          src="https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=1920&q=80"
+          alt="Beautiful Paris cityscape with Eiffel Tower"
+          fill
+          priority
+          quality={80}
+          sizes="100vw"
+          className="object-cover"
+        />
         {/* Dark overlay for text contrast */}
         <div className="absolute inset-0 bg-black/25 backdrop-blur-[4px]" />
         {/* Gradient overlay for visual depth */}
@@ -100,6 +78,9 @@ export default function MainLanding() {
                       src="https://images.unsplash.com/photo-1503220317375-aaad61436b1b?w=800&q=80"
                       alt="Beautiful London cityscape with iconic architecture"
                       fill
+                      loading="lazy"
+                      quality={75}
+                      sizes="(max-width: 768px) 100vw, 50vw"
                       className="object-cover"
                     />
                   </div>
@@ -111,9 +92,9 @@ export default function MainLanding() {
                       <Plane className="w-10 h-10" />
                     </div>
 
-                    <h3 className="text-3xl font-bold text-gray-900 mb-4 group-hover:text-blue-700 transition-colors">
+                    <h2 className="text-3xl font-bold text-gray-900 mb-4 group-hover:text-blue-700 transition-colors">
                       I&apos;m a Tourist
-                    </h3>
+                    </h2>
 
                     <p className="text-gray-700 mb-8 text-lg leading-relaxed font-medium">
                       Find local student guides to show you authentic experiences in your destination city
@@ -138,6 +119,9 @@ export default function MainLanding() {
                       src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=800&q=80"
                       alt="University students collaborating and learning together"
                       fill
+                      loading="lazy"
+                      quality={75}
+                      sizes="(max-width: 768px) 100vw, 50vw"
                       className="object-cover"
                     />
                   </div>
@@ -149,9 +133,9 @@ export default function MainLanding() {
                       <GraduationCap className="w-10 h-10" />
                     </div>
 
-                    <h3 className="text-3xl font-bold text-gray-900 mb-4 group-hover:text-purple-700 transition-colors">
+                    <h2 className="text-3xl font-bold text-gray-900 mb-4 group-hover:text-purple-700 transition-colors">
                       I&apos;m a Student
-                    </h3>
+                    </h2>
 
                     <p className="text-gray-700 mb-8 text-lg leading-relaxed font-medium">
                       Become a guide and earn money by showing travelers around your city
@@ -202,6 +186,9 @@ export default function MainLanding() {
                     src="https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=800&q=80"
                     alt="Local cafe experience with authentic ambiance"
                     fill
+                    loading="lazy"
+                    quality={75}
+                    sizes="(max-width: 768px) 100vw, 50vw"
                     className="object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
@@ -215,6 +202,9 @@ export default function MainLanding() {
                     src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=800&q=80"
                     alt="Young university students collaborating and sharing knowledge"
                     fill
+                    loading="lazy"
+                    quality={75}
+                    sizes="(max-width: 768px) 100vw, 50vw"
                     className="object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
@@ -272,6 +262,9 @@ export default function MainLanding() {
                     src="https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800&q=80"
                     alt="Group of young travelers exploring a European city together"
                     fill
+                    loading="lazy"
+                    quality={75}
+                    sizes="(max-width: 768px) 100vw, 50vw"
                     className="object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />

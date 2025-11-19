@@ -4,13 +4,9 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import Navigation from '@/components/Navigation'
-import { useSession, signIn } from 'next-auth/react'
 import { GraduationCap, MessageCircle, Star, AlertTriangle } from 'lucide-react'
 
 export default function TouristLanding() {
-  const { data: session, status } = useSession()
-  const isTourist = session?.user?.userType === 'tourist'
-
   return (
     <div className="min-h-screen flex flex-col relative overflow-hidden">
       {/* Full-bleed Background with London imagery */}

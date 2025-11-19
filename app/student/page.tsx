@@ -76,7 +76,7 @@ export default function StudentLandingPage() {
                   <div className="inline-flex p-3 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 text-white mb-4 group-hover:scale-110 transition-transform duration-300">
                     <DollarSign className="w-7 h-7" />
                   </div>
-                  <h4 className="font-bold text-lg mb-2 group-hover:text-blue-700 transition-colors">Earn More</h4>
+                  <h3 className="font-bold text-lg mb-2 group-hover:text-blue-700 transition-colors">Earn More</h3>
                   <p className="text-sm text-gray-700 leading-relaxed font-medium">
                     Make significantly more than standard campus jobs with flexible hours
                   </p>
@@ -86,7 +86,7 @@ export default function StudentLandingPage() {
                   <div className="inline-flex p-3 rounded-xl gradient-vibrant text-white mb-4 group-hover:scale-110 group-hover:-rotate-3 transition-all duration-300 shadow-glow-purple">
                     <Clock className="w-7 h-7" />
                   </div>
-                  <h4 className="font-bold text-lg mb-2 group-hover:text-purple-700 transition-colors">Fully Flexible</h4>
+                  <h3 className="font-bold text-lg mb-2 group-hover:text-purple-700 transition-colors">Fully Flexible</h3>
                   <p className="text-sm text-gray-700 leading-relaxed font-medium">
                     Choose your own time slots and work around your class schedule
                   </p>
@@ -96,7 +96,7 @@ export default function StudentLandingPage() {
                   <div className="inline-flex p-3 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 text-white mb-4 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-soft">
                     <Users className="w-7 h-7" />
                   </div>
-                  <h4 className="font-bold text-lg mb-2 group-hover:text-green-700 transition-colors">Cultural Connection</h4>
+                  <h3 className="font-bold text-lg mb-2 group-hover:text-green-700 transition-colors">Cultural Connection</h3>
                   <p className="text-sm text-gray-700 leading-relaxed font-medium">
                     Meet visitors from your home country and share your culture
                   </p>
@@ -113,7 +113,7 @@ export default function StudentLandingPage() {
                   <div className="w-20 h-20 gradient-ocean rounded-2xl flex items-center justify-center mx-auto text-3xl font-bold text-white shadow-premium group-hover:shadow-glow-blue group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
                     1
                   </div>
-                  <h4 className="font-bold text-lg text-white group-hover:text-blue-200 transition-colors">Sign In</h4>
+                  <h3 className="font-bold text-lg text-white group-hover:text-blue-200 transition-colors">Sign In</h3>
                   <p className="text-sm text-white/90 leading-relaxed font-medium">
                     Use your student email (.edu) to sign in with Google
                   </p>
@@ -123,7 +123,7 @@ export default function StudentLandingPage() {
                   <div className="w-20 h-20 gradient-vibrant rounded-2xl flex items-center justify-center mx-auto text-3xl font-bold text-white shadow-premium group-hover:shadow-glow-purple group-hover:scale-110 group-hover:-rotate-6 transition-all duration-300">
                     2
                   </div>
-                  <h4 className="font-bold text-lg text-white group-hover:text-purple-200 transition-colors">Verify Status</h4>
+                  <h3 className="font-bold text-lg text-white group-hover:text-purple-200 transition-colors">Verify Status</h3>
                   <p className="text-sm text-white/90 leading-relaxed font-medium">
                     Upload your student ID to confirm your enrollment
                   </p>
@@ -133,7 +133,7 @@ export default function StudentLandingPage() {
                   <div className="w-20 h-20 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center mx-auto text-3xl font-bold text-white shadow-premium group-hover:shadow-soft group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
                     3
                   </div>
-                  <h4 className="font-bold text-lg text-white group-hover:text-green-200 transition-colors">Create Profile</h4>
+                  <h3 className="font-bold text-lg text-white group-hover:text-green-200 transition-colors">Create Profile</h3>
                   <p className="text-sm text-white/90 leading-relaxed font-medium">
                     Describe your ideal day-out and share your expertise
                   </p>
@@ -143,7 +143,7 @@ export default function StudentLandingPage() {
                   <div className="w-20 h-20 gradient-sunset rounded-2xl flex items-center justify-center mx-auto text-3xl font-bold text-white shadow-premium group-hover:shadow-soft group-hover:scale-110 group-hover:-rotate-6 transition-all duration-300">
                     4
                   </div>
-                  <h4 className="font-bold text-lg text-white group-hover:text-pink-200 transition-colors">Get Requests</h4>
+                  <h3 className="font-bold text-lg text-white group-hover:text-pink-200 transition-colors">Get Requests</h3>
                   <p className="text-sm text-white/90 leading-relaxed font-medium">
                     Set your availability and start receiving booking requests
                   </p>

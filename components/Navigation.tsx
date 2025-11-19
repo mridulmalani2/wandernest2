@@ -1,7 +1,6 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Globe, Menu, X, User, LogOut, LayoutDashboard, ChevronLeft } from 'lucide-react'
 import { useSession, signOut } from 'next-auth/react'
@@ -15,7 +14,6 @@ interface NavigationProps {
 
 export default function Navigation({ variant = 'default', showBackButton = false, backHref = '/' }: NavigationProps) {
   const { data: session } = useSession()
-  const pathname = usePathname()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   const handleSignOut = async () => {

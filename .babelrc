@@ -1,0 +1,66 @@
+{
+  "presets": [
+    [
+      "next/babel",
+      {
+        "preset-env": {
+          "targets": "defaults, not IE 11",
+          "bugfixes": true,
+          "loose": false,
+          "modules": false,
+          "useBuiltIns": false,
+          "corejs": false,
+          "exclude": [
+            "@babel/plugin-transform-regenerator",
+            "@babel/plugin-transform-async-to-generator",
+            "transform-typeof-symbol"
+          ]
+        }
+      }
+    ]
+  ],
+  "plugins": [],
+  "env": {
+    "production": {
+      "presets": [
+        [
+          "next/babel",
+          {
+            "preset-env": {
+              "targets": "defaults, not IE 11",
+              "bugfixes": true,
+              "loose": false,
+              "modules": false,
+              "useBuiltIns": false,
+              "corejs": false,
+              "shippedProposals": true,
+              "exclude": [
+                "@babel/plugin-transform-regenerator",
+                "@babel/plugin-transform-async-to-generator",
+                "@babel/plugin-transform-classes",
+                "transform-typeof-symbol"
+              ]
+            }
+          }
+        ]
+      ]
+    },
+    "development": {
+      "presets": ["next/babel"]
+    },
+    "test": {
+      "presets": [
+        [
+          "next/babel",
+          {
+            "preset-env": {
+              "targets": {
+                "node": "current"
+              }
+            }
+          }
+        ]
+      ]
+    }
+  }
+}

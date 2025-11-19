@@ -1,13 +1,16 @@
 import type { Metadata } from 'next'
 import { Inter, Playfair_Display } from 'next/font/google'
-import './globals.css'
+import './critical.css'
 import { Providers } from './providers'
+import Script from 'next/script'
 
 const inter = Inter({
   subsets: ['latin'],
   weight: ['400', '500', '600', '700', '800'],
   variable: '--font-inter',
   display: 'swap',
+  preload: true,
+  fallback: ['system-ui', '-apple-system', 'sans-serif'],
 })
 
 const playfair = Playfair_Display({
@@ -15,6 +18,8 @@ const playfair = Playfair_Display({
   weight: ['400', '500', '600', '700', '800', '900'],
   variable: '--font-playfair',
   display: 'swap',
+  preload: true,
+  fallback: ['Georgia', 'serif'],
 })
 
 export const metadata: Metadata = {
@@ -66,9 +71,6 @@ export const metadata: Metadata = {
       'max-snippet': -1,
     },
   },
-  verification: {
-    google: 'your-google-verification-code',
-  },
 }
 
 export default function RootLayout({
@@ -78,21 +80,37 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
+      <head>
+        {/* Preconnect to Google Fonts for faster font loading */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+
+        {/* Preconnect to image CDN */}
+        <link rel="dns-prefetch" href="https://images.unsplash.com" />
+      </head>
       <body className={inter.className}>
+        {/* Defer non-critical CSS loading */}
+        <Script
+          id="load-non-critical-css"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                var link = document.createElement('link');
+                link.rel = 'stylesheet';
+                link.href = '/non-critical.css';
+                link.media = 'print';
+                link.onload = function() { this.media = 'all'; };
+                document.head.appendChild(link);
+              })();
+            `
+          }}
+        />
+
         <Providers>
           <div className="min-h-screen relative">
-            {/* Subtle world map background image with parallax */}
-            <div
-              className="fixed inset-0 z-0 opacity-[0.04] parallax-bg"
-              style={{
-                backgroundImage: 'url(https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?w=1920&q=80)',
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-                backgroundRepeat: 'no-repeat'
-              }}
-            />
-            {/* Gradient overlay with new color scheme */}
-            <div className="fixed inset-0 z-0 bg-gradient-to-br from-cyan-50/95 via-purple-50/90 to-orange-50/95 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 backdrop-blur-[2px]" />
+            {/* Gradient overlay with new color scheme - removed background image for faster LCP */}
+            <div className="fixed inset-0 z-0 bg-gradient-to-br from-cyan-50/95 via-purple-50/90 to-orange-50/95 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900" />
             <div className="relative z-10">
               {children}
             </div>

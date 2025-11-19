@@ -239,7 +239,7 @@ export default function TouristDashboard() {
         {requests.length === 0 ? (
           <div className="glass-card rounded-3xl shadow-premium p-12 text-center border-2 border-white/40 animate-fade-in hover-lift">
             <div className="text-6xl mb-4">🌍</div>
-            <h3 className="text-2xl font-bold text-gray-900 mb-2">No requests yet</h3>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">No requests yet</h2>
             <p className="text-gray-700 mb-6">Start your adventure by booking a local guide!</p>
             <a
               href="/booking"
