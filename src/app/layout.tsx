@@ -1,34 +1,15 @@
 import type { Metadata } from 'next'
-import { Inter, Playfair_Display } from 'next/font/google'
 import './critical.css'
 import { Providers } from './providers'
 
 /*
- * Font Loading Optimization:
- * - Only load critical weights upfront (400 for body, 700 for headings)
- * - font-display: swap prevents FOIT (Flash of Invisible Text)
- * - adjustFontFallback: true reduces CLS (Cumulative Layout Shift)
- * - preload: true for critical fonts only
+ * Font Configuration:
+ * Using system fonts for optimal performance and build compatibility
+ * - System UI fonts provide excellent performance with no download
+ * - No external font dependencies required for builds
+ * - Google Fonts can be re-enabled in production if desired by uncommenting
+ *   the next/font/google imports and font variables
  */
-const inter = Inter({
-  subsets: ['latin'],
-  weight: ['400', '600', '700'],
-  variable: '--font-inter',
-  display: 'swap',
-  preload: true,
-  fallback: ['system-ui', '-apple-system', 'sans-serif'],
-  adjustFontFallback: true,
-})
-
-const playfair = Playfair_Display({
-  subsets: ['latin'],
-  weight: ['400', '600', '700', '900'],
-  variable: '--font-playfair',
-  display: 'swap',
-  preload: true,
-  fallback: ['Georgia', 'serif'],
-  adjustFontFallback: true,
-})
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://wandernest.vercel.app'),
@@ -87,17 +68,8 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
+    <html lang="en">
       <head>
-        {/*
-          Font Loading Optimization:
-          - Preconnect to Google Fonts to establish early connection
-          - Next.js automatically handles font preloading for critical weights
-          - font-display: swap ensures text is visible while fonts load
-        */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-
         {/* Preconnect to image CDN for faster image loading */}
         <link rel="preconnect" href="https://images.unsplash.com" />
 
@@ -114,7 +86,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className={inter.className}>
+      <body className="font-sans">
         <Providers>
           <div className="min-h-screen relative">
             {/* Theme-aware gradient background */}

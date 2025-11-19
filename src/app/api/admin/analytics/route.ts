@@ -94,7 +94,7 @@ export async function GET(request: NextRequest) {
     ])
 
     // Convert BigInt to Number for JSON serialization
-    const formattedDemandSupply = demandSupplyByCity.map((item) => ({
+    const formattedDemandSupply = demandSupplyByCity.map((item: { city: string; supply: bigint; demand: bigint }) => ({
       city: item.city,
       supply: Number(item.supply),
       demand: Number(item.demand),
@@ -107,7 +107,7 @@ export async function GET(request: NextRequest) {
       successRate: matchSuccessData[0].success_rate,
     } : { totalRequests: 0, matchedRequests: 0, successRate: 0 }
 
-    const formattedAvgPrice = avgPriceByService.map((item) => ({
+    const formattedAvgPrice = avgPriceByService.map((item: { service_type: string; avg_price: number | null; count: bigint }) => ({
       serviceType: item.service_type,
       avgPrice: item.avg_price || 0,
       count: Number(item.count),

@@ -1,4 +1,7 @@
 import Image from 'next/image'
+import Link from 'next/link'
+import { Button } from '@/components/ui/button'
+import { Plane, GraduationCap } from 'lucide-react'
 import Navigation from '@/components/Navigation'
 import TouristCTA from '@/components/cta/TouristCTA'
 import StudentCTA from '@/components/cta/StudentCTA'
