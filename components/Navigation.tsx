@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Globe, Menu, X, User, LogOut, LayoutDashboard, ChevronLeft } from 'lucide-react'
 import { useSession, signOut } from 'next-auth/react'
 import { useState } from 'react'
+import { STUDENT_SIGNUP_FORM_URL } from '@/lib/constants'
 
 interface NavigationProps {
   variant?: 'default' | 'tourist' | 'student' | 'admin'
@@ -46,11 +47,15 @@ export default function Navigation({ variant = 'default', showBackButton = false
 
             {!session && variant === 'default' && (
               <>
-                <Link href="/student">
+                {/* TODO: Once student portal is production-ready, replace Google Form URL with internal route */}
+                {/* Temporary redirect to Google Form while building student onboarding flow */}
+                {/* <Link href="/student"> */}
+                <a href={STUDENT_SIGNUP_FORM_URL} target="_blank" rel="noopener noreferrer">
                   <Button variant="outline" className="hover-lift border-2 hover:border-secondary hover:text-secondary transition-all">
                     I&apos;m a Student
                   </Button>
-                </Link>
+                </a>
+                {/* </Link> */}
                 <Link href="/booking">
                   <Button className="bg-primary hover:bg-primary/90 transition-all shadow-premium text-primary-foreground">
                     Book a Guide
@@ -158,11 +163,20 @@ export default function Navigation({ variant = 'default', showBackButton = false
 
             {!session && variant === 'default' && (
               <>
-                <Link href="/student" onClick={() => setMobileMenuOpen(false)}>
+                {/* TODO: Once student portal is production-ready, replace Google Form URL with internal route */}
+                {/* Temporary redirect to Google Form while building student onboarding flow */}
+                {/* <Link href="/student" onClick={() => setMobileMenuOpen(false)}> */}
+                <a
+                  href={STUDENT_SIGNUP_FORM_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
                   <Button variant="outline" className="w-full border-2 hover:border-secondary hover:text-secondary">
                     I&apos;m a Student
                   </Button>
-                </Link>
+                </a>
+                {/* </Link> */}
                 <Link href="/booking" onClick={() => setMobileMenuOpen(false)}>
                   <Button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground shadow-premium">
                     Book a Guide

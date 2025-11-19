@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import Navigation from '@/components/Navigation'
 import { Plane, GraduationCap } from 'lucide-react'
 import { getWebsiteStructuredData, getOrganizationStructuredData } from '@/lib/structuredData'
+import { STUDENT_SIGNUP_FORM_URL } from '@/lib/constants'
 
 export default function MainLanding() {
   const structuredData = getWebsiteStructuredData()
@@ -109,9 +110,10 @@ export default function MainLanding() {
               </Link>
 
               {/* Student CTA */}
-              {/* Temporarily commented out for MVP - linking to Google Form instead of student page */}
+              {/* TODO: Once student portal is production-ready, replace Google Form URL with internal route */}
+              {/* Temporary redirect to Google Form while building student onboarding flow */}
               {/* <Link href="/student" className="animate-fade-in-up delay-100"> */}
-              <a href="https://forms.gle/fhzBnMAh2eGbGSyt8" target="_blank" rel="noopener noreferrer" className="animate-fade-in-up delay-100">
+              <a href={STUDENT_SIGNUP_FORM_URL} target="_blank" rel="noopener noreferrer" className="animate-fade-in-up delay-100">
                 <div className="group cursor-pointer backdrop-blur-md rounded-3xl shadow-xl hover:shadow-2xl border-2 border-white/40 hover:border-purple-400/80 transition-all duration-500 hover-lift relative overflow-hidden">
                   {/* Background Image */}
                   <div className="absolute inset-0 opacity-20 group-hover:opacity-30 transition-opacity duration-500">
