@@ -46,20 +46,20 @@ export default function MainLanding() {
       {/* Background Image with Overlay */}
       <div className="absolute inset-0">
         <Image
-          src="/images/backgrounds/paris-blur.jpg"
-          alt="Paris background"
+          src="https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=1920&q=80"
+          alt="Young travelers exploring city together - authentic travel experience"
           fill
           className="object-cover opacity-20"
           priority
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-50/90 via-white/95 to-purple-50/90" />
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-50/85 via-purple-50/80 to-pink-50/85" />
       </div>
       <div className="absolute inset-0 pattern-dots opacity-40" />
 
       {/* Content */}
       <div className="relative z-10 flex flex-col min-h-screen">
         {/* Header */}
-        <header className="w-full py-6 px-4 backdrop-blur-md bg-white/30 border-b border-white/20 animate-fade-in-down">
+        <header className="w-full py-6 px-4 backdrop-blur-md bg-white/10 border-b border-white/20 animate-fade-in-down">
           <div className="max-w-7xl mx-auto flex justify-between items-center">
             <Link href="/" className="flex items-center space-x-2 group">
               <div className="p-2 rounded-xl gradient-vibrant text-white group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-glow-blue">
@@ -108,17 +108,18 @@ export default function MainLanding() {
             <div className="grid md:grid-cols-2 gap-8 pt-8 max-w-5xl mx-auto">
               {/* Tourist CTA */}
               <Link href="/tourist" className="animate-fade-in-up">
-                <div className="group cursor-pointer bg-white/90 backdrop-blur-md rounded-3xl shadow-lg hover:shadow-2xl border border-gray-200 hover:border-blue-400 transition-all duration-500 hover-lift relative overflow-hidden">
+                <div className="group cursor-pointer backdrop-blur-md rounded-3xl shadow-lg hover:shadow-2xl border border-gray-200 hover:border-blue-400 transition-all duration-500 hover-lift relative overflow-hidden">
                   {/* Background Image */}
-                  <div className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-500">
+                  <div className="absolute inset-0 opacity-15 group-hover:opacity-25 transition-opacity duration-500">
                     <Image
-                      src="/images/london/london-eye.jpg"
-                      alt="London"
+                      src="https://images.unsplash.com/photo-1503220317375-aaad61436b1b?w=800&q=80"
+                      alt="Beautiful London cityscape with iconic architecture"
                       fill
                       className="object-cover"
                     />
                   </div>
-                  <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-400/30 via-blue-300/20 to-cyan-400/30" />
+                  <div className="absolute inset-0 bg-white/60 backdrop-blur-sm" />
 
                   <div className="relative z-10 p-10">
                     <div className="inline-flex p-4 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 text-white mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
@@ -143,17 +144,18 @@ export default function MainLanding() {
 
               {/* Student CTA */}
               <Link href="/student" className="animate-fade-in-up delay-100">
-                <div className="group cursor-pointer bg-white/90 backdrop-blur-md rounded-3xl shadow-lg hover:shadow-2xl border border-gray-200 hover:border-purple-400 transition-all duration-500 hover-lift relative overflow-hidden">
+                <div className="group cursor-pointer backdrop-blur-md rounded-3xl shadow-lg hover:shadow-2xl border border-gray-200 hover:border-purple-400 transition-all duration-500 hover-lift relative overflow-hidden">
                   {/* Background Image */}
-                  <div className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-500">
+                  <div className="absolute inset-0 opacity-15 group-hover:opacity-25 transition-opacity duration-500">
                     <Image
-                      src="/images/paris/eiffel-tower.jpg"
-                      alt="Paris"
+                      src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=800&q=80"
+                      alt="University students collaborating and learning together"
                       fill
                       className="object-cover"
                     />
                   </div>
-                  <div className="absolute inset-0 bg-gradient-to-br from-purple-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  <div className="absolute inset-0 bg-gradient-to-br from-purple-400/30 via-purple-300/20 to-pink-400/30" />
+                  <div className="absolute inset-0 bg-white/60 backdrop-blur-sm" />
 
                   <div className="relative z-10 p-10">
                     <div className="inline-flex p-4 rounded-2xl bg-gradient-to-br from-purple-500 to-purple-600 text-white mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">

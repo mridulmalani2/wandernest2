@@ -138,7 +138,7 @@ function SelectGuideContent() {
   }
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-blue-50 via-white to-purple-50 py-12 px-4">
+    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 py-12 px-4">
       {/* Background Effects */}
       <div className="absolute inset-0 gradient-mesh-vibrant opacity-30" />
       <div className="absolute inset-0 bg-dots opacity-10" />

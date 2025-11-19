@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 
 export default function AdminLogin() {
   const [email, setEmail] = useState('')
@@ -42,7 +43,17 @@ export default function AdminLogin() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-600 to-purple-700 flex items-center justify-center px-4">
-      <div className="max-w-md w-full bg-white rounded-lg shadow-xl p-8">
+      <div className="max-w-md w-full relative overflow-hidden rounded-lg shadow-xl p-8">
+        <div className="absolute inset-0 opacity-10">
+          <Image
+            src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=800&q=80"
+            alt="Admin dashboard background"
+            fill
+            className="object-cover"
+          />
+        </div>
+        <div className="absolute inset-0 bg-white/90 backdrop-blur-sm" />
+        <div className="relative z-10">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Admin Login</h1>
           <p className="text-gray-600">Sign in to access the admin dashboard</p>
@@ -96,6 +107,7 @@ export default function AdminLogin() {
           <a href="/" className="text-sm text-gray-600 hover:text-gray-900">
             Back to home
           </a>
+        </div>
         </div>
       </div>
     </div>

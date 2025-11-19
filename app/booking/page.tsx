@@ -16,19 +16,19 @@ export default function BookingPage() {
       {/* Background Image */}
       <div className="absolute inset-0">
         <Image
-          src="/images/backgrounds/cafe-ambiance.jpg"
-          alt="Cafe ambiance"
+          src="https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=1920&q=80"
+          alt="Travelers planning their adventure together"
           fill
-          className="object-cover opacity-10"
+          className="object-cover opacity-15"
           priority
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-50/95 via-white/98 to-purple-50/95" />
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-50/90 via-purple-50/85 to-pink-50/90" />
       </div>
       <div className="absolute inset-0 pattern-dots opacity-20" />
 
       <div className="relative z-10">
       {/* Header */}
-      <header className="border-b bg-white/90 backdrop-blur-md sticky top-0 z-50 shadow-sm">
+      <header className="border-b bg-white/40 backdrop-blur-md sticky top-0 z-50 shadow-sm">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <Link href="/" className="flex items-center space-x-2 group">
             <div className="p-1.5 rounded-lg bg-gradient-primary text-white group-hover:scale-110 transition-transform duration-300">
@@ -89,7 +89,17 @@ export default function BookingPage() {
             <p className="mt-4 text-gray-600">Loading...</p>
           </div>
         ) : !isTourist ? (
-          <div className="max-w-2xl mx-auto bg-white/90 backdrop-blur-md rounded-2xl shadow-xl border border-gray-200 p-8">
+          <div className="max-w-2xl mx-auto relative overflow-hidden rounded-2xl shadow-xl border border-gray-200 p-8">
+            <div className="absolute inset-0 opacity-10">
+              <Image
+                src="https://images.unsplash.com/photo-1484807352052-23338990c6c6?w=800&q=80"
+                alt="Secure travel booking background"
+                fill
+                className="object-cover"
+              />
+            </div>
+            <div className="absolute inset-0 bg-white/80 backdrop-blur-md" />
+            <div className="relative z-10">
             <div className="text-center space-y-6">
               <div className="inline-flex p-4 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 text-white mx-auto">
                 <Lock className="w-10 h-10" />
@@ -128,6 +138,7 @@ export default function BookingPage() {
                   This helps us protect against spam and bots
                 </p>
               </div>
+            </div>
             </div>
           </div>
         ) : (

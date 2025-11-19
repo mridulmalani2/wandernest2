@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { TripDetailsStep } from './TripDetailsStep'
 import { PreferencesStep } from './PreferencesStep'
@@ -215,7 +216,17 @@ export function BookingForm() {
       </div>
 
       {/* Form Steps */}
-      <div className="bg-white rounded-lg shadow-lg p-8">
+      <div className="relative overflow-hidden rounded-lg shadow-lg p-8">
+        <div className="absolute inset-0 opacity-10">
+          <Image
+            src="https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=1200&q=80"
+            alt="Travel planning background"
+            fill
+            className="object-cover"
+          />
+        </div>
+        <div className="absolute inset-0 bg-white/85 backdrop-blur-sm" />
+        <div className="relative z-10">
         {currentStep === 1 && (
           <TripDetailsStep
             data={formData}
@@ -262,6 +273,7 @@ export function BookingForm() {
               'Next'
             )}
           </Button>
+        </div>
         </div>
       </div>
     </div>

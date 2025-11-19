@@ -9,20 +9,20 @@ export default function StudentLandingPage() {
       {/* Background with Paris imagery */}
       <div className="absolute inset-0">
         <Image
-          src="/images/paris/paris-street.jpg"
-          alt="Paris street"
+          src="https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=1920&q=80"
+          alt="Beautiful Paris street scene with classic architecture"
           fill
           className="object-cover opacity-15"
           priority
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-50/95 via-white/98 to-blue-50/95" />
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-50/90 via-pink-50/85 to-blue-50/90" />
       </div>
       <div className="absolute inset-0 pattern-grid opacity-30" />
 
       {/* Content */}
       <div className="relative z-10">
         {/* Header */}
-        <header className="border-b border-white/20 backdrop-blur-md bg-white/50 sticky top-0 z-50 shadow-soft animate-fade-in-down">
+        <header className="border-b border-white/20 backdrop-blur-md bg-white/20 sticky top-0 z-50 shadow-soft animate-fade-in-down">
           <div className="container mx-auto px-4 py-4 flex justify-between items-center">
             <Link href="/" className="flex items-center space-x-2 group">
               <div className="p-1.5 rounded-lg gradient-vibrant text-white group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-premium">
@@ -76,15 +76,16 @@ export default function StudentLandingPage() {
             </div>
 
             {/* Value Proposition */}
-            <div className="bg-white/90 backdrop-blur-md rounded-3xl shadow-xl border border-gray-200 animate-fade-in-up relative overflow-hidden">
-              <div className="absolute inset-0 opacity-5">
+            <div className="backdrop-blur-md rounded-3xl shadow-xl border border-gray-200 animate-fade-in-up relative overflow-hidden">
+              <div className="absolute inset-0 opacity-15">
                 <Image
-                  src="/images/paris/arc-de-triomphe.jpg"
-                  alt="Arc de Triomphe"
+                  src="https://images.unsplash.com/photo-1499856871958-5b9627545d1a?w=1200&q=80"
+                  alt="Arc de Triomphe and Paris landmarks"
                   fill
                   className="object-cover"
                 />
               </div>
+              <div className="absolute inset-0 bg-white/75 backdrop-blur-sm" />
               <div className="relative z-10 p-8 md:p-12">
                 <h2 className="text-4xl font-bold text-center mb-12">Why Guide with WanderNest?</h2>
                 <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -182,7 +183,17 @@ export default function StudentLandingPage() {
               <h2 className="text-4xl font-bold text-center mb-10 text-gradient-vibrant">Common Questions</h2>
 
               <div className="space-y-4">
-                <details className="group rounded-xl border-2 border-gray-200 p-5 hover:border-blue-400 hover:shadow-soft transition-all hover-lift bg-white/50">
+                <details className="group rounded-xl border-2 border-gray-200 p-5 hover:border-blue-400 hover:shadow-soft transition-all hover-lift relative overflow-hidden">
+                  <div className="absolute inset-0 opacity-5">
+                    <Image
+                      src="https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=600&q=80"
+                      alt="Student studying"
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                  <div className="absolute inset-0 bg-white/70 backdrop-blur-sm" />
+                  <div className="relative z-10">
                   <summary className="font-bold cursor-pointer list-none flex justify-between items-center">
                     <span className="text-lg group-hover:text-blue-700 transition-colors">How much time do I need to commit?</span>
                     <CheckCircle className="w-5 h-5 text-blue-600 group-open:rotate-180 transition-transform" />
@@ -191,9 +202,20 @@ export default function StudentLandingPage() {
                     Most experiences are 3-4 hours. You set your own availability blocks and can update them anytime.
                     You&apos;re in complete control of when you&apos;re available to guide.
                   </p>
+                  </div>
                 </details>
 
-                <details className="group rounded-xl border-2 border-gray-200 p-5 hover:border-purple-400 hover:shadow-soft transition-all hover-lift bg-white/50">
+                <details className="group rounded-xl border-2 border-gray-200 p-5 hover:border-purple-400 hover:shadow-soft transition-all hover-lift relative overflow-hidden">
+                  <div className="absolute inset-0 opacity-5">
+                    <Image
+                      src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=600&q=80"
+                      alt="Students collaborating"
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                  <div className="absolute inset-0 bg-white/70 backdrop-blur-sm" />
+                  <div className="relative z-10">
                   <summary className="font-bold cursor-pointer list-none flex justify-between items-center">
                     <span className="text-lg group-hover:text-purple-700 transition-colors">Do I need to speak multiple languages?</span>
                     <CheckCircle className="w-5 h-5 text-purple-600 group-open:rotate-180 transition-transform" />
@@ -202,9 +224,20 @@ export default function StudentLandingPage() {
                     No! We match you with visitors from your home country, so you can communicate in your native language.
                     This makes the experience more authentic and comfortable for everyone.
                   </p>
+                  </div>
                 </details>
 
-                <details className="group rounded-xl border-2 border-gray-200 p-5 hover:border-green-400 hover:shadow-soft transition-all hover-lift bg-white/50">
+                <details className="group rounded-xl border-2 border-gray-200 p-5 hover:border-green-400 hover:shadow-soft transition-all hover-lift relative overflow-hidden">
+                  <div className="absolute inset-0 opacity-5">
+                    <Image
+                      src="https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=600&q=80"
+                      alt="Student with books"
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                  <div className="absolute inset-0 bg-white/70 backdrop-blur-sm" />
+                  <div className="relative z-10">
                   <summary className="font-bold cursor-pointer list-none flex justify-between items-center">
                     <span className="text-lg group-hover:text-green-700 transition-colors">What about exam periods?</span>
                     <CheckCircle className="w-5 h-5 text-green-600 group-open:rotate-180 transition-transform" />
@@ -213,9 +246,20 @@ export default function StudentLandingPage() {
                     You can mark specific dates or periods when you&apos;re unavailable (like exam weeks or holidays).
                     Simply update your availability calendar, and you won&apos;t receive requests during those times.
                   </p>
+                  </div>
                 </details>
 
-                <details className="group rounded-xl border-2 border-gray-200 p-5 hover:border-pink-400 hover:shadow-soft transition-all hover-lift bg-white/50">
+                <details className="group rounded-xl border-2 border-gray-200 p-5 hover:border-pink-400 hover:shadow-soft transition-all hover-lift relative overflow-hidden">
+                  <div className="absolute inset-0 opacity-5">
+                    <Image
+                      src="https://images.unsplash.com/photo-1553729459-efe14ef6055d?w=600&q=80"
+                      alt="Money and payment"
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                  <div className="absolute inset-0 bg-white/70 backdrop-blur-sm" />
+                  <div className="relative z-10">
                   <summary className="font-bold cursor-pointer list-none flex justify-between items-center">
                     <span className="text-lg group-hover:text-pink-700 transition-colors">How do I get paid?</span>
                     <CheckCircle className="w-5 h-5 text-pink-600 group-open:rotate-180 transition-transform" />
@@ -224,6 +268,7 @@ export default function StudentLandingPage() {
                     You arrange payment directly with tourists. WanderNest is a marketplace connector only -
                     we facilitate introductions but don&apos;t handle payments. You set your own rates and payment methods.
                   </p>
+                  </div>
                 </details>
               </div>
             </div>
@@ -282,7 +327,7 @@ export default function StudentLandingPage() {
         </main>
 
         {/* Footer */}
-        <footer className="border-t bg-white/80 backdrop-blur-sm mt-16">
+        <footer className="border-t bg-white/40 backdrop-blur-md mt-16">
           <div className="container mx-auto px-4 py-8 text-center text-gray-600">
             <p>&copy; {new Date().getFullYear()} WanderNest. All rights reserved.</p>
           </div>

@@ -78,8 +78,22 @@ export default function RootLayout({
     <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
       <body className={inter.className}>
         <Providers>
-          <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
-            {children}
+          <div className="min-h-screen relative">
+            {/* Subtle world map background image */}
+            <div
+              className="fixed inset-0 z-0 opacity-[0.03]"
+              style={{
+                backgroundImage: 'url(https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?w=1920&q=80)',
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                backgroundRepeat: 'no-repeat'
+              }}
+            />
+            {/* Gradient overlay */}
+            <div className="fixed inset-0 z-0 bg-gradient-to-br from-blue-50/95 via-purple-50/90 to-pink-50/95 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900" />
+            <div className="relative z-10">
+              {children}
+            </div>
           </div>
         </Providers>
       </body>

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Session } from 'next-auth';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { BasicProfileStep } from './BasicProfileStep';
 import { StudentVerificationStep } from './StudentVerificationStep';
@@ -222,7 +223,7 @@ export function OnboardingWizard({ session }: OnboardingWizardProps) {
   return (
     <div className="min-h-screen flex flex-col">
       {/* Header */}
-      <header className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50">
+      <header className="border-b bg-white/30 backdrop-blur-md sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <Link href="/" className="flex items-center space-x-2">
             <span className="text-2xl">🌍</span>
@@ -237,7 +238,17 @@ export function OnboardingWizard({ session }: OnboardingWizardProps) {
       </header>
 
       {/* Progress Indicator */}
-      <div className="border-b bg-white">
+      <div className="border-b relative overflow-hidden">
+        <div className="absolute inset-0 opacity-5">
+          <Image
+            src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=1920&q=80"
+            alt="Students background"
+            fill
+            className="object-cover"
+          />
+        </div>
+        <div className="absolute inset-0 bg-white/70 backdrop-blur-sm" />
+        <div className="relative z-10">
         <div className="container mx-auto px-4 py-6">
           <div className="max-w-4xl mx-auto">
             <div className="flex items-center justify-between mb-2">
@@ -272,12 +283,23 @@ export function OnboardingWizard({ session }: OnboardingWizardProps) {
             </div>
           </div>
         </div>
+        </div>
       </div>
 
       {/* Form Content */}
       <main className="flex-1 container mx-auto px-4 py-8">
         <div className="max-w-3xl mx-auto">
-          <div className="bg-white rounded-2xl border shadow-lg p-8">
+          <div className="relative overflow-hidden rounded-2xl border shadow-lg p-8">
+            <div className="absolute inset-0 opacity-10">
+              <Image
+                src="https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=1200&q=80"
+                alt="Student life background"
+                fill
+                className="object-cover"
+              />
+            </div>
+            <div className="absolute inset-0 bg-white/85 backdrop-blur-sm" />
+            <div className="relative z-10">
             {/* Step Content */}
             {currentStep === 1 && (
               <BasicProfileStep
@@ -342,6 +364,7 @@ export function OnboardingWizard({ session }: OnboardingWizardProps) {
                 {errors.submit}
               </div>
             )}
+            </div>
           </div>
         </div>
       </main>

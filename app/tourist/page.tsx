@@ -15,20 +15,20 @@ export default function TouristLanding() {
       {/* Background with London imagery */}
       <div className="absolute inset-0">
         <Image
-          src="/images/london/thames.jpg"
-          alt="Thames River"
+          src="https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=1920&q=80"
+          alt="Beautiful London Thames River with iconic architecture"
           fill
           className="object-cover opacity-15"
           priority
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-50/95 via-white/98 to-indigo-50/95" />
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-50/90 via-indigo-50/85 to-purple-50/90" />
       </div>
       <div className="absolute inset-0 pattern-dots opacity-30" />
 
       {/* Content */}
       <div className="relative z-10">
         {/* Header */}
-        <header className="border-b border-white/20 backdrop-blur-md bg-white/50 sticky top-0 z-50 shadow-soft animate-fade-in-down">
+        <header className="border-b border-white/20 backdrop-blur-md bg-white/20 sticky top-0 z-50 shadow-soft animate-fade-in-down">
           <div className="container mx-auto px-4 py-4 flex justify-between items-center">
             <Link href="/" className="flex items-center space-x-2 group">
               <div className="p-1.5 rounded-lg gradient-vibrant text-white group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-premium">
@@ -120,15 +120,17 @@ export default function TouristLanding() {
 
             {/* Features */}
             <div className="grid md:grid-cols-3 gap-8 pt-8 animate-fade-in-up delay-100">
-              <div className="bg-white/90 backdrop-blur-md rounded-2xl shadow-lg border border-gray-200 hover-lift group relative overflow-hidden">
-                <div className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-500">
+              <div className="backdrop-blur-md rounded-2xl shadow-lg border border-gray-200 hover-lift group relative overflow-hidden">
+                <div className="absolute inset-0 opacity-15 group-hover:opacity-25 transition-opacity duration-500">
                   <Image
-                    src="/images/london/big-ben.jpg"
-                    alt="Big Ben"
+                    src="https://images.unsplash.com/photo-1529667083337-e36bedc13cfa?w=800&q=80"
+                    alt="University students learning and collaborating"
                     fill
                     className="object-cover"
                   />
                 </div>
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-400/20 to-blue-300/20" />
+                <div className="absolute inset-0 bg-white/70 backdrop-blur-sm" />
                 <div className="relative z-10 p-8">
                   <div className="inline-flex p-4 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 text-white mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
                     <GraduationCap className="w-8 h-8" />
@@ -140,15 +142,17 @@ export default function TouristLanding() {
                 </div>
               </div>
 
-              <div className="bg-white/90 backdrop-blur-md rounded-2xl shadow-lg border border-gray-200 hover-lift group relative overflow-hidden">
-                <div className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-500">
+              <div className="backdrop-blur-md rounded-2xl shadow-lg border border-gray-200 hover-lift group relative overflow-hidden">
+                <div className="absolute inset-0 opacity-15 group-hover:opacity-25 transition-opacity duration-500">
                   <Image
-                    src="/images/paris/paris-cafe.jpg"
-                    alt="Paris cafe"
+                    src="https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=800&q=80"
+                    alt="Cozy Parisian cafe with authentic ambiance"
                     fill
                     className="object-cover"
                   />
                 </div>
+                <div className="absolute inset-0 bg-gradient-to-br from-purple-400/20 to-purple-300/20" />
+                <div className="absolute inset-0 bg-white/70 backdrop-blur-sm" />
                 <div className="relative z-10 p-8">
                   <div className="inline-flex p-4 rounded-2xl bg-gradient-to-br from-purple-500 to-purple-600 text-white mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
                     <MessageCircle className="w-8 h-8" />
@@ -160,15 +164,17 @@ export default function TouristLanding() {
                 </div>
               </div>
 
-              <div className="bg-white/90 backdrop-blur-md rounded-2xl shadow-lg border border-gray-200 hover-lift group relative overflow-hidden">
-                <div className="absolute inset-0 opacity-0 group-hover:opacity-10 transition-opacity duration-500">
+              <div className="backdrop-blur-md rounded-2xl shadow-lg border border-gray-200 hover-lift group relative overflow-hidden">
+                <div className="absolute inset-0 opacity-15 group-hover:opacity-25 transition-opacity duration-500">
                   <Image
-                    src="/images/london/london-bridge.jpg"
-                    alt="London bridge"
+                    src="https://images.unsplash.com/photo-1533929736458-ca588d08c8be?w=800&q=80"
+                    alt="Iconic London bridge and cityscape"
                     fill
                     className="object-cover"
                   />
                 </div>
+                <div className="absolute inset-0 bg-gradient-to-br from-pink-400/20 to-pink-300/20" />
+                <div className="absolute inset-0 bg-white/70 backdrop-blur-sm" />
                 <div className="relative z-10 p-8">
                   <div className="inline-flex p-4 rounded-2xl bg-gradient-to-br from-pink-500 to-pink-600 text-white mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
                     <Star className="w-8 h-8" />
@@ -257,7 +263,7 @@ export default function TouristLanding() {
         </main>
 
         {/* Footer */}
-        <footer className="border-t bg-white/80 backdrop-blur-sm mt-16">
+        <footer className="border-t bg-white/40 backdrop-blur-md mt-16">
           <div className="container mx-auto px-4 py-8 text-center text-gray-600">
             <p>&copy; {new Date().getFullYear()} WanderNest. All rights reserved.</p>
           </div>
