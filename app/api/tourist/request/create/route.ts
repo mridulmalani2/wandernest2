@@ -3,11 +3,12 @@ export const dynamic = 'force-dynamic'
 
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth-options';
+// import { getServerSession } from 'next-auth';
+// import { authOptions } from '@/lib/auth-options';
 import { prisma } from '@/lib/prisma';
 import { sendBookingConfirmation } from '@/lib/email';
 
+// AUTH DISABLED FOR DEVELOPMENT - DATABASE_URL not configured
 // Validation schema for authenticated booking request
 const createBookingSchema = z.object({
   // Trip Details
@@ -42,36 +43,46 @@ const createBookingSchema = z.object({
  */
 export async function POST(req: NextRequest) {
   try {
-    // Get session from NextAuth
-    const session = await getServerSession(authOptions);
+    // // Get session from NextAuth
+    // const session = await getServerSession(authOptions);
 
-    if (!session?.user?.email) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized. Please sign in.' },
-        { status: 401 }
-      );
-    }
+    // if (!session?.user?.email) {
+    //   return NextResponse.json(
+    //     { success: false, error: 'Unauthorized. Please sign in.' },
+    //     { status: 401 }
+    //   );
+    // }
 
-    // Verify user is a tourist
-    if (session.user.userType !== 'tourist') {
-      return NextResponse.json(
-        { success: false, error: 'Access denied. Tourist account required.' },
-        { status: 403 }
-      );
-    }
+    // // Verify user is a tourist
+    // if (session.user.userType !== 'tourist') {
+    //   return NextResponse.json(
+    //     { success: false, error: 'Access denied. Tourist account required.' },
+    //     { status: 403 }
+    //   );
+    // }
 
-    // Get tourist ID
-    const touristId = session.user.touristId;
+    // // Get tourist ID
+    // const touristId = session.user.touristId;
 
-    if (!touristId) {
-      return NextResponse.json(
-        { success: false, error: 'Tourist profile not found' },
-        { status: 404 }
-      );
-    }
+    // if (!touristId) {
+    //   return NextResponse.json(
+    //     { success: false, error: 'Tourist profile not found' },
+    //     { status: 404 }
+    //   );
+    // }
+
+    // DEV MODE: Return mock success since we can't create DB records without auth
+    return NextResponse.json(
+      {
+        success: true,
+        message: '[DEV MODE] Booking creation disabled - DATABASE_URL not configured',
+        requestId: 'dev-mock-' + Date.now(),
+      },
+      { status: 201 }
+    );
 
     // Parse and validate request body
-    const body = await req.json();
+    /* const body = await req.json();
     const validatedData = createBookingSchema.parse(body);
 
     // Create the TouristRequest in database
@@ -124,7 +135,7 @@ export async function POST(req: NextRequest) {
         request: touristRequest,
       },
       { status: 201 }
-    );
+    ); */
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
