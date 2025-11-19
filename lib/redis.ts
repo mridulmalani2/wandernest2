@@ -5,45 +5,50 @@ const globalForRedis = globalThis as unknown as {
   redis: Redis | null | undefined
 }
 
-// Lazy initialization - only create connection when actually used
-// This prevents Redis from connecting during build time
+// Get or create Redis client singleton
+// Connection is established immediately and reused across invocations
 function getRedisClient(): Redis | null {
   // Skip Redis if no URL is configured
   if (!process.env.REDIS_URL) {
     return null
   }
 
-  if (globalForRedis.redis === undefined) {
-    try {
-      const client = new Redis(process.env.REDIS_URL, {
-        maxRetriesPerRequest: 3,
-        enableOfflineQueue: false,
-        retryStrategy: (times) => {
-          if (times > 3) {
-            return null
-          }
-          return Math.min(times * 100, 3000)
-        },
-        lazyConnect: true,
-      })
-
-      client.on('error', (err) => {
-        console.error('Redis connection error:', err.message)
-      })
-
-      if (process.env.NODE_ENV !== 'production') {
-        globalForRedis.redis = client
-      }
-
-      return client
-    } catch (error) {
-      console.error('Failed to create Redis client:', error)
-      globalForRedis.redis = null
-      return null
-    }
+  // Return cached client if available
+  if (globalForRedis.redis !== undefined) {
+    return globalForRedis.redis
   }
 
-  return globalForRedis.redis
+  // Create new client
+  try {
+    const client = new Redis(process.env.REDIS_URL, {
+      maxRetriesPerRequest: 3,
+      enableOfflineQueue: false,
+      retryStrategy: (times) => {
+        if (times > 3) {
+          return null
+        }
+        return Math.min(times * 100, 3000)
+      },
+      lazyConnect: false, // Connect immediately on creation
+    })
+
+    client.on('error', (err) => {
+      console.error('Redis connection error:', err.message)
+    })
+
+    client.on('connect', () => {
+      console.log('Redis connected successfully')
+    })
+
+    // Cache the client globally for reuse across serverless invocations
+    globalForRedis.redis = client
+
+    return client
+  } catch (error) {
+    console.error('Failed to create Redis client:', error)
+    globalForRedis.redis = null
+    return null
+  }
 }
 
 // Verification code operations - fallback to database if Redis unavailable
@@ -60,7 +65,6 @@ export async function storeVerificationCode(
   }
 
   try {
-    await redis.connect()
     const key = `verification:${email}`
     await redis.setex(key, ttl, JSON.stringify({ code, attempts: 0 }))
   } catch (error) {
@@ -78,7 +82,6 @@ export async function getVerificationData(
   }
 
   try {
-    await redis.connect()
     const key = `verification:${email}`
     const data = await redis.get(key)
     return data ? JSON.parse(data) : null
@@ -96,7 +99,6 @@ export async function incrementVerificationAttempts(
   if (!redis) return 0
 
   try {
-    await redis.connect()
     const key = `verification:${email}`
     const data = await getVerificationData(email)
 
@@ -124,7 +126,6 @@ export async function deleteVerificationCode(email: string): Promise<void> {
   if (!redis) return
 
   try {
-    await redis.connect()
     const key = `verification:${email}`
     await redis.del(key)
   } catch (error) {

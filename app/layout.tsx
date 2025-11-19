@@ -18,7 +18,7 @@ const playfair = Playfair_Display({
 })
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://wandernest.vercel.app'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://wandernest.vercel.app'),
   title: {
     default: 'WanderNest - Connect with Local Student Guides for Authentic Travel',
     template: '%s | WanderNest'
@@ -36,7 +36,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: 'https://wandernest.vercel.app',
+    url: process.env.NEXT_PUBLIC_BASE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://wandernest.vercel.app'),
     title: 'WanderNest - Connect with Local Student Guides for Authentic Travel',
     description: 'Experience authentic travel with verified local student guides. Discover hidden gems and explore cities like a local.',
     siteName: 'WanderNest',

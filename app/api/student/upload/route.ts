@@ -2,6 +2,7 @@
 export const dynamic = 'force-dynamic'
 
 import { NextRequest, NextResponse } from 'next/server';
+import { put } from '@vercel/blob';
 
 export async function POST(req: NextRequest) {
   try {
@@ -34,22 +35,40 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Convert file to Base64 for database storage
-    // This is suitable for Vercel serverless functions where filesystem is read-only
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-    const base64 = buffer.toString('base64');
-
-    // Create data URL with mime type
-    const dataUrl = `data:${file.type};base64,${base64}`;
+    // Upload to Vercel Blob Storage
+    // This is the recommended approach for Vercel deployments
+    // - Files are stored in a CDN for fast access
+    // - No database bloat from Base64 encoding
+    // - Automatic optimization and caching
+    const blob = await put(file.name, file, {
+      access: 'public',
+      addRandomSuffix: true, // Prevents filename conflicts
+    });
 
     return NextResponse.json({
       success: true,
-      url: dataUrl, // Return data URL instead of file path
+      url: blob.url, // CDN URL for accessing the file
       filename: file.name,
+      size: file.size,
+      contentType: file.type,
     });
   } catch (error) {
     console.error('File upload error:', error);
+
+    // Provide more specific error messages
+    if (error instanceof Error) {
+      // Check if it's a Vercel Blob configuration error
+      if (error.message.includes('BLOB_READ_WRITE_TOKEN')) {
+        return NextResponse.json(
+          {
+            error: 'File upload service not configured. Please set up Vercel Blob storage.',
+            details: 'Missing BLOB_READ_WRITE_TOKEN environment variable'
+          },
+          { status: 500 }
+        );
+      }
+    }
+
     return NextResponse.json(
       { error: 'Failed to upload file' },
       { status: 500 }
