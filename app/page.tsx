@@ -128,7 +128,9 @@ export default function MainLanding() {
               </Link>
 
               {/* Student CTA */}
-              <Link href="/student" className="animate-fade-in-up delay-100">
+              {/* Temporarily commented out for MVP - linking to Google Form instead of student page */}
+              {/* <Link href="/student" className="animate-fade-in-up delay-100"> */}
+              <a href="https://forms.gle/fhzBnMAh2eGbGSyt8" target="_blank" rel="noopener noreferrer" className="animate-fade-in-up delay-100">
                 <div className="group cursor-pointer backdrop-blur-md rounded-3xl shadow-xl hover:shadow-2xl border-2 border-white/40 hover:border-purple-400/80 transition-all duration-500 hover-lift relative overflow-hidden">
                   {/* Background Image */}
                   <div className="absolute inset-0 opacity-20 group-hover:opacity-30 transition-opacity duration-500">
@@ -161,7 +163,8 @@ export default function MainLanding() {
                     </Button>
                   </div>
                 </div>
-              </Link>
+              </a>
+              {/* </Link> */}
             </div>
 
             {/* Visual Features Section with Images */}
