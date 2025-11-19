@@ -12,13 +12,13 @@ export default function GuideCard({ guide, isSelected, onSelect }: GuideCardProp
   const getBadgeColor = (badge: string) => {
     switch (badge) {
       case 'gold':
-        return 'bg-yellow-400 text-yellow-900'
+        return 'bg-yellow-400 text-yellow-950 shadow-sm'
       case 'silver':
-        return 'bg-gray-300 text-gray-900'
+        return 'bg-slate-400 text-slate-950 shadow-sm'
       case 'bronze':
-        return 'bg-amber-600 text-white'
+        return 'bg-amber-600 text-white shadow-sm'
       default:
-        return 'bg-gray-100 text-gray-600'
+        return 'bg-muted text-muted-foreground'
     }
   }
 
@@ -42,7 +42,7 @@ export default function GuideCard({ guide, isSelected, onSelect }: GuideCardProp
     const emptyStars = 5 - Math.ceil(rating)
     for (let i = 0; i < emptyStars; i++) {
       stars.push(
-        <span key={`empty-${i}`} className="text-gray-300">★</span>
+        <span key={`empty-${i}`} className="text-gray-400">★</span>
       )
     }
 
@@ -52,10 +52,10 @@ export default function GuideCard({ guide, isSelected, onSelect }: GuideCardProp
   return (
     <div
       className={`
-        relative border rounded-lg p-6 cursor-pointer transition-all
+        relative border rounded-lg p-6 cursor-pointer transition-all glass-card hover-lift
         ${isSelected
-          ? 'border-blue-500 bg-blue-50 shadow-md'
-          : 'border-gray-200 hover:border-gray-300 hover:shadow-sm'
+          ? 'border-primary bg-primary/5 shadow-premium ring-2 ring-primary/20'
+          : 'border-border/50 hover:border-primary/30 hover:shadow-soft'
         }
       `}
       onClick={() => onSelect(guide.id)}
@@ -66,32 +66,32 @@ export default function GuideCard({ guide, isSelected, onSelect }: GuideCardProp
           type="checkbox"
           checked={isSelected}
           onChange={() => onSelect(guide.id)}
-          className="w-5 h-5 text-blue-600 rounded focus:ring-blue-500"
+          className="w-5 h-5 text-primary rounded focus:ring-primary"
           onClick={(e) => e.stopPropagation()}
         />
       </div>
 
       {/* Anonymous ID */}
       <div className="mb-4">
-        <h3 className="text-xl font-semibold text-gray-800">
+        <h3 className="text-xl font-semibold text-foreground">
           {guide.anonymousId}
         </h3>
       </div>
 
       {/* University */}
       <div className="mb-3">
-        <p className="text-sm text-gray-600">University</p>
-        <p className="text-base font-medium text-gray-900">{guide.university}</p>
+        <p className="text-sm text-muted-foreground">University</p>
+        <p className="text-base font-medium text-foreground">{guide.university}</p>
       </div>
 
       {/* Languages */}
       <div className="mb-3">
-        <p className="text-sm text-gray-600">Languages</p>
+        <p className="text-sm text-muted-foreground">Languages</p>
         <div className="flex flex-wrap gap-2 mt-1">
           {guide.languages.map((lang, index) => (
             <span
               key={index}
-              className="px-2 py-1 bg-gray-100 text-gray-700 text-sm rounded"
+              className="px-2 py-1 bg-primary/10 text-primary text-sm rounded border border-primary/20"
             >
               {lang}
             </span>
@@ -101,18 +101,18 @@ export default function GuideCard({ guide, isSelected, onSelect }: GuideCardProp
 
       {/* Trips Hosted */}
       <div className="mb-3">
-        <p className="text-sm text-gray-600">Trips Hosted</p>
-        <p className="text-base font-medium text-gray-900">{guide.tripsHosted}</p>
+        <p className="text-sm text-muted-foreground">Trips Hosted</p>
+        <p className="text-base font-medium text-foreground">{guide.tripsHosted}</p>
       </div>
 
       {/* Rating */}
       <div className="mb-3">
-        <p className="text-sm text-gray-600">Rating</p>
+        <p className="text-sm text-muted-foreground">Rating</p>
         <div className="flex items-center gap-2">
           <div className="flex text-lg">
             {renderStars(guide.rating)}
           </div>
-          <span className="text-sm text-gray-600">
+          <span className="text-sm text-muted-foreground">
             ({guide.rating.toFixed(1)})
           </span>
         </div>
@@ -134,7 +134,7 @@ export default function GuideCard({ guide, isSelected, onSelect }: GuideCardProp
 
       {/* Score (for debugging - can be removed in production) */}
       {guide.score !== undefined && (
-        <div className="mt-2 text-xs text-gray-400">
+        <div className="mt-2 text-xs text-muted-foreground/60">
           Match Score: {guide.score}
         </div>
       )}

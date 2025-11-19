@@ -1,17 +1,19 @@
 import type { Metadata } from 'next'
-import { Inter, Playfair_Display } from 'next/font/google'
+import { DM_Sans, Crimson_Pro } from 'next/font/google'
 import './globals.css'
 import { Providers } from './providers'
 
-const inter = Inter({
+const dmSans = DM_Sans({
   subsets: ['latin'],
-  variable: '--font-inter',
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-dm-sans',
   display: 'swap',
 })
 
-const playfair = Playfair_Display({
+const crimsonPro = Crimson_Pro({
   subsets: ['latin'],
-  variable: '--font-playfair',
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-crimson',
   display: 'swap',
 })
 
@@ -75,13 +77,13 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
-      <body className={inter.className}>
+    <html lang="en" className={`${dmSans.variable} ${crimsonPro.variable}`}>
+      <body className={dmSans.className}>
         <Providers>
           <div className="min-h-screen relative">
-            {/* Subtle world map background image */}
+            {/* Subtle world map background image with parallax */}
             <div
-              className="fixed inset-0 z-0 opacity-[0.03]"
+              className="fixed inset-0 z-0 opacity-[0.04] parallax-bg"
               style={{
                 backgroundImage: 'url(https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?w=1920&q=80)',
                 backgroundSize: 'cover',
@@ -89,8 +91,8 @@ export default function RootLayout({
                 backgroundRepeat: 'no-repeat'
               }}
             />
-            {/* Gradient overlay */}
-            <div className="fixed inset-0 z-0 bg-gradient-to-br from-blue-50/95 via-purple-50/90 to-pink-50/95 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900" />
+            {/* Gradient overlay with new color scheme */}
+            <div className="fixed inset-0 z-0 bg-gradient-to-br from-cyan-50/95 via-purple-50/90 to-orange-50/95 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 backdrop-blur-[2px]" />
             <div className="relative z-10">
               {children}
             </div>

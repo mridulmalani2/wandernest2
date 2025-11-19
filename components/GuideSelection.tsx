@@ -95,8 +95,8 @@ export default function GuideSelection({
     return (
       <div className="flex items-center justify-center py-12">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Finding the best guides for you...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Finding the best guides for you...</p>
         </div>
       </div>
     )
@@ -104,11 +104,11 @@ export default function GuideSelection({
 
   if (error) {
     return (
-      <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
-        <p className="text-red-600">{error}</p>
+      <div className="glass-card border border-destructive/20 rounded-lg p-6 text-center">
+        <p className="text-destructive font-medium">{error}</p>
         <button
           onClick={fetchMatches}
-          className="mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+          className="mt-4 px-4 py-2 bg-destructive text-destructive-foreground rounded-lg hover:bg-destructive/90 shadow-soft hover:shadow-premium transition-all"
         >
           Try Again
         </button>
@@ -118,8 +118,8 @@ export default function GuideSelection({
 
   if (guides.length === 0) {
     return (
-      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 text-center">
-        <p className="text-yellow-800">
+      <div className="glass-card border border-accent/20 rounded-lg p-6 text-center">
+        <p className="text-foreground">
           No guides found matching your criteria. Please try adjusting your preferences.
         </p>
       </div>
@@ -130,27 +130,31 @@ export default function GuideSelection({
     <div className="space-y-6">
       {/* Header */}
       <div className="text-center">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">
+        <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-2 font-serif">
           Select Your Guides
         </h2>
-        <p className="text-gray-600">
+        <p className="text-muted-foreground text-lg">
           We found {guides.length} guide{guides.length !== 1 ? 's' : ''} for you.
           Select the ones you would like to connect with.
         </p>
-        <p className="text-sm text-gray-500 mt-1">
+        <p className="text-sm text-muted-foreground/80 mt-2 font-medium">
           {selectedGuides.size} guide{selectedGuides.size !== 1 ? 's' : ''} selected
         </p>
       </div>
 
       {/* Guide Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {guides.map(guide => (
-          <GuideCard
+        {guides.map((guide, index) => (
+          <div
             key={guide.id}
-            guide={guide}
-            isSelected={selectedGuides.has(guide.id)}
-            onSelect={handleGuideSelect}
-          />
+            className={`animate-fade-in-up stagger-${Math.min(index % 6 + 1, 6)}`}
+          >
+            <GuideCard
+              guide={guide}
+              isSelected={selectedGuides.has(guide.id)}
+              onSelect={handleGuideSelect}
+            />
+          </div>
         ))}
       </div>
 
@@ -160,12 +164,12 @@ export default function GuideSelection({
           onClick={handleSubmit}
           disabled={selectedGuides.size === 0 || submitting}
           className={`
-            px-8 py-3 rounded-lg font-medium text-white
+            px-8 py-3 rounded-lg font-semibold text-white
             ${selectedGuides.size === 0 || submitting
-              ? 'bg-gray-400 cursor-not-allowed'
-              : 'bg-blue-600 hover:bg-blue-700'
+              ? 'bg-muted text-muted-foreground cursor-not-allowed'
+              : 'bg-primary hover:bg-primary/90 shadow-premium hover:shadow-elevated hover:-translate-y-0.5'
             }
-            transition-colors
+            transition-all duration-300 active:scale-95
           `}
         >
           {submitting ? 'Saving...' : `Confirm Selection (${selectedGuides.size})`}
