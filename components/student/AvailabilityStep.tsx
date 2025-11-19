@@ -345,7 +345,7 @@ export function AvailabilityStep({ formData, updateFormData, errors }: Availabil
           ))}
         </select>
         <p className="text-xs text-gray-500">
-          Your local timezone for scheduling guide sessions
+          Your local timezone for scheduling guide sessions. Tourists will see availability times converted to their timezone.
         </p>
         {errors.timezone && <p className="text-sm text-red-500">{errors.timezone}</p>}
       </div>

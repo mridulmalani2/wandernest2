@@ -141,7 +141,7 @@ export function OnboardingWizard({ session }: OnboardingWizardProps) {
     // Step 4: Availability
     availability: [],
     unavailabilityExceptions: [],
-    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    timezone: 'Europe/Paris', // Default to first available option to match dropdown
     preferredDurations: [],
 
     // Step 5: Service Preferences
@@ -381,7 +381,9 @@ export function OnboardingWizard({ session }: OnboardingWizardProps) {
 
           // Availability
           availability: formData.availability,
-          unavailabilityExceptions: formData.unavailabilityExceptions,
+          unavailabilityExceptions: formData.unavailabilityExceptions.length > 0
+            ? formData.unavailabilityExceptions
+            : undefined,
           timezone: formData.timezone,
           preferredDurations: formData.preferredDurations,
 

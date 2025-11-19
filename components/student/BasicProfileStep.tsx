@@ -211,7 +211,13 @@ export function BasicProfileStep({ formData, updateFormData, errors, cities }: B
             <Label htmlFor="campus">
               Campus <span className="text-red-500">*</span>
             </Label>
-            <Select value={formData.campus} onValueChange={(value) => updateFormData({ campus: value })}>
+            <Select value={formData.campus} onValueChange={(value) => {
+              updateFormData({
+                campus: value,
+                // Sync institute field with campus selection (unless "Other" is selected)
+                institute: value !== 'Other' ? value : formData.institute
+              });
+            }}>
               <SelectTrigger className={errors.campus ? 'border-red-500' : ''}>
                 <SelectValue placeholder="Select your campus/university" />
               </SelectTrigger>
