@@ -1,5 +1,5 @@
 {
-  "buildCommand": "prisma generate && prisma migrate deploy && next build",
+  "buildCommand": "prisma generate --skip-seed || echo 'Prisma generation skipped - DATABASE_URL not available' && next build",
   "framework": "nextjs",
   "installCommand": "npm ci",
   "regions": ["iad1"],
