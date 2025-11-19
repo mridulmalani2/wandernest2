@@ -3,6 +3,28 @@ const nextConfig = {
   // Optimize for Vercel serverless functions
   output: 'standalone',
 
+  // Production optimizations
+  swcMinify: true, // Use SWC for JS minification (faster than Terser)
+
+  // Compiler optimizations
+  compiler: {
+    // Remove console logs in production
+    removeConsole: process.env.NODE_ENV === 'production' ? {
+      exclude: ['error', 'warn'],
+    } : false,
+  },
+
+  // Enable experimental features for better optimization
+  experimental: {
+    // Optimize CSS loading
+    optimizeCss: true,
+    // Optimize package imports
+    optimizePackageImports: ['lucide-react', '@radix-ui/react-dialog', '@radix-ui/react-select'],
+  },
+
+  // Production source maps (disable for smaller bundle)
+  productionBrowserSourceMaps: false,
+
   // Enable image optimization with external domains
   images: {
     unoptimized: false,
