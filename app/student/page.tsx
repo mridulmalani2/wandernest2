@@ -1,7 +1,8 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
-import { Globe, DollarSign, Clock, Users, Shield, ChevronLeft, CheckCircle } from 'lucide-react'
+import Navigation from '@/components/Navigation'
+import { DollarSign, Clock, Users, Shield, CheckCircle } from 'lucide-react'
 
 export default function StudentLandingPage() {
   return (
@@ -12,38 +13,17 @@ export default function StudentLandingPage() {
           src="https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=1920&q=80"
           alt="Beautiful Paris street scene with classic architecture"
           fill
-          className="object-cover opacity-15"
+          className="object-cover opacity-50"
           priority
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-50/90 via-pink-50/85 to-blue-50/90" />
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-50/60 via-pink-50/55 to-blue-50/60" />
       </div>
-      <div className="absolute inset-0 pattern-grid opacity-30" />
+      <div className="absolute inset-0 pattern-grid opacity-20" />
 
       {/* Content */}
       <div className="relative z-10">
         {/* Header */}
-        <header className="border-b border-white/20 backdrop-blur-md bg-white/20 sticky top-0 z-50 shadow-soft animate-fade-in-down">
-          <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-            <Link href="/" className="flex items-center space-x-2 group">
-              <div className="p-1.5 rounded-lg gradient-vibrant text-white group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-premium">
-                <Globe className="w-6 h-6" />
-              </div>
-              <span className="text-2xl font-bold text-gradient-vibrant">
-                WanderNest
-              </span>
-            </Link>
-            <nav className="flex items-center space-x-3">
-              <Link href="/">
-                <Button variant="ghost" className="hover-lift hover:bg-purple-50">
-                  <ChevronLeft className="w-4 h-4 mr-1" /> Back to Home
-                </Button>
-              </Link>
-              <Link href="/student/signin">
-                <Button variant="outline" className="hover-lift border-2 hover:border-purple-400 hover:text-purple-600">Sign In</Button>
-              </Link>
-            </nav>
-          </div>
-        </header>
+        <Navigation variant="student" />
 
         {/* Hero Section */}
         <main className="flex-1 container mx-auto px-4 py-16">

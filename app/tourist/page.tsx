@@ -3,8 +3,9 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
+import Navigation from '@/components/Navigation'
 import { useSession, signIn } from 'next-auth/react'
-import { Globe, GraduationCap, MessageCircle, Star, AlertTriangle, ChevronLeft } from 'lucide-react'
+import { GraduationCap, MessageCircle, Star, AlertTriangle } from 'lucide-react'
 
 export default function TouristLanding() {
   const { data: session, status } = useSession()
@@ -18,38 +19,17 @@ export default function TouristLanding() {
           src="https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=1920&q=80"
           alt="Beautiful London Thames River with iconic architecture"
           fill
-          className="object-cover opacity-15"
+          className="object-cover opacity-50"
           priority
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-50/90 via-indigo-50/85 to-purple-50/90" />
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-50/60 via-indigo-50/55 to-purple-50/60" />
       </div>
-      <div className="absolute inset-0 pattern-dots opacity-30" />
+      <div className="absolute inset-0 pattern-dots opacity-20" />
 
       {/* Content */}
       <div className="relative z-10">
         {/* Header */}
-        <header className="border-b border-white/20 backdrop-blur-md bg-white/20 sticky top-0 z-50 shadow-soft animate-fade-in-down">
-          <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-            <Link href="/" className="flex items-center space-x-2 group">
-              <div className="p-1.5 rounded-lg gradient-vibrant text-white group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-premium">
-                <Globe className="w-6 h-6" />
-              </div>
-              <span className="text-2xl font-bold text-gradient-vibrant">
-                WanderNest
-              </span>
-            </Link>
-            <nav className="flex items-center space-x-3">
-              <Link href="/">
-                <Button variant="ghost" className="hover-lift hover:bg-purple-50">
-                  <ChevronLeft className="w-4 h-4 mr-1" /> Back to Home
-                </Button>
-              </Link>
-              <Link href="/booking">
-                <Button className="gradient-ocean hover:shadow-glow-blue transition-all shadow-premium text-white">Book a Guide</Button>
-              </Link>
-            </nav>
-          </div>
-        </header>
+        <Navigation variant="tourist" />
 
         {/* Hero Section */}
         <main className="flex-1 container mx-auto px-4 py-16">

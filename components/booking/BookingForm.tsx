@@ -179,18 +179,44 @@ export function BookingForm() {
     <div className="w-full max-w-4xl mx-auto p-6">
       {/* Step Indicator */}
       <div className="mb-8">
-        <div className="flex items-center justify-between">
+        {/* Mobile Progress - Dots */}
+        <div className="md:hidden mb-4">
+          <div className="flex justify-center items-center space-x-2 mb-2">
+            {STEPS.map((step) => (
+              <div
+                key={step.id}
+                className={`h-2.5 rounded-full transition-all duration-300 ${
+                  currentStep > step.id
+                    ? 'bg-green-500 w-2.5'
+                    : currentStep === step.id
+                    ? 'bg-blue-600 w-8'
+                    : 'bg-gray-300 w-2.5'
+                }`}
+                aria-label={`Step ${step.id}: ${step.name}`}
+              />
+            ))}
+          </div>
+          <div className="text-center">
+            <p className="text-sm font-semibold text-gray-900">
+              Step {currentStep} of {STEPS.length}: {STEPS[currentStep - 1].name}
+            </p>
+            <p className="text-xs text-gray-600">{STEPS[currentStep - 1].description}</p>
+          </div>
+        </div>
+
+        {/* Desktop Progress - Full Stepper */}
+        <div className="hidden md:flex items-center justify-between">
           {STEPS.map((step, index) => (
             <div key={step.id} className="flex items-center flex-1">
               <div className="flex flex-col items-center flex-1">
                 <div
-                  className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-colors ${
+                  className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all duration-300 ${
                     currentStep >= step.id
-                      ? 'bg-blue-600 border-blue-600 text-white'
+                      ? 'bg-blue-600 border-blue-600 text-white shadow-lg scale-110'
                       : 'bg-white border-gray-300 text-gray-500'
                   }`}
                 >
-                  {step.id}
+                  {currentStep > step.id ? '✓' : step.id}
                 </div>
                 <div className="mt-2 text-center">
                   <p
@@ -205,7 +231,7 @@ export function BookingForm() {
               </div>
               {index < STEPS.length - 1 && (
                 <div
-                  className={`h-0.5 flex-1 mx-4 transition-colors ${
+                  className={`h-0.5 flex-1 mx-4 rounded transition-all duration-300 ${
                     currentStep > step.id ? 'bg-blue-600' : 'bg-gray-300'
                   }`}
                 />

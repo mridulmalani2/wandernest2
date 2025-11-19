@@ -5,6 +5,7 @@ import { Session } from 'next-auth';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
+import { Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { BasicProfileStep } from './BasicProfileStep';
 import { StudentVerificationStep } from './StudentVerificationStep';
@@ -223,15 +224,17 @@ export function OnboardingWizard({ session }: OnboardingWizardProps) {
   return (
     <div className="min-h-screen flex flex-col">
       {/* Header */}
-      <header className="border-b bg-white/30 backdrop-blur-md sticky top-0 z-50">
+      <header className="border-b bg-white/30 backdrop-blur-md sticky top-0 z-50 shadow-soft">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <Link href="/" className="flex items-center space-x-2">
-            <span className="text-2xl">🌍</span>
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+          <Link href="/" className="flex items-center space-x-2 group">
+            <div className="p-1.5 rounded-lg gradient-vibrant text-white group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-premium">
+              <Globe className="w-6 h-6" />
+            </div>
+            <h1 className="text-2xl font-bold text-gradient-vibrant">
               WanderNest
             </h1>
           </Link>
-          <div className="text-sm text-gray-600">
+          <div className="text-sm text-gray-600 font-medium">
             {session.user.email}
           </div>
         </div>
@@ -251,29 +254,55 @@ export function OnboardingWizard({ session }: OnboardingWizardProps) {
         <div className="relative z-10">
         <div className="container mx-auto px-4 py-6">
           <div className="max-w-4xl mx-auto">
-            <div className="flex items-center justify-between mb-2">
+            {/* Mobile Progress - Dots */}
+            <div className="md:hidden mb-4">
+              <div className="flex justify-center items-center space-x-2 mb-2">
+                {STEPS.map((step) => (
+                  <div
+                    key={step.id}
+                    className={`h-2.5 rounded-full transition-all duration-300 ${
+                      currentStep > step.id
+                        ? 'bg-green-500 w-2.5'
+                        : currentStep === step.id
+                        ? 'bg-blue-600 w-8'
+                        : 'bg-gray-300 w-2.5'
+                    }`}
+                    aria-label={`Step ${step.id}: ${step.name}`}
+                  />
+                ))}
+              </div>
+              <div className="text-center">
+                <p className="text-sm font-semibold text-gray-900">
+                  Step {currentStep} of {STEPS.length}: {STEPS[currentStep - 1].name}
+                </p>
+                <p className="text-xs text-gray-600">{STEPS[currentStep - 1].description}</p>
+              </div>
+            </div>
+
+            {/* Desktop Progress - Full Stepper */}
+            <div className="hidden md:flex items-center justify-between mb-2">
               {STEPS.map((step, index) => (
                 <div key={step.id} className="flex items-center flex-1">
                   <div className="flex flex-col items-center flex-1">
                     <div
-                      className={`w-10 h-10 rounded-full flex items-center justify-center font-bold mb-2 ${
+                      className={`w-10 h-10 rounded-full flex items-center justify-center font-bold mb-2 transition-all duration-300 ${
                         currentStep > step.id
-                          ? 'bg-green-500 text-white'
+                          ? 'bg-green-500 text-white shadow-lg'
                           : currentStep === step.id
-                          ? 'bg-blue-600 text-white'
+                          ? 'bg-blue-600 text-white shadow-lg scale-110'
                           : 'bg-gray-200 text-gray-600'
                       }`}
                     >
                       {currentStep > step.id ? '✓' : step.id}
                     </div>
                     <div className="text-center">
-                      <div className="text-xs font-medium hidden sm:block">{step.name}</div>
-                      <div className="text-xs text-gray-500 hidden md:block">{step.description}</div>
+                      <div className="text-xs font-medium">{step.name}</div>
+                      <div className="text-xs text-gray-500">{step.description}</div>
                     </div>
                   </div>
                   {index < STEPS.length - 1 && (
                     <div
-                      className={`h-1 flex-1 mx-2 mb-8 ${
+                      className={`h-1 flex-1 mx-2 mb-8 rounded transition-all duration-300 ${
                         currentStep > step.id ? 'bg-green-500' : 'bg-gray-200'
                       }`}
                     />

@@ -590,4 +590,87 @@
       linear-gradient(90deg, rgba(0,0,0,0.03) 1px, transparent 1px);
     background-size: 30px 30px;
   }
+
+  /* Accessibility Enhancements */
+  /* Enhanced focus states for better keyboard navigation */
+  *:focus-visible {
+    outline: 2px solid hsl(var(--primary));
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  button:focus-visible,
+  a:focus-visible,
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible {
+    outline: 3px solid hsl(var(--primary));
+    outline-offset: 2px;
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+  }
+
+  /* Focus styles for interactive cards and custom components */
+  .hover-lift:focus-visible,
+  .hover-lift-lg:focus-visible {
+    outline: 3px solid hsl(var(--primary));
+    outline-offset: 4px;
+    box-shadow: 0 0 0 6px rgba(99, 102, 241, 0.15);
+  }
+
+  /* Skip to main content link for screen readers */
+  .skip-to-main {
+    position: absolute;
+    left: -9999px;
+    z-index: 999;
+    padding: 1rem 1.5rem;
+    background-color: hsl(var(--primary));
+    color: white;
+    text-decoration: none;
+    border-radius: 0 0 0.5rem 0.5rem;
+  }
+
+  .skip-to-main:focus {
+    left: 50%;
+    transform: translateX(-50%);
+    top: 0;
+  }
+
+  /* Screen reader only content */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+
+  /* Reduce motion for users who prefer it */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  /* High contrast mode support */
+  @media (prefers-contrast: high) {
+    .glass,
+    .glass-card {
+      background: rgba(255, 255, 255, 0.95);
+      border: 2px solid currentColor;
+    }
+
+    button,
+    a {
+      border: 2px solid currentColor;
+    }
+  }
 }

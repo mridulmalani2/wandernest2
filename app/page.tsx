@@ -1,7 +1,8 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
-import { Globe, Plane, GraduationCap } from 'lucide-react'
+import Navigation from '@/components/Navigation'
+import { Plane, GraduationCap } from 'lucide-react'
 
 export const metadata = {
   title: 'WanderNest - Connect with Local Student Guides for Authentic Travel',
@@ -46,39 +47,20 @@ export default function MainLanding() {
       {/* Background Image with Overlay */}
       <div className="absolute inset-0">
         <Image
-          src="https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=1920&q=80"
-          alt="Young travelers exploring city together - authentic travel experience"
+          src="https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=1920&q=80"
+          alt="Beautiful Paris cityscape with Eiffel Tower - authentic travel experience"
           fill
-          className="object-cover opacity-20"
+          className="object-cover opacity-50"
           priority
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-50/85 via-purple-50/80 to-pink-50/85" />
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-50/60 via-purple-50/55 to-pink-50/60" />
       </div>
-      <div className="absolute inset-0 pattern-dots opacity-40" />
+      <div className="absolute inset-0 pattern-dots opacity-30" />
 
       {/* Content */}
       <div className="relative z-10 flex flex-col min-h-screen">
         {/* Header */}
-        <header className="w-full py-6 px-4 backdrop-blur-md bg-white/10 border-b border-white/20 animate-fade-in-down">
-          <div className="max-w-7xl mx-auto flex justify-between items-center">
-            <Link href="/" className="flex items-center space-x-2 group">
-              <div className="p-2 rounded-xl gradient-vibrant text-white group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 shadow-glow-blue">
-                <Globe className="w-8 h-8" />
-              </div>
-              <span className="text-3xl font-bold text-gradient-vibrant">
-                WanderNest
-              </span>
-            </Link>
-            <nav className="flex items-center space-x-3">
-              <Link href="/student">
-                <Button variant="outline" className="hover-lift border-2 hover:border-purple-400 hover:text-purple-600 transition-all">I&apos;m a Student</Button>
-              </Link>
-              <Link href="/booking">
-                <Button className="gradient-vibrant hover:shadow-glow-purple transition-all shadow-premium text-white">Book a Guide</Button>
-              </Link>
-            </nav>
-          </div>
-        </header>
+        <Navigation variant="default" />
 
         {/* Hero Section */}
         <main className="flex-1 container mx-auto px-4 py-12 flex flex-col items-center justify-center">
