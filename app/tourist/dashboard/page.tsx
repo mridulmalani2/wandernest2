@@ -1,10 +1,12 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useSession, signOut } from 'next-auth/react'
+// import { useSession, signOut } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
+
+// AUTH DISABLED FOR DEVELOPMENT - DATABASE_URL not configured
 
 interface TouristRequest {
   id: string
@@ -32,20 +34,27 @@ interface TouristRequest {
 }
 
 export default function TouristDashboard() {
-  const { data: session, status } = useSession()
+  // const { data: session, status } = useSession()
   const router = useRouter()
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [requests, setRequests] = useState<TouristRequest[]>([])
 
+  // DEV MODE: Mock session data
+  const session = { user: { email: 'dev@example.com', userType: 'tourist' } }
+  const status = 'authenticated'
+
   useEffect(() => {
-    // Redirect to signin if not authenticated
-    if (status === 'unauthenticated') {
-      router.push('/tourist/signin?callbackUrl=/tourist/dashboard')
-    } else if (status === 'authenticated' && session?.user?.userType === 'tourist') {
-      fetchRequests()
-    }
-  }, [status, session, router])
+    // // Redirect to signin if not authenticated
+    // if (status === 'unauthenticated') {
+    //   router.push('/tourist/signin?callbackUrl=/tourist/dashboard')
+    // } else if (status === 'authenticated' && session?.user?.userType === 'tourist') {
+    //   fetchRequests()
+    // }
+
+    // DEV MODE: Always fetch requests
+    fetchRequests()
+  }, [])
 
   const fetchRequests = async () => {
     try {
@@ -68,7 +77,9 @@ export default function TouristDashboard() {
   }
 
   const handleLogout = async () => {
-    await signOut({ callbackUrl: '/tourist/signin' })
+    // await signOut({ callbackUrl: '/tourist/signin' })
+    // DEV MODE: Just redirect
+    router.push('/tourist/signin')
   }
 
   const getStatusBadge = (status: string) => {
@@ -83,7 +94,7 @@ export default function TouristDashboard() {
   }
 
   // Show loading state while checking authentication
-  if (status === 'loading' || (status === 'authenticated' && loading && requests.length === 0)) {
+  if (loading && requests.length === 0) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -94,10 +105,10 @@ export default function TouristDashboard() {
     )
   }
 
-  // If not authenticated or not a tourist, show nothing (redirect will handle)
-  if (status !== 'authenticated' || session?.user?.userType !== 'tourist') {
-    return null
-  }
+  // // If not authenticated or not a tourist, show nothing (redirect will handle)
+  // if (status !== 'authenticated' || session?.user?.userType !== 'tourist') {
+  //   return null
+  // }
 
   // Calculate stats
   const stats = {

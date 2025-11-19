@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useSession } from 'next-auth/react'
+// import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
@@ -42,7 +42,7 @@ const STEPS = [
 ]
 
 export function BookingForm() {
-  const { data: session } = useSession()
+  // const { data: session } = useSession()
   const router = useRouter()
   const [currentStep, setCurrentStep] = useState(1)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -60,12 +60,12 @@ export function BookingForm() {
   })
   const [errors, setErrors] = useState<Record<string, string>>({})
 
-  // Pre-fill email from session
-  useEffect(() => {
-    if (session?.user?.email) {
-      setFormData((prev) => ({ ...prev, email: session.user.email! }))
-    }
-  }, [session])
+  // // Pre-fill email from session
+  // useEffect(() => {
+  //   if (session?.user?.email) {
+  //     setFormData((prev) => ({ ...prev, email: session.user.email! }))
+  //   }
+  // }, [session])
 
   const updateFormData = (data: Partial<BookingFormData>) => {
     setFormData((prev) => ({ ...prev, ...data }))
