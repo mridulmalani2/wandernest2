@@ -1,5 +1,5 @@
 {
-  "buildCommand": "prisma generate && next build",
+  "buildCommand": "prisma generate && prisma migrate deploy && next build",
   "framework": "nextjs",
   "installCommand": "npm install",
   "regions": ["iad1"],
@@ -8,12 +8,46 @@
       "maxDuration": 30
     }
   },
+  "headers": [
+    {
+      "source": "/api/:path*",
+      "headers": [
+        { "key": "Access-Control-Allow-Credentials", "value": "true" },
+        { "key": "Access-Control-Allow-Origin", "value": "*" },
+        { "key": "Access-Control-Allow-Methods", "value": "GET,DELETE,PATCH,POST,PUT,OPTIONS" },
+        { "key": "Access-Control-Allow-Headers", "value": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization" }
+      ]
+    },
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "X-Frame-Options", "value": "DENY" },
+        { "key": "X-XSS-Protection", "value": "1; mode=block" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+        { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=()" }
+      ]
+    }
+  ],
   "env": {
     "DATABASE_URL": "@database_url",
     "JWT_SECRET": "@jwt_secret",
     "NEXTAUTH_SECRET": "@nextauth_secret",
     "NEXTAUTH_URL": "@nextauth_url",
     "GOOGLE_CLIENT_ID": "@google_client_id",
-    "GOOGLE_CLIENT_SECRET": "@google_client_secret"
+    "GOOGLE_CLIENT_SECRET": "@google_client_secret",
+    "RAZORPAY_KEY_ID": "@razorpay_key_id",
+    "RAZORPAY_KEY_SECRET": "@razorpay_key_secret",
+    "DISCOVERY_FEE_AMOUNT": "@discovery_fee_amount",
+    "NODE_ENV": "production",
+    "NEXT_PUBLIC_BASE_URL": "@next_public_base_url",
+    "EMAIL_HOST": "@email_host",
+    "EMAIL_PORT": "@email_port",
+    "EMAIL_USER": "@email_user",
+    "EMAIL_PASS": "@email_pass",
+    "EMAIL_FROM": "@email_from",
+    "REDIS_URL": "@redis_url",
+    "RAZORPAY_WEBHOOK_SECRET": "@razorpay_webhook_secret",
+    "VERIFICATION_CODE_EXPIRY": "@verification_code_expiry"
   }
 }
