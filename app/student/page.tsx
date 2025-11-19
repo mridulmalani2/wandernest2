@@ -2,7 +2,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import Navigation from '@/components/Navigation'
-import { DollarSign, Clock, Users, Shield, CheckCircle } from 'lucide-react'
+import { DollarSign, Clock, Users, CheckCircle } from 'lucide-react'
 
 export default function StudentLandingPage() {
   return (
@@ -71,7 +71,7 @@ export default function StudentLandingPage() {
               <div className="absolute inset-0 bg-white/85 backdrop-blur-md" />
               <div className="relative z-10 p-8 md:p-12">
                 <h2 className="text-4xl font-bold text-center mb-12">Why Guide with WanderNest?</h2>
-                <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                 <div className="bg-gradient-to-br from-blue-50 to-blue-100/50 rounded-2xl p-6 shadow-sm hover-lift group">
                   <div className="inline-flex p-3 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 text-white mb-4 group-hover:scale-110 transition-transform duration-300">
                     <DollarSign className="w-7 h-7" />
@@ -101,16 +101,6 @@ export default function StudentLandingPage() {
                     Meet visitors from your home country and share your culture
                   </p>
                 </div>
-
-                <div className="bg-gradient-to-br from-indigo-50 to-indigo-100/50 rounded-2xl p-6 shadow-soft hover:shadow-premium hover-lift-lg group border-2 border-indigo-100/60 hover:border-indigo-300/60 transition-all">
-                  <div className="inline-flex p-3 rounded-xl bg-gradient-to-br from-indigo-500 to-blue-600 text-white mb-4 group-hover:scale-110 group-hover:-rotate-3 transition-all duration-300 shadow-soft">
-                    <Shield className="w-7 h-7" />
-                  </div>
-                  <h4 className="font-bold text-lg mb-2 group-hover:text-indigo-700 transition-colors">Verified & Safe</h4>
-                  <p className="text-sm text-gray-700 leading-relaxed font-medium">
-                    All users are verified. We screen profiles for your safety
-                  </p>
-                </div>
                 </div>
               </div>
             </div>
@@ -123,8 +113,8 @@ export default function StudentLandingPage() {
                   <div className="w-20 h-20 gradient-ocean rounded-2xl flex items-center justify-center mx-auto text-3xl font-bold text-white shadow-premium group-hover:shadow-glow-blue group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
                     1
                   </div>
-                  <h4 className="font-bold text-lg group-hover:text-blue-700 transition-colors">Sign In</h4>
-                  <p className="text-sm text-gray-700 leading-relaxed font-medium">
+                  <h4 className="font-bold text-lg text-white group-hover:text-blue-200 transition-colors">Sign In</h4>
+                  <p className="text-sm text-white/90 leading-relaxed font-medium">
                     Use your student email (.edu) to sign in with Google
                   </p>
                 </div>
@@ -133,8 +123,8 @@ export default function StudentLandingPage() {
                   <div className="w-20 h-20 gradient-vibrant rounded-2xl flex items-center justify-center mx-auto text-3xl font-bold text-white shadow-premium group-hover:shadow-glow-purple group-hover:scale-110 group-hover:-rotate-6 transition-all duration-300">
                     2
                   </div>
-                  <h4 className="font-bold text-lg group-hover:text-purple-700 transition-colors">Verify Status</h4>
-                  <p className="text-sm text-gray-700 leading-relaxed font-medium">
+                  <h4 className="font-bold text-lg text-white group-hover:text-purple-200 transition-colors">Verify Status</h4>
+                  <p className="text-sm text-white/90 leading-relaxed font-medium">
                     Upload your student ID to confirm your enrollment
                   </p>
                 </div>
@@ -143,8 +133,8 @@ export default function StudentLandingPage() {
                   <div className="w-20 h-20 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center mx-auto text-3xl font-bold text-white shadow-premium group-hover:shadow-soft group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
                     3
                   </div>
-                  <h4 className="font-bold text-lg group-hover:text-green-700 transition-colors">Create Profile</h4>
-                  <p className="text-sm text-gray-700 leading-relaxed font-medium">
+                  <h4 className="font-bold text-lg text-white group-hover:text-green-200 transition-colors">Create Profile</h4>
+                  <p className="text-sm text-white/90 leading-relaxed font-medium">
                     Describe your ideal day-out and share your expertise
                   </p>
                 </div>
@@ -153,8 +143,8 @@ export default function StudentLandingPage() {
                   <div className="w-20 h-20 gradient-sunset rounded-2xl flex items-center justify-center mx-auto text-3xl font-bold text-white shadow-premium group-hover:shadow-soft group-hover:scale-110 group-hover:-rotate-6 transition-all duration-300">
                     4
                   </div>
-                  <h4 className="font-bold text-lg group-hover:text-pink-700 transition-colors">Get Requests</h4>
-                  <p className="text-sm text-gray-700 leading-relaxed font-medium">
+                  <h4 className="font-bold text-lg text-white group-hover:text-pink-200 transition-colors">Get Requests</h4>
+                  <p className="text-sm text-white/90 leading-relaxed font-medium">
                     Set your availability and start receiving booking requests
                   </p>
                 </div>

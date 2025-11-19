@@ -178,8 +178,8 @@ export default function TouristLanding() {
                   <div className="w-20 h-20 gradient-ocean rounded-2xl flex items-center justify-center mx-auto text-3xl font-bold text-white shadow-premium group-hover:shadow-glow-blue group-hover:scale-110 transition-all duration-300">
                     1
                   </div>
-                  <h3 className="font-bold text-lg">Submit Your Request</h3>
-                  <p className="text-sm text-gray-700 leading-relaxed">
+                  <h3 className="font-bold text-lg text-white group-hover:text-blue-200 transition-colors">Submit Your Request</h3>
+                  <p className="text-sm text-white/90 leading-relaxed font-medium">
                     Tell us about your trip preferences, dates, and interests
                   </p>
                 </div>
@@ -188,8 +188,8 @@ export default function TouristLanding() {
                   <div className="w-20 h-20 gradient-vibrant rounded-2xl flex items-center justify-center mx-auto text-3xl font-bold text-white shadow-premium group-hover:shadow-glow-purple group-hover:scale-110 transition-all duration-300">
                     2
                   </div>
-                  <h3 className="font-bold text-lg">Get Matched with Guides</h3>
-                  <p className="text-sm text-gray-700 leading-relaxed">
+                  <h3 className="font-bold text-lg text-white group-hover:text-purple-200 transition-colors">Get Matched with Guides</h3>
+                  <p className="text-sm text-white/90 leading-relaxed font-medium">
                     We match you with verified student guides who fit your needs
                   </p>
                 </div>
@@ -198,8 +198,8 @@ export default function TouristLanding() {
                   <div className="w-20 h-20 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center mx-auto text-3xl font-bold text-white shadow-premium group-hover:shadow-soft group-hover:scale-110 transition-all duration-300">
                     3
                   </div>
-                  <h3 className="font-bold text-lg">Experience the City</h3>
-                  <p className="text-sm text-gray-700 leading-relaxed">
+                  <h3 className="font-bold text-lg text-white group-hover:text-green-200 transition-colors">Experience the City</h3>
+                  <p className="text-sm text-white/90 leading-relaxed font-medium">
                     Connect directly with your guide and enjoy an authentic local experience
                   </p>
                 </div>

@@ -78,16 +78,18 @@
 
   body {
     @apply bg-background text-foreground antialiased;
+    font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
     font-feature-settings: "cv11", "ss01";
-    font-variant-numeric: oldstyle-nums;
+    font-variant-numeric: proportional-nums;
+    letter-spacing: -0.011em;
   }
 
   h1, h2, h3, h4, h5, h6 {
     @apply tracking-tight;
-    font-family: var(--font-crimson), serif;
+    font-family: var(--font-playfair), Georgia, serif;
     font-weight: 700;
     text-wrap: balance;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.025em;
   }
 
   h1 {
