@@ -1,11 +1,10 @@
-'use client'
-
 import Link from 'next/link'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
-import Navigation from '@/components/Navigation'
 import { GraduationCap, MessageCircle, Star, AlertTriangle } from 'lucide-react'
+import { DynamicNavigation } from '@/components/DynamicNavigation'
 
+// Server Component - no client-side bundle overhead
 export default function TouristLanding() {
   return (
     <div className="min-h-screen flex flex-col relative overflow-hidden">
@@ -29,8 +28,8 @@ export default function TouristLanding() {
 
       {/* Content */}
       <div className="relative z-10">
-        {/* Header */}
-        <Navigation variant="tourist" />
+        {/* Header - Dynamically imported to reduce initial bundle */}
+        <DynamicNavigation variant="tourist" />
 
         {/* Hero Section */}
         <main className="flex-1 container mx-auto px-4 py-16">
@@ -110,6 +109,7 @@ export default function TouristLanding() {
                     quality={60}
                     sizes="(max-width: 768px) 100vw, 33vw"
                     className="object-cover"
+                    loading="lazy"
                   />
                 </div>
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-400/20 to-blue-300/20" />
@@ -134,6 +134,7 @@ export default function TouristLanding() {
                     quality={60}
                     sizes="(max-width: 768px) 100vw, 33vw"
                     className="object-cover"
+                    loading="lazy"
                   />
                 </div>
                 <div className="absolute inset-0 bg-gradient-to-br from-purple-400/20 to-purple-300/20" />
@@ -158,6 +159,7 @@ export default function TouristLanding() {
                     quality={60}
                     sizes="(max-width: 768px) 100vw, 33vw"
                     className="object-cover"
+                    loading="lazy"
                   />
                 </div>
                 <div className="absolute inset-0 bg-gradient-to-br from-pink-400/20 to-pink-300/20" />
@@ -210,7 +212,7 @@ export default function TouristLanding() {
               </div>
             </div>
 
-            {/* Image showcase */}
+            {/* Image showcase - lazy loaded */}
             <div className="grid md:grid-cols-3 gap-6 pt-12 animate-fade-in-up delay-600">
               <div className="relative h-64 rounded-2xl overflow-hidden shadow-lg group">
                 <Image
@@ -220,6 +222,7 @@ export default function TouristLanding() {
                   quality={70}
                   sizes="(max-width: 768px) 100vw, 33vw"
                   className="object-cover group-hover:scale-110 transition-transform duration-500"
+                  loading="lazy"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-6">
                   <span className="text-white font-bold text-xl">Paris</span>
@@ -233,6 +236,7 @@ export default function TouristLanding() {
                   quality={70}
                   sizes="(max-width: 768px) 100vw, 33vw"
                   className="object-cover group-hover:scale-110 transition-transform duration-500"
+                  loading="lazy"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-6">
                   <span className="text-white font-bold text-xl">London</span>
@@ -246,6 +250,7 @@ export default function TouristLanding() {
                   quality={70}
                   sizes="(max-width: 768px) 100vw, 33vw"
                   className="object-cover group-hover:scale-110 transition-transform duration-500"
+                  loading="lazy"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-6">
                   <span className="text-white font-bold text-xl">Rome</span>
