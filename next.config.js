@@ -3,6 +3,25 @@ const nextConfig = {
   // Optimize for Vercel serverless functions
   output: 'standalone',
 
+  // Production optimizations
+  swcMinify: true, // Enable SWC-based minification (default in Next.js 14, but explicit is better)
+
+  // Compiler optimizations for production
+  compiler: {
+    // Remove console logs in production
+    removeConsole: process.env.NODE_ENV === 'production' ? {
+      exclude: ['error', 'warn'],
+    } : false,
+  },
+
+  // Production-specific settings
+  productionBrowserSourceMaps: false, // Disable source maps in production for smaller bundles
+
+  // Optimize JavaScript bundles
+  experimental: {
+    optimizePackageImports: ['lucide-react', '@radix-ui/react-dialog', '@radix-ui/react-select'],
+  },
+
   // Enable image optimization with external domains
   images: {
     unoptimized: false,
