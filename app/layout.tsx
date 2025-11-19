@@ -2,7 +2,6 @@ import type { Metadata } from 'next'
 import { Inter, Playfair_Display } from 'next/font/google'
 import './critical.css'
 import { Providers } from './providers'
-import Script from 'next/script'
 
 const inter = Inter({
   subsets: ['latin'],
@@ -89,24 +88,6 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="https://images.unsplash.com" />
       </head>
       <body className={inter.className}>
-        {/* Defer non-critical CSS loading */}
-        <Script
-          id="load-non-critical-css"
-          strategy="afterInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                var link = document.createElement('link');
-                link.rel = 'stylesheet';
-                link.href = '/non-critical.css';
-                link.media = 'print';
-                link.onload = function() { this.media = 'all'; };
-                document.head.appendChild(link);
-              })();
-            `
-          }}
-        />
-
         <Providers>
           <div className="min-h-screen relative">
             {/* Gradient overlay with new color scheme - removed background image for faster LCP */}
@@ -116,8 +97,6 @@ export default function RootLayout({
             </div>
           </div>
         </Providers>
-        <Analytics />
-        <SpeedInsights />
       </body>
     </html>
   )
