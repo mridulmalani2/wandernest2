@@ -8,15 +8,18 @@ const nextConfig = {
   compress: true,
   poweredByHeader: false,
 
-  // Production optimizations
-  swcMinify: true, // Enable SWC-based minification (default in Next.js 14, but explicit is better)
+  // Enable SWC-based minification (faster than Babel)
+  swcMinify: true,
+
+  // Production browser source maps disabled for smaller bundles
+  productionBrowserSourceMaps: false,
 
   // Production-specific settings
   productionBrowserSourceMaps: false, // Disable source maps in production for smaller bundles
 
   // Compiler optimizations for production
   compiler: {
-    // Remove console logs in production
+    // Remove console logs in production (except errors and warnings)
     removeConsole: process.env.NODE_ENV === 'production' ? {
       exclude: ['error', 'warn'],
     } : false,
@@ -41,7 +44,7 @@ const nextConfig = {
     optimizeCss: true,
   },
 
-  // Enable image optimization with external domains
+  // Image optimization configuration
   images: {
     unoptimized: false,
     remotePatterns: [
@@ -71,6 +74,7 @@ const nextConfig = {
 
     // Configure source maps for production builds
     if (!dev) {
+      // Enable source maps for production debugging
       config.devtool = 'source-map';
 
       // Enhanced optimization for production

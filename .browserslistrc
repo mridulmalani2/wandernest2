@@ -1,18 +1,16 @@
-# Target modern browsers that support ES2020+ features
-# This eliminates polyfills for Array.prototype.at, flat, flatMap,
-# Object.fromEntries, trimStart/trimEnd, etc.
+# Modern browsers only - removes polyfills for Array.prototype.at, flat, flatMap, Object.fromEntries, etc.
+# This targets browsers with ES2020+ support
 
 [production]
->0.5%
-last 2 versions
-not dead
+# Target browsers from 2019 onwards with modern JS support
+chrome >= 91
+edge >= 91
+firefox >= 90
+safari >= 14.1
+ios_saf >= 14.5
+# Exclude IE completely
 not IE 11
-not op_mini all
-edge >= 90
-firefox >= 88
-chrome >= 90
-safari >= 14
-ios_saf >= 14
+not dead
 
 [development]
 last 1 chrome version
