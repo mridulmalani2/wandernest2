@@ -70,13 +70,13 @@ export default function MainLanding() {
               </p>
             </div>
 
-            {/* Two Large CTAs - Redesigned with image-based tiles matching Experience India style */}
+            {/* Two Large CTAs - Modern Glassmorphism Cards with Hover Expansion */}
             <div className="grid md:grid-cols-2 gap-8 pt-8 max-w-5xl mx-auto">
               {/* Tourist CTA */}
-              <Link href="/tourist" className="animate-fade-in-up">
-                <div className="group cursor-pointer backdrop-blur-md rounded-3xl shadow-xl hover:shadow-2xl border-2 border-slate-200/60 dark:border-white/40 hover:border-blue-400/80 dark:hover:border-blue-400/80 transition-all duration-500 hover-lift relative overflow-hidden">
-                  {/* Background Image */}
-                  <div className="absolute inset-0 opacity-20 dark:opacity-20 group-hover:opacity-30 transition-opacity duration-500">
+              <Link href="/tourist" className="animate-fade-in-up block">
+                <div className="group cursor-pointer rounded-3xl shadow-xl hover:shadow-elevated border-2 border-white/60 hover:border-white/90 transition-all duration-500 relative overflow-hidden h-[400px] md:h-[450px] focus-visible:outline-3 focus-visible:outline-blue-500 focus-visible:outline-offset-4 hover:scale-[1.02] hover:-translate-y-2">
+                  {/* Background Image - More prominent */}
+                  <div className="absolute inset-0 opacity-90 group-hover:opacity-70 transition-opacity duration-500">
                     <Image
                       src="https://images.unsplash.com/photo-1503220317375-aaad61436b1b?w=800&q=80"
                       alt="Beautiful London cityscape with iconic architecture"
@@ -86,27 +86,43 @@ export default function MainLanding() {
                       sizes="(max-width: 768px) 100vw, 50vw"
                       className="object-cover"
                     />
+                    {/* Gradient overlay for text readability */}
+                    <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/60" />
                   </div>
-                  <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 via-blue-400/15 to-cyan-500/20 dark:from-blue-500/40 dark:via-blue-400/30 dark:to-cyan-500/40" />
-                  <div className="absolute inset-0 bg-white/85 dark:bg-slate-900/75 backdrop-blur-md" />
 
-                  <div className="relative z-10 p-10">
-                    <div className="inline-flex p-4 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 text-white mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
-                      <Plane className="w-10 h-10" />
+                  {/* Glassmorphism Overlay - Lighter and more transparent */}
+                  <div className="absolute inset-0 bg-white/20 dark:bg-black/30 backdrop-blur-sm group-hover:backdrop-blur-md group-hover:bg-white/30 dark:group-hover:bg-black/50 transition-all duration-500" />
+
+                  {/* Content */}
+                  <div className="relative z-10 h-full flex flex-col justify-end p-8 md:p-10">
+                    {/* Default state content - Always visible */}
+                    <div className="space-y-3">
+                      <div className="inline-flex p-3 rounded-2xl bg-blue-600/90 backdrop-blur-sm text-white shadow-lg group-hover:scale-110 transition-transform duration-300">
+                        <Plane className="w-8 h-8" />
+                      </div>
+
+                      <h2 className="text-4xl md:text-5xl font-serif font-bold text-white text-shadow-lg tracking-tight">
+                        I&apos;m a Tourist
+                      </h2>
+
+                      <p className="text-lg md:text-xl text-white/95 font-sans text-shadow">
+                        Discover the city with locals
+                      </p>
                     </div>
 
-                    <h2 className="text-3xl md:text-4xl font-serif font-bold text-gray-900 mb-4 group-hover:text-blue-700 transition-colors tracking-tight">
-                      I&apos;m a Tourist
-                    </h2>
+                    {/* Hover state content - Expands and reveals */}
+                    <div className="mt-6 space-y-4 max-h-0 opacity-0 group-hover:max-h-48 group-hover:opacity-100 overflow-hidden transition-all duration-500 ease-in-out">
+                      <p className="text-base md:text-lg text-white/95 leading-relaxed font-sans text-shadow">
+                        Discover private, student-led city walks and custom itineraries. Experience authentic local culture through the eyes of verified university students.
+                      </p>
 
-                    <p className="text-gray-700 mb-8 text-base md:text-lg leading-relaxed font-sans">
-                      Find local student guides to show you authentic experiences in your destination city
-                    </p>
-
-                    <Button size="lg" className="w-full text-base md:text-lg py-7 gradient-ocean hover:shadow-glow-blue shadow-premium text-white font-serif font-semibold tracking-wide group/btn">
-                      Explore as Tourist
-                      <span className="ml-2 group-hover/btn:translate-x-2 transition-transform inline-block">→</span>
-                    </Button>
+                      <div className="pt-2">
+                        <Button size="lg" className="w-full text-base md:text-lg py-6 gradient-ocean hover:shadow-glow-blue shadow-premium text-white font-serif font-semibold tracking-wide group/btn">
+                          Explore as Tourist
+                          <span className="ml-2 group-hover/btn:translate-x-2 transition-transform inline-block">→</span>
+                        </Button>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </Link>
@@ -114,11 +130,11 @@ export default function MainLanding() {
               {/* Student CTA */}
               {/* TODO: Once student portal is production-ready, replace Google Form URL with internal route */}
               {/* Temporary redirect to Google Form while building student onboarding flow */}
-              {/* <Link href="/student" className="animate-fade-in-up delay-100"> */}
-              <a href={STUDENT_SIGNUP_FORM_URL} target="_blank" rel="noopener noreferrer" className="animate-fade-in-up delay-100">
-                <div className="group cursor-pointer backdrop-blur-md rounded-3xl shadow-xl hover:shadow-2xl border-2 border-slate-200/60 dark:border-white/40 hover:border-purple-400/80 dark:hover:border-purple-400/80 transition-all duration-500 hover-lift relative overflow-hidden">
-                  {/* Background Image */}
-                  <div className="absolute inset-0 opacity-20 dark:opacity-20 group-hover:opacity-30 transition-opacity duration-500">
+              {/* <Link href="/student" className="animate-fade-in-up delay-100 block"> */}
+              <a href={STUDENT_SIGNUP_FORM_URL} target="_blank" rel="noopener noreferrer" className="animate-fade-in-up delay-100 block">
+                <div className="group cursor-pointer rounded-3xl shadow-xl hover:shadow-elevated border-2 border-white/60 hover:border-white/90 transition-all duration-500 relative overflow-hidden h-[400px] md:h-[450px] focus-visible:outline-3 focus-visible:outline-purple-500 focus-visible:outline-offset-4 hover:scale-[1.02] hover:-translate-y-2">
+                  {/* Background Image - More prominent */}
+                  <div className="absolute inset-0 opacity-90 group-hover:opacity-70 transition-opacity duration-500">
                     <Image
                       src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=800&q=80"
                       alt="University students collaborating and learning together"
@@ -128,27 +144,43 @@ export default function MainLanding() {
                       sizes="(max-width: 768px) 100vw, 50vw"
                       className="object-cover"
                     />
+                    {/* Gradient overlay for text readability */}
+                    <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/60" />
                   </div>
-                  <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 via-purple-400/15 to-pink-500/20 dark:from-purple-500/40 dark:via-purple-400/30 dark:to-pink-500/40" />
-                  <div className="absolute inset-0 bg-white/85 dark:bg-slate-900/75 backdrop-blur-md" />
 
-                  <div className="relative z-10 p-10">
-                    <div className="inline-flex p-4 rounded-2xl bg-gradient-to-br from-purple-500 to-purple-600 text-white mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
-                      <GraduationCap className="w-10 h-10" />
+                  {/* Glassmorphism Overlay - Lighter and more transparent */}
+                  <div className="absolute inset-0 bg-white/20 dark:bg-black/30 backdrop-blur-sm group-hover:backdrop-blur-md group-hover:bg-white/30 dark:group-hover:bg-black/50 transition-all duration-500" />
+
+                  {/* Content */}
+                  <div className="relative z-10 h-full flex flex-col justify-end p-8 md:p-10">
+                    {/* Default state content - Always visible */}
+                    <div className="space-y-3">
+                      <div className="inline-flex p-3 rounded-2xl bg-purple-600/90 backdrop-blur-sm text-white shadow-lg group-hover:scale-110 transition-transform duration-300">
+                        <GraduationCap className="w-8 h-8" />
+                      </div>
+
+                      <h2 className="text-4xl md:text-5xl font-serif font-bold text-white text-shadow-lg tracking-tight">
+                        I&apos;m a Student
+                      </h2>
+
+                      <p className="text-lg md:text-xl text-white/95 font-sans text-shadow">
+                        Earn while sharing your city
+                      </p>
                     </div>
 
-                    <h2 className="text-3xl md:text-4xl font-serif font-bold text-gray-900 mb-4 group-hover:text-purple-700 transition-colors tracking-tight">
-                      I&apos;m a Student
-                    </h2>
+                    {/* Hover state content - Expands and reveals */}
+                    <div className="mt-6 space-y-4 max-h-0 opacity-0 group-hover:max-h-48 group-hover:opacity-100 overflow-hidden transition-all duration-500 ease-in-out">
+                      <p className="text-base md:text-lg text-white/95 leading-relaxed font-sans text-shadow">
+                        Explore student opportunities, flexible hours, and safe connections with tourists. Become a verified guide and show travelers the authentic side of your city.
+                      </p>
 
-                    <p className="text-gray-700 mb-8 text-base md:text-lg leading-relaxed font-sans">
-                      Become a guide and earn money by showing travelers around your city
-                    </p>
-
-                    <Button size="lg" className="w-full text-base md:text-lg py-7 gradient-vibrant hover:shadow-glow-purple shadow-premium text-white font-serif font-semibold tracking-wide group/btn">
-                      Start Guiding
-                      <span className="ml-2 group-hover/btn:translate-x-2 transition-transform inline-block">→</span>
-                    </Button>
+                      <div className="pt-2">
+                        <Button size="lg" className="w-full text-base md:text-lg py-6 gradient-vibrant hover:shadow-glow-purple shadow-premium text-white font-serif font-semibold tracking-wide group/btn">
+                          Start Guiding
+                          <span className="ml-2 group-hover/btn:translate-x-2 transition-transform inline-block">→</span>
+                        </Button>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </a>
