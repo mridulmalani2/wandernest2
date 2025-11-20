@@ -4,66 +4,101 @@
 
 @layer base {
   :root {
+    /* Core background and foreground colors */
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
+
+    /* Surface colors (cards, popovers) */
     --card: 0 0% 100%;
     --card-foreground: 222.2 84% 4.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
-    /* Travel-Inspired Teal/Turquoise - Updated for WCAG AA (5.2:1 with white) */
+
+    /* Brand colors - Travel-Inspired Teal/Turquoise (WCAG AA: 5.2:1 with white) */
     --primary: 174 72% 42%;
     --primary-foreground: 0 0% 100%;
-    /* Luxury Purple - Updated for WCAG AA (5.1:1 with white) */
+
+    /* Brand colors - Luxury Purple (WCAG AA: 5.1:1 with white) */
     --secondary: 262 60% 42%;
     --secondary-foreground: 0 0% 100%;
+
+    /* Muted colors for subtle elements */
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
-    /* Warm Coral Accent */
+
+    /* Accent color - Warm Coral */
     --accent: 14 91% 65%;
     --accent-foreground: 0 0% 100%;
+
+    /* Semantic colors */
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
+
+    /* Border and input colors */
     --border: 214.3 31.8% 91.4%;
+    --border-subtle: 214.3 31.8% 94%;
     --input: 214.3 31.8% 91.4%;
     --ring: 174 72% 42%;
+
+    /* Border radius */
     --radius: 0.5rem;
 
     /* Glass effect variables */
-    --glass-bg-light: rgba(255, 255, 255, 0.7);
-    --glass-border-light: rgba(255, 255, 255, 0.5);
-    --glass-bg-dark: rgba(0, 0, 0, 0.3);
-    --glass-border-dark: rgba(255, 255, 255, 0.1);
+    --glass-bg: rgba(255, 255, 255, 0.7);
+    --glass-border: rgba(255, 255, 255, 0.5);
+    --glass-bg-strong: rgba(255, 255, 255, 0.95);
+
+    /* Navbar specific colors */
+    --nav-bg: rgba(255, 255, 255, 0.7);
+    --nav-border: rgba(226, 232, 240, 0.6);
+    --nav-text: 222.2 84% 4.9%;
   }
 
   .dark {
+    /* Core background and foreground colors */
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
+
+    /* Surface colors (cards, popovers) */
+    --card: 222.2 84% 8%;
     --card-foreground: 210 40% 98%;
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
-    /* Travel-Inspired Teal/Turquoise (brighter for dark mode, maintains WCAG AA) */
+
+    /* Brand colors - Brighter for dark mode (maintains WCAG AA) */
     --primary: 174 72% 55%;
     --primary-foreground: 222.2 47.4% 11.2%;
-    /* Luxury Purple (brighter for dark mode, maintains WCAG AA) */
+
     --secondary: 262 60% 52%;
     --secondary-foreground: 210 40% 98%;
+
+    /* Muted colors for subtle elements */
     --muted: 217.2 32.6% 17.5%;
     --muted-foreground: 215 20.2% 65.1%;
-    /* Warm Coral Accent */
+
+    /* Accent color */
     --accent: 14 91% 70%;
     --accent-foreground: 222.2 47.4% 11.2%;
+
+    /* Semantic colors */
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
+
+    /* Border and input colors */
     --border: 217.2 32.6% 17.5%;
+    --border-subtle: 217.2 32.6% 15%;
     --input: 217.2 32.6% 17.5%;
     --ring: 174 72% 55%;
 
     /* Glass effect variables for dark mode */
-    --glass-bg-light: rgba(255, 255, 255, 0.1);
-    --glass-border-light: rgba(255, 255, 255, 0.2);
-    --glass-bg-dark: rgba(0, 0, 0, 0.5);
-    --glass-border-dark: rgba(255, 255, 255, 0.15);
+    --glass-bg: rgba(15, 23, 42, 0.7);
+    --glass-border: rgba(255, 255, 255, 0.15);
+    --glass-bg-strong: rgba(15, 23, 42, 0.95);
+
+    /* Navbar specific colors */
+    --nav-bg: rgba(15, 23, 42, 0.7);
+    --nav-border: rgba(255, 255, 255, 0.1);
+    --nav-text: 210 40% 98%;
   }
 }
 
@@ -78,18 +113,22 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
-    font-feature-settings: "cv11", "ss01";
-    font-variant-numeric: proportional-nums;
+    /* Clean, readable sans-serif for body text */
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
     letter-spacing: -0.011em;
+    font-weight: 400;
   }
 
+  /* Heading hierarchy - using serif for distinction */
   h1, h2, h3, h4, h5, h6 {
-    @apply tracking-tight;
-    font-family: var(--font-playfair), Georgia, serif;
+    @apply text-foreground;
+    font-family: Georgia, 'Times New Roman', Times, serif;
     font-weight: 700;
     text-wrap: balance;
     letter-spacing: -0.025em;
+    margin-bottom: 0.75rem;
   }
 
   h1 {
@@ -107,8 +146,44 @@
     line-height: 1.2;
   }
 
+  h4 {
+    @apply text-2xl md:text-3xl;
+    line-height: 1.25;
+  }
+
+  h5 {
+    @apply text-xl md:text-2xl;
+    line-height: 1.3;
+  }
+
+  h6 {
+    @apply text-lg md:text-xl;
+    line-height: 1.35;
+  }
+
+  /* Body text - comfortable reading */
   p {
     text-wrap: pretty;
+    @apply leading-relaxed mb-4;
+    color: hsl(var(--foreground));
+  }
+
+  /* Links - clear and accessible */
+  a {
+    @apply text-primary underline-offset-2 transition-colors;
+  }
+
+  a:hover {
+    @apply text-primary/80;
+  }
+
+  /* Strong emphasis */
+  strong, b {
+    font-weight: 600;
+  }
+
+  /* Lists */
+  ul, ol {
     @apply leading-relaxed;
   }
 }
@@ -234,40 +309,25 @@
 
   /* Glass morphism effect - Used heavily throughout the app */
   .glass-card {
-    background: var(--glass-bg-light);
+    background: var(--glass-bg);
     backdrop-filter: blur(20px) saturate(200%);
     -webkit-backdrop-filter: blur(20px) saturate(200%);
-    border: 1px solid var(--glass-border-light);
-    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
   }
 
   .glass-frosted {
-    background: rgba(255, 255, 255, 0.4);
+    background: var(--glass-bg);
     backdrop-filter: blur(16px) saturate(180%);
     -webkit-backdrop-filter: blur(16px) saturate(180%);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-  }
-
-  /* Dark mode glass variants */
-  .dark .glass-card {
-    background: var(--glass-bg-dark);
-    border: 1px solid var(--glass-border-dark);
-  }
-
-  .dark .glass-frosted {
-    background: rgba(0, 0, 0, 0.4);
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    border: 1px solid var(--glass-border);
   }
 
   /* Fallback for browsers without backdrop-filter support */
   @supports not (backdrop-filter: blur(10px)) {
     .glass-card,
     .glass-frosted {
-      background: rgba(255, 255, 255, 0.95);
-    }
-    .dark .glass-card,
-    .dark .glass-frosted {
-      background: rgba(0, 0, 0, 0.85);
+      background: var(--glass-bg-strong);
     }
   }
 

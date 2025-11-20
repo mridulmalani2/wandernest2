@@ -195,25 +195,25 @@ export default function MainLanding() {
 
               {/* Feature 1 - Authentic Local Experiences */}
               <div className="grid md:grid-cols-2 gap-8 items-center">
-                <div className="space-y-4 order-2 md:order-1 bg-white/90 backdrop-blur-md rounded-2xl p-8 shadow-xl">
-                  <h3 className="text-3xl font-serif font-bold text-gray-900 tracking-tight">Authentic Local Experiences</h3>
-                  <p className="text-lg text-gray-700 leading-relaxed font-sans">
+                <div className="space-y-4 order-2 md:order-1 glass-card rounded-2xl p-8 shadow-xl">
+                  <h3 className="text-3xl font-serif font-bold text-foreground tracking-tight">Authentic Local Experiences</h3>
+                  <p className="text-lg text-muted-foreground leading-relaxed">
                     Skip the tourist traps and discover the real city. Our student guides know the
                     best local cafes, hidden viewpoints, and authentic experiences that guidebooks
                     miss. Connect with the culture through someone who lives it every day.
                   </p>
                   <ul className="space-y-2">
                     <li className="flex items-start">
-                      <span className="mr-2 text-blue-600 font-bold">✓</span>
-                      <span className="text-gray-700 font-sans">Hidden local spots and neighborhood favorites</span>
+                      <span className="mr-2 text-blue-600 dark:text-blue-400 font-bold">✓</span>
+                      <span className="text-foreground">Hidden local spots and neighborhood favorites</span>
                     </li>
                     <li className="flex items-start">
-                      <span className="mr-2 text-blue-600 font-bold">✓</span>
-                      <span className="text-gray-700 font-sans">Cultural insights from a local perspective</span>
+                      <span className="mr-2 text-blue-600 dark:text-blue-400 font-bold">✓</span>
+                      <span className="text-foreground">Cultural insights from a local perspective</span>
                     </li>
                     <li className="flex items-start">
-                      <span className="mr-2 text-blue-600 font-bold">✓</span>
-                      <span className="text-gray-700 font-sans">Personalized recommendations for your interests</span>
+                      <span className="mr-2 text-blue-600 dark:text-blue-400 font-bold">✓</span>
+                      <span className="text-foreground">Personalized recommendations for your interests</span>
                     </li>
                   </ul>
                 </div>
@@ -245,25 +245,25 @@ export default function MainLanding() {
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
                 </div>
-                <div className="space-y-4 bg-white/90 backdrop-blur-md rounded-2xl p-8 shadow-xl">
-                  <h3 className="text-3xl font-serif font-bold text-gray-900 tracking-tight">Verified University Students</h3>
-                  <p className="text-lg text-gray-700 leading-relaxed font-sans">
+                <div className="space-y-4 glass-card rounded-2xl p-8 shadow-xl">
+                  <h3 className="text-3xl font-serif font-bold text-foreground tracking-tight">Verified University Students</h3>
+                  <p className="text-lg text-muted-foreground leading-relaxed">
                     All our guides are verified university students with proven local knowledge.
                     They are passionate about sharing their city and creating meaningful connections
                     with travelers from around the world.
                   </p>
                   <ul className="space-y-2">
                     <li className="flex items-start">
-                      <span className="mr-2 text-purple-600 font-bold">✓</span>
-                      <span className="text-gray-700 font-sans">Background-verified student credentials</span>
+                      <span className="mr-2 text-purple-600 dark:text-purple-400 font-bold">✓</span>
+                      <span className="text-foreground">Background-verified student credentials</span>
                     </li>
                     <li className="flex items-start">
-                      <span className="mr-2 text-purple-600 font-bold">✓</span>
-                      <span className="text-gray-700 font-sans">Multilingual guides for better communication</span>
+                      <span className="mr-2 text-purple-600 dark:text-purple-400 font-bold">✓</span>
+                      <span className="text-foreground">Multilingual guides for better communication</span>
                     </li>
                     <li className="flex items-start">
-                      <span className="mr-2 text-purple-600 font-bold">✓</span>
-                      <span className="text-gray-700 font-sans">Rated and reviewed by past travelers</span>
+                      <span className="mr-2 text-purple-600 dark:text-purple-400 font-bold">✓</span>
+                      <span className="text-foreground">Rated and reviewed by past travelers</span>
                     </li>
                   </ul>
                 </div>
@@ -271,25 +271,25 @@ export default function MainLanding() {
 
               {/* Feature 3 - Flexible & Personal */}
               <div className="grid md:grid-cols-2 gap-8 items-center">
-                <div className="space-y-4 order-2 md:order-1 bg-white/90 backdrop-blur-md rounded-2xl p-8 shadow-xl">
-                  <h3 className="text-3xl font-serif font-bold text-gray-900 tracking-tight">Flexible and Personalized</h3>
-                  <p className="text-lg text-gray-700 leading-relaxed font-sans">
+                <div className="space-y-4 order-2 md:order-1 glass-card rounded-2xl p-8 shadow-xl">
+                  <h3 className="text-3xl font-serif font-bold text-foreground tracking-tight">Flexible and Personalized</h3>
+                  <p className="text-lg text-muted-foreground leading-relaxed">
                     Every traveler is unique. Whether you want to explore historic landmarks, find
                     the best street food, or discover nightlife hotspots, your guide will customize
                     the experience to match your interests and pace.
                   </p>
                   <ul className="space-y-2">
                     <li className="flex items-start">
-                      <span className="mr-2 text-green-600 font-bold">✓</span>
-                      <span className="text-gray-700 font-sans">Customized itineraries based on your preferences</span>
+                      <span className="mr-2 text-green-600 dark:text-green-400 font-bold">✓</span>
+                      <span className="text-foreground">Customized itineraries based on your preferences</span>
                     </li>
                     <li className="flex items-start">
-                      <span className="mr-2 text-green-600 font-bold">✓</span>
-                      <span className="text-gray-700 font-sans">Flexible scheduling around your travel plans</span>
+                      <span className="mr-2 text-green-600 dark:text-green-400 font-bold">✓</span>
+                      <span className="text-foreground">Flexible scheduling around your travel plans</span>
                     </li>
                     <li className="flex items-start">
-                      <span className="mr-2 text-green-600 font-bold">✓</span>
-                      <span className="text-gray-700 font-sans">Small group or one-on-one experiences</span>
+                      <span className="mr-2 text-green-600 dark:text-green-400 font-bold">✓</span>
+                      <span className="text-foreground">Small group or one-on-one experiences</span>
                     </li>
                   </ul>
                 </div>
