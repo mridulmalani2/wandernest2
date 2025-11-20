@@ -197,10 +197,10 @@ export function BookingForm() {
             ))}
           </div>
           <div className="text-center">
-            <p className="text-sm font-semibold text-gray-900">
+            <p className="text-sm font-semibold text-white" style={{ textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)' }}>
               Step {currentStep} of {STEPS.length}: {STEPS[currentStep - 1].name}
             </p>
-            <p className="text-xs text-gray-600">{STEPS[currentStep - 1].description}</p>
+            <p className="text-xs text-white" style={{ textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)' }}>{STEPS[currentStep - 1].description}</p>
           </div>
         </div>
 
@@ -213,20 +213,19 @@ export function BookingForm() {
                   className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all duration-300 shadow-soft ${
                     currentStep >= step.id
                       ? 'gradient-ocean border-blue-600 text-white shadow-premium scale-110'
-                      : 'glass-frosted border-gray-300 text-gray-700'
+                      : 'glass-frosted border-white/60 text-white'
                   }`}
                 >
                   {currentStep > step.id ? '✓' : step.id}
                 </div>
                 <div className="mt-2 text-center">
                   <p
-                    className={`text-sm font-medium ${
-                      currentStep >= step.id ? 'text-blue-700' : 'text-gray-700'
-                    }`}
+                    className="text-sm font-medium text-white"
+                    style={{ textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)' }}
                   >
                     {step.name}
                   </p>
-                  <p className="text-xs text-gray-600">{step.description}</p>
+                  <p className="text-xs text-white" style={{ textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)' }}>{step.description}</p>
                 </div>
               </div>
               {index < STEPS.length - 1 && (
