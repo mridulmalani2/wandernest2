@@ -35,8 +35,11 @@ export async function POST(req: NextRequest) {
     // Validate request data
     const validatedData = initiateSchema.parse(body)
 
-    // Check if email is a valid student email
-    if (!isStudentEmail(validatedData.email)) {
+    // In development mode, allow any email (for testing student pages)
+    const isDevelopment = process.env.NODE_ENV === 'development'
+
+    // Check if email is a valid student email (skip in development)
+    if (!isDevelopment && !isStudentEmail(validatedData.email)) {
       return NextResponse.json(
         {
           success: false,
@@ -47,8 +50,8 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Generate 6-digit verification code
-    const verificationCode = generateVerificationCode()
+    // In development mode, use a simple dev code; in production, generate random code
+    const verificationCode = isDevelopment ? '000000' : generateVerificationCode()
 
     // Store code in Redis with 10-minute TTL
     await storeVerificationCode(
@@ -57,14 +60,20 @@ export async function POST(req: NextRequest) {
       parseInt(process.env.VERIFICATION_CODE_EXPIRY || '600')
     )
 
-    // Send verification email
-    await sendVerificationEmail(validatedData.email, verificationCode)
+    // Only send email in production mode
+    if (!isDevelopment) {
+      await sendVerificationEmail(validatedData.email, verificationCode)
+    }
 
-    // Return success with email
+    // Return success with message
+    const message = isDevelopment
+      ? 'Development mode: Use code 000000 to verify'
+      : 'Verification code sent to your email'
+
     return NextResponse.json(
       {
         success: true,
-        message: 'Verification code sent to your email',
+        message,
         email: validatedData.email,
       },
       { status: 200 }

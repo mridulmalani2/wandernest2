@@ -22,46 +22,55 @@ export async function POST(req: NextRequest) {
     const body = await req.json()
     const validatedData = verifySchema.parse(body)
 
-    // Get stored verification data from Redis
-    const storedData = await getVerificationData(validatedData.email)
+    // In development mode, allow a simple dev code
+    const isDevelopment = process.env.NODE_ENV === 'development'
+    const DEV_CODE = '000000'
 
-    if (!storedData) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Verification code expired or not found',
-          action: 'regenerate',
-        },
-        { status: 400 }
-      )
-    }
+    if (isDevelopment && validatedData.code === DEV_CODE) {
+      // Development mode: bypass verification
+      // Code will be verified below with the dev code
+    } else {
+      // Production mode or non-dev code: verify with Redis
+      const storedData = await getVerificationData(validatedData.email)
 
-    // Check if max attempts exceeded (3 attempts)
-    if (storedData.attempts >= 3) {
-      await deleteVerificationCode(validatedData.email)
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Maximum verification attempts exceeded',
-          action: 'regenerate',
-        },
-        { status: 400 }
-      )
-    }
+      if (!storedData) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: 'Verification code expired or not found',
+            action: 'regenerate',
+          },
+          { status: 400 }
+        )
+      }
 
-    // Verify the code
-    if (storedData.code !== validatedData.code) {
-      // Increment attempts
-      const newAttempts = await incrementVerificationAttempts(validatedData.email)
+      // Check if max attempts exceeded (3 attempts)
+      if (storedData.attempts >= 3) {
+        await deleteVerificationCode(validatedData.email)
+        return NextResponse.json(
+          {
+            success: false,
+            error: 'Maximum verification attempts exceeded',
+            action: 'regenerate',
+          },
+          { status: 400 }
+        )
+      }
 
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Invalid verification code',
-          attemptsRemaining: 3 - newAttempts,
-        },
-        { status: 400 }
-      )
+      // Verify the code
+      if (storedData.code !== validatedData.code) {
+        // Increment attempts
+        const newAttempts = await incrementVerificationAttempts(validatedData.email)
+
+        return NextResponse.json(
+          {
+            success: false,
+            error: 'Invalid verification code',
+            attemptsRemaining: 3 - newAttempts,
+          },
+          { status: 400 }
+        )
+      }
     }
 
     // Code is valid - find or create student record
