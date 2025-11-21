@@ -48,10 +48,10 @@
     --glass-border: rgba(255, 255, 255, 0.5);
     --glass-bg-strong: rgba(255, 255, 255, 0.95);
 
-    /* Navbar specific colors */
-    --nav-bg: rgba(255, 255, 255, 0.7);
-    --nav-border: rgba(226, 232, 240, 0.6);
-    --nav-text: 222.2 84% 4.9%;
+    /* Navbar specific colors - Subtle dark tint for glassmorphism */
+    --nav-bg: rgba(0, 0, 0, 0.35);
+    --nav-border: rgba(255, 255, 255, 0.15);
+    --nav-text: 0 0% 100%;
   }
 
   .dark {
@@ -95,8 +95,8 @@
     --glass-border: rgba(255, 255, 255, 0.15);
     --glass-bg-strong: rgba(15, 23, 42, 0.95);
 
-    /* Navbar specific colors */
-    --nav-bg: rgba(15, 23, 42, 0.7);
+    /* Navbar specific colors - Darker tint for glassmorphism in dark mode */
+    --nav-bg: rgba(0, 0, 0, 0.5);
     --nav-border: rgba(255, 255, 255, 0.1);
     --nav-text: 210 40% 98%;
   }
