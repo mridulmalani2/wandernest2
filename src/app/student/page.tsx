@@ -2,7 +2,8 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import Navigation from '@/components/Navigation'
-import { DollarSign, Clock, Users, CheckCircle } from 'lucide-react'
+import ModernFAQ from '@/components/student/ModernFAQ'
+import { DollarSign, Clock, Users } from 'lucide-react'
 
 export default function StudentLandingPage() {
   return (
@@ -155,108 +156,8 @@ export default function StudentLandingPage() {
               </div>
             </div>
 
-            {/* Mini FAQ */}
-            <div className="glass-card rounded-3xl border-2 border-white/40 p-8 md:p-12 shadow-premium hover:shadow-elevated animate-fade-in-up delay-700">
-              <h2 className="text-4xl font-bold text-center mb-10 text-white text-shadow-lg">Common Questions</h2>
-
-              <div className="space-y-4">
-                <details className="group rounded-xl border-2 border-gray-200 p-5 hover:border-blue-400 hover:shadow-soft transition-all hover-lift relative overflow-hidden">
-                  <div className="absolute inset-0 opacity-5">
-                    <Image
-                      src="https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=600&q=80"
-                      alt="Student studying"
-                      fill
-                      quality={70}
-                      sizes="(max-width: 768px) 100vw, 600px"
-                      className="object-cover"
-                    />
-                  </div>
-                  <div className="absolute inset-0 bg-white/70 backdrop-blur-sm" />
-                  <div className="relative z-10">
-                  <summary className="font-bold cursor-pointer list-none flex justify-between items-center">
-                    <span className="text-lg group-hover:text-blue-700 transition-colors">How much time do I need to commit?</span>
-                    <CheckCircle className="w-5 h-5 text-blue-600 group-open:rotate-180 transition-transform" />
-                  </summary>
-                  <p className="text-gray-600 pt-4 leading-relaxed">
-                    Most experiences are 3-4 hours. You set your own availability blocks and can update them anytime.
-                    You&apos;re in complete control of when you&apos;re available to guide.
-                  </p>
-                  </div>
-                </details>
-
-                <details className="group rounded-xl border-2 border-gray-200 p-5 hover:border-purple-400 hover:shadow-soft transition-all hover-lift relative overflow-hidden">
-                  <div className="absolute inset-0 opacity-5">
-                    <Image
-                      src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=600&q=80"
-                      alt="Students collaborating"
-                      fill
-                      quality={70}
-                      sizes="(max-width: 768px) 100vw, 600px"
-                      className="object-cover"
-                    />
-                  </div>
-                  <div className="absolute inset-0 bg-white/70 backdrop-blur-sm" />
-                  <div className="relative z-10">
-                  <summary className="font-bold cursor-pointer list-none flex justify-between items-center">
-                    <span className="text-lg group-hover:text-purple-700 transition-colors">Do I need to speak multiple languages?</span>
-                    <CheckCircle className="w-5 h-5 text-purple-600 group-open:rotate-180 transition-transform" />
-                  </summary>
-                  <p className="text-gray-600 pt-4 leading-relaxed">
-                    No! We match you with visitors from your home country, so you can communicate in your native language.
-                    This makes the experience more authentic and comfortable for everyone.
-                  </p>
-                  </div>
-                </details>
-
-                <details className="group rounded-xl border-2 border-gray-200 p-5 hover:border-green-400 hover:shadow-soft transition-all hover-lift relative overflow-hidden">
-                  <div className="absolute inset-0 opacity-5">
-                    <Image
-                      src="https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=600&q=80"
-                      alt="Student with books"
-                      fill
-                      quality={70}
-                      sizes="(max-width: 768px) 100vw, 600px"
-                      className="object-cover"
-                    />
-                  </div>
-                  <div className="absolute inset-0 bg-white/70 backdrop-blur-sm" />
-                  <div className="relative z-10">
-                  <summary className="font-bold cursor-pointer list-none flex justify-between items-center">
-                    <span className="text-lg group-hover:text-green-700 transition-colors">What about exam periods?</span>
-                    <CheckCircle className="w-5 h-5 text-green-600 group-open:rotate-180 transition-transform" />
-                  </summary>
-                  <p className="text-gray-600 pt-4 leading-relaxed">
-                    You can mark specific dates or periods when you&apos;re unavailable (like exam weeks or holidays).
-                    Simply update your availability calendar, and you won&apos;t receive requests during those times.
-                  </p>
-                  </div>
-                </details>
-
-                <details className="group rounded-xl border-2 border-gray-200 p-5 hover:border-pink-400 hover:shadow-soft transition-all hover-lift relative overflow-hidden">
-                  <div className="absolute inset-0 opacity-5">
-                    <Image
-                      src="https://images.unsplash.com/photo-1553729459-efe14ef6055d?w=600&q=80"
-                      alt="Money and payment"
-                      fill
-                      quality={70}
-                      sizes="(max-width: 768px) 100vw, 600px"
-                      className="object-cover"
-                    />
-                  </div>
-                  <div className="absolute inset-0 bg-white/70 backdrop-blur-sm" />
-                  <div className="relative z-10">
-                  <summary className="font-bold cursor-pointer list-none flex justify-between items-center">
-                    <span className="text-lg group-hover:text-pink-700 transition-colors">How do I get paid?</span>
-                    <CheckCircle className="w-5 h-5 text-pink-600 group-open:rotate-180 transition-transform" />
-                  </summary>
-                  <p className="text-gray-600 pt-4 leading-relaxed">
-                    You arrange payment directly with tourists. WanderNest is a marketplace connector only -
-                    we facilitate introductions but don&apos;t handle payments. You set your own rates and payment methods.
-                  </p>
-                  </div>
-                </details>
-              </div>
-            </div>
+            {/* Modern FAQ */}
+            <ModernFAQ />
 
             {/* Benefits Visualization with Images */}
             <div className="grid md:grid-cols-2 gap-8 animate-fade-in-up delay-800">
