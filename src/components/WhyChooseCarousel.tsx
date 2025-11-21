@@ -136,14 +136,14 @@ export default function WhyChooseCarousel() {
   const colors = accentColors[currentFeature.accentColor as keyof typeof accentColors]
 
   return (
-    <div className="pt-16 space-y-8 animate-fade-in-up delay-300">
+    <div className="pt-8 space-y-4 animate-fade-in-up delay-300">
       {/* Section Title */}
-      <h2 className="text-4xl md:text-5xl font-serif font-bold text-center text-white text-shadow-lg tracking-tight px-4">
+      <h2 className="text-2xl md:text-3xl font-serif font-bold text-center text-white text-shadow-lg tracking-tight px-4">
         Why Choose WanderNest?
       </h2>
 
       {/* Carousel Container */}
-      <div className="relative w-full max-w-6xl mx-auto px-4">
+      <div className="relative w-full max-w-4xl mx-auto px-4">
         <div
           className="relative rounded-3xl overflow-hidden shadow-elevated"
           onTouchStart={handleTouchStart}
@@ -153,7 +153,7 @@ export default function WhyChooseCarousel() {
           aria-label="Why choose WanderNest carousel"
         >
           {/* Main Image Background */}
-          <div className="relative w-full h-[500px] md:h-[600px] lg:h-[650px]">
+          <div className="relative w-full h-[250px] md:h-[300px] lg:h-[325px]">
             {features.map((feature, index) => (
               <div
                 key={feature.title}
@@ -176,34 +176,34 @@ export default function WhyChooseCarousel() {
             ))}
 
             {/* Floating Glass Content Card */}
-            <div className="absolute inset-0 flex items-end md:items-center justify-center p-4 md:p-8">
+            <div className="absolute inset-0 flex items-end md:items-center justify-center p-2 md:p-4">
               <div
-                className={`w-full max-w-2xl glass-card rounded-2xl md:rounded-3xl p-6 md:p-8 lg:p-10 space-y-4 md:space-y-6 transition-all duration-500 ${
+                className={`w-full max-w-xl glass-card rounded-xl md:rounded-2xl p-3 md:p-4 lg:p-5 space-y-2 md:space-y-3 transition-all duration-500 ${
                   isTransitioning ? 'opacity-0 scale-95' : 'opacity-100 scale-100'
                 }`}
               >
                 {/* Title */}
-                <h3 className="text-2xl md:text-3xl lg:text-4xl font-serif font-bold text-foreground tracking-tight">
+                <h3 className="text-lg md:text-xl lg:text-2xl font-serif font-bold text-foreground tracking-tight">
                   {currentFeature.title}
                 </h3>
 
                 {/* Description */}
-                <p className="text-sm md:text-base lg:text-lg text-muted-foreground leading-relaxed">
+                <p className="text-xs md:text-sm text-muted-foreground leading-relaxed">
                   {currentFeature.description}
                 </p>
 
                 {/* Bullet Points */}
-                <ul className="space-y-2 md:space-y-3">
+                <ul className="space-y-1 md:space-y-2">
                   {currentFeature.bullets.map((bullet, idx) => (
                     <li
                       key={idx}
                       className={`flex items-start transition-all duration-300 delay-${idx * 100}`}
                       style={{ animationDelay: `${idx * 100}ms` }}
                     >
-                      <span className={`mr-2 md:mr-3 font-bold text-lg md:text-xl ${colors.check}`}>
+                      <span className={`mr-1.5 md:mr-2 font-bold text-base md:text-lg ${colors.check}`}>
                         ✓
                       </span>
-                      <span className="text-sm md:text-base text-foreground leading-relaxed">
+                      <span className="text-xs md:text-sm text-foreground leading-relaxed">
                         {bullet}
                       </span>
                     </li>
@@ -216,25 +216,25 @@ export default function WhyChooseCarousel() {
             <button
               onClick={prevSlide}
               disabled={isTransitioning}
-              className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 p-2 md:p-3 rounded-full bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm shadow-lg hover:bg-white dark:hover:bg-gray-800 transition-all hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-3 focus-visible:outline-blue-500 focus-visible:outline-offset-2"
+              className="absolute left-1.5 md:left-2 top-1/2 -translate-y-1/2 p-1.5 md:p-2 rounded-full bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm shadow-lg hover:bg-white dark:hover:bg-gray-800 transition-all hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-3 focus-visible:outline-blue-500 focus-visible:outline-offset-2"
               aria-label="Previous feature"
             >
-              <ChevronLeft className="w-5 h-5 md:w-6 md:h-6 text-foreground" />
+              <ChevronLeft className="w-4 h-4 md:w-5 md:h-5 text-foreground" />
             </button>
 
             <button
               onClick={nextSlide}
               disabled={isTransitioning}
-              className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 p-2 md:p-3 rounded-full bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm shadow-lg hover:bg-white dark:hover:bg-gray-800 transition-all hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-3 focus-visible:outline-blue-500 focus-visible:outline-offset-2"
+              className="absolute right-1.5 md:right-2 top-1/2 -translate-y-1/2 p-1.5 md:p-2 rounded-full bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm shadow-lg hover:bg-white dark:hover:bg-gray-800 transition-all hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-3 focus-visible:outline-blue-500 focus-visible:outline-offset-2"
               aria-label="Next feature"
             >
-              <ChevronRight className="w-5 h-5 md:w-6 md:h-6 text-foreground" />
+              <ChevronRight className="w-4 h-4 md:w-5 md:h-5 text-foreground" />
             </button>
           </div>
         </div>
 
         {/* Dot Indicators */}
-        <div className="flex justify-center items-center gap-2 md:gap-3 mt-6 md:mt-8">
+        <div className="flex justify-center items-center gap-1.5 md:gap-2 mt-3 md:mt-4">
           {features.map((feature, index) => {
             const dotColors = accentColors[feature.accentColor as keyof typeof accentColors]
             return (
@@ -243,13 +243,13 @@ export default function WhyChooseCarousel() {
                 onClick={() => goToSlide(index)}
                 disabled={isTransitioning}
                 className={`group transition-all duration-300 focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2 rounded-full ${
-                  index === currentIndex ? 'w-12 md:w-16' : 'w-3 md:w-4'
+                  index === currentIndex ? 'w-8 md:w-10' : 'w-2 md:w-3'
                 }`}
                 aria-label={`Go to ${feature.title}`}
                 aria-current={index === currentIndex ? 'true' : 'false'}
               >
                 <div
-                  className={`h-3 md:h-4 rounded-full transition-all duration-300 ${
+                  className={`h-2 md:h-3 rounded-full transition-all duration-300 ${
                     index === currentIndex
                       ? `${dotColors.dotActive} shadow-lg`
                       : 'bg-white/60 hover:bg-white/80'
@@ -261,7 +261,7 @@ export default function WhyChooseCarousel() {
         </div>
 
         {/* Swipe Hint for Mobile */}
-        <p className="text-center text-xs md:text-sm text-white/80 mt-4 md:hidden text-shadow-sm">
+        <p className="text-center text-xs text-white/80 mt-2 md:hidden text-shadow-sm">
           Swipe left or right to explore
         </p>
       </div>
