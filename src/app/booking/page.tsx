@@ -82,6 +82,11 @@ export default function BookingPage() {
           <div className="relative animate-fade-in-up delay-200">
             <BookingForm />
           </div>
+
+          {/* FAQ Section */}
+          <div className="mt-16 animate-fade-in-up delay-300">
+            <FAQAccordion faqs={paymentFAQs} title="Common Questions" />
+          </div>
         </main>
       </div>
     </div>

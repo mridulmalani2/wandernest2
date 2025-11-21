@@ -5,6 +5,7 @@ import { Plane, GraduationCap } from 'lucide-react'
 import Navigation from '@/components/Navigation'
 import TouristCTA from '@/components/cta/TouristCTA'
 import StudentCTA from '@/components/cta/StudentCTA'
+import WhyChooseCarousel from '@/components/WhyChooseCarousel'
 import { getWebsiteStructuredData, getOrganizationStructuredData } from '@/lib/structuredData'
 
 export default function MainLanding() {
@@ -179,129 +180,11 @@ export default function MainLanding() {
               </Link>
             </div>
 
-            {/* Visual Features Section with Images */}
-            <div className="pt-16 space-y-12 animate-fade-in-up delay-300">
-              <h2 className="text-4xl md:text-5xl font-serif font-bold text-center text-white text-shadow-lg tracking-tight">
-                Why Choose WanderNest?
-              </h2>
-
-              {/* Feature 1 - Authentic Local Experiences */}
-              <div className="grid md:grid-cols-2 gap-8 items-center">
-                <div className="space-y-4 order-2 md:order-1 glass-card rounded-2xl p-8 shadow-xl">
-                  <h3 className="text-3xl font-serif font-bold text-foreground tracking-tight">Authentic Local Experiences</h3>
-                  <p className="text-lg text-muted-foreground leading-relaxed">
-                    Skip the tourist traps and discover the real city. Our student guides know the
-                    best local cafes, hidden viewpoints, and authentic experiences that guidebooks
-                    miss. Connect with the culture through someone who lives it every day.
-                  </p>
-                  <ul className="space-y-2">
-                    <li className="flex items-start">
-                      <span className="mr-2 text-ui-blue-accent dark:text-ui-blue-primary font-bold">✓</span>
-                      <span className="text-foreground">Hidden local spots and neighborhood favorites</span>
-                    </li>
-                    <li className="flex items-start">
-                      <span className="mr-2 text-ui-blue-accent dark:text-ui-blue-primary font-bold">✓</span>
-                      <span className="text-foreground">Cultural insights from a local perspective</span>
-                    </li>
-                    <li className="flex items-start">
-                      <span className="mr-2 text-ui-blue-accent dark:text-ui-blue-primary font-bold">✓</span>
-                      <span className="text-foreground">Personalized recommendations for your interests</span>
-                    </li>
-                  </ul>
-                </div>
-                <div className="relative h-96 rounded-2xl overflow-hidden shadow-2xl group order-1 md:order-2">
-                  <Image
-                    src="https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=800&q=80"
-                    alt="Local cafe experience with authentic ambiance"
-                    fill
-                    loading="lazy"
-                    quality={75}
-                    sizes="(max-width: 768px) 100vw, 50vw"
-                    className="object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
-                </div>
-              </div>
-
-              {/* Feature 2 - Verified Student Guides */}
-              <div className="grid md:grid-cols-2 gap-8 items-center">
-                <div className="relative h-96 rounded-2xl overflow-hidden shadow-2xl group">
-                  <Image
-                    src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800&q=80"
-                    alt="University students working together in modern campus setting"
-                    fill
-                    loading="lazy"
-                    quality={75}
-                    sizes="(max-width: 768px) 100vw, 50vw"
-                    className="object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
-                </div>
-                <div className="space-y-4 glass-card rounded-2xl p-8 shadow-xl">
-                  <h3 className="text-3xl font-serif font-bold text-foreground tracking-tight">Verified University Students</h3>
-                  <p className="text-lg text-muted-foreground leading-relaxed">
-                    All our guides are verified university students with proven local knowledge.
-                    They are passionate about sharing their city and creating meaningful connections
-                    with travelers from around the world.
-                  </p>
-                  <ul className="space-y-2">
-                    <li className="flex items-start">
-                      <span className="mr-2 text-ui-purple-accent dark:text-ui-purple-primary font-bold">✓</span>
-                      <span className="text-foreground">Background-verified student credentials</span>
-                    </li>
-                    <li className="flex items-start">
-                      <span className="mr-2 text-ui-purple-accent dark:text-ui-purple-primary font-bold">✓</span>
-                      <span className="text-foreground">Multilingual guides for better communication</span>
-                    </li>
-                    <li className="flex items-start">
-                      <span className="mr-2 text-ui-purple-accent dark:text-ui-purple-primary font-bold">✓</span>
-                      <span className="text-foreground">Rated and reviewed by past travelers</span>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-
-              {/* Feature 3 - Flexible & Personal */}
-              <div className="grid md:grid-cols-2 gap-8 items-center">
-                <div className="space-y-4 order-2 md:order-1 glass-card rounded-2xl p-8 shadow-xl">
-                  <h3 className="text-3xl font-serif font-bold text-foreground tracking-tight">Flexible and Personalized</h3>
-                  <p className="text-lg text-muted-foreground leading-relaxed">
-                    Every traveler is unique. Whether you want to explore historic landmarks, find
-                    the best street food, or discover nightlife hotspots, your guide will customize
-                    the experience to match your interests and pace.
-                  </p>
-                  <ul className="space-y-2">
-                    <li className="flex items-start">
-                      <span className="mr-2 text-ui-success font-bold">✓</span>
-                      <span className="text-foreground">Customized itineraries based on your preferences</span>
-                    </li>
-                    <li className="flex items-start">
-                      <span className="mr-2 text-ui-success font-bold">✓</span>
-                      <span className="text-foreground">Flexible scheduling around your travel plans</span>
-                    </li>
-                    <li className="flex items-start">
-                      <span className="mr-2 text-ui-success font-bold">✓</span>
-                      <span className="text-foreground">Small group or one-on-one experiences</span>
-                    </li>
-                  </ul>
-                </div>
-                <div className="relative h-96 rounded-2xl overflow-hidden shadow-2xl group order-1 md:order-2">
-                  <Image
-                    src="https://images.unsplash.com/photo-1530521954074-e64f6810b32d?w=800&q=80"
-                    alt="Friends enjoying flexible travel together in a European city"
-                    fill
-                    loading="lazy"
-                    quality={75}
-                    sizes="(max-width: 768px) 100vw, 50vw"
-                    className="object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
-                </div>
-              </div>
-            </div>
+            {/* Premium Carousel - Why Choose WanderNest */}
+            <WhyChooseCarousel />
 
             {/* Footer Note */}
-            <p className="text-sm text-white/90 dark:text-white/80 pt-16 animate-fade-in text-shadow">
+            <p className="text-sm text-white/90 pt-16 animate-fade-in text-shadow">
               © {new Date().getFullYear()} WanderNest. Connecting cultures, one guide at a time.
             </p>
           </div>
