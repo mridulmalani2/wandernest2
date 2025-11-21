@@ -83,20 +83,24 @@ export default function StudentOnboarding() {
     // validateSession();
   }, [router]);
 
+  // Simplified loading state - full UI will be in OnboardingWizard
   if (loading) {
     return (
       <div className="min-h-screen flex flex-col relative overflow-hidden">
-        {/* Background */}
-        <div className="absolute inset-0">
+        {/* Background Image with Overlays */}
+        <div className="absolute inset-0" role="img" aria-label="Students collaborating on campus">
           <Image
-            src="https://images.unsplash.com/photo-1517048676732-d65bc937f952?w=1920&q=80"
-            alt="Students celebrating success"
+            src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=1920&q=80"
+            alt="Students collaborating on campus"
             fill
+            priority
             quality={85}
             sizes="100vw"
             className="object-cover"
           />
+          {/* Dark overlay for text contrast */}
           <div className="absolute inset-0 bg-black/20 backdrop-blur-[4px]" />
+          {/* Gradient overlay for visual depth */}
           <div className="absolute inset-0 bg-gradient-to-br from-purple-600/15 via-blue-600/10 to-pink-600/15" />
         </div>
         <div className="absolute inset-0 pattern-dots opacity-10" />
