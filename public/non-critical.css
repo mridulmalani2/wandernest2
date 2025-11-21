@@ -25,23 +25,6 @@
   --glass-border-dark: rgba(255, 255, 255, 0.1);
 }
 
-.dark {
-  --card: 222.2 84% 4.9%;
-  --card-foreground: 210 40% 98%;
-  --popover: 222.2 84% 4.9%;
-  --popover-foreground: 210 40% 98%;
-  --muted: 217.2 32.6% 17.5%;
-  --muted-foreground: 215 20.2% 65.1%;
-  --destructive: 0 62.8% 30.6%;
-  --destructive-foreground: 210 40% 98%;
-  --input: 217.2 32.6% 17.5%;
-  --ring: 174 72% 66%;
-  --glass-bg-light: rgba(255, 255, 255, 0.1);
-  --glass-border-light: rgba(255, 255, 255, 0.2);
-  --glass-bg-dark: rgba(0, 0, 0, 0.5);
-  --glass-border-dark: rgba(255, 255, 255, 0.15);
-}
-
 /* Extended Typography */
 html {
   scroll-behavior: smooth;
@@ -313,33 +296,12 @@ p {
   border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
-/* Dark mode glass variants */
-.dark .glass {
-  background: var(--glass-bg-light);
-  border: 1px solid var(--glass-border-light);
-}
-
-.dark .glass-card {
-  background: var(--glass-bg-dark);
-  border: 1px solid var(--glass-border-dark);
-}
-
-.dark .glass-frosted {
-  background: rgba(0, 0, 0, 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-}
-
 /* Fallback for browsers without backdrop-filter support */
 @supports not (backdrop-filter: blur(10px)) {
   .glass,
   .glass-card,
   .glass-frosted {
     background: rgba(255, 255, 255, 0.95);
-  }
-  .dark .glass,
-  .dark .glass-card,
-  .dark .glass-frosted {
-    background: rgba(0, 0, 0, 0.85);
   }
 }
 
@@ -658,15 +620,6 @@ p {
     hsl(var(--accent) / 0.1) 100%
   );
   pointer-events: none;
-}
-
-.dark .bg-overlay-gradient::before {
-  background: linear-gradient(
-    135deg,
-    hsl(var(--primary) / 0.05) 0%,
-    hsl(var(--secondary) / 0.05) 50%,
-    hsl(var(--accent) / 0.05) 100%
-  );
 }
 
 /* Staggered Animations */

@@ -184,7 +184,7 @@ export default function MainLanding() {
             <WhyChooseCarousel />
 
             {/* Footer Note */}
-            <p className="text-sm text-white/90 dark:text-white/80 pt-16 animate-fade-in text-shadow">
+            <p className="text-sm text-white/90 pt-16 animate-fade-in text-shadow">
               © {new Date().getFullYear()} WanderNest. Connecting cultures, one guide at a time.
             </p>
           </div>

@@ -29,24 +29,6 @@
     --glass-bg-dark: rgba(15, 23, 42, 0.7);
     --glass-border-dark: rgba(255, 255, 255, 0.1);
   }
-
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --primary: 174 72% 66%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 262 52% 57%;
-    --secondary-foreground: 210 40% 98%;
-    --accent: 14 91% 70%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-    --border: 217.2 32.6% 17.5%;
-
-    /* Override glass variables for dark mode */
-    --glass-bg-light: rgba(255, 255, 255, 0.05);
-    --glass-border-light: rgba(255, 255, 255, 0.1);
-    --glass-bg-dark: rgba(15, 23, 42, 0.8);
-    --glass-border-dark: rgba(255, 255, 255, 0.15);
-  }
 }
 
 /* Critical Base Styles - Typography and layout */
@@ -362,33 +344,12 @@
     border: 1px solid rgba(255, 255, 255, 0.3);
   }
 
-  /* Dark mode glass variants */
-  .dark .glass {
-    background: var(--glass-bg-light);
-    border: 1px solid var(--glass-border-light);
-  }
-
-  .dark .glass-card {
-    background: var(--glass-bg-dark);
-    border: 1px solid var(--glass-border-dark);
-  }
-
-  .dark .glass-frosted {
-    background: rgba(0, 0, 0, 0.4);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-  }
-
   /* Fallback for browsers without backdrop-filter support */
   @supports not (backdrop-filter: blur(10px)) {
     .glass,
     .glass-card,
     .glass-frosted {
       background: rgba(255, 255, 255, 0.95);
-    }
-    .dark .glass,
-    .dark .glass-card,
-    .dark .glass-frosted {
-      background: rgba(0, 0, 0, 0.85);
     }
   }
 
@@ -715,15 +676,6 @@
       hsl(var(--accent) / 0.1) 100%
     );
     pointer-events: none;
-  }
-
-  .dark .bg-overlay-gradient::before {
-    background: linear-gradient(
-      135deg,
-      hsl(var(--primary) / 0.05) 0%,
-      hsl(var(--secondary) / 0.05) 50%,
-      hsl(var(--accent) / 0.05) 100%
-    );
   }
 
   /* Accessibility Enhancements */
