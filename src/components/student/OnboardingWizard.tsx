@@ -14,6 +14,7 @@ import { AvailabilityStep } from './AvailabilityStep';
 import { ServicePreferencesStep } from './ServicePreferencesStep';
 import { SafetyComplianceStep } from './SafetyComplianceStep';
 import { ReviewSubmitStep } from './ReviewSubmitStep';
+import { FormProgressHeader } from './FormProgressHeader';
 
 export type OnboardingFormData = {
   // Step 1: Basic Profile - Personal Details
@@ -100,6 +101,7 @@ interface OnboardingWizardProps {
 export function OnboardingWizard({ session }: OnboardingWizardProps) {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
+  const [completedSteps, setCompletedSteps] = useState<number[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState<OnboardingFormData>({
     // Step 1: Basic Profile
@@ -285,6 +287,10 @@ export function OnboardingWizard({ session }: OnboardingWizardProps) {
 
   const handleNext = () => {
     if (validateStep(currentStep)) {
+      // Mark current step as completed when moving forward
+      if (!completedSteps.includes(currentStep)) {
+        setCompletedSteps((prev) => [...prev, currentStep]);
+      }
       setCurrentStep((prev) => Math.min(prev + 1, STEPS.length));
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -295,8 +301,30 @@ export function OnboardingWizard({ session }: OnboardingWizardProps) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const handleStepClick = (stepId: number) => {
+    // Allow navigation to any step without validation
+    setCurrentStep(stepId);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const handleSubmit = async () => {
-    if (!validateStep(currentStep)) {
+    // Validate ALL steps before final submission
+    let allValid = true;
+    const allErrors: Record<string, string> = {};
+
+    for (let step = 1; step <= STEPS.length - 1; step++) {
+      const stepValid = validateStep(step);
+      if (!stepValid) {
+        allValid = false;
+        // Collect errors from all steps
+        Object.assign(allErrors, errors);
+      }
+    }
+
+    if (!allValid) {
+      setErrors({
+        submit: 'Please complete all required fields in all sections before submitting. Click on any step above to review and complete missing information.',
+      });
       return;
     }
 
@@ -467,65 +495,12 @@ export function OnboardingWizard({ session }: OnboardingWizardProps) {
 
           {/* Step Indicator */}
           <div className="max-w-4xl mx-auto mb-8">
-            {/* Mobile Progress - Dots */}
-            <div className="md:hidden mb-4">
-              <div className="flex justify-center items-center space-x-2 mb-2">
-                {STEPS.map((step) => (
-                  <div
-                    key={step.id}
-                    className={`h-2.5 rounded-full transition-all duration-300 ${
-                      currentStep > step.id
-                        ? 'bg-green-500 w-2.5'
-                        : currentStep === step.id
-                        ? 'bg-blue-600 w-8'
-                        : 'bg-gray-300 w-2.5'
-                    }`}
-                    aria-label={`Step ${step.id}: ${step.name}`}
-                  />
-                ))}
-              </div>
-              <div className="text-center">
-                <p className="text-sm font-semibold text-white" style={{ textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)' }}>
-                  Step {currentStep} of {STEPS.length}: {STEPS[currentStep - 1].name}
-                </p>
-                <p className="text-xs text-white" style={{ textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)' }}>{STEPS[currentStep - 1].description}</p>
-              </div>
-            </div>
-
-            {/* Desktop Progress - Full Stepper */}
-            <div className="hidden md:flex items-center justify-between">
-              {STEPS.map((step, index) => (
-                <div key={step.id} className="flex items-center flex-1">
-                  <div className="flex flex-col items-center flex-1">
-                    <div
-                      className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all duration-300 shadow-soft ${
-                        currentStep >= step.id
-                          ? 'gradient-ocean border-blue-600 text-white shadow-premium scale-110'
-                          : 'glass-frosted border-white/60 text-white'
-                      }`}
-                    >
-                      {currentStep > step.id ? '✓' : step.id}
-                    </div>
-                    <div className="mt-2 text-center">
-                      <p
-                        className="text-sm font-medium text-white"
-                        style={{ textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)' }}
-                      >
-                        {step.name}
-                      </p>
-                      <p className="text-xs text-white" style={{ textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)' }}>{step.description}</p>
-                    </div>
-                  </div>
-                  {index < STEPS.length - 1 && (
-                    <div
-                      className={`h-0.5 flex-1 mx-4 rounded transition-all duration-300 ${
-                        currentStep > step.id ? 'bg-blue-600' : 'bg-gray-300'
-                      }`}
-                    />
-                  )}
-                </div>
-              ))}
-            </div>
+            <FormProgressHeader
+              steps={STEPS}
+              currentStep={currentStep}
+              completedSteps={completedSteps}
+              onStepClick={handleStepClick}
+            />
           </div>
 
           {/* Form Steps */}
