@@ -3,10 +3,9 @@
 import { useState } from 'react';
 import { Session } from 'next-auth';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import Image from 'next/image';
-import { Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import Navigation from '@/components/Navigation';
 import { BasicProfileStep } from './BasicProfileStep';
 import { StudentVerificationStep } from './StudentVerificationStep';
 import { CoverLetterStep } from './CoverLetterStep';
@@ -468,21 +467,7 @@ export function OnboardingWizard({ session }: OnboardingWizardProps) {
       {/* Content */}
       <div className="relative z-10 flex flex-col min-h-screen">
         {/* Header */}
-        <header className="border-b-2 glass-card border-white/40 shadow-premium sticky top-0 z-50 animate-fade-in">
-          <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-            <Link href="/" className="flex items-center space-x-2 group">
-              <div className="p-1.5 rounded-lg gradient-ocean text-white group-hover:scale-110 transition-transform duration-300 shadow-soft">
-                <Globe className="w-6 h-6" />
-              </div>
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-                WanderNest
-              </h1>
-            </Link>
-            <div className="text-sm text-white font-medium" style={{ textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)' }}>
-              {session.user.email}
-            </div>
-          </div>
-        </header>
+        <Navigation variant="student" />
 
         {/* Main Content */}
         <main className="container mx-auto px-4 py-12 flex-1">

@@ -2,10 +2,9 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import Image from 'next/image';
-import { Button } from '@/components/ui/button';
-import { Globe, CheckCircle2 } from 'lucide-react';
+import Navigation from '@/components/Navigation';
+import { CheckCircle2 } from 'lucide-react';
 
 export default function StudentSignIn() {
   const router = useRouter();
@@ -42,23 +41,7 @@ export default function StudentSignIn() {
       {/* Content */}
       <div className="relative z-10 flex flex-col min-h-screen">
         {/* Header */}
-        <header className="border-b-2 glass-card border-white/40 shadow-premium animate-fade-in">
-          <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-            <Link href="/" className="flex items-center space-x-2 group">
-              <div className="p-1.5 rounded-lg gradient-ocean text-white group-hover:scale-110 transition-transform duration-300 shadow-soft">
-                <Globe className="w-6 h-6" />
-              </div>
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                WanderNest
-              </h1>
-            </Link>
-            <nav className="flex items-center space-x-4">
-              <Link href="/student">
-                <Button variant="ghost" className="hover-lift shadow-soft">Back to Student Page</Button>
-              </Link>
-            </nav>
-          </div>
-        </header>
+        <Navigation variant="student" showBackButton backHref="/student" />
 
         {/* Main Content */}
         <main className="flex-1 flex items-center justify-center px-4 py-16">

@@ -6,6 +6,7 @@ import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import Navigation from '@/components/Navigation'
 
 interface Request {
   id: string
@@ -311,22 +312,11 @@ export default function StudentDashboard() {
       <div className="absolute inset-0 pattern-dots opacity-10" />
 
       {/* Content */}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+      <div className="relative z-10 flex flex-col min-h-screen">
         {/* Header */}
-        <div className="glass-card rounded-3xl shadow-premium p-6 mb-8 border border-white/40 hover-lift animate-fade-in">
-          <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Student Dashboard</h1>
-              <p className="mt-2 text-gray-700">
-                Welcome back, <span className="font-semibold text-blue-700">{data.student.name}</span>
-              </p>
-              <p className="text-sm text-gray-600">{data.student.email}</p>
-            </div>
-            <Button onClick={handleLogout} variant="outline" className="hover-lift shadow-soft">
-              Logout
-            </Button>
-          </div>
-        </div>
+        <Navigation variant="student" />
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
 
         {/* Error Alert */}
         {error && (

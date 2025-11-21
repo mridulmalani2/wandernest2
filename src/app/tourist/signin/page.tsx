@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect } from 'react'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
-import Link from 'next/link'
+import Navigation from '@/components/Navigation'
 
 export default function TouristSignIn() {
   const { data: session, status } = useSession()
@@ -59,23 +59,7 @@ export default function TouristSignIn() {
       {/* Content */}
       <div className="relative z-10 flex flex-col min-h-screen">
         {/* Header */}
-        <header className="border-b-2 glass-card border-white/40 shadow-premium sticky top-0 z-50 animate-fade-in">
-          <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-            <div className="flex items-center space-x-2">
-              <span className="text-2xl">🌍</span>
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                WanderNest
-              </h1>
-            </div>
-            <nav className="flex items-center space-x-4">
-              <Link href="/tourist">
-                <Button variant="ghost" className="hover-lift shadow-soft">
-                  <span className="mr-1">←</span> Back
-                </Button>
-              </Link>
-            </nav>
-          </div>
-        </header>
+        <Navigation variant="tourist" showBackButton backHref="/tourist" />
 
         {/* Main Content */}
         <main className="flex-1 flex items-center justify-center px-4 py-16">

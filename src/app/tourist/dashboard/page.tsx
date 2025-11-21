@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
+import Navigation from '@/components/Navigation'
 
 // AUTH DISABLED FOR DEVELOPMENT - DATABASE_URL not configured
 
@@ -159,30 +160,7 @@ export default function TouristDashboard() {
       {/* Content */}
       <div className="relative z-10 flex flex-col min-h-screen">
         {/* Header */}
-        <div className="glass-card border-b-2 border-white/40 shadow-premium animate-fade-in">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-            <div className="flex justify-between items-center">
-              <div>
-                <h1 className="text-3xl font-bold text-gray-900">Tourist Dashboard</h1>
-                <p className="mt-2 text-gray-700">Logged in as <span className="font-semibold text-blue-700">{session?.user?.email}</span></p>
-              </div>
-              <div className="flex gap-4">
-                <a
-                  href="/booking"
-                  className="px-4 py-2 gradient-ocean text-white rounded-lg hover:shadow-glow-blue shadow-soft transition-all hover-lift"
-                >
-                  New Booking
-                </a>
-                <button
-                  onClick={handleLogout}
-                  className="px-4 py-2 text-gray-700 hover:text-gray-900 border-2 border-gray-300 rounded-lg hover:bg-white/50 hover-lift shadow-soft"
-                >
-                  Logout
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+        <Navigation variant="tourist" />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
         {/* Stats Grid */}

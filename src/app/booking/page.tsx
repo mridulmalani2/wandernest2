@@ -3,9 +3,10 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { BookingForm } from '@/components/booking/BookingForm'
+import Navigation from '@/components/Navigation'
 // import { useSession, signIn } from 'next-auth/react'
 import { Button } from '@/components/ui/button'
-import { Globe, AlertTriangle } from 'lucide-react'
+import { AlertTriangle } from 'lucide-react'
 
 // AUTH DISABLED FOR DEVELOPMENT - DATABASE_URL not configured
 export default function BookingPage() {
@@ -36,34 +37,7 @@ export default function BookingPage() {
       {/* Content */}
       <div className="relative z-10 flex flex-col min-h-screen">
         {/* Header */}
-        <header className="border-b-2 glass-card border-white/40 shadow-premium sticky top-0 z-50 animate-fade-in">
-          <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-            <Link href="/" className="flex items-center space-x-2 group">
-              <div className="p-1.5 rounded-lg gradient-ocean text-white group-hover:scale-110 transition-transform duration-300 shadow-soft">
-                <Globe className="w-6 h-6" />
-              </div>
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                WanderNest
-              </h1>
-            </Link>
-            <nav className="flex items-center space-x-4">
-              {isTourist ? (
-                <>
-                  <Link href="/tourist/dashboard">
-                    <Button variant="outline" className="hover-lift shadow-soft">My Bookings</Button>
-                  </Link>
-                  <Link href="/tourist">
-                    <Button variant="ghost" className="hover-lift shadow-soft">Home</Button>
-                  </Link>
-                </>
-              ) : (
-                <Link href="/tourist">
-                  <Button variant="ghost" className="hover-lift shadow-soft">Back</Button>
-                </Link>
-              )}
-            </nav>
-          </div>
-        </header>
+        <Navigation variant="tourist" />
 
         {/* Main Content */}
         <main className="container mx-auto px-4 py-12 flex-1">
