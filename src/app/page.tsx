@@ -196,15 +196,15 @@ export default function MainLanding() {
                   </p>
                   <ul className="space-y-2">
                     <li className="flex items-start">
-                      <span className="mr-2 text-blue-600 dark:text-blue-400 font-bold">✓</span>
+                      <span className="mr-2 text-blue-600 font-bold">✓</span>
                       <span className="text-foreground">Hidden local spots and neighborhood favorites</span>
                     </li>
                     <li className="flex items-start">
-                      <span className="mr-2 text-blue-600 dark:text-blue-400 font-bold">✓</span>
+                      <span className="mr-2 text-blue-600 font-bold">✓</span>
                       <span className="text-foreground">Cultural insights from a local perspective</span>
                     </li>
                     <li className="flex items-start">
-                      <span className="mr-2 text-blue-600 dark:text-blue-400 font-bold">✓</span>
+                      <span className="mr-2 text-blue-600 font-bold">✓</span>
                       <span className="text-foreground">Personalized recommendations for your interests</span>
                     </li>
                   </ul>
@@ -246,15 +246,15 @@ export default function MainLanding() {
                   </p>
                   <ul className="space-y-2">
                     <li className="flex items-start">
-                      <span className="mr-2 text-purple-600 dark:text-purple-400 font-bold">✓</span>
+                      <span className="mr-2 text-purple-600 font-bold">✓</span>
                       <span className="text-foreground">Background-verified student credentials</span>
                     </li>
                     <li className="flex items-start">
-                      <span className="mr-2 text-purple-600 dark:text-purple-400 font-bold">✓</span>
+                      <span className="mr-2 text-purple-600 font-bold">✓</span>
                       <span className="text-foreground">Multilingual guides for better communication</span>
                     </li>
                     <li className="flex items-start">
-                      <span className="mr-2 text-purple-600 dark:text-purple-400 font-bold">✓</span>
+                      <span className="mr-2 text-purple-600 font-bold">✓</span>
                       <span className="text-foreground">Rated and reviewed by past travelers</span>
                     </li>
                   </ul>
@@ -272,15 +272,15 @@ export default function MainLanding() {
                   </p>
                   <ul className="space-y-2">
                     <li className="flex items-start">
-                      <span className="mr-2 text-green-600 dark:text-green-400 font-bold">✓</span>
+                      <span className="mr-2 text-green-600 font-bold">✓</span>
                       <span className="text-foreground">Customized itineraries based on your preferences</span>
                     </li>
                     <li className="flex items-start">
-                      <span className="mr-2 text-green-600 dark:text-green-400 font-bold">✓</span>
+                      <span className="mr-2 text-green-600 font-bold">✓</span>
                       <span className="text-foreground">Flexible scheduling around your travel plans</span>
                     </li>
                     <li className="flex items-start">
-                      <span className="mr-2 text-green-600 dark:text-green-400 font-bold">✓</span>
+                      <span className="mr-2 text-green-600 font-bold">✓</span>
                       <span className="text-foreground">Small group or one-on-one experiences</span>
                     </li>
                   </ul>
@@ -301,7 +301,7 @@ export default function MainLanding() {
             </div>
 
             {/* Footer Note */}
-            <p className="text-sm text-white/90 dark:text-white/80 pt-16 animate-fade-in text-shadow">
+            <p className="text-sm text-white/90 pt-16 animate-fade-in text-shadow">
               © {new Date().getFullYear()} WanderNest. Connecting cultures, one guide at a time.
             </p>
           </div>

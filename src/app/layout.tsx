@@ -72,25 +72,12 @@ export default function RootLayout({
       <head>
         {/* Preconnect to image CDN for faster image loading */}
         <link rel="preconnect" href="https://images.unsplash.com" />
-
-        {/* Theme initialization script - prevents FOUC */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                const theme = localStorage.getItem('theme') ||
-                  (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-                document.documentElement.classList.add(theme);
-              })();
-            `,
-          }}
-        />
       </head>
       <body className="font-sans">
         <Providers>
           <div className="min-h-screen relative">
-            {/* Theme-aware gradient background */}
-            <div className="fixed inset-0 z-0 bg-gradient-to-br from-slate-50 via-blue-50/50 to-purple-50/50 dark:from-slate-950 dark:via-blue-950/30 dark:to-purple-950/30 transition-colors duration-300" />
+            {/* Light mode gradient background */}
+            <div className="fixed inset-0 z-0 bg-gradient-to-br from-slate-50 via-blue-50/50 to-purple-50/50 transition-colors duration-300" />
             <div className="relative z-10">
               {children}
             </div>
