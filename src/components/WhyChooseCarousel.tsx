@@ -1,0 +1,270 @@
+'use client'
+
+import { useState, useEffect, useCallback } from 'react'
+import Image from 'next/image'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
+
+interface Feature {
+  title: string
+  description: string
+  bullets: string[]
+  image: string
+  imageAlt: string
+  accentColor: string
+}
+
+const features: Feature[] = [
+  {
+    title: 'Authentic Local Experiences',
+    description:
+      'Skip the tourist traps and discover the real city. Our student guides know the best local cafes, hidden viewpoints, and authentic experiences that guidebooks miss. Connect with the culture through someone who lives it every day.',
+    bullets: [
+      'Hidden local spots and neighborhood favorites',
+      'Cultural insights from a local perspective',
+      'Personalized recommendations for your interests',
+    ],
+    image: 'https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=800&q=80',
+    imageAlt: 'Local cafe experience with authentic ambiance',
+    accentColor: 'blue',
+  },
+  {
+    title: 'Verified University Students',
+    description:
+      'All our guides are verified university students with proven local knowledge. They are passionate about sharing their city and creating meaningful connections with travelers from around the world.',
+    bullets: [
+      'Background-verified student credentials',
+      'Multilingual guides for better communication',
+      'Rated and reviewed by past travelers',
+    ],
+    image: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800&q=80',
+    imageAlt: 'University students working together in modern campus setting',
+    accentColor: 'purple',
+  },
+  {
+    title: 'Flexible and Personalized',
+    description:
+      'Every traveler is unique. Whether you want to explore historic landmarks, find the best street food, or discover nightlife hotspots, your guide will customize the experience to match your interests and pace.',
+    bullets: [
+      'Customized itineraries based on your preferences',
+      'Flexible scheduling around your travel plans',
+      'Small group or one-on-one experiences',
+    ],
+    image: 'https://images.unsplash.com/photo-1530521954074-e64f6810b32d?w=800&q=80',
+    imageAlt: 'Friends enjoying flexible travel together in a European city',
+    accentColor: 'green',
+  },
+]
+
+const accentColors = {
+  blue: {
+    check: 'text-blue-600 dark:text-blue-400',
+    dot: 'bg-blue-600',
+    dotActive: 'bg-blue-500',
+  },
+  purple: {
+    check: 'text-purple-600 dark:text-purple-400',
+    dot: 'bg-purple-600',
+    dotActive: 'bg-purple-500',
+  },
+  green: {
+    check: 'text-green-600 dark:text-green-400',
+    dot: 'bg-green-600',
+    dotActive: 'bg-green-500',
+  },
+}
+
+export default function WhyChooseCarousel() {
+  const [currentIndex, setCurrentIndex] = useState(0)
+  const [isTransitioning, setIsTransitioning] = useState(false)
+  const [touchStart, setTouchStart] = useState(0)
+  const [touchEnd, setTouchEnd] = useState(0)
+
+  const goToSlide = useCallback((index: number) => {
+    if (isTransitioning) return
+    setIsTransitioning(true)
+    setCurrentIndex(index)
+    setTimeout(() => setIsTransitioning(false), 500)
+  }, [isTransitioning])
+
+  const nextSlide = useCallback(() => {
+    goToSlide((currentIndex + 1) % features.length)
+  }, [currentIndex, goToSlide])
+
+  const prevSlide = useCallback(() => {
+    goToSlide((currentIndex - 1 + features.length) % features.length)
+  }, [currentIndex, goToSlide])
+
+  // Handle touch events for mobile swipe
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStart(e.targetTouches[0].clientX)
+  }
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX)
+  }
+
+  const handleTouchEnd = () => {
+    if (!touchStart || !touchEnd) return
+
+    const distance = touchStart - touchEnd
+    const isLeftSwipe = distance > 50
+    const isRightSwipe = distance < -50
+
+    if (isLeftSwipe) {
+      nextSlide()
+    }
+    if (isRightSwipe) {
+      prevSlide()
+    }
+
+    setTouchStart(0)
+    setTouchEnd(0)
+  }
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowLeft') prevSlide()
+      if (e.key === 'ArrowRight') nextSlide()
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [nextSlide, prevSlide])
+
+  const currentFeature = features[currentIndex]
+  const colors = accentColors[currentFeature.accentColor as keyof typeof accentColors]
+
+  return (
+    <div className="pt-16 space-y-8 animate-fade-in-up delay-300">
+      {/* Section Title */}
+      <h2 className="text-4xl md:text-5xl font-serif font-bold text-center text-white text-shadow-lg tracking-tight px-4">
+        Why Choose WanderNest?
+      </h2>
+
+      {/* Carousel Container */}
+      <div className="relative w-full max-w-6xl mx-auto px-4">
+        <div
+          className="relative rounded-3xl overflow-hidden shadow-elevated"
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+          role="region"
+          aria-label="Why choose WanderNest carousel"
+        >
+          {/* Main Image Background */}
+          <div className="relative w-full h-[500px] md:h-[600px] lg:h-[650px]">
+            {features.map((feature, index) => (
+              <div
+                key={feature.title}
+                className={`absolute inset-0 transition-opacity duration-500 ease-in-out ${
+                  index === currentIndex ? 'opacity-100' : 'opacity-0 pointer-events-none'
+                }`}
+              >
+                <Image
+                  src={feature.image}
+                  alt={feature.imageAlt}
+                  fill
+                  loading={index === 0 ? 'eager' : 'lazy'}
+                  quality={80}
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"
+                  className="object-cover"
+                />
+                {/* Gradient overlay for text readability */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-black/20" />
+              </div>
+            ))}
+
+            {/* Floating Glass Content Card */}
+            <div className="absolute inset-0 flex items-end md:items-center justify-center p-4 md:p-8">
+              <div
+                className={`w-full max-w-2xl glass-card rounded-2xl md:rounded-3xl p-6 md:p-8 lg:p-10 space-y-4 md:space-y-6 transition-all duration-500 ${
+                  isTransitioning ? 'opacity-0 scale-95' : 'opacity-100 scale-100'
+                }`}
+              >
+                {/* Title */}
+                <h3 className="text-2xl md:text-3xl lg:text-4xl font-serif font-bold text-foreground tracking-tight">
+                  {currentFeature.title}
+                </h3>
+
+                {/* Description */}
+                <p className="text-sm md:text-base lg:text-lg text-muted-foreground leading-relaxed">
+                  {currentFeature.description}
+                </p>
+
+                {/* Bullet Points */}
+                <ul className="space-y-2 md:space-y-3">
+                  {currentFeature.bullets.map((bullet, idx) => (
+                    <li
+                      key={idx}
+                      className={`flex items-start transition-all duration-300 delay-${idx * 100}`}
+                      style={{ animationDelay: `${idx * 100}ms` }}
+                    >
+                      <span className={`mr-2 md:mr-3 font-bold text-lg md:text-xl ${colors.check}`}>
+                        ✓
+                      </span>
+                      <span className="text-sm md:text-base text-foreground leading-relaxed">
+                        {bullet}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+
+            {/* Navigation Arrows */}
+            <button
+              onClick={prevSlide}
+              disabled={isTransitioning}
+              className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 p-2 md:p-3 rounded-full bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm shadow-lg hover:bg-white dark:hover:bg-gray-800 transition-all hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-3 focus-visible:outline-blue-500 focus-visible:outline-offset-2"
+              aria-label="Previous feature"
+            >
+              <ChevronLeft className="w-5 h-5 md:w-6 md:h-6 text-foreground" />
+            </button>
+
+            <button
+              onClick={nextSlide}
+              disabled={isTransitioning}
+              className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 p-2 md:p-3 rounded-full bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm shadow-lg hover:bg-white dark:hover:bg-gray-800 transition-all hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-3 focus-visible:outline-blue-500 focus-visible:outline-offset-2"
+              aria-label="Next feature"
+            >
+              <ChevronRight className="w-5 h-5 md:w-6 md:h-6 text-foreground" />
+            </button>
+          </div>
+        </div>
+
+        {/* Dot Indicators */}
+        <div className="flex justify-center items-center gap-2 md:gap-3 mt-6 md:mt-8">
+          {features.map((feature, index) => {
+            const dotColors = accentColors[feature.accentColor as keyof typeof accentColors]
+            return (
+              <button
+                key={feature.title}
+                onClick={() => goToSlide(index)}
+                disabled={isTransitioning}
+                className={`group transition-all duration-300 focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2 rounded-full ${
+                  index === currentIndex ? 'w-12 md:w-16' : 'w-3 md:w-4'
+                }`}
+                aria-label={`Go to ${feature.title}`}
+                aria-current={index === currentIndex ? 'true' : 'false'}
+              >
+                <div
+                  className={`h-3 md:h-4 rounded-full transition-all duration-300 ${
+                    index === currentIndex
+                      ? `${dotColors.dotActive} shadow-lg`
+                      : 'bg-white/60 hover:bg-white/80'
+                  }`}
+                />
+              </button>
+            )
+          })}
+        </div>
+
+        {/* Swipe Hint for Mobile */}
+        <p className="text-center text-xs md:text-sm text-white/80 mt-4 md:hidden text-shadow-sm">
+          Swipe left or right to explore
+        </p>
+      </div>
+    </div>
+  )
+}
