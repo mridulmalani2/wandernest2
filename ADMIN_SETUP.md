@@ -1,6 +1,6 @@
 # Admin Dashboard & Tourist Dashboard Setup Guide
 
-This guide covers the setup and usage of the WanderNest Admin Dashboard and Tourist Dashboard.
+This guide covers the setup and usage of the TourWiseCo Admin Dashboard and Tourist Dashboard.
 
 ## Features Implemented
 
@@ -55,13 +55,13 @@ cp .env.example .env
 
 Required variables:
 ```env
-DATABASE_URL="postgresql://user:password@localhost:5432/wandernest"
+DATABASE_URL="postgresql://user:password@localhost:5432/tourwiseco"
 JWT_SECRET="your-super-secret-jwt-key"
 EMAIL_HOST="smtp.gmail.com"
 EMAIL_PORT="587"
 EMAIL_USER="your-email@gmail.com"
 EMAIL_PASS="your-app-specific-password"
-EMAIL_FROM="WanderNest <noreply@wandernest.com>"
+EMAIL_FROM="TourWiseCo <noreply@tourwiseco.com>"
 ```
 
 ### 2. Database Setup
@@ -89,7 +89,7 @@ async function main() {
 
   await prisma.admin.create({
     data: {
-      email: 'admin@wandernest.com',
+      email: 'admin@tourwiseco.com',
       passwordHash,
       name: 'Admin User',
       role: 'SUPER_ADMIN',

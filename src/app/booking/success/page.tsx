@@ -81,7 +81,7 @@ export default function SuccessPage({
                 Important Reminder
               </h2>
               <p className="text-sm text-ui-warning mb-2">
-                <strong>WanderNest is a marketplace platform only.</strong> Please remember:
+                <strong>TourWiseCo is a marketplace platform only.</strong> Please remember:
               </p>
               <ul className="space-y-2 text-sm text-ui-warning">
                 <li className="flex items-start">
@@ -141,10 +141,10 @@ export default function SuccessPage({
             <p className="text-sm text-gray-600 pt-4">
               Questions? Contact us at{' '}
               <a
-                href="mailto:support@wandernest.com"
+                href="mailto:support@tourwiseco.com"
                 className="text-ui-blue-primary hover:underline font-semibold"
               >
-                support@wandernest.com
+                support@tourwiseco.com
               </a>
             </p>
           </div>

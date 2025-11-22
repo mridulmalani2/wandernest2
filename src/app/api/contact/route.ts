@@ -226,7 +226,7 @@ async function sendContactNotification(data: {
 
           <p>Our team typically responds within 24-48 hours. If your inquiry is urgent, please include that in your message or try reaching out through our alternative contact methods.</p>
 
-          <p>Best regards,<br>The WanderNest Team</p>
+          <p>Best regards,<br>The TourWiseCo Team</p>
         </div>
       </body>
     </html>
@@ -235,7 +235,7 @@ async function sendContactNotification(data: {
   await transporter.sendMail({
     from: process.env.EMAIL_FROM,
     to: data.email,
-    subject: '✅ We received your message - WanderNest',
+    subject: '✅ We received your message - TourWiseCo',
     html: confirmationHtml,
   })
 }

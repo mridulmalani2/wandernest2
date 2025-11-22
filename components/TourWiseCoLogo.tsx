@@ -1,6 +1,6 @@
 import React from "react";
 
-export const WanderNestLogo: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+export const TourWiseCoLogo: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   <svg
     viewBox="0 0 256 256"
     fill="none"

@@ -1,6 +1,6 @@
-# WanderNest
+# TourWiseCo
 
-A comprehensive platform connecting travelers with local student guides. WanderNest enables tourists to request personalized guided experiences while providing international students with opportunities to earn income by sharing their local knowledge.
+A comprehensive platform connecting travelers with local student guides. TourWiseCo enables tourists to request personalized guided experiences while providing international students with opportunities to earn income by sharing their local knowledge.
 
 ## Table of Contents
 
@@ -17,7 +17,7 @@ A comprehensive platform connecting travelers with local student guides. WanderN
 
 ## Project Overview
 
-WanderNest is a dual-sided marketplace platform built with Next.js 14 that connects:
+TourWiseCo is a dual-sided marketplace platform built with Next.js 14 that connects:
 - **Tourists**: Travelers looking for authentic local experiences and personalized guidance
 - **Students**: International students seeking flexible income opportunities by offering guided tours and local expertise
 
@@ -69,7 +69,7 @@ The platform handles the complete journey from booking requests through matching
 ## Project Structure
 
 ```
-wandernest/
+tourwiseco/
 ├── src/
 │   ├── app/                          # Next.js App Router
 │   │   ├── page.tsx                  # Landing page
@@ -555,7 +555,7 @@ Matches tourist requests with suitable student guides based on:
 
 ## Authentication
 
-WanderNest uses a **dual authentication system**:
+TourWiseCo uses a **dual authentication system**:
 
 ### 1. Tourist Authentication (Google OAuth via NextAuth.js)
 
@@ -669,8 +669,8 @@ export async function GET(req: Request) {
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/mridulmalani2/wandernest.git
-   cd wandernest
+   git clone https://github.com/mridulmalani2/tourwiseco.git
+   cd tourwiseco
    ```
 
 2. **Install dependencies:**
@@ -687,7 +687,7 @@ export async function GET(req: Request) {
 
    ```env
    # Database
-   DATABASE_URL="postgresql://user:password@localhost:5432/wandernest?sslmode=require"
+   DATABASE_URL="postgresql://user:password@localhost:5432/tourwiseco?sslmode=require"
 
    # Authentication
    JWT_SECRET="your-super-secret-jwt-key"  # Generate: openssl rand -base64 32
@@ -703,7 +703,7 @@ export async function GET(req: Request) {
    EMAIL_PORT="587"
    EMAIL_USER="your-email@gmail.com"
    EMAIL_PASS="your-app-specific-password"
-   EMAIL_FROM="WanderNest <noreply@wandernest.com>"
+   EMAIL_FROM="TourWiseCo <noreply@tourwiseco.com>"
 
    # Redis (optional)
    REDIS_URL="redis://localhost:6379"
@@ -869,7 +869,7 @@ These are temporary feature branches that should be merged via PR after review.
 
 ### Vercel Deployment
 
-WanderNest is optimized for deployment on Vercel.
+TourWiseCo is optimized for deployment on Vercel.
 
 **Configuration:** `vercel.json`
 

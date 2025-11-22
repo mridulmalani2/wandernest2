@@ -126,7 +126,7 @@ export function StudentVerificationStep({ formData, updateFormData, errors }: St
         <h3 className="font-bold text-[hsl(var(--ui-blue-primary))] mb-2">Why do we need these documents?</h3>
         <ul className="text-sm text-[hsl(var(--ui-blue-accent))] space-y-1 list-disc list-inside">
           <li>Ensures only verified students can become guides</li>
-          <li>Builds trust with tourists and the WanderNest community</li>
+          <li>Builds trust with tourists and the TourWiseCo community</li>
           <li>Protects both guides and visitors</li>
           <li>Verifies your identity matches your profile</li>
         </ul>
@@ -477,7 +477,7 @@ export function StudentVerificationStep({ formData, updateFormData, errors }: St
               htmlFor="verificationConsent"
               className="text-sm font-normal cursor-pointer leading-relaxed"
             >
-              I consent to verification of these documents by WanderNest and understand that false information may result in account suspension.{' '}
+              I consent to verification of these documents by TourWiseCo and understand that false information may result in account suspension.{' '}
               <span className="text-[hsl(var(--ui-error))]">*</span>
             </Label>
           </div>

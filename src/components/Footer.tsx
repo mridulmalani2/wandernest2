@@ -18,7 +18,7 @@ export default function Footer({ variant = 'default' }: FooterProps) {
         <div className="border-t border-white/20 bg-black/20 backdrop-blur-md">
           <div className="container mx-auto px-4 py-6 text-center">
             <p className="text-sm text-white/90 text-shadow-sm">
-              © {currentYear} WanderNest. Connecting cultures, one guide at a time.
+              © {currentYear} TourWiseCo. Connecting cultures, one guide at a time.
             </p>
           </div>
         </div>
@@ -38,7 +38,7 @@ export default function Footer({ variant = 'default' }: FooterProps) {
                   <Globe className="w-5 h-5" />
                 </div>
                 <span className="text-xl font-sans font-semibold text-white tracking-tight transition-all duration-300 group-hover:text-white/90">
-                  WanderNest
+                  TourWiseCo
                 </span>
               </Link>
               <p className="text-sm text-white/80 leading-relaxed max-w-md">
@@ -47,7 +47,7 @@ export default function Footer({ variant = 'default' }: FooterProps) {
               </p>
               <div className="pt-2">
                 <p className="text-xs text-white/60">
-                  © {currentYear} WanderNest. All rights reserved.
+                  © {currentYear} TourWiseCo. All rights reserved.
                 </p>
               </div>
             </div>
@@ -131,7 +131,7 @@ export default function Footer({ variant = 'default' }: FooterProps) {
           <div className="mt-12 pt-8 border-t border-white/10">
             <div className="bg-white/5 backdrop-blur-sm rounded-lg p-4 border border-white/10">
               <p className="text-xs text-white/70 leading-relaxed text-center">
-                <strong className="text-white/90">Important Notice:</strong> WanderNest is a marketplace connector only.
+                <strong className="text-white/90">Important Notice:</strong> TourWiseCo is a marketplace connector only.
                 We facilitate connections between tourists and local student guides but do not handle payments,
                 guarantee service quality, act as an employer, or assume liability for guide-tourist interactions.
                 All arrangements and payments are agreed upon directly between travelers and guides.

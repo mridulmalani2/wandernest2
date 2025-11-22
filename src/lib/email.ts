@@ -111,7 +111,7 @@ export async function sendBookingConfirmation(
 
           <p>If you have any questions, feel free to reach out to our support team.</p>
 
-          <p>Happy travels,<br>The WanderNest Team</p>
+          <p>Happy travels,<br>The TourWiseCo Team</p>
         </div>
       </body>
     </html>
@@ -120,7 +120,7 @@ export async function sendBookingConfirmation(
   await transporter!.sendMail({
     from: process.env.EMAIL_FROM,
     to: email,
-    subject: '✅ Booking Request Confirmed - WanderNest',
+    subject: '✅ Booking Request Confirmed - TourWiseCo',
     html,
   })
 }
@@ -287,12 +287,12 @@ export async function sendStudentRequestNotification(
           <h3>Important Reminders:</h3>
           <ul>
             <li><strong>First come, first served:</strong> Whichever guide accepts first gets the job</li>
-            <li><strong>Direct arrangement:</strong> WanderNest is just a connector. Payment and exact meeting details are arranged directly with the tourist</li>
+            <li><strong>Direct arrangement:</strong> TourWiseCo is just a connector. Payment and exact meeting details are arranged directly with the tourist</li>
             <li><strong>Contact details:</strong> You'll receive the tourist's contact information once you accept</li>
             <li><strong>Professional conduct:</strong> Please maintain high standards of service and reliability</li>
           </ul>
 
-          <p>Good luck!<br>The WanderNest Team</p>
+          <p>Good luck!<br>The TourWiseCo Team</p>
         </div>
       </body>
     </html>
@@ -417,14 +417,14 @@ export async function sendTouristAcceptanceNotification(
           <div class="warning">
             <strong>⚠️ Important Reminders:</strong>
             <ul style="margin: 10px 0;">
-              <li>WanderNest is a connector platform only. We are not involved in payment processing or service delivery</li>
+              <li>TourWiseCo is a connector platform only. We are not involved in payment processing or service delivery</li>
               <li>All payments and arrangements are made directly between you and the student guide</li>
               <li>We recommend meeting in public places for your first interaction</li>
               <li>Please report any issues or concerns to our support team</li>
             </ul>
           </div>
 
-          <p>Have a wonderful trip!<br>The WanderNest Team</p>
+          <p>Have a wonderful trip!<br>The TourWiseCo Team</p>
         </div>
       </body>
     </html>
@@ -512,7 +512,7 @@ export async function sendVerificationEmail(
           <p>This code will expire in 10 minutes.</p>
           <p>If you didn't request this code, please ignore this email.</p>
 
-          <p>Best regards,<br>The WanderNest Team</p>
+          <p>Best regards,<br>The TourWiseCo Team</p>
         </div>
       </body>
     </html>
@@ -521,7 +521,7 @@ export async function sendVerificationEmail(
   await transporter!.sendMail({
     from: process.env.EMAIL_FROM,
     to: email,
-    subject: 'Your WanderNest Verification Code',
+    subject: 'Your TourWiseCo Verification Code',
     html,
   })
 }
@@ -623,7 +623,7 @@ export async function sendStudentConfirmation(
 
           <p><strong>Remember:</strong> This is your opportunity to showcase ${touristRequest.city} and earn great reviews. Provide excellent service, be professional, and have fun!</p>
 
-          <p>Good luck!<br>The WanderNest Team</p>
+          <p>Good luck!<br>The TourWiseCo Team</p>
         </div>
       </body>
     </html>

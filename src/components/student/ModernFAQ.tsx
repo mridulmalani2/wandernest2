@@ -25,7 +25,7 @@ const faqData: FAQItem[] = [
   },
   {
     question: "How do I get paid?",
-    answer: "You arrange payment directly with tourists. WanderNest is a marketplace connector only - we facilitate introductions but don't handle payments. You set your own rates and payment methods.",
+    answer: "You arrange payment directly with tourists. TourWiseCo is a marketplace connector only - we facilitate introductions but don't handle payments. You set your own rates and payment methods.",
   },
 ]
 

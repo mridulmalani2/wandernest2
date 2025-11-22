@@ -25,7 +25,7 @@ export function SafetyComplianceStep({ formData, updateFormData, errors }: Safet
       <div className="bg-[hsl(var(--ui-blue-primary)/0.1)] border border-[hsl(var(--ui-blue-primary)/0.3)] rounded-lg p-4">
         <h3 className="font-bold text-[hsl(var(--ui-blue-primary))] mb-2">🛡️ Safety First</h3>
         <p className="text-sm text-[hsl(var(--ui-blue-accent))]">
-          WanderNest is committed to creating a safe environment for both guides and tourists.
+          TourWiseCo is committed to creating a safe environment for both guides and tourists.
           Please read our policies carefully and provide accurate emergency contact information.
         </p>
       </div>
@@ -93,7 +93,7 @@ export function SafetyComplianceStep({ formData, updateFormData, errors }: Safet
                 className="text-sm font-normal cursor-pointer leading-relaxed"
               >
                 I understand that I am an independent guide and responsible for my own interactions,
-                safety, and conduct during guide sessions. WanderNest acts as a connection platform only.
+                safety, and conduct during guide sessions. TourWiseCo acts as a connection platform only.
                 {' '}<span className="text-[hsl(var(--ui-error))]">*</span>
               </Label>
             </div>

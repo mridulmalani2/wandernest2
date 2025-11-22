@@ -1,4 +1,4 @@
-# WanderNest - System Architecture & Spider Web Diagram
+# TourWiseCo - System Architecture & Spider Web Diagram
 
 ## Visual System Architecture (Spider Web View)
 
@@ -314,7 +314,7 @@
     ┌──────────────────────────────────────┐
     │ Google OAuth Login Page              │
     │ • User enters credentials            │
-    │ • Grant permission to WanderNest     │
+    │ • Grant permission to TourWiseCo     │
     └──────────┬─────────────────────────┘
                │ User grants access
                ▼

@@ -1,6 +1,6 @@
-# WanderNest 2 – Post-Go-Live Checklist
+# TourWiseCo 2 – Post-Go-Live Checklist
 
-This guide covers everything you need to configure to fully activate WanderNest 2 in production on Vercel.
+This guide covers everything you need to configure to fully activate TourWiseCo 2 in production on Vercel.
 
 ---
 
@@ -14,7 +14,7 @@ Google OAuth is used for **tourist authentication** (non-.edu emails).
 
 1. **Visit Google Cloud Console**
    - Go to https://console.cloud.google.com/
-   - Create a new project or select an existing one (e.g., "WanderNest")
+   - Create a new project or select an existing one (e.g., "TourWiseCo")
 
 2. **Enable Google+ API**
    - Navigate to "APIs & Services" → "Library"
@@ -24,7 +24,7 @@ Google OAuth is used for **tourist authentication** (non-.edu emails).
    - Go to "APIs & Services" → "Credentials"
    - Click "Create Credentials" → "OAuth 2.0 Client ID"
    - Application type: "Web application"
-   - Name: "WanderNest Production"
+   - Name: "TourWiseCo Production"
 
 4. **Configure Authorized Redirect URIs**
 
@@ -74,7 +74,7 @@ GOOGLE_CLIENT_SECRET="your-google-client-secret"
 
 ### 2. Email Provider Setup
 
-WanderNest uses **nodemailer with SMTP** to send emails (verification codes, booking confirmations, student notifications).
+TourWiseCo uses **nodemailer with SMTP** to send emails (verification codes, booking confirmations, student notifications).
 
 #### Supported Providers:
 
@@ -105,7 +105,7 @@ WanderNest uses **nodemailer with SMTP** to send emails (verification codes, boo
    EMAIL_PORT="587"
    EMAIL_USER="your-email@gmail.com"
    EMAIL_PASS="your-16-char-app-password"
-   EMAIL_FROM="WanderNest <noreply@wandernest.com>"
+   EMAIL_FROM="TourWiseCo <noreply@tourwiseco.com>"
    ```
 
    **In Local `.env.local`:**
@@ -114,7 +114,7 @@ WanderNest uses **nodemailer with SMTP** to send emails (verification codes, boo
    EMAIL_PORT="587"
    EMAIL_USER="your-email@gmail.com"
    EMAIL_PASS="your-16-char-app-password"
-   EMAIL_FROM="WanderNest <noreply@wandernest.com>"
+   EMAIL_FROM="TourWiseCo <noreply@tourwiseco.com>"
    ```
 
 #### Option B: SendGrid/Mailgun/Other SMTP
@@ -128,7 +128,7 @@ WanderNest uses **nodemailer with SMTP** to send emails (verification codes, boo
    EMAIL_PORT="587"
    EMAIL_USER="apikey"  # or your username
    EMAIL_PASS="your-api-key"
-   EMAIL_FROM="WanderNest <noreply@wandernest.com>"
+   EMAIL_FROM="TourWiseCo <noreply@tourwiseco.com>"
    ```
 
 #### How to Test Emails:
@@ -154,14 +154,14 @@ VERIFICATION_CODE_EXPIRY="600"
 
 ### 3. Database Setup
 
-WanderNest uses **PostgreSQL** with Prisma ORM.
+TourWiseCo uses **PostgreSQL** with Prisma ORM.
 
 #### Recommended: Vercel Postgres
 
 1. **In Vercel Dashboard:**
    - Go to your project → "Storage" tab
    - Click "Create Database" → Select "Postgres"
-   - Choose a name (e.g., `wandernest-db`)
+   - Choose a name (e.g., `tourwiseco-db`)
    - Select a region close to your serverless functions (e.g., `iad1` - Washington DC)
 
 2. **Connect to Your Project:**
@@ -207,7 +207,7 @@ DATABASE_URL="postgresql://USER:PASSWORD@HOST:PORT/DATABASE?sslmode=require&conn
 
 1. **Set DATABASE_URL in `.env.local`:**
    ```bash
-   DATABASE_URL="postgresql://user:password@localhost:5432/wandernest"
+   DATABASE_URL="postgresql://user:password@localhost:5432/tourwiseco"
    ```
 
 2. **Run migrations:**
@@ -245,7 +245,7 @@ npx prisma db pull --schema=./src/prisma/schema.prisma
 
 ### 4. Payment Setup (Razorpay)
 
-WanderNest uses **Razorpay** for payment processing (discovery fee).
+TourWiseCo uses **Razorpay** for payment processing (discovery fee).
 
 #### What You Need to Do:
 
@@ -562,7 +562,7 @@ EMAIL_HOST="smtp.gmail.com"
 EMAIL_PORT="587"
 EMAIL_USER="your-email@gmail.com"
 EMAIL_PASS="your-app-password"
-EMAIL_FROM="WanderNest <noreply@wandernest.com>"
+EMAIL_FROM="TourWiseCo <noreply@tourwiseco.com>"
 
 # Payments (required for discovery fee)
 RAZORPAY_KEY_ID="rzp_live_xxxx"
@@ -616,7 +616,7 @@ Then add a record to the `Admin` table:
 INSERT INTO "Admin" (id, email, "passwordHash", name, role, "isActive", "createdAt", "updatedAt")
 VALUES (
   'admin-1',
-  'admin@wandernest.com',
+  'admin@tourwiseco.com',
   '$2a$10$your-bcrypt-hash-here',  -- Use bcrypt to hash your password
   'Admin User',
   'SUPER_ADMIN',

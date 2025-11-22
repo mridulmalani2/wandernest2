@@ -1,7 +1,7 @@
-# WanderNest - Branch and File Map
+# TourWiseCo - Branch and File Map
 
 **Generated:** 2025-11-19
-**Repository:** mridulmalani2/wandernest
+**Repository:** mridulmalani2/tourwiseco
 
 ---
 
@@ -117,7 +117,7 @@
 ## Project Structure
 
 ```
-wandernest/
+tourwiseco/
 ├── .browserslistrc
 ├── .env.example
 ├── .gitignore

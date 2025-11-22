@@ -22,7 +22,7 @@ export default function PaymentFailedPage() {
           <Link href="/" className="flex items-center space-x-2">
             <span className="text-2xl">🌍</span>
             <h1 className="text-2xl font-bold bg-gradient-to-r from-ui-blue-primary to-ui-purple-primary bg-clip-text text-transparent">
-              WanderNest
+              TourWiseCo
             </h1>
           </Link>
         </div>
@@ -86,8 +86,8 @@ export default function PaymentFailedPage() {
             <div className="mt-6 pt-6 border-t text-sm text-gray-600">
               <p>
                 Need help? Contact our support team at{' '}
-                <a href="mailto:support@wandernest.com" className="text-ui-blue-primary hover:underline">
-                  support@wandernest.com
+                <a href="mailto:support@tourwiseco.com" className="text-ui-blue-primary hover:underline">
+                  support@tourwiseco.com
                 </a>
               </p>
             </div>

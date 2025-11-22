@@ -1,4 +1,4 @@
-# WanderNest - Complete API & Architecture Documentation
+# TourWiseCo - Complete API & Architecture Documentation
 
 ## Table of Contents
 1. [System Overview](#system-overview)
@@ -14,7 +14,7 @@
 
 ## System Overview
 
-WanderNest is a marketplace platform connecting international tourists with local student guides. The system comprises:
+TourWiseCo is a marketplace platform connecting international tourists with local student guides. The system comprises:
 
 - **Admin Module**: Platform management and analytics
 - **Student Module**: Local guide profiles and bookings
@@ -641,7 +641,7 @@ STEP 7: BOOKING CONFIRMED
 ```json
 {
   "adminId": "uuid",
-  "email": "admin@wandernest.com",
+  "email": "admin@tourwiseco.com",
   "role": "admin",
   "iat": 1700000000,
   "exp": 1700028800

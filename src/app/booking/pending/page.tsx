@@ -225,7 +225,7 @@ function PendingContent() {
           {/* Important Notice */}
           <Alert className="mb-6 border-ui-warning bg-ui-warning/10">
             <AlertDescription className="text-sm text-ui-warning">
-              <strong>Important:</strong> WanderNest is a connector platform only. All
+              <strong>Important:</strong> TourWiseCo is a connector platform only. All
               payments and service arrangements are made directly between you and the
               student guide. We recommend meeting in public places for safety.
             </AlertDescription>

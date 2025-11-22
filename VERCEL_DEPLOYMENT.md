@@ -1,6 +1,6 @@
-# WanderNest - Vercel Deployment Guide
+# TourWiseCo - Vercel Deployment Guide
 
-This guide will help you deploy WanderNest to Vercel successfully.
+This guide will help you deploy TourWiseCo to Vercel successfully.
 
 ## Prerequisites
 
@@ -15,7 +15,7 @@ This guide will help you deploy WanderNest to Vercel successfully.
 
 ```bash
 git clone <your-repo-url>
-cd wandernest
+cd tourwiseco
 ```
 
 ### 2. Install Vercel CLI (Optional)
@@ -64,7 +64,7 @@ EMAIL_HOST="smtp.gmail.com"
 EMAIL_PORT="587"
 EMAIL_USER="your-email@gmail.com"
 EMAIL_PASS="your-app-specific-password"
-EMAIL_FROM="WanderNest <noreply@wandernest.com>"
+EMAIL_FROM="TourWiseCo <noreply@tourwiseco.com>"
 
 # Redis (for caching - if not set, app will work without caching)
 REDIS_URL="redis://default:password@hostname:port"

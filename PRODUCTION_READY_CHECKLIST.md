@@ -1,8 +1,8 @@
-# WanderNest - Production Ready Checklist & Quick Reference
+# TourWiseCo - Production Ready Checklist & Quick Reference
 
 ## Executive Summary
 
-WanderNest is a multi-module API platform connecting international tourists with local student guides. The system includes:
+TourWiseCo is a multi-module API platform connecting international tourists with local student guides. The system includes:
 - **3 Main User Types**: Admin, Student, Tourist
 - **26+ API Endpoints** across 4 modules
 - **2 Authentication Systems**: JWT + NextAuth OAuth
@@ -149,7 +149,7 @@ Alerts to Configure:
 NODE_ENV=production
 DATABASE_URL=postgres://...
 NEXTAUTH_SECRET=<strong-random-key>
-NEXTAUTH_URL=https://wandernest.com
+NEXTAUTH_URL=https://tourwiseco.com
 GOOGLE_CLIENT_ID=...
 GOOGLE_CLIENT_SECRET=...
 SMTP_HOST=...

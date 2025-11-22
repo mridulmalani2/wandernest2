@@ -13,16 +13,16 @@ import { PageTransition } from '@/components/transitions/PageTransition'
  */
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://wandernest.vercel.app'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://tourwiseco.vercel.app'),
   title: {
-    default: 'WanderNest - Connect with Local Student Guides for Authentic Travel',
-    template: '%s | WanderNest'
+    default: 'TourWiseCo - Connect with Local Student Guides for Authentic Travel',
+    template: '%s | TourWiseCo'
   },
   description: 'Experience authentic travel with verified local student guides. Discover hidden gems, get personalized recommendations, and explore cities like a local. Connect with university students in Paris, London, and beyond.',
   keywords: ['local travel guide', 'student guides', 'authentic travel', 'local experiences', 'university students', 'travel marketplace', 'cultural exchange', 'personalized tours', 'local insights', 'travel companions'],
-  authors: [{ name: 'WanderNest' }],
-  creator: 'WanderNest',
-  publisher: 'WanderNest',
+  authors: [{ name: 'TourWiseCo' }],
+  creator: 'TourWiseCo',
+  publisher: 'TourWiseCo',
   formatDetection: {
     email: false,
     address: false,
@@ -31,10 +31,10 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: process.env.NEXT_PUBLIC_BASE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://wandernest.vercel.app'),
-    title: 'WanderNest - Connect with Local Student Guides for Authentic Travel',
+    url: process.env.NEXT_PUBLIC_BASE_URL || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://tourwiseco.vercel.app'),
+    title: 'TourWiseCo - Connect with Local Student Guides for Authentic Travel',
     description: 'Experience authentic travel with verified local student guides. Discover hidden gems and explore cities like a local.',
-    siteName: 'WanderNest',
+    siteName: 'TourWiseCo',
     images: [
       {
         url: 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=1200&h=630&fit=crop',
@@ -46,7 +46,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'WanderNest - Connect with Local Student Guides',
+    title: 'TourWiseCo - Connect with Local Student Guides',
     description: 'Experience authentic travel with verified local student guides. Discover hidden gems and explore cities like a local.',
     images: ['https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=1200&h=630&fit=crop'],
   },

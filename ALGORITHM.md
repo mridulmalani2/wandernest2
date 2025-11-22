@@ -2,7 +2,7 @@
 
 ## Overview
 
-The WanderNest matching algorithm is designed to connect tourists with the most suitable local student guides based on multiple weighted criteria. The algorithm balances objective metrics (availability, ratings) with subjective preferences (interests, language).
+The TourWiseCo matching algorithm is designed to connect tourists with the most suitable local student guides based on multiple weighted criteria. The algorithm balances objective metrics (availability, ratings) with subjective preferences (interests, language).
 
 ## Algorithm Flow
 
@@ -418,4 +418,4 @@ console.timeEnd('findMatches')
 
 ## Conclusion
 
-The WanderNest matching algorithm balances multiple factors to create optimal tourist-guide pairings. The 40-20-20-20 weight distribution prioritizes availability while giving significant weight to quality metrics and personal compatibility. The algorithm is designed to be transparent, testable, and optimizable for future enhancements.
+The TourWiseCo matching algorithm balances multiple factors to create optimal tourist-guide pairings. The 40-20-20-20 weight distribution prioritizes availability while giving significant weight to quality metrics and personal compatibility. The algorithm is designed to be transparent, testable, and optimizable for future enhancements.

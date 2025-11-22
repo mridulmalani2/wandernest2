@@ -1,4 +1,4 @@
-# Next.js Performance Optimization Audit - WanderNest
+# Next.js Performance Optimization Audit - TourWiseCo
 
 **Audit Date:** 2025-11-19
 **Next.js Version:** 14.0.4
@@ -1000,7 +1000,7 @@ async headers() {
       headers: [
         {
           key: 'Access-Control-Allow-Origin',
-          value: process.env.NEXT_PUBLIC_BASE_URL || 'https://wandernest.vercel.app'
+          value: process.env.NEXT_PUBLIC_BASE_URL || 'https://tourwiseco.vercel.app'
         },
         { key: 'Access-Control-Allow-Methods', value: 'GET,POST,PUT,DELETE,OPTIONS' },
         { key: 'Access-Control-Allow-Headers', value: 'Content-Type, Authorization' },
@@ -1095,7 +1095,7 @@ const resend = new Resend(process.env.RESEND_API_KEY)
 
 export async function sendVerificationEmail(email: string, code: string) {
   await resend.emails.send({
-    from: 'WanderNest <noreply@wandernest.com>',
+    from: 'TourWiseCo <noreply@tourwiseco.com>',
     to: email,
     subject: 'Verify Your Email',
     html: emailHtml,

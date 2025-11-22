@@ -188,7 +188,7 @@ export default function StudentSignIn() {
         {/* Footer */}
         <footer className="border-t-2 glass-card border-white/40 mt-16 animate-fade-in">
           <div className="container mx-auto px-4 py-8 text-center text-gray-700">
-            <p>&copy; {new Date().getFullYear()} WanderNest. All rights reserved.</p>
+            <p>&copy; {new Date().getFullYear()} TourWiseCo. All rights reserved.</p>
           </div>
         </footer>
       </div>

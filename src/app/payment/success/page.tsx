@@ -54,7 +54,7 @@ export default function PaymentSuccessPage() {
           <Link href="/" className="flex items-center space-x-2">
             <span className="text-2xl">🌍</span>
             <h1 className="text-2xl font-bold bg-gradient-to-r from-ui-blue-primary to-ui-purple-primary bg-clip-text text-transparent">
-              WanderNest
+              TourWiseCo
             </h1>
           </Link>
         </div>
