@@ -9,6 +9,7 @@ import { TripDetailsStep } from './TripDetailsStep'
 import { PreferencesStep } from './PreferencesStep'
 import { ContactStep } from './ContactStep'
 import { FormProgressHeader } from '@/components/shared/FormProgressHeader'
+import { PrimaryCTAButton } from '@/components/ui/PrimaryCTAButton'
 
 export type BookingFormData = {
   // Step 1: Trip Details
@@ -258,18 +259,18 @@ export function BookingForm() {
             Back
           </Button>
 
-          <Button
+          <PrimaryCTAButton
             type="button"
             onClick={handleNext}
             disabled={isSubmitting}
-            className="gradient-ocean hover:shadow-glow-blue shadow-premium hover-lift"
+            variant="blue"
           >
             {currentStep === 3 ? (
               isSubmitting ? 'Creating Booking...' : 'Create Booking'
             ) : (
               'Next'
             )}
-          </Button>
+          </PrimaryCTAButton>
         </div>
 
         {/* Submit Error */}

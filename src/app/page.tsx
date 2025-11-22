@@ -11,6 +11,7 @@ import WhyChooseCarousel from '@/components/WhyChooseCarousel'
 import { getWebsiteStructuredData, getOrganizationStructuredData } from '@/lib/structuredData'
 import { motion, useScroll, useTransform } from 'framer-motion'
 import { useRef } from 'react'
+import { PrimaryCTAButton } from '@/components/ui/PrimaryCTAButton'
 
 export default function MainLanding() {
   const structuredData = getWebsiteStructuredData()
@@ -96,61 +97,23 @@ export default function MainLanding() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.7, delay: 0.6 }}
                 >
-                  {/* Tourist CTA - Gradient Button */}
-                  <Link href="/tourist" className="group">
-                    <motion.div
-                      className="relative"
-                      whileHover={{ scale: 1.03 }}
-                      whileTap={{ scale: 0.98 }}
-                      transition={{ duration: 0.2 }}
-                    >
-                      {/* Soft glow effect */}
-                      <div className="absolute -inset-1 bg-gradient-to-r from-blue-300 via-blue-400 to-purple-400 rounded-2xl opacity-25 blur-xl group-hover:opacity-40 transition-opacity duration-500" />
+                  <PrimaryCTAButton
+                    href="/tourist"
+                    icon={Plane}
+                    showArrow
+                    variant="blue"
+                  >
+                    I&apos;m a Tourist
+                  </PrimaryCTAButton>
 
-                      <div className="relative px-8 py-4 bg-gradient-to-r from-blue-300 via-blue-400 to-purple-400 rounded-2xl shadow-lg overflow-hidden">
-                        {/* Shimmer effect */}
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
-
-                        <div className="relative flex items-center gap-3">
-                          <Plane className="w-5 h-5 text-white" />
-                          <span className="text-base lg:text-lg font-medium text-white">
-                            I&apos;m a Tourist
-                          </span>
-                          <span className="ml-auto text-white group-hover:translate-x-1 transition-transform duration-300">
-                            →
-                          </span>
-                        </div>
-                      </div>
-                    </motion.div>
-                  </Link>
-
-                  {/* Student CTA - Gradient Button */}
-                  <Link href="/student" className="group">
-                    <motion.div
-                      className="relative"
-                      whileHover={{ scale: 1.03 }}
-                      whileTap={{ scale: 0.98 }}
-                      transition={{ duration: 0.2 }}
-                    >
-                      {/* Soft glow effect */}
-                      <div className="absolute -inset-1 bg-gradient-to-r from-purple-300 via-purple-400 to-pink-400 rounded-2xl opacity-25 blur-xl group-hover:opacity-40 transition-opacity duration-500" />
-
-                      <div className="relative px-8 py-4 bg-gradient-to-r from-purple-300 via-purple-400 to-pink-400 rounded-2xl shadow-lg overflow-hidden">
-                        {/* Shimmer effect */}
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
-
-                        <div className="relative flex items-center gap-3">
-                          <GraduationCap className="w-5 h-5 text-white" />
-                          <span className="text-base lg:text-lg font-medium text-white">
-                            I&apos;m a Student
-                          </span>
-                          <span className="ml-auto text-white group-hover:translate-x-1 transition-transform duration-300">
-                            →
-                          </span>
-                        </div>
-                      </div>
-                    </motion.div>
-                  </Link>
+                  <PrimaryCTAButton
+                    href="/student"
+                    icon={GraduationCap}
+                    showArrow
+                    variant="purple"
+                  >
+                    I&apos;m a Student
+                  </PrimaryCTAButton>
                 </motion.div>
               </motion.div>
 

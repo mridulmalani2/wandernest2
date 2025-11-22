@@ -7,6 +7,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import Navigation from '@/components/Navigation'
+import { PrimaryCTAButton } from '@/components/ui/PrimaryCTAButton'
 
 // AUTH DISABLED FOR DEVELOPMENT - DATABASE_URL not configured
 
@@ -246,12 +247,12 @@ export default function TouristDashboard() {
             <div className="text-6xl mb-4">🌍</div>
             <h2 className="text-2xl font-bold text-gray-900 mb-2">No requests yet</h2>
             <p className="text-gray-700 mb-6">Start your adventure by booking a local guide!</p>
-            <a
+            <PrimaryCTAButton
               href="/booking"
-              className="inline-block px-6 py-3 gradient-ocean text-white rounded-lg hover:shadow-glow-blue shadow-soft transition-all hover-lift"
+              variant="blue"
             >
               Book Your First Trip
-            </a>
+            </PrimaryCTAButton>
           </div>
         ) : (
           <div className="grid gap-4 md:gap-6 animate-fade-in-up delay-200">

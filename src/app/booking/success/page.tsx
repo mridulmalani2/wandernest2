@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
+import { PrimaryCTAButton } from '@/components/ui/PrimaryCTAButton'
 
 export default function SuccessPage({
   searchParams,
@@ -128,11 +129,12 @@ export default function SuccessPage({
                   Back to Home
                 </Button>
               </Link>
-              <Link href="/booking">
-                <Button size="lg" className="gradient-ocean hover:shadow-glow-blue shadow-premium hover-lift">
-                  Book Another Trip
-                </Button>
-              </Link>
+              <PrimaryCTAButton
+                href="/booking"
+                variant="blue"
+              >
+                Book Another Trip
+              </PrimaryCTAButton>
             </div>
 
             {/* Contact Info */}

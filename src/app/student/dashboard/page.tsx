@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import Navigation from '@/components/Navigation'
+import { PrimaryCTAButton } from '@/components/ui/PrimaryCTAButton'
 
 interface Request {
   id: string
@@ -283,9 +284,9 @@ export default function StudentDashboard() {
         <div className="relative z-10 flex items-center justify-center min-h-screen">
           <div className="text-center glass-card rounded-3xl p-8 shadow-premium animate-fade-in">
             <p className="text-ui-error font-semibold mb-4">Failed to load dashboard data</p>
-            <Button onClick={() => router.push('/student/signin')} className="gradient-ocean hover:shadow-glow-blue">
+            <PrimaryCTAButton onClick={() => router.push('/student/signin')} variant="blue">
               Back to Sign In
-            </Button>
+            </PrimaryCTAButton>
           </div>
         </div>
       </div>
@@ -455,13 +456,14 @@ export default function StudentDashboard() {
                       )}
 
                       <div className="flex gap-3">
-                        <Button
+                        <PrimaryCTAButton
                           onClick={() => handleAcceptRequest(request.id)}
                           disabled={isProcessing || isExpired}
-                          className="flex-1 gradient-ocean hover:shadow-glow-blue shadow-soft"
+                          variant="blue"
+                          className="flex-1"
                         >
                           {isProcessing ? 'Processing...' : 'Accept Request'}
-                        </Button>
+                        </PrimaryCTAButton>
                         <Button
                           onClick={() => handleRejectRequest(request.id)}
                           disabled={isProcessing || isExpired}

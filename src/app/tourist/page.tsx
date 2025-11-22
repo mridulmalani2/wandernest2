@@ -8,6 +8,7 @@ import { DynamicNavigation } from '@/components/DynamicNavigation'
 import Footer from '@/components/Footer'
 import { motion, useScroll, useTransform } from 'framer-motion'
 import { useRef } from 'react'
+import { PrimaryCTAButton } from '@/components/ui/PrimaryCTAButton'
 
 export default function TouristLanding() {
   const heroRef = useRef<HTMLDivElement>(null)
@@ -61,12 +62,13 @@ export default function TouristLanding() {
               </p>
 
               <div className="flex justify-center gap-3 sm:gap-4 pt-4 animate-fade-in-up delay-300">
-                <Link href="/booking">
-                  <Button size="lg" className="text-lg px-10 py-7 gradient-ocean hover:shadow-glow-blue shadow-premium text-white font-semibold group hover-lift">
-                    Start Your Adventure
-                    <span className="ml-2 group-hover:translate-x-1 transition-transform inline-block" aria-hidden="true">→</span>
-                  </Button>
-                </Link>
+                <PrimaryCTAButton
+                  href="/booking"
+                  showArrow
+                  variant="blue"
+                >
+                  Start Your Adventure
+                </PrimaryCTAButton>
               </div>
             </div>
 

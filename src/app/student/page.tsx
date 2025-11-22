@@ -9,6 +9,7 @@ import ModernFAQ from '@/components/student/ModernFAQ'
 import { DollarSign, Clock, Users } from 'lucide-react'
 import { motion, useScroll, useTransform } from 'framer-motion'
 import { useRef } from 'react'
+import { PrimaryCTAButton } from '@/components/ui/PrimaryCTAButton'
 
 export default function StudentLandingPage() {
   const heroRef = useRef<HTMLDivElement>(null)
@@ -67,15 +68,13 @@ export default function StudentLandingPage() {
               </div>
 
               <div className="flex justify-center gap-4 pt-6 animate-fade-in-up delay-300">
-                <Link href="/student/onboarding">
-                  <Button
-                    size="lg"
-                    className="text-lg px-12 py-8 h-auto gradient-vibrant hover:shadow-glow-purple shadow-premium text-white font-semibold group hover-lift transition-all duration-300 focus-visible:ring-4 focus-visible:ring-white/50 focus-visible:ring-offset-4"
-                  >
-                    Explore Now
-                    <span className="ml-2 group-hover:translate-x-1 transition-transform inline-block" aria-hidden="true">→</span>
-                  </Button>
-                </Link>
+                <PrimaryCTAButton
+                  href="/student/onboarding"
+                  showArrow
+                  variant="purple"
+                >
+                  Explore Now
+                </PrimaryCTAButton>
               </div>
             </div>
 
@@ -237,15 +236,13 @@ export default function StudentLandingPage() {
               <p className="text-xl md:text-2xl text-white/95 max-w-2xl mx-auto leading-relaxed font-medium text-shadow">
                 Join hundreds of students already earning flexible income by sharing their city with visitors.
               </p>
-              <Link href="/student/signin">
-                <Button
-                  size="lg"
-                  className="text-lg px-12 py-8 h-auto gradient-vibrant hover:shadow-glow-purple shadow-premium text-white font-semibold group hover-lift-lg transition-all duration-300 focus-visible:ring-4 focus-visible:ring-white/50 focus-visible:ring-offset-4"
-                >
-                  Explore Now
-                  <span className="ml-2 group-hover:translate-x-2 transition-transform inline-block" aria-hidden="true">→</span>
-                </Button>
-              </Link>
+              <PrimaryCTAButton
+                href="/student/signin"
+                showArrow
+                variant="purple"
+              >
+                Explore Now
+              </PrimaryCTAButton>
             </div>
 
           </div>
