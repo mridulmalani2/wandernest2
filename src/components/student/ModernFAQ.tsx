@@ -49,7 +49,7 @@ export default function ModernFAQ() {
           Common Questions
         </h2>
 
-        <div className="backdrop-blur-md bg-white/10 rounded-3xl border border-white/20 shadow-premium overflow-hidden">
+        <div className="backdrop-blur-md bg-transparent rounded-3xl border border-white/20 shadow-premium overflow-hidden">
           {faqData.map((faq, index) => {
             const isOpen = openIndex === index
             const isLast = index === faqData.length - 1
