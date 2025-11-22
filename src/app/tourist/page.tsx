@@ -65,79 +65,89 @@ export default function TouristLanding() {
             </div>
 
             {/* Features */}
-            <div className="grid md:grid-cols-3 gap-8 pt-8 animate-fade-in-up delay-400">
-              <div className="backdrop-blur-md rounded-2xl shadow-lg border border-gray-200 hover-lift group relative overflow-hidden">
-                <div className="absolute inset-0 opacity-15 group-hover:opacity-25 transition-opacity duration-500">
-                  <Image
-                    src="https://images.unsplash.com/photo-1529667083337-e36bedc13cfa?w=800&q=80"
-                    alt="University students learning and collaborating"
-                    fill
-                    quality={60}
-                    sizes="(max-width: 768px) 100vw, 33vw"
-                    className="object-cover"
-                    loading="lazy"
-                  />
-                </div>
-                <div className="absolute inset-0 bg-gradient-to-br from-ui-blue-primary/20 to-ui-blue-secondary/20" />
-                <div className="absolute inset-0 bg-white/40 backdrop-blur-sm" />
-                <div className="relative z-10 p-8">
-                  <div className="inline-flex p-4 rounded-2xl bg-gradient-to-br from-ui-blue-primary to-ui-blue-accent text-white mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
-                    <GraduationCap className="w-8 h-8" />
-                  </div>
-                  <h3 className="text-xl font-bold mb-3">Verified Students</h3>
-                  <p className="text-gray-600 leading-relaxed">
-                    All guides are verified university students with local knowledge
-                  </p>
-                </div>
+            <div className="pt-8 animate-fade-in-up delay-400">
+              <div className="text-center space-y-3 mb-12">
+                <h2 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-white text-shadow-lg">
+                  Why Choose WanderNest?
+                </h2>
+                <p className="text-base md:text-lg text-white/90 text-shadow max-w-2xl mx-auto">
+                  Authentic travel experiences with verified local student guides
+                </p>
               </div>
-
-              <div className="backdrop-blur-md rounded-2xl shadow-lg border border-gray-200 hover-lift group relative overflow-hidden">
-                <div className="absolute inset-0 opacity-15 group-hover:opacity-25 transition-opacity duration-500">
-                  <Image
-                    src="https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=800&q=80"
-                    alt="Cozy Parisian cafe with authentic ambiance"
-                    fill
-                    quality={60}
-                    sizes="(max-width: 768px) 100vw, 33vw"
-                    className="object-cover"
-                    loading="lazy"
-                  />
-                </div>
-                <div className="absolute inset-0 bg-gradient-to-br from-ui-purple-primary/20 to-ui-purple-secondary/20" />
-                <div className="absolute inset-0 bg-white/40 backdrop-blur-sm" />
-                <div className="relative z-10 p-8">
-                  <div className="inline-flex p-4 rounded-2xl bg-gradient-to-br from-ui-purple-primary to-ui-purple-accent text-white mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
-                    <MessageCircle className="w-8 h-8" />
+              <div className="grid md:grid-cols-3 gap-6 lg:gap-8 max-w-6xl mx-auto">
+                <div className="group bg-white/95 backdrop-blur-xl rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 border border-white/40 hover:border-ui-blue-primary/50 hover:-translate-y-1 relative overflow-hidden">
+                  <div className="absolute inset-0 opacity-5 group-hover:opacity-10 transition-opacity duration-500">
+                    <Image
+                      src="https://images.unsplash.com/photo-1529667083337-e36bedc13cfa?w=800&q=80"
+                      alt="University students learning and collaborating"
+                      fill
+                      quality={60}
+                      sizes="(max-width: 768px) 100vw, 33vw"
+                      className="object-cover"
+                      loading="lazy"
+                    />
                   </div>
-                  <h3 className="text-xl font-bold mb-3">Personalized Experience</h3>
-                  <p className="text-gray-600 leading-relaxed">
-                    Get custom itineraries based on your interests and preferences
-                  </p>
-                </div>
-              </div>
-
-              <div className="backdrop-blur-md rounded-2xl shadow-lg border border-gray-200 hover-lift group relative overflow-hidden">
-                <div className="absolute inset-0 opacity-15 group-hover:opacity-25 transition-opacity duration-500">
-                  <Image
-                    src="https://images.unsplash.com/photo-1533929736458-ca588d08c8be?w=800&q=80"
-                    alt="Iconic London bridge and cityscape"
-                    fill
-                    quality={60}
-                    sizes="(max-width: 768px) 100vw, 33vw"
-                    className="object-cover"
-                    loading="lazy"
-                  />
-                </div>
-                <div className="absolute inset-0 bg-gradient-to-br from-ui-purple-primary/20 to-ui-purple-secondary/20" />
-                <div className="absolute inset-0 bg-white/40 backdrop-blur-sm" />
-                <div className="relative z-10 p-8">
-                  <div className="inline-flex p-4 rounded-2xl bg-gradient-to-br from-ui-purple-primary to-ui-purple-accent text-white mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg">
-                    <Star className="w-8 h-8" />
+                  <div className="relative z-10 p-8">
+                    <div className="inline-flex p-4 rounded-2xl bg-gradient-to-br from-ui-blue-primary to-ui-blue-accent text-white mb-6 group-hover:scale-105 transition-all duration-300 shadow-md">
+                      <GraduationCap className="w-8 h-8" />
+                    </div>
+                    <h3 className="text-xl font-bold mb-3 text-gray-900 group-hover:text-ui-blue-primary transition-colors">
+                      Verified Students
+                    </h3>
+                    <p className="text-base text-gray-700 leading-relaxed">
+                      All guides are verified university students with local knowledge
+                    </p>
                   </div>
-                  <h3 className="text-xl font-bold mb-3">Authentic Adventures</h3>
-                  <p className="text-gray-600 leading-relaxed">
-                    Discover hidden gems and local favorites off the beaten path
-                  </p>
+                </div>
+
+                <div className="group bg-white/95 backdrop-blur-xl rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 border border-white/40 hover:border-ui-purple-primary/50 hover:-translate-y-1 relative overflow-hidden">
+                  <div className="absolute inset-0 opacity-5 group-hover:opacity-10 transition-opacity duration-500">
+                    <Image
+                      src="https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=800&q=80"
+                      alt="Cozy Parisian cafe with authentic ambiance"
+                      fill
+                      quality={60}
+                      sizes="(max-width: 768px) 100vw, 33vw"
+                      className="object-cover"
+                      loading="lazy"
+                    />
+                  </div>
+                  <div className="relative z-10 p-8">
+                    <div className="inline-flex p-4 rounded-2xl bg-gradient-to-br from-ui-purple-primary to-ui-purple-accent text-white mb-6 group-hover:scale-105 transition-all duration-300 shadow-md">
+                      <MessageCircle className="w-8 h-8" />
+                    </div>
+                    <h3 className="text-xl font-bold mb-3 text-gray-900 group-hover:text-ui-purple-primary transition-colors">
+                      Personalized Experience
+                    </h3>
+                    <p className="text-base text-gray-700 leading-relaxed">
+                      Get custom itineraries based on your interests and preferences
+                    </p>
+                  </div>
+                </div>
+
+                <div className="group bg-white/95 backdrop-blur-xl rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 border border-white/40 hover:border-amber-500/50 hover:-translate-y-1 relative overflow-hidden">
+                  <div className="absolute inset-0 opacity-5 group-hover:opacity-10 transition-opacity duration-500">
+                    <Image
+                      src="https://images.unsplash.com/photo-1533929736458-ca588d08c8be?w=800&q=80"
+                      alt="Iconic London bridge and cityscape"
+                      fill
+                      quality={60}
+                      sizes="(max-width: 768px) 100vw, 33vw"
+                      className="object-cover"
+                      loading="lazy"
+                    />
+                  </div>
+                  <div className="relative z-10 p-8">
+                    <div className="inline-flex p-4 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-500 text-white mb-6 group-hover:scale-105 transition-all duration-300 shadow-md">
+                      <Star className="w-8 h-8" />
+                    </div>
+                    <h3 className="text-xl font-bold mb-3 text-gray-900 group-hover:text-amber-600 transition-colors">
+                      Authentic Adventures
+                    </h3>
+                    <p className="text-base text-gray-700 leading-relaxed">
+                      Discover hidden gems and local favorites off the beaten path
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>

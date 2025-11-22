@@ -62,8 +62,8 @@ export default function StudentLandingPage() {
             </div>
 
             {/* Value Proposition */}
-            <div className="backdrop-blur-md rounded-3xl shadow-xl border-2 border-white/40 animate-fade-in-up delay-400 relative overflow-hidden">
-              <div className="absolute inset-0 opacity-20">
+            <div className="backdrop-blur-xl rounded-3xl shadow-2xl border border-white/30 animate-fade-in-up delay-400 relative overflow-hidden">
+              <div className="absolute inset-0 opacity-10">
                 <Image
                   src="https://images.unsplash.com/photo-1499856871958-5b9627545d1a?w=1200&q=80"
                   alt="Arc de Triomphe and Paris landmarks"
@@ -73,39 +73,52 @@ export default function StudentLandingPage() {
                   className="object-cover"
                 />
               </div>
-              <div className="absolute inset-0 bg-white/85 backdrop-blur-md" />
-              <div className="relative z-10 p-8 md:p-12">
-                <h2 className="text-4xl font-bold text-center mb-12">Why Guide with WanderNest?</h2>
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <div className="bg-gradient-to-br from-blue-50 to-blue-100/50 rounded-2xl p-6 shadow-soft hover:shadow-premium hover-lift-lg group border-2 border-ui-blue-primary/60 hover:border-ui-blue-accent/60 transition-all">
-                  <div className="inline-flex p-3 rounded-xl bg-gradient-to-br from-ui-blue-primary to-ui-blue-secondary text-white mb-4 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-lg">
-                    <DollarSign className="w-7 h-7" />
-                  </div>
-                  <h3 className="font-bold text-lg mb-2 group-hover:text-ui-blue-accent transition-colors">Earn More</h3>
-                  <p className="text-sm text-gray-700 leading-relaxed font-medium">
-                    Make significantly more than standard campus jobs with flexible hours
+              <div className="absolute inset-0 bg-white/90 backdrop-blur-xl" />
+              <div className="relative z-10 p-8 md:p-12 lg:p-16">
+                <div className="text-center space-y-3 mb-12">
+                  <h2 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-gray-900">
+                    Why Guide with WanderNest?
+                  </h2>
+                  <p className="text-base md:text-lg text-gray-600 max-w-2xl mx-auto">
+                    Turn your local knowledge into income while building meaningful connections
                   </p>
                 </div>
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 max-w-6xl mx-auto">
+                  <div className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-100 hover:border-ui-blue-primary/30 hover:-translate-y-1">
+                    <div className="inline-flex p-4 rounded-2xl bg-gradient-to-br from-ui-blue-primary to-ui-blue-secondary text-white mb-6 group-hover:scale-105 transition-all duration-300 shadow-md">
+                      <DollarSign className="w-8 h-8" />
+                    </div>
+                    <h3 className="font-bold text-xl mb-3 text-gray-900 group-hover:text-ui-blue-primary transition-colors">
+                      Earn More
+                    </h3>
+                    <p className="text-base text-gray-600 leading-relaxed">
+                      Make significantly more than standard campus jobs with flexible hours
+                    </p>
+                  </div>
 
-                <div className="bg-gradient-to-br from-purple-50 to-purple-100/50 rounded-2xl p-6 shadow-soft hover:shadow-premium hover-lift-lg group border-2 border-ui-purple-primary/60 hover:border-ui-purple-accent/60 transition-all">
-                  <div className="inline-flex p-3 rounded-xl gradient-vibrant text-white mb-4 group-hover:scale-110 group-hover:-rotate-3 transition-all duration-300 shadow-glow-purple">
-                    <Clock className="w-7 h-7" />
+                  <div className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-100 hover:border-ui-purple-primary/30 hover:-translate-y-1">
+                    <div className="inline-flex p-4 rounded-2xl gradient-vibrant text-white mb-6 group-hover:scale-105 transition-all duration-300 shadow-md">
+                      <Clock className="w-8 h-8" />
+                    </div>
+                    <h3 className="font-bold text-xl mb-3 text-gray-900 group-hover:text-ui-purple-primary transition-colors">
+                      Fully Flexible
+                    </h3>
+                    <p className="text-base text-gray-600 leading-relaxed">
+                      Choose your own time slots and work around your class schedule
+                    </p>
                   </div>
-                  <h3 className="font-bold text-lg mb-2 group-hover:text-ui-purple-accent transition-colors">Fully Flexible</h3>
-                  <p className="text-sm text-gray-700 leading-relaxed font-medium">
-                    Choose your own time slots and work around your class schedule
-                  </p>
-                </div>
 
-                <div className="bg-gradient-to-br from-green-50 to-green-100/50 rounded-2xl p-6 shadow-soft hover:shadow-premium hover-lift-lg group border-2 border-ui-success/60 hover:border-ui-success/60 transition-all">
-                  <div className="inline-flex p-3 rounded-xl bg-gradient-to-br from-ui-success to-ui-success text-white mb-4 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-lg">
-                    <Users className="w-7 h-7" />
+                  <div className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-100 hover:border-ui-success/30 hover:-translate-y-1 md:col-span-2 lg:col-span-1">
+                    <div className="inline-flex p-4 rounded-2xl bg-gradient-to-br from-ui-success to-emerald-600 text-white mb-6 group-hover:scale-105 transition-all duration-300 shadow-md">
+                      <Users className="w-8 h-8" />
+                    </div>
+                    <h3 className="font-bold text-xl mb-3 text-gray-900 group-hover:text-ui-success transition-colors">
+                      Cultural Connection
+                    </h3>
+                    <p className="text-base text-gray-600 leading-relaxed">
+                      Meet visitors from your home country and share your culture
+                    </p>
                   </div>
-                  <h3 className="font-bold text-lg mb-2 group-hover:text-ui-success transition-colors">Cultural Connection</h3>
-                  <p className="text-sm text-gray-700 leading-relaxed font-medium">
-                    Meet visitors from your home country and share your culture
-                  </p>
-                </div>
                 </div>
               </div>
             </div>
