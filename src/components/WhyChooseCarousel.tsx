@@ -33,7 +33,7 @@ const features: Feature[] = [
       'All our guides are verified university students with proven local knowledge. They are passionate about sharing their city and creating meaningful connections with travelers from around the world.',
     bullets: [
       'Background-verified student credentials',
-      'Multilingual guides for better communication',
+      'Match with guides from your home country for added comfort',
       'Rated and reviewed by past travelers',
     ],
     image: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800&q=80',

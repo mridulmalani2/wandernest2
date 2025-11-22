@@ -50,6 +50,10 @@ export default function TouristLanding() {
                 experiences.
               </p>
 
+              <p className="text-sm md:text-base text-white/90 max-w-2xl mx-auto leading-relaxed text-shadow-sm">
+                Choose a guide from your home country for added comfort, or explore connections with local students—it&apos;s entirely up to you.
+              </p>
+
               <div className="flex justify-center gap-4 pt-4 animate-fade-in-up delay-300">
                 <Link href="/booking">
                   <Button size="lg" className="text-lg px-10 py-7 gradient-ocean hover:shadow-glow-blue shadow-premium text-white font-semibold group hover-lift">
@@ -158,7 +162,7 @@ export default function TouristLanding() {
                   </div>
                   <h3 className="font-bold text-lg text-white group-hover:text-ui-purple-accent transition-colors">Get Matched with Guides</h3>
                   <p className="text-sm text-white/90 leading-relaxed font-medium">
-                    We match you with verified student guides who fit your needs
+                    We match you with verified student guides who fit your needs—including options from your home country if you prefer
                   </p>
                 </div>
 

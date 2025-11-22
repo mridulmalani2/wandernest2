@@ -16,6 +16,11 @@ export const paymentFAQs: FAQ[] = [
       "WanderNest is only a marketplace connector. Payments are agreed directly between you and the student guide. We do not handle or guarantee payments.",
   },
   {
+    question: "Can I choose a guide from my home country?",
+    answer:
+      "Absolutely! Many travelers prefer connecting with guides from their home country for added comfort, shared cultural context, and language familiarity. You can specify your preferred nationality during booking, or leave it blank to explore all available guides in your destination.",
+  },
+  {
     question: "How are student guides verified?",
     answer:
       "All guides are verified university students. We check their enrollment and basic identity before listing them on the platform.",

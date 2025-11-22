@@ -68,7 +68,9 @@ export function PreferencesStep({ data, errors, updateData }: Props) {
           value={data.preferredNationality || ''}
           onChange={(e) => updateData({ preferredNationality: e.target.value })}
         />
-        <p className="text-xs text-gray-500">Leave blank for no preference</p>
+        <p className="text-xs text-muted-foreground">
+          Prefer a guide from your home country? Many travelers find it adds comfort and cultural familiarity. Or leave blank to explore all options.
+        </p>
       </div>
 
       {/* Languages */}
