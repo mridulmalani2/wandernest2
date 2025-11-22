@@ -24,6 +24,7 @@ export default function DiscoveryFeePage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [scriptLoaded, setScriptLoaded] = useState(false)
+  const [discoveryFee, setDiscoveryFee] = useState<number>(99) // Default fallback
 
   // Get query parameters
   const touristId = searchParams.get('touristId')
@@ -72,6 +73,11 @@ export default function DiscoveryFeePage() {
 
       if (!orderResponse.ok) {
         throw new Error(orderData.error || 'Failed to create order')
+      }
+
+      // Update discovery fee from API response
+      if (orderData.amount) {
+        setDiscoveryFee(orderData.amount)
       }
 
       if (!scriptLoaded || !window.Razorpay) {
@@ -169,7 +175,7 @@ export default function DiscoveryFeePage() {
                   <p className="text-sm text-gray-600">Access to curated local guides</p>
                 </div>
                 <div className="text-right">
-                  <div className="text-3xl font-bold text-ui-blue-primary">₹99</div>
+                  <div className="text-3xl font-bold text-ui-blue-primary">₹{discoveryFee}</div>
                   <div className="text-sm text-gray-500">One-time payment</div>
                 </div>
               </div>
@@ -231,7 +237,7 @@ export default function DiscoveryFeePage() {
                 className="w-full"
                 disabled={loading || !scriptLoaded}
               >
-                {loading ? 'Processing...' : `Pay ₹99 Now`}
+                {loading ? 'Processing...' : `Pay ₹${discoveryFee} Now`}
               </Button>
 
               <p className="text-xs text-gray-500 text-center">
