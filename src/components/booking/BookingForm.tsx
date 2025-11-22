@@ -26,7 +26,9 @@ export type BookingFormData = {
   preferredGender?: 'male' | 'female' | 'no_preference'
   serviceType: 'itinerary_help' | 'guided_experience' | ''
   interests: string[]
-  budget?: number
+  totalBudget?: number
+  callDurationMinutes?: number
+  tourDurationHours?: number
 
   // Step 3: Contact
   email: string
@@ -184,7 +186,9 @@ export function BookingForm() {
           preferredGender: formData.preferredGender,
           serviceType: formData.serviceType,
           interests: formData.interests,
-          budget: formData.budget,
+          totalBudget: formData.totalBudget,
+          callDurationMinutes: formData.callDurationMinutes,
+          tourDurationHours: formData.tourDurationHours,
           phone: formData.phone,
           whatsapp: formData.whatsapp,
           contactMethod: formData.contactMethod,

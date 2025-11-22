@@ -191,32 +191,91 @@ export function PreferencesStep({ data, errors, updateData }: Props) {
         {errors.interests && <p className="text-sm text-ui-error">{errors.interests}</p>}
       </div>
 
+      {/* Duration Input - Conditional on Service Type */}
+      {data.serviceType && (
+        <div className="space-y-2">
+          <Label htmlFor="duration">
+            {data.serviceType === 'itinerary_help'
+              ? 'Call Duration (minutes)'
+              : 'Guided Tour Duration (hours)'}
+          </Label>
+          <Input
+            id="duration"
+            type="number"
+            min={data.serviceType === 'itinerary_help' ? 20 : 1}
+            max={data.serviceType === 'itinerary_help' ? 120 : 12}
+            placeholder={data.serviceType === 'itinerary_help' ? 'e.g. 30' : 'e.g. 3'}
+            value={
+              data.serviceType === 'itinerary_help'
+                ? data.callDurationMinutes || ''
+                : data.tourDurationHours || ''
+            }
+            onChange={(e) => {
+              const value = e.target.value ? parseInt(e.target.value) : undefined
+              if (data.serviceType === 'itinerary_help') {
+                updateData({ callDurationMinutes: value })
+              } else {
+                updateData({ tourDurationHours: value })
+              }
+            }}
+          />
+        </div>
+      )}
+
+      {!data.serviceType && (
+        <div className="space-y-2 p-4 bg-gray-50 rounded-lg border border-gray-200">
+          <p className="text-sm text-gray-600">
+            💡 Select a service type above to specify duration
+          </p>
+        </div>
+      )}
+
+      {/* Pricing Guidance - Conditional on Service Type */}
+      {data.serviceType && (
+        <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+          <h3 className="font-semibold text-sm mb-2">💰 Suggested pricing:</h3>
+          {data.serviceType === 'itinerary_help' ? (
+            <p className="text-sm text-gray-700">
+              For itinerary planning, we recommend a <strong>30–40 minute online call</strong>,
+              typically priced around <strong>€15–€20</strong>. You can adjust your total budget
+              based on how many sessions you'd like and any follow-up support.
+            </p>
+          ) : (
+            <p className="text-sm text-gray-700">
+              For a guided walk, we recommend a <strong>3–4 hour experience</strong>, with a
+              typical rate of about <strong>€20 per hour</strong>. You can adjust your total
+              budget to cover the number of hours and any extras you have in mind.
+            </p>
+          )}
+        </div>
+      )}
+
       {/* Budget Range */}
       <div className="space-y-2">
-        <Label htmlFor="budget">
-          Budget per Day (USD) - Optional
+        <Label htmlFor="totalBudget">
+          Total Trip Budget (EUR) – Optional
         </Label>
+        <p className="text-sm text-gray-600 mb-3">
+          This is your approximate total budget for this experience. It helps us recommend guides in your price range.
+        </p>
         <div className="space-y-4">
           <Slider
-            id="budget"
+            id="totalBudget"
             min={50}
             max={500}
             step={10}
-            value={[data.budget || 150]}
-            onValueChange={(values) => updateData({ budget: values[0] })}
+            value={[data.totalBudget || 150]}
+            onValueChange={(values) => updateData({ totalBudget: values[0] })}
             className="w-full"
           />
           <div className="flex justify-between text-sm text-gray-600">
-            <span>$50</span>
+            <span>€50</span>
             <span className="font-bold text-ui-blue-primary">
-              ${data.budget || 150}
+              €{data.totalBudget || 150}
             </span>
-            <span>$500+</span>
+            <span>€500+</span>
           </div>
         </div>
-        <p className="text-xs text-gray-500">
-          This helps us match you with guides in your price range
-        </p>
       </div>
     </div>
   )
