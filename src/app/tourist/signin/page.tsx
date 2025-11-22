@@ -55,7 +55,7 @@ export default function TouristSignIn() {
         {/* Gradient overlay for visual depth */}
         <div className="absolute inset-0 bg-gradient-to-br from-ui-blue-primary/20 via-ui-blue-accent/15 to-ui-purple-primary/20" />
       </div>
-      <div className="absolute inset-0 pattern-grid opacity-15" />
+      <div className="absolute inset-0 pattern-dots opacity-15" />
 
       {/* Content */}
       <div className="relative z-10 flex flex-col min-h-screen">
