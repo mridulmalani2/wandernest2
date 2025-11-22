@@ -3,7 +3,7 @@ export const dynamic = 'force-dynamic'
 export const revalidate = 180 // 3 minutes
 
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { requireDatabase } from '@/lib/prisma'
 import { cache } from '@/lib/cache'
 import { CACHE_TTL } from '@/lib/constants'
 import { withErrorHandler, AppError } from '@/lib/error-handler'
@@ -18,8 +18,10 @@ async function getStudentDashboard(req: NextRequest) {
     throw new AppError(400, 'Student email or ID required', 'MISSING_IDENTIFIER')
   }
 
-    // Get student basic info first
-    const student = await prisma.student.findFirst({
+  const prisma = requireDatabase()
+
+  // Get student basic info first
+  const student = await prisma.student.findFirst({
       where: studentEmail ? { email: studentEmail } : { id: studentId! },
       select: {
         id: true,

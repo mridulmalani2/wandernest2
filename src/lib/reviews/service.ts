@@ -1,5 +1,5 @@
 import 'server-only'
-import { prisma } from '@/lib/prisma'
+import { requireDatabase } from '@/lib/prisma'
 import { CreateReviewInput, ReviewMetrics, ReliabilityBadge } from './types'
 import { isValidAttribute } from './constants'
 import { cache, cacheInvalidation } from '@/lib/cache'
@@ -14,6 +14,8 @@ const MAX_REVIEW_TEXT_LENGTH = 500
  * Creates a new review and updates student metrics
  */
 export async function createReview(input: CreateReviewInput) {
+  const prisma = requireDatabase()
+
   // Validate rating
   if (input.rating < 1 || input.rating > 5) {
     throw new Error('Rating must be between 1 and 5')
@@ -55,7 +57,7 @@ export async function createReview(input: CreateReviewInput) {
   })
 
   // Update student metrics
-  await updateStudentMetrics(input.studentId, review)
+  await updateStudentMetrics(input.studentId)
 
   // Invalidate student caches
   await cacheInvalidation.student(input.studentId)
@@ -67,10 +69,9 @@ export async function createReview(input: CreateReviewInput) {
  * Updates student metrics based on all their reviews
  * Calculates average rating, completion rate, and reliability badge
  */
-export async function updateStudentMetrics(
-  studentId: string,
-  newReview?: { rating: number; wouldRecommend: boolean; guideShowedUp: boolean }
-) {
+export async function updateStudentMetrics(studentId: string) {
+  const prisma = requireDatabase()
+
   // Get only necessary review fields for calculations (optimized)
   const allReviews = await prisma.review.findMany({
     where: { studentId },
@@ -127,6 +128,7 @@ export async function updateStudentMetrics(
  * Get all reviews for a student (cached for 10 minutes)
  */
 export async function getStudentReviews(studentId: string) {
+  const prisma = requireDatabase()
   return cache.cached(
     `student:${studentId}:reviews`,
     async () => {
@@ -152,6 +154,8 @@ export async function getStudentReviews(studentId: string) {
  * Get a student's current metrics (cached for 30 minutes)
  */
 export async function getStudentMetrics(studentId: string): Promise<ReviewMetrics | null> {
+  const prisma = requireDatabase()
+
   const student = await prisma.student.findUnique({
     where: { id: studentId },
     select: {

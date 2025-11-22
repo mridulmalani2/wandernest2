@@ -2,7 +2,7 @@
 export const dynamic = 'force-dynamic'
 
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { requireDatabase } from '@/lib/prisma';
 import { z } from 'zod';
 import { withErrorHandler, withDatabaseRetry, AppError } from '@/lib/error-handler';
 
@@ -101,6 +101,8 @@ async function submitOnboarding(req: NextRequest) {
 
   // Validate input
   const validatedData = onboardingSchema.parse(body);
+  const prisma = requireDatabase()
+
 
   // Check if student already exists
   const existingStudent = await withDatabaseRetry(async () =>

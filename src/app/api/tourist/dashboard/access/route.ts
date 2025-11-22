@@ -2,13 +2,15 @@
 export const dynamic = 'force-dynamic'
 
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { requireDatabase } from '@/lib/prisma'
 import { generateVerificationCode } from '@/lib/utils'
 import { sendVerificationEmail } from '@/lib/email'
 
 // Send verification code to tourist email
 export async function POST(request: NextRequest) {
   try {
+      const prisma = requireDatabase()
+
     const { email } = await request.json()
 
     if (!email || !email.includes('@')) {

@@ -2,7 +2,7 @@
 export const dynamic = 'force-dynamic'
 
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { requireDatabase } from '@/lib/prisma'
 import { withErrorHandler, withDatabaseRetry, AppError } from '@/lib/error-handler'
 
 async function rejectStudentRequest(
@@ -19,6 +19,8 @@ async function rejectStudentRequest(
   if (!token) {
     throw new AppError(401, 'Unauthorized - No token provided', 'NO_TOKEN')
   }
+
+  const prisma = requireDatabase()
 
   // Find session
   const session = await withDatabaseRetry(async () =>

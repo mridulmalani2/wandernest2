@@ -86,7 +86,7 @@ async function createTouristRequest(req: NextRequest) {
   if (prisma) {
     // Database is available - use Prisma
     touristRequest = await withDatabaseRetry(async () =>
-      prisma.touristRequest.create({
+      prisma!.touristRequest.create({
         data: {
           // Link to tourist
           touristId: touristId,

@@ -2,7 +2,7 @@
 export const dynamic = 'force-dynamic'
 
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { requireDatabase } from '@/lib/prisma'
 import { verifyPassword, generateToken } from '@/lib/auth'
 import { withErrorHandler, withDatabaseRetry, AppError } from '@/lib/error-handler'
 
@@ -12,6 +12,9 @@ async function adminLogin(request: NextRequest) {
   if (!email || !password) {
     throw new AppError(400, 'Email and password are required', 'MISSING_CREDENTIALS')
   }
+
+  // Ensure database is available
+  const prisma = requireDatabase()
 
   // Find admin by email
   const admin = await withDatabaseRetry(async () =>

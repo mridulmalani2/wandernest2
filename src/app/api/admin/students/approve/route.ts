@@ -2,13 +2,15 @@
 export const dynamic = 'force-dynamic'
 
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { requireDatabase } from '@/lib/prisma'
 import { verifyAdmin } from '@/lib/middleware'
 import { withErrorHandler, withDatabaseRetry, AppError } from '@/lib/error-handler'
 
 // Approve or reject a student
 async function approveStudent(request: NextRequest) {
   const authResult = await verifyAdmin(request)
+  const prisma = requireDatabase()
+
 
   if (!authResult.authorized) {
     throw new AppError(401, authResult.error || 'Unauthorized', 'AUTH_FAILED')
@@ -24,6 +26,7 @@ async function approveStudent(request: NextRequest) {
   if (action !== 'approve' && action !== 'reject') {
     throw new AppError(400, 'Invalid action. Must be "approve" or "reject"', 'INVALID_ACTION')
   }
+
 
   // Find student with retry logic
   const student = await withDatabaseRetry(async () =>

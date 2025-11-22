@@ -2,7 +2,7 @@
 export const dynamic = 'force-dynamic'
 
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { requireDatabase } from '@/lib/prisma'
 
 // Helper function to calculate suggested price range
 function calculateSuggestedPrice(city: string, serviceType: string): { min: number; max: number } {
@@ -175,6 +175,8 @@ function extractTags(student: { coverLetter: string | null; bio: string | null }
 
 export async function POST(req: NextRequest) {
   try {
+      const prisma = requireDatabase()
+
     const body = await req.json()
     const { requestId } = body
 

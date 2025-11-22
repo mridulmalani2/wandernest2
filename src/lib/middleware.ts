@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyToken } from './auth'
-import { prisma } from './prisma'
+import { requireDatabase } from './prisma'
 
 export interface AuthenticatedRequest extends NextRequest {
   admin?: {
@@ -29,6 +29,8 @@ export async function verifyAdmin(request: NextRequest): Promise<{ authorized: b
       return { authorized: false, error: 'Invalid token' }
     }
 
+    const prisma = requireDatabase()
+
     // Verify admin exists and is active
     const admin = await prisma.admin.findUnique({
       where: { id: decoded.adminId },
@@ -55,6 +57,8 @@ export async function verifyTourist(request: NextRequest): Promise<{ authorized:
     }
 
     const token = authHeader.substring(7)
+
+    const prisma = requireDatabase()
 
     // Verify token exists in TouristSession
     const session = await prisma.touristSession.findUnique({

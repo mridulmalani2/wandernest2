@@ -2,12 +2,14 @@
 export const dynamic = 'force-dynamic'
 
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { requireDatabase } from '@/lib/prisma'
 import { verifyAdmin } from '@/lib/middleware'
 
 // Get pending student approvals
 export async function GET(request: NextRequest) {
   const authResult = await verifyAdmin(request)
+  const prisma = requireDatabase()
+
 
   if (!authResult.authorized) {
     return NextResponse.json(
@@ -17,6 +19,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
+
     const students = await prisma.student.findMany({
       where: {
         status: 'PENDING_APPROVAL',

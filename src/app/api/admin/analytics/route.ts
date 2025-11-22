@@ -3,7 +3,7 @@ export const dynamic = 'force-dynamic'
 export const revalidate = 600 // 10 minutes
 
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { requireDatabase } from '@/lib/prisma'
 import { verifyAdmin } from '@/lib/middleware'
 import { cache } from '@/lib/cache'
 import { CACHE_TTL } from '@/lib/constants'
@@ -11,6 +11,8 @@ import { CACHE_TTL } from '@/lib/constants'
 // Get platform analytics
 export async function GET(request: NextRequest) {
   const authResult = await verifyAdmin(request)
+  const prisma = requireDatabase()
+
 
   if (!authResult.authorized) {
     return NextResponse.json(
@@ -20,6 +22,8 @@ export async function GET(request: NextRequest) {
   }
 
   try {
+    // Ensure database is available
+
     // Use cache for expensive analytics queries
     const analyticsData = await cache.cached(
       'analytics:platform-metrics',

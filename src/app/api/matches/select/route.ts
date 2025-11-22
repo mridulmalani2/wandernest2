@@ -2,7 +2,7 @@
 export const dynamic = 'force-dynamic'
 
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { requireDatabase } from '@/lib/prisma'
 
 /**
  * POST /api/matches/select
@@ -10,6 +10,8 @@ import { prisma } from '@/lib/prisma'
  */
 export async function POST(request: NextRequest) {
   try {
+      const prisma = requireDatabase()
+
     const body = await request.json()
     const { requestId, selectedGuideIds } = body
 
