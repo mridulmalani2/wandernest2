@@ -8,6 +8,9 @@ import StudentCTA from '@/components/cta/StudentCTA'
 import WhyChooseCarousel from '@/components/WhyChooseCarousel'
 import { getWebsiteStructuredData, getOrganizationStructuredData } from '@/lib/structuredData'
 
+// ISR: Revalidate homepage every hour
+export const revalidate = 3600
+
 export default function MainLanding() {
   const structuredData = getWebsiteStructuredData()
   const organizationData = getOrganizationStructuredData()

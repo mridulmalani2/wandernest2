@@ -51,3 +51,6 @@ function getRedisClient(): Redis | null {
   }
 }
 
+// Export the Redis client
+export const redis = getRedisClient()
+
