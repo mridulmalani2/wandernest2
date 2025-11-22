@@ -66,13 +66,20 @@ export default function TouristDashboard() {
       const response = await fetch('/api/tourist/bookings')
 
       if (!response.ok) {
-        throw new Error('Failed to fetch bookings')
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || errorData.message || 'Failed to fetch bookings')
       }
 
       const data = await response.json()
+
+      if (!data.success) {
+        throw new Error(data.error || 'Failed to fetch bookings')
+      }
+
       setRequests(data.bookings || [])
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load your bookings')
+      console.error('Error fetching bookings:', err)
+      setError(err instanceof Error ? err.message : 'Failed to load your bookings. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -215,8 +222,20 @@ export default function TouristDashboard() {
         </div>
 
         {error && (
-          <div className="glass-card bg-ui-error/20 border-2 border-ui-error/40 rounded-2xl p-4 mb-6 shadow-premium animate-scale-in">
-            <p className="text-ui-error font-semibold">{error}</p>
+          <div className="glass-card bg-ui-error/20 border-2 border-ui-error/40 rounded-2xl p-6 mb-6 shadow-premium animate-scale-in">
+            <div className="flex items-start gap-3">
+              <div className="flex-shrink-0 text-2xl">⚠️</div>
+              <div className="flex-1">
+                <p className="text-ui-error font-semibold mb-2">Unable to load bookings</p>
+                <p className="text-sm text-gray-700 mb-3">{error}</p>
+                <button
+                  onClick={fetchRequests}
+                  className="px-4 py-2 bg-ui-blue-primary text-white rounded-lg hover:bg-ui-blue-accent transition-colors text-sm font-medium"
+                >
+                  Try Again
+                </button>
+              </div>
+            </div>
           </div>
         )}
 

@@ -3,23 +3,21 @@ export const dynamic = 'force-dynamic'
 
 import { NextRequest, NextResponse } from 'next/server'
 import { acceptRequest } from '../../accept-request'
+import { withErrorHandler, AppError } from '@/lib/error-handler'
 
-export async function POST(
+async function acceptStudentRequest(
   req: NextRequest,
   { params }: { params: { requestId: string } }
 ) {
+  const { requestId } = params
+  const body = await req.json()
+  const { studentId } = body
+
+  if (!studentId) {
+    throw new AppError(400, 'Student ID is required', 'MISSING_STUDENT_ID')
+  }
+
   try {
-    const { requestId } = params
-    const body = await req.json()
-    const { studentId } = body
-
-    if (!studentId) {
-      return NextResponse.json(
-        { success: false, error: 'Student ID is required' },
-        { status: 400 }
-      )
-    }
-
     // Call the shared acceptRequest helper
     const result = await acceptRequest(requestId, studentId)
 
@@ -31,39 +29,26 @@ export async function POST(
       touristWhatsapp: result.touristRequest.whatsapp,
     })
   } catch (error: any) {
-    console.error('Error accepting request:', error)
-
+    // Convert helper errors to AppErrors with appropriate status codes
     if (error.message.includes('already been accepted') || error.message.includes('already accepted')) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: error.message,
-          code: 'ALREADY_ACCEPTED',
-        },
-        { status: 409 }
-      )
+      throw new AppError(409, error.message, 'ALREADY_ACCEPTED')
     }
 
     if (error.message.includes('not found')) {
-      return NextResponse.json(
-        { success: false, error: error.message },
-        { status: 404 }
-      )
+      throw new AppError(404, error.message, 'NOT_FOUND')
     }
 
     if (error.message.includes('expired') || error.message.includes('no longer available')) {
-      return NextResponse.json(
-        { success: false, error: error.message },
-        { status: 409 }
-      )
+      throw new AppError(409, error.message, 'REQUEST_EXPIRED')
     }
 
-    return NextResponse.json(
-      {
-        success: false,
-        error: error.message || 'Failed to accept request',
-      },
-      { status: 500 }
-    )
+    if (error.message.includes('must be approved')) {
+      throw new AppError(403, error.message, 'ACCOUNT_NOT_APPROVED')
+    }
+
+    // Re-throw if it's already an AppError or other error
+    throw error
   }
 }
+
+export const POST = withErrorHandler(acceptStudentRequest, 'POST /api/student/requests/[requestId]/accept')
