@@ -15,7 +15,7 @@ const nextConfig = {
   swcMinify: true,
 
   // Production browser source maps disabled for smaller bundles
-  productionBrowserSourceMaps: false
+  productionBrowserSourceMaps: false,
 
   // Compiler optimizations for production
   compiler: {
