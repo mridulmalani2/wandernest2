@@ -6,23 +6,13 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Slider } from '@/components/ui/slider'
 import { BookingFormData } from './BookingForm'
+import { LANGUAGE_OPTIONS } from '@/config/languages'
 
 type Props = {
   data: BookingFormData
   errors: Record<string, string>
   updateData: (data: Partial<BookingFormData>) => void
 }
-
-const LANGUAGES = [
-  { value: 'english', label: 'English' },
-  { value: 'spanish', label: 'Spanish' },
-  { value: 'french', label: 'French' },
-  { value: 'german', label: 'German' },
-  { value: 'italian', label: 'Italian' },
-  { value: 'japanese', label: 'Japanese' },
-  { value: 'chinese', label: 'Chinese' },
-  { value: 'arabic', label: 'Arabic' },
-]
 
 const INTERESTS = [
   { value: 'food', label: '🍕 Food & Dining' },
@@ -78,22 +68,24 @@ export function PreferencesStep({ data, errors, updateData }: Props) {
         <Label>
           Preferred Languages <span className="text-ui-error">*</span>
         </Label>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {LANGUAGES.map((language) => (
-            <div key={language.value} className="flex items-center space-x-2">
-              <Checkbox
-                id={language.value}
-                checked={data.preferredLanguages?.includes(language.value)}
-                onCheckedChange={() => toggleLanguage(language.value)}
-              />
-              <Label
-                htmlFor={language.value}
-                className="font-normal cursor-pointer"
-              >
-                {language.label}
-              </Label>
-            </div>
-          ))}
+        <div className="border rounded-lg p-4 max-h-80 overflow-y-auto bg-gray-50">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+            {LANGUAGE_OPTIONS.map((language) => (
+              <div key={language.value} className="flex items-center space-x-2">
+                <Checkbox
+                  id={language.value}
+                  checked={data.preferredLanguages?.includes(language.value)}
+                  onCheckedChange={() => toggleLanguage(language.value)}
+                />
+                <Label
+                  htmlFor={language.value}
+                  className="font-normal cursor-pointer text-sm"
+                >
+                  {language.label}
+                </Label>
+              </div>
+            ))}
+          </div>
         </div>
         {errors.preferredLanguages && (
           <p className="text-sm text-ui-error">{errors.preferredLanguages}</p>
