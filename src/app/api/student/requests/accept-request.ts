@@ -1,30 +1,34 @@
-import { prisma } from '@/lib/prisma'
+import { requireDatabase } from '@/lib/prisma'
 import {
   sendTouristAcceptanceNotification,
   sendStudentConfirmation,
 } from '@/lib/email'
 import type { Prisma } from '@prisma/client'
+import { AppError } from '@/lib/error-handler'
 
 export async function acceptRequest(requestId: string, studentId: string) {
+  // Ensure database is available
+  const db = requireDatabase()
+
   // Start transaction
-  const result = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+  const result = await db.$transaction(async (tx: Prisma.TransactionClient) => {
     // Get the tourist request
     const touristRequest = await tx.touristRequest.findUnique({
       where: { id: requestId },
     })
 
     if (!touristRequest) {
-      throw new Error('Request not found')
+      throw new AppError(404, 'Request not found', 'REQUEST_NOT_FOUND')
     }
 
     // Check if request is still available
     if (touristRequest.status !== 'PENDING') {
-      throw new Error('Request is no longer available')
+      throw new AppError(400, 'Request is no longer available', 'REQUEST_UNAVAILABLE')
     }
 
     // Check if request has expired
     if (new Date() > touristRequest.expiresAt) {
-      throw new Error('Request has expired')
+      throw new AppError(400, 'Request has expired', 'REQUEST_EXPIRED')
     }
 
     // Get the RequestSelection for this student
@@ -36,11 +40,11 @@ export async function acceptRequest(requestId: string, studentId: string) {
     })
 
     if (!selection) {
-      throw new Error('You were not matched with this request')
+      throw new AppError(404, 'You were not matched with this request', 'NOT_MATCHED')
     }
 
     if (selection.status === 'accepted') {
-      throw new Error('You have already accepted this request')
+      throw new AppError(400, 'You have already accepted this request', 'ALREADY_ACCEPTED')
     }
 
     // Get student details
@@ -49,11 +53,11 @@ export async function acceptRequest(requestId: string, studentId: string) {
     })
 
     if (!student) {
-      throw new Error('Student not found')
+      throw new AppError(404, 'Student not found', 'STUDENT_NOT_FOUND')
     }
 
     if (student.status !== 'APPROVED') {
-      throw new Error('Your account must be approved to accept requests')
+      throw new AppError(403, 'Your account must be approved to accept requests', 'NOT_APPROVED')
     }
 
     // Update the selection to accepted
@@ -97,18 +101,42 @@ export async function acceptRequest(requestId: string, studentId: string) {
   })
 
   // Send notification emails (outside transaction)
-  try {
-    await Promise.all([
-      sendTouristAcceptanceNotification(
-        result.touristRequest.email,
-        result.student,
-        result.touristRequest
-      ),
-      sendStudentConfirmation(result.student, result.touristRequest),
-    ])
-  } catch (emailError) {
-    console.error('Error sending notification emails:', emailError)
-    // Don't fail the request if email fails
+  // Emails are non-critical, so failures won't break the booking flow
+  const emailResults = await Promise.allSettled([
+    sendTouristAcceptanceNotification(
+      result.touristRequest.email,
+      result.student,
+      result.touristRequest
+    ),
+    sendStudentConfirmation(result.student, result.touristRequest),
+  ])
+
+  // Log email send status
+  const [touristEmailResult, studentEmailResult] = emailResults
+
+  if (touristEmailResult.status === 'rejected') {
+    console.error('❌ Failed to send acceptance email to tourist:', touristEmailResult.reason)
+  } else if (!touristEmailResult.value.success) {
+    console.error('❌ Failed to send acceptance email to tourist:', touristEmailResult.value.error)
+  }
+
+  if (studentEmailResult.status === 'rejected') {
+    console.error('❌ Failed to send confirmation email to student:', studentEmailResult.reason)
+  } else if (!studentEmailResult.value.success) {
+    console.error('❌ Failed to send confirmation email to student:', studentEmailResult.value.error)
+  }
+
+  // Log success
+  const successCount = emailResults.filter(
+    (r) => r.status === 'fulfilled' && r.value.success
+  ).length
+
+  if (successCount === 2) {
+    console.log('✅ Both notification emails sent successfully')
+  } else if (successCount === 1) {
+    console.warn('⚠️  One notification email failed to send')
+  } else {
+    console.warn('⚠️  Both notification emails failed to send')
   }
 
   return result

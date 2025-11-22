@@ -1,48 +1,131 @@
 import 'server-only'
 import nodemailer from 'nodemailer'
 import type { Student, TouristRequest } from '@prisma/client'
+import { config } from '@/lib/config'
 
-// Helper function to get base URL - requires environment variable
+/**
+ * Email system with comprehensive error handling
+ *
+ * Features:
+ * - Graceful fallback to mock mode when email is not configured
+ * - Never crashes the calling code due to email failures
+ * - Clear logging of email send status
+ * - Safe handling of missing environment variables
+ */
+
+/**
+ * Get base URL safely with fallback
+ */
 function getBaseUrl(): string {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXTAUTH_URL;
+  const baseUrl = config.app.baseUrl
   if (!baseUrl) {
-    throw new Error('NEXT_PUBLIC_BASE_URL or NEXTAUTH_URL environment variable is required');
+    console.warn(
+      '⚠️  NEXT_PUBLIC_BASE_URL not configured - email links will use fallback'
+    )
+    return 'https://wandernest.com' // Fallback URL
   }
-  return baseUrl;
+  return baseUrl
 }
 
-// Mock mode - only enabled in development OR when email is not configured
-// In production, emails will be sent if EMAIL_HOST is configured
-const MOCK_EMAIL_MODE = process.env.NODE_ENV !== 'production' || !process.env.EMAIL_HOST
+/**
+ * Email transporter with configuration validation
+ */
+let transporter: nodemailer.Transporter | null = null
 
-const transporter = MOCK_EMAIL_MODE
-  ? null
-  : nodemailer.createTransport({
-      host: process.env.EMAIL_HOST,
-      port: parseInt(process.env.EMAIL_PORT || '587'),
-      secure: false,
+if (config.email.isConfigured) {
+  try {
+    transporter = nodemailer.createTransport({
+      host: config.email.host!,
+      port: config.email.port,
+      secure: false, // Use TLS
       auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
+        user: config.email.user!,
+        pass: config.email.pass!,
       },
+      // Add timeout to prevent hanging
+      connectionTimeout: 10000, // 10 seconds
+      greetingTimeout: 10000,
     })
+
+    if (config.app.isDevelopment) {
+      console.log('✅ Email transporter initialized')
+    }
+  } catch (error) {
+    console.error('❌ Failed to initialize email transporter:', error)
+    transporter = null
+  }
+} else {
+  if (config.app.isDevelopment) {
+    console.log('⚠️  Email not configured - using mock mode')
+  } else if (config.app.isProduction) {
+    console.warn(
+      '⚠️  WARNING: Email not configured in production - emails will not be sent'
+    )
+  }
+}
+
+/**
+ * Send email with comprehensive error handling
+ * Never throws - always returns success/failure status
+ */
+async function sendEmail(
+  options: {
+    to: string
+    subject: string
+    html: string
+  },
+  context: string
+): Promise<{ success: boolean; error?: string }> {
+  // Mock mode - log instead of sending
+  if (!transporter) {
+    if (config.app.isDevelopment) {
+      console.log('\n===========================================')
+      console.log(`📧 MOCK EMAIL - ${context}`)
+      console.log('===========================================')
+      console.log(`To: ${options.to}`)
+      console.log(`Subject: ${options.subject}`)
+      console.log('===========================================\n')
+    }
+    return { success: true } // Mock sends always "succeed"
+  }
+
+  // Production mode - actually send
+  try {
+    await transporter.sendMail({
+      from: config.email.from,
+      to: options.to,
+      subject: options.subject,
+      html: options.html,
+    })
+
+    if (config.app.isDevelopment) {
+      console.log(`✅ Email sent: ${context} to ${options.to}`)
+    }
+
+    return { success: true }
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+
+    console.error(`❌ Failed to send email: ${context}`)
+    console.error(`   To: ${options.to}`)
+    console.error(`   Error: ${errorMessage}`)
+
+    // Log full error in development
+    if (config.app.isDevelopment) {
+      console.error('   Full error:', error)
+    }
+
+    return {
+      success: false,
+      error: errorMessage,
+    }
+  }
+}
 
 export async function sendBookingConfirmation(
   email: string,
   requestId: string
-): Promise<void> {
-  // Mock mode - log only in development
-  if (MOCK_EMAIL_MODE) {
-    if (process.env.NODE_ENV === 'development') {
-      console.log('\n===========================================')
-      console.log('📧 MOCK EMAIL - Booking Confirmation')
-      console.log('===========================================')
-      console.log(`To: ${email}`)
-      console.log(`Request ID: ${requestId}`)
-      console.log('===========================================\n')
-    }
-    return
-  }
+): Promise<{ success: boolean; error?: string }> {
   const html = `
     <!DOCTYPE html>
     <html>
@@ -117,31 +200,20 @@ export async function sendBookingConfirmation(
     </html>
   `
 
-  await transporter!.sendMail({
-    from: process.env.EMAIL_FROM,
-    to: email,
-    subject: '✅ Booking Request Confirmed - TourWiseCo',
-    html,
-  })
+  return await sendEmail(
+    {
+      to: email,
+      subject: '✅ Booking Request Confirmed - TourWiseCo',
+      html,
+    },
+    'Booking Confirmation'
+  )
 }
 
 export async function sendStudentRequestNotification(
   student: Student,
   touristRequest: TouristRequest
-): Promise<void> {
-  // Mock mode - log only in development
-  if (MOCK_EMAIL_MODE) {
-    if (process.env.NODE_ENV === 'development') {
-      console.log('\n===========================================')
-      console.log('📧 MOCK EMAIL - Student Request Notification')
-      console.log('===========================================')
-      console.log(`To: ${student.email}`)
-      console.log(`Student: ${student.name}`)
-      console.log(`Request: ${touristRequest.city} - ${touristRequest.serviceType}`)
-      console.log('===========================================\n')
-    }
-    return
-  }
+): Promise<{ success: boolean; error?: string }> {
   const dates = touristRequest.dates as { start: string; end?: string }
   const startDate = new Date(dates.start).toLocaleDateString('en-US', {
     month: 'long',
@@ -298,32 +370,21 @@ export async function sendStudentRequestNotification(
     </html>
   `
 
-  await transporter!.sendMail({
-    from: process.env.EMAIL_FROM,
-    to: student.email,
-    subject: `🎉 New Request: ${touristRequest.serviceType === 'itinerary_help' ? 'Itinerary Help' : 'Guided Experience'} in ${touristRequest.city}`,
-    html,
-  })
+  return await sendEmail(
+    {
+      to: student.email,
+      subject: `🎉 New Request: ${touristRequest.serviceType === 'itinerary_help' ? 'Itinerary Help' : 'Guided Experience'} in ${touristRequest.city}`,
+      html,
+    },
+    'Student Request Notification'
+  )
 }
 
 export async function sendTouristAcceptanceNotification(
   touristEmail: string,
   student: Student,
   touristRequest: TouristRequest
-): Promise<void> {
-  // Mock mode - log only in development
-  if (MOCK_EMAIL_MODE) {
-    if (process.env.NODE_ENV === 'development') {
-      console.log('\n===========================================')
-      console.log('📧 MOCK EMAIL - Tourist Acceptance Notification')
-      console.log('===========================================')
-      console.log(`To: ${touristEmail}`)
-      console.log(`Guide: ${student.name}`)
-      console.log(`City: ${touristRequest.city}`)
-      console.log('===========================================\n')
-    }
-    return
-  }
+): Promise<{ success: boolean; error?: string }> {
   const dates = touristRequest.dates as { start: string; end?: string }
   const startDate = new Date(dates.start).toLocaleDateString('en-US', {
     month: 'long',
@@ -430,28 +491,20 @@ export async function sendTouristAcceptanceNotification(
     </html>
   `
 
-  await transporter!.sendMail({
-    from: process.env.EMAIL_FROM,
-    to: touristEmail,
-    subject: `🎉 Your student guide in ${touristRequest.city} has accepted!`,
-    html,
-  })
+  return await sendEmail(
+    {
+      to: touristEmail,
+      subject: `🎉 Your student guide in ${touristRequest.city} has accepted!`,
+      html,
+    },
+    'Tourist Acceptance Notification'
+  )
 }
 
 export async function sendVerificationEmail(
   email: string,
   code: string
-): Promise<void> {
-  // Mock mode - just log
-  if (MOCK_EMAIL_MODE) {
-    console.log('\n===========================================')
-    console.log('📧 MOCK EMAIL - Verification Code')
-    console.log('===========================================')
-    console.log(`To: ${email}`)
-    console.log(`Code: ${code}`)
-    console.log('===========================================\n')
-    return
-  }
+): Promise<{ success: boolean; error?: string }> {
 
   const html = `
     <!DOCTYPE html>
@@ -518,31 +571,20 @@ export async function sendVerificationEmail(
     </html>
   `
 
-  await transporter!.sendMail({
-    from: process.env.EMAIL_FROM,
-    to: email,
-    subject: 'Your TourWiseCo Verification Code',
-    html,
-  })
+  return await sendEmail(
+    {
+      to: email,
+      subject: 'Your TourWiseCo Verification Code',
+      html,
+    },
+    'Verification Email'
+  )
 }
 
 export async function sendStudentConfirmation(
   student: any,
   touristRequest: any
-): Promise<void> {
-  // Mock mode - log only in development
-  if (MOCK_EMAIL_MODE) {
-    if (process.env.NODE_ENV === 'development') {
-      console.log('\n===========================================')
-      console.log('📧 MOCK EMAIL - Student Confirmation')
-      console.log('===========================================')
-      console.log(`To: ${student.email}`)
-      console.log(`Tourist: ${touristRequest.email}`)
-      console.log(`City: ${touristRequest.city}`)
-      console.log('===========================================\n')
-    }
-    return
-  }
+): Promise<{ success: boolean; error?: string }> {
   const dates = touristRequest.dates as { start: string; end?: string }
   const startDate = new Date(dates.start).toLocaleDateString('en-US', {
     month: 'long',
@@ -629,10 +671,12 @@ export async function sendStudentConfirmation(
     </html>
   `
 
-  await transporter!.sendMail({
-    from: process.env.EMAIL_FROM,
-    to: student.email,
-    subject: '✅ You Got the Job! Tourist Contact Details',
-    html,
-  })
+  return await sendEmail(
+    {
+      to: student.email,
+      subject: '✅ You Got the Job! Tourist Contact Details',
+      html,
+    },
+    'Student Confirmation'
+  )
 }

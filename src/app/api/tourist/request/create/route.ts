@@ -122,8 +122,12 @@ async function createTouristRequest(req: NextRequest) {
       })
     );
 
-    // Send booking confirmation email
-    await sendBookingConfirmation(session.user.email, touristRequest.id);
+    // Send booking confirmation email (non-critical)
+    const emailResult = await sendBookingConfirmation(session.user.email, touristRequest.id)
+    if (!emailResult.success) {
+      console.warn('⚠️  Failed to send booking confirmation email:', emailResult.error)
+      // Continue anyway - email is not critical for the booking
+    }
   } else {
     // Database not available - use in-memory storage for demo
     const requestId = `demo-request-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
