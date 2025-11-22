@@ -251,6 +251,8 @@ async function handleContactSubmission(req: NextRequest) {
 
   // Validate input
   const validatedData = contactSchema.parse(body)
+  const prisma = requireDatabase()
+
 
   // Save to database
   const contactMessage = await withDatabaseRetry(async () =>

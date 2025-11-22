@@ -23,7 +23,7 @@ const nextConfig = {
 
   // Experimental features for better optimization
   experimental: {
-    // Optimize package imports to reduce bundle size
+    // Optimize package imports to reduce bundle size (stable in Next.js 14)
     optimizePackageImports: [
       'lucide-react',
       '@radix-ui/react-select',
@@ -36,8 +36,6 @@ const nextConfig = {
       'react-hook-form',
       'zod',
     ],
-    // Optimize CSS bundle size
-    optimizeCss: true,
   },
 
   // Modularize imports to reduce initial bundle size

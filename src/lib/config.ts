@@ -42,12 +42,6 @@ export interface AppConfig {
     }
   }
   payment: {
-    razorpay: {
-      keyId: string | null
-      keySecret: string | null
-      webhookSecret: string | null
-      isConfigured: boolean
-    }
     discoveryFee: number
   }
   app: {
@@ -153,17 +147,6 @@ function loadConfig(): AppConfig {
   }
 
   // Payment configuration
-  const razorpayKeyId = process.env.RAZORPAY_KEY_ID || null
-  const razorpayKeySecret = process.env.RAZORPAY_KEY_SECRET || null
-  const razorpayWebhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET || null
-  const isPaymentConfigured = !!(razorpayKeyId && razorpayKeySecret)
-
-  if (!isPaymentConfigured && isProduction) {
-    configWarnings.push(
-      'Razorpay is not configured - payment processing will not work'
-    )
-  }
-
   const discoveryFee = parseFloat(process.env.DISCOVERY_FEE_AMOUNT || '99.00')
 
   // App configuration
@@ -214,12 +197,6 @@ function loadConfig(): AppConfig {
       },
     },
     payment: {
-      razorpay: {
-        keyId: razorpayKeyId,
-        keySecret: razorpayKeySecret,
-        webhookSecret: razorpayWebhookSecret,
-        isConfigured: isPaymentConfigured,
-      },
       discoveryFee,
     },
     app: {
@@ -250,7 +227,6 @@ export function logConfigStatus(): void {
   console.log(`  Email:        ${config.email.isConfigured ? '✅ Configured' : '⚠️  Not configured'}`)
   console.log(`  Google Auth:  ${config.auth.google.isConfigured ? '✅ Configured' : '❌ Not configured'}`)
   console.log(`  NextAuth:     ${config.auth.nextAuth.isConfigured ? '✅ Configured' : '⚠️  Partial config'}`)
-  console.log(`  Payment:      ${config.payment.razorpay.isConfigured ? '✅ Configured' : '⚠️  Not configured'}`)
   console.log(`  Redis Cache:  ${config.redis.isConfigured ? '✅ Configured' : '⚠️  Using in-memory'}`)
 
   if (configWarnings.length > 0) {
@@ -295,7 +271,6 @@ export function getConfigSummary() {
       database: config.database.isAvailable ? 'connected' : 'unavailable',
       email: config.email.isConfigured ? 'configured' : 'not_configured',
       googleAuth: config.auth.google.isConfigured ? 'configured' : 'not_configured',
-      payment: config.payment.razorpay.isConfigured ? 'configured' : 'not_configured',
       redis: config.redis.isConfigured ? 'configured' : 'not_configured',
     },
     warnings: configWarnings.length,

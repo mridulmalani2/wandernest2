@@ -9,6 +9,8 @@ import { verifyTourist } from '@/lib/middleware'
 export async function GET(request: NextRequest) {
   const db = requireDatabase()
   const authResult = await verifyTourist(request)
+  const prisma = requireDatabase()
+
 
   if (!authResult.authorized) {
     return NextResponse.json(
@@ -18,6 +20,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
+
     const email = authResult.tourist?.email
 
     if (!email) {

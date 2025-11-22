@@ -15,6 +15,9 @@ async function adminLogin(request: NextRequest) {
     throw new AppError(400, 'Email and password are required', 'MISSING_CREDENTIALS')
   }
 
+  // Ensure database is available
+  const prisma = requireDatabase()
+
   // Find admin by email
   const admin = await withDatabaseRetry(async () =>
     db.admin.findUnique({

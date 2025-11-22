@@ -175,6 +175,8 @@ function extractTags(student: { coverLetter: string | null; bio: string | null }
 
 export async function POST(req: NextRequest) {
   try {
+      const prisma = requireDatabase()
+
     const body = await req.json()
     const { requestId } = body
 
