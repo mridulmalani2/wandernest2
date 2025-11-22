@@ -51,3 +51,88 @@ function getRedisClient(): Redis | null {
   }
 }
 
+// Store verification code in Redis with TTL
+export async function storeVerificationCode(
+  email: string,
+  code: string,
+  ttlSeconds: number = 600
+): Promise<void> {
+  const client = getRedisClient()
+  if (!client) {
+    console.warn('Redis not configured, skipping verification code storage')
+    return
+  }
+
+  const key = `verification:${email}`
+  const data = {
+    code,
+    attempts: 0,
+    createdAt: Date.now(),
+  }
+
+  await client.setex(key, ttlSeconds, JSON.stringify(data))
+}
+
+// Get verification data from Redis
+export async function getVerificationData(
+  email: string
+): Promise<{ code: string; attempts: number } | null> {
+  const client = getRedisClient()
+  if (!client) {
+    console.warn('Redis not configured, cannot retrieve verification data')
+    return null
+  }
+
+  const key = `verification:${email}`
+  const data = await client.get(key)
+
+  if (!data) {
+    return null
+  }
+
+  const parsed = JSON.parse(data)
+  return {
+    code: parsed.code,
+    attempts: parsed.attempts || 0,
+  }
+}
+
+// Increment verification attempts
+export async function incrementVerificationAttempts(email: string): Promise<number> {
+  const client = getRedisClient()
+  if (!client) {
+    console.warn('Redis not configured, cannot increment attempts')
+    return 0
+  }
+
+  const key = `verification:${email}`
+  const data = await client.get(key)
+
+  if (!data) {
+    return 0
+  }
+
+  const parsed = JSON.parse(data)
+  parsed.attempts = (parsed.attempts || 0) + 1
+
+  // Get remaining TTL and preserve it
+  const ttl = await client.ttl(key)
+  if (ttl > 0) {
+    await client.setex(key, ttl, JSON.stringify(parsed))
+  }
+
+  return parsed.attempts
+}
+
+// Delete verification code
+export async function deleteVerificationCode(email: string): Promise<void> {
+  const client = getRedisClient()
+  if (!client) {
+    console.warn('Redis not configured, cannot delete verification code')
+    return
+  }
+
+  const key = `verification:${email}`
+  await client.del(key)
+}
+

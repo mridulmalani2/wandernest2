@@ -431,6 +431,94 @@ export async function sendTouristAcceptanceNotification(
   })
 }
 
+export async function sendVerificationEmail(
+  email: string,
+  code: string
+): Promise<void> {
+  // Mock mode - just log
+  if (MOCK_EMAIL_MODE) {
+    console.log('\n===========================================')
+    console.log('📧 MOCK EMAIL - Verification Code')
+    console.log('===========================================')
+    console.log(`To: ${email}`)
+    console.log(`Code: ${code}`)
+    console.log('===========================================\n')
+    return
+  }
+
+  const html = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <style>
+          body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+          }
+          .header {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            border-radius: 10px 10px 0 0;
+          }
+          .content {
+            background: #f9fafb;
+            padding: 30px;
+            border: 1px solid #e5e7eb;
+            border-top: none;
+            border-radius: 0 0 10px 10px;
+          }
+          .code-box {
+            background: white;
+            border: 2px solid #3b82f6;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+          }
+          .code {
+            font-size: 32px;
+            font-weight: bold;
+            letter-spacing: 8px;
+            color: #3b82f6;
+            font-family: monospace;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <h1 style="margin: 0;">Your Verification Code</h1>
+        </div>
+        <div class="content">
+          <p>Please use the following code to verify your email address:</p>
+
+          <div class="code-box">
+            <div class="code">${code}</div>
+          </div>
+
+          <p>This code will expire in 10 minutes.</p>
+          <p>If you didn't request this code, please ignore this email.</p>
+
+          <p>Best regards,<br>The WanderNest Team</p>
+        </div>
+      </body>
+    </html>
+  `
+
+  await transporter!.sendMail({
+    from: process.env.EMAIL_FROM,
+    to: email,
+    subject: 'Your WanderNest Verification Code',
+    html,
+  })
+}
+
 export async function sendStudentConfirmation(
   student: any,
   touristRequest: any
