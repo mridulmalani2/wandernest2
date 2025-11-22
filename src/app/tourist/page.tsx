@@ -83,8 +83,8 @@ export default function TouristLanding() {
                 </p>
               </div>
               <div className="grid md:grid-cols-3 gap-6 lg:gap-8 max-w-6xl mx-auto">
-                <div className="group bg-white/95 backdrop-blur-xl rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 border border-white/40 hover:border-ui-blue-primary/50 hover:-translate-y-1 relative overflow-hidden">
-                  <div className="absolute inset-0 opacity-5 group-hover:opacity-10 transition-opacity duration-500">
+                <div className="group rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 relative overflow-hidden h-full">
+                  <div className="absolute inset-0">
                     <Image
                       src="https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=800&q=80"
                       alt="University students studying together with books and laptops"
@@ -94,22 +94,23 @@ export default function TouristLanding() {
                       className="object-cover"
                       loading="lazy"
                     />
+                    <div className="absolute inset-0 bg-black/40"></div>
                   </div>
-                  <div className="relative z-10 p-8">
+                  <div className="relative z-10 p-8 h-full backdrop-blur-sm bg-white/10 border border-white/20 rounded-2xl group-hover:bg-white/15 transition-all">
                     <div className="inline-flex p-4 rounded-2xl bg-gradient-to-br from-ui-blue-primary to-ui-blue-accent text-white mb-6 group-hover:scale-105 transition-all duration-300 shadow-md">
                       <GraduationCap className="w-8 h-8" />
                     </div>
-                    <h3 className="text-xl font-bold mb-3 text-gray-900 group-hover:text-ui-blue-primary transition-colors">
+                    <h3 className="text-xl font-bold mb-3 text-white group-hover:text-ui-blue-accent transition-colors">
                       Verified Students
                     </h3>
-                    <p className="text-base text-gray-700 leading-relaxed">
+                    <p className="text-base text-white/90 leading-relaxed">
                       All guides are verified university students with local knowledge
                     </p>
                   </div>
                 </div>
 
-                <div className="group bg-white/95 backdrop-blur-xl rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 border border-white/40 hover:border-ui-purple-primary/50 hover:-translate-y-1 relative overflow-hidden">
-                  <div className="absolute inset-0 opacity-5 group-hover:opacity-10 transition-opacity duration-500">
+                <div className="group rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 relative overflow-hidden h-full">
+                  <div className="absolute inset-0">
                     <Image
                       src="https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=800&q=80"
                       alt="Cozy Parisian cafe with authentic ambiance"
@@ -119,22 +120,23 @@ export default function TouristLanding() {
                       className="object-cover"
                       loading="lazy"
                     />
+                    <div className="absolute inset-0 bg-black/40"></div>
                   </div>
-                  <div className="relative z-10 p-8">
+                  <div className="relative z-10 p-8 h-full backdrop-blur-sm bg-white/10 border border-white/20 rounded-2xl group-hover:bg-white/15 transition-all">
                     <div className="inline-flex p-4 rounded-2xl bg-gradient-to-br from-ui-purple-primary to-ui-purple-accent text-white mb-6 group-hover:scale-105 transition-all duration-300 shadow-md">
                       <MessageCircle className="w-8 h-8" />
                     </div>
-                    <h3 className="text-xl font-bold mb-3 text-gray-900 group-hover:text-ui-purple-primary transition-colors">
+                    <h3 className="text-xl font-bold mb-3 text-white group-hover:text-ui-purple-accent transition-colors">
                       Personalized Experience
                     </h3>
-                    <p className="text-base text-gray-700 leading-relaxed">
+                    <p className="text-base text-white/90 leading-relaxed">
                       Get custom itineraries based on your interests and preferences
                     </p>
                   </div>
                 </div>
 
-                <div className="group bg-white/95 backdrop-blur-xl rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 border border-white/40 hover:border-amber-500/50 hover:-translate-y-1 relative overflow-hidden">
-                  <div className="absolute inset-0 opacity-5 group-hover:opacity-10 transition-opacity duration-500">
+                <div className="group rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 relative overflow-hidden h-full">
+                  <div className="absolute inset-0">
                     <Image
                       src="https://images.unsplash.com/photo-1533929736458-ca588d08c8be?w=800&q=80"
                       alt="Iconic London bridge and cityscape"
@@ -144,15 +146,16 @@ export default function TouristLanding() {
                       className="object-cover"
                       loading="lazy"
                     />
+                    <div className="absolute inset-0 bg-black/40"></div>
                   </div>
-                  <div className="relative z-10 p-8">
+                  <div className="relative z-10 p-8 h-full backdrop-blur-sm bg-white/10 border border-white/20 rounded-2xl group-hover:bg-white/15 transition-all">
                     <div className="inline-flex p-4 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-500 text-white mb-6 group-hover:scale-105 transition-all duration-300 shadow-md">
                       <Star className="w-8 h-8" />
                     </div>
-                    <h3 className="text-xl font-bold mb-3 text-gray-900 group-hover:text-amber-600 transition-colors">
+                    <h3 className="text-xl font-bold mb-3 text-white group-hover:text-amber-300 transition-colors">
                       Authentic Adventures
                     </h3>
-                    <p className="text-base text-gray-700 leading-relaxed">
+                    <p className="text-base text-white/90 leading-relaxed">
                       Discover hidden gems and local favorites off the beaten path
                     </p>
                   </div>
@@ -166,19 +169,9 @@ export default function TouristLanding() {
 
               {/* Desktop Timeline */}
               <div className="hidden md:block relative max-w-4xl mx-auto">
-                {/* Connecting Line */}
-                <div className="absolute top-16 left-0 right-0 h-0.5 bg-gradient-to-r from-ui-blue-primary via-ui-purple-primary to-ui-success opacity-20"
-                     style={{marginLeft: '10%', marginRight: '10%'}}></div>
-
-                <div className="grid md:grid-cols-3 gap-8 relative z-10">
+                <div className="grid md:grid-cols-3 gap-8">
                   {/* Step 1 */}
-                  <div className="text-center space-y-4 group">
-                    <div className="relative mx-auto w-32 h-32 gradient-ocean rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl group-hover:scale-105 transition-all duration-300">
-                      <div className="absolute -top-2 -right-2 w-10 h-10 bg-white rounded-full flex items-center justify-center text-ui-blue-primary font-bold text-lg shadow-md">
-                        1
-                      </div>
-                      <Send className="w-12 h-12 text-white" strokeWidth={1.5} />
-                    </div>
+                  <div className="text-center group">
                     <div className="min-h-[120px] space-y-2 backdrop-blur-sm bg-white/10 rounded-xl p-5 border border-white/20 group-hover:bg-white/20 transition-all">
                       <h3 className="font-bold text-lg text-white">Submit Your Request</h3>
                       <p className="text-sm text-white/90 leading-relaxed">
@@ -188,13 +181,7 @@ export default function TouristLanding() {
                   </div>
 
                   {/* Step 2 */}
-                  <div className="text-center space-y-4 group">
-                    <div className="relative mx-auto w-32 h-32 gradient-vibrant rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl group-hover:scale-105 transition-all duration-300">
-                      <div className="absolute -top-2 -right-2 w-10 h-10 bg-white rounded-full flex items-center justify-center text-ui-purple-primary font-bold text-lg shadow-md">
-                        2
-                      </div>
-                      <Users className="w-12 h-12 text-white" strokeWidth={1.5} />
-                    </div>
+                  <div className="text-center group">
                     <div className="min-h-[120px] space-y-2 backdrop-blur-sm bg-white/10 rounded-xl p-5 border border-white/20 group-hover:bg-white/20 transition-all">
                       <h3 className="font-bold text-lg text-white">Get Matched with Guides</h3>
                       <p className="text-sm text-white/90 leading-relaxed">
@@ -204,13 +191,7 @@ export default function TouristLanding() {
                   </div>
 
                   {/* Step 3 */}
-                  <div className="text-center space-y-4 group">
-                    <div className="relative mx-auto w-32 h-32 bg-gradient-to-br from-ui-success to-emerald-500 rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl group-hover:scale-105 transition-all duration-300">
-                      <div className="absolute -top-2 -right-2 w-10 h-10 bg-white rounded-full flex items-center justify-center text-ui-success font-bold text-lg shadow-md">
-                        3
-                      </div>
-                      <PartyPopper className="w-12 h-12 text-white" strokeWidth={1.5} />
-                    </div>
+                  <div className="text-center group">
                     <div className="min-h-[120px] space-y-2 backdrop-blur-sm bg-white/10 rounded-xl p-5 border border-white/20 group-hover:bg-white/20 transition-all">
                       <h3 className="font-bold text-lg text-white">Experience the City</h3>
                       <p className="text-sm text-white/90 leading-relaxed">
@@ -222,61 +203,29 @@ export default function TouristLanding() {
               </div>
 
               {/* Mobile Vertical Timeline */}
-              <div className="md:hidden space-y-6 max-w-md mx-auto">
+              <div className="md:hidden space-y-4 max-w-md mx-auto">
                 {/* Step 1 */}
-                <div className="relative flex gap-4 group">
-                  <div className="flex flex-col items-center">
-                    <div className="relative w-16 h-16 gradient-ocean rounded-xl flex items-center justify-center shadow-lg shrink-0 group-hover:scale-105 transition-transform">
-                      <Send className="w-8 h-8 text-white" strokeWidth={1.5} />
-                      <div className="absolute -top-1.5 -right-1.5 w-7 h-7 bg-white rounded-full flex items-center justify-center text-ui-blue-primary font-bold text-xs shadow-md">
-                        1
-                      </div>
-                    </div>
-                    <div className="w-0.5 flex-1 bg-gradient-to-b from-ui-blue-primary to-ui-purple-primary opacity-20 my-3"></div>
-                  </div>
-                  <div className="flex-1 pt-1 space-y-2 backdrop-blur-sm bg-white/10 rounded-xl p-4 border border-white/20">
-                    <h3 className="font-bold text-base text-white">Submit Your Request</h3>
-                    <p className="text-sm text-white/90 leading-relaxed">
-                      Tell us about your trip preferences, dates, and interests
-                    </p>
-                  </div>
+                <div className="space-y-2 backdrop-blur-sm bg-white/10 rounded-xl p-4 border border-white/20">
+                  <h3 className="font-bold text-base text-white">Submit Your Request</h3>
+                  <p className="text-sm text-white/90 leading-relaxed">
+                    Tell us about your trip preferences, dates, and interests
+                  </p>
                 </div>
 
                 {/* Step 2 */}
-                <div className="relative flex gap-4 group">
-                  <div className="flex flex-col items-center">
-                    <div className="relative w-16 h-16 gradient-vibrant rounded-xl flex items-center justify-center shadow-lg shrink-0 group-hover:scale-105 transition-transform">
-                      <Users className="w-8 h-8 text-white" strokeWidth={1.5} />
-                      <div className="absolute -top-1.5 -right-1.5 w-7 h-7 bg-white rounded-full flex items-center justify-center text-ui-purple-primary font-bold text-xs shadow-md">
-                        2
-                      </div>
-                    </div>
-                    <div className="w-0.5 flex-1 bg-gradient-to-b from-ui-purple-primary to-ui-success opacity-20 my-3"></div>
-                  </div>
-                  <div className="flex-1 pt-1 space-y-2 backdrop-blur-sm bg-white/10 rounded-xl p-4 border border-white/20">
-                    <h3 className="font-bold text-base text-white">Get Matched with Guides</h3>
-                    <p className="text-sm text-white/90 leading-relaxed">
-                      We match you with verified student guides who fit your needs
-                    </p>
-                  </div>
+                <div className="space-y-2 backdrop-blur-sm bg-white/10 rounded-xl p-4 border border-white/20">
+                  <h3 className="font-bold text-base text-white">Get Matched with Guides</h3>
+                  <p className="text-sm text-white/90 leading-relaxed">
+                    We match you with verified student guides who fit your needs
+                  </p>
                 </div>
 
                 {/* Step 3 */}
-                <div className="relative flex gap-4 group">
-                  <div className="flex flex-col items-center">
-                    <div className="relative w-16 h-16 bg-gradient-to-br from-ui-success to-emerald-500 rounded-xl flex items-center justify-center shadow-lg shrink-0 group-hover:scale-105 transition-transform">
-                      <PartyPopper className="w-8 h-8 text-white" strokeWidth={1.5} />
-                      <div className="absolute -top-1.5 -right-1.5 w-7 h-7 bg-white rounded-full flex items-center justify-center text-ui-success font-bold text-xs shadow-md">
-                        3
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex-1 pt-1 space-y-2 backdrop-blur-sm bg-white/10 rounded-xl p-4 border border-white/20">
-                    <h3 className="font-bold text-base text-white">Experience the City</h3>
-                    <p className="text-sm text-white/90 leading-relaxed">
-                      Connect directly with your guide and enjoy an authentic local experience
-                    </p>
-                  </div>
+                <div className="space-y-2 backdrop-blur-sm bg-white/10 rounded-xl p-4 border border-white/20">
+                  <h3 className="font-bold text-base text-white">Experience the City</h3>
+                  <p className="text-sm text-white/90 leading-relaxed">
+                    Connect directly with your guide and enjoy an authentic local experience
+                  </p>
                 </div>
               </div>
             </div>
