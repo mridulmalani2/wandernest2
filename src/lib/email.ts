@@ -30,14 +30,16 @@ export async function sendBookingConfirmation(
   email: string,
   requestId: string
 ): Promise<void> {
-  // Mock mode - just log
+  // Mock mode - log only in development
   if (MOCK_EMAIL_MODE) {
-    console.log('\n===========================================')
-    console.log('📧 MOCK EMAIL - Booking Confirmation')
-    console.log('===========================================')
-    console.log(`To: ${email}`)
-    console.log(`Request ID: ${requestId}`)
-    console.log('===========================================\n')
+    if (process.env.NODE_ENV === 'development') {
+      console.log('\n===========================================')
+      console.log('📧 MOCK EMAIL - Booking Confirmation')
+      console.log('===========================================')
+      console.log(`To: ${email}`)
+      console.log(`Request ID: ${requestId}`)
+      console.log('===========================================\n')
+    }
     return
   }
   const html = `
@@ -126,15 +128,17 @@ export async function sendStudentRequestNotification(
   student: any,
   touristRequest: any
 ): Promise<void> {
-  // Mock mode - just log
+  // Mock mode - log only in development
   if (MOCK_EMAIL_MODE) {
-    console.log('\n===========================================')
-    console.log('📧 MOCK EMAIL - Student Request Notification')
-    console.log('===========================================')
-    console.log(`To: ${student.email}`)
-    console.log(`Student: ${student.name}`)
-    console.log(`Request: ${touristRequest.city} - ${touristRequest.serviceType}`)
-    console.log('===========================================\n')
+    if (process.env.NODE_ENV === 'development') {
+      console.log('\n===========================================')
+      console.log('📧 MOCK EMAIL - Student Request Notification')
+      console.log('===========================================')
+      console.log(`To: ${student.email}`)
+      console.log(`Student: ${student.name}`)
+      console.log(`Request: ${touristRequest.city} - ${touristRequest.serviceType}`)
+      console.log('===========================================\n')
+    }
     return
   }
   const dates = touristRequest.dates as { start: string; end?: string }
@@ -306,15 +310,17 @@ export async function sendTouristAcceptanceNotification(
   student: any,
   touristRequest: any
 ): Promise<void> {
-  // Mock mode - just log
+  // Mock mode - log only in development
   if (MOCK_EMAIL_MODE) {
-    console.log('\n===========================================')
-    console.log('📧 MOCK EMAIL - Tourist Acceptance Notification')
-    console.log('===========================================')
-    console.log(`To: ${touristEmail}`)
-    console.log(`Guide: ${student.name}`)
-    console.log(`City: ${touristRequest.city}`)
-    console.log('===========================================\n')
+    if (process.env.NODE_ENV === 'development') {
+      console.log('\n===========================================')
+      console.log('📧 MOCK EMAIL - Tourist Acceptance Notification')
+      console.log('===========================================')
+      console.log(`To: ${touristEmail}`)
+      console.log(`Guide: ${student.name}`)
+      console.log(`City: ${touristRequest.city}`)
+      console.log('===========================================\n')
+    }
     return
   }
   const dates = touristRequest.dates as { start: string; end?: string }
@@ -435,15 +441,17 @@ export async function sendStudentConfirmation(
   student: any,
   touristRequest: any
 ): Promise<void> {
-  // Mock mode - just log
+  // Mock mode - log only in development
   if (MOCK_EMAIL_MODE) {
-    console.log('\n===========================================')
-    console.log('📧 MOCK EMAIL - Student Confirmation')
-    console.log('===========================================')
-    console.log(`To: ${student.email}`)
-    console.log(`Tourist: ${touristRequest.email}`)
-    console.log(`City: ${touristRequest.city}`)
-    console.log('===========================================\n')
+    if (process.env.NODE_ENV === 'development') {
+      console.log('\n===========================================')
+      console.log('📧 MOCK EMAIL - Student Confirmation')
+      console.log('===========================================')
+      console.log(`To: ${student.email}`)
+      console.log(`Tourist: ${touristRequest.email}`)
+      console.log(`City: ${touristRequest.city}`)
+      console.log('===========================================\n')
+    }
     return
   }
   const dates = touristRequest.dates as { start: string; end?: string }

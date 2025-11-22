@@ -220,9 +220,6 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    // TODO: Send email notification to student
-    // TODO: Send notification to admin team for review
-
     return NextResponse.json({
       success: true,
       studentId: student.id,
