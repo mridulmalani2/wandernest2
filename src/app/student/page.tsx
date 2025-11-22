@@ -94,10 +94,10 @@ export default function StudentLandingPage() {
               <div className="absolute inset-0 bg-white/5 backdrop-blur-xl" />
               <div className="relative z-10 p-8 md:p-12 lg:p-16">
                 <div className="text-center space-y-3 mb-12">
-                  <h2 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-gray-900">
+                  <h2 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-white text-shadow-lg">
                     Why Guide with WanderNest?
                   </h2>
-                  <p className="text-base md:text-lg text-gray-600 max-w-2xl mx-auto">
+                  <p className="text-base md:text-lg text-white/95 max-w-2xl mx-auto text-shadow">
                     Turn your local knowledge into income while building meaningful connections
                   </p>
                 </div>
