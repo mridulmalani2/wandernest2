@@ -85,7 +85,7 @@ export async function POST(req: NextRequest) {
 
     // Send notification emails to all selected students
     const notificationResults = await Promise.allSettled(
-      students.map((student) =>
+      students.map((student: any) =>
         sendStudentRequestNotification(student, touristRequest)
       )
     )

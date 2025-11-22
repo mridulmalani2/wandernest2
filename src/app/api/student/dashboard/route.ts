@@ -6,6 +6,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { cache } from '@/lib/cache'
 import { CACHE_TTL } from '@/lib/constants'
+import { withErrorHandler, AppError } from '@/lib/error-handler'
 
 async function getStudentDashboard(req: NextRequest) {
   // Get student identifier from query parameters (email or ID)
@@ -33,10 +34,9 @@ async function getStudentDashboard(req: NextRequest) {
         languages: true,
         interests: true,
       },
-      { ttl: CACHE_TTL.DASHBOARD }
-    )
+    })
 
-    if (!dashboardData) {
+    if (!student) {
       return NextResponse.json(
         { error: 'Student not found' },
         { status: 404 }
@@ -154,7 +154,7 @@ async function getStudentDashboard(req: NextRequest) {
       averageRating: student.averageRating || 0,
       tripsHosted: student.tripsHosted,
     },
-    acceptedBookings: acceptedBookings.map((booking) => ({
+    acceptedBookings: acceptedBookings.map((booking: any) => ({
       id: booking.id,
       requestId: booking.requestId,
       status: booking.status,
@@ -177,7 +177,7 @@ async function getStudentDashboard(req: NextRequest) {
         status: booking.request.status,
       },
     })),
-    pendingRequests: pendingRequests.map((request) => ({
+    pendingRequests: pendingRequests.map((request: any) => ({
       id: request.id,
       requestId: request.requestId,
       status: request.status,
@@ -195,42 +195,21 @@ async function getStudentDashboard(req: NextRequest) {
         budget: request.request.budget,
         expiresAt: request.request.expiresAt,
       },
-      acceptedBookings: acceptedBookings.map((booking: { id: string; requestId: string; status: string; pricePaid: number | null; acceptedAt: Date | null; request: { id: string; city: string; dates: unknown; numberOfGuests: number; groupType: string; serviceType: string; interests: string[]; preferredTime: string; tripNotes: string | null; email: string; phone: string | null; whatsapp: string | null; contactMethod: string | null; status: string } }) => ({
-        id: booking.id,
-        requestId: booking.requestId,
-        status: booking.status,
-        pricePaid: booking.pricePaid,
-        acceptedAt: booking.acceptedAt,
-        request: booking.request,
-      })),
-      pendingRequests: pendingRequests.map((request: { id: string; requestId: string; status: string; createdAt: Date; request: { id: string; city: string; dates: unknown; numberOfGuests: number; groupType: string; serviceType: string; interests: string[]; preferredTime: string; tripNotes: string | null; expiresAt: Date; budget: number | null } }) => ({
-        id: request.id,
-        requestId: request.requestId,
-        status: request.status,
-        createdAt: request.createdAt,
-        request: request.request,
-      })),
-      reviews: reviews.map((review) => ({
-        id: review.id,
-        rating: review.rating,
-        text: review.text,
-        createdAt: review.createdAt,
-        noShow: review.noShow,
-        request: {
-          city: review.request.city,
-          dates: review.request.dates,
-          serviceType: review.request.serviceType,
-        },
-      })),
-      availability: availability,
-    })
-  } catch (error) {
-    console.error('Error fetching student dashboard:', error)
-    return NextResponse.json(
-      { error: 'Failed to fetch dashboard data' },
-      { status: 500 }
-    )
-  }
+    })),
+    reviews: reviews.map((review: any) => ({
+      id: review.id,
+      rating: review.rating,
+      text: review.text,
+      createdAt: review.createdAt,
+      noShow: review.noShow,
+      request: {
+        city: review.request.city,
+        dates: review.request.dates,
+        serviceType: review.request.serviceType,
+      },
+    })),
+    availability: availability,
+  })
 }
 
 export const GET = withErrorHandler(getStudentDashboard, 'GET /api/student/dashboard');

@@ -42,7 +42,7 @@ export default function BookingPage() {
               Tell us about your trip and we'll match you with the perfect local student
               guide
             </p>
-          </section>
+          </div>
 
           {/* Marketplace Disclaimer - Optimized for mobile: responsive padding and spacing */}
           <div className="glass-frosted bg-gradient-to-br from-ui-warning/10 to-ui-warning/5 border-2 border-ui-warning rounded-2xl p-4 md:p-6 mb-6 md:mb-8 max-w-4xl mx-auto shadow-premium hover-lift animate-fade-in-up delay-100">
@@ -57,7 +57,7 @@ export default function BookingPage() {
                 </p>
               </div>
             </div>
-          </section>
+          </div>
 
           <div className="relative">
             <BookingForm />

@@ -20,6 +20,11 @@ class CacheManager {
       return this.isRedisAvailable;
     }
 
+    if (!redis) {
+      this.isRedisAvailable = false;
+      return false;
+    }
+
     try {
       await redis.ping();
       this.isRedisAvailable = true;
@@ -37,7 +42,7 @@ class CacheManager {
   async get<T>(key: string): Promise<T | null> {
     const isRedisAvailable = await this.checkRedis();
 
-    if (isRedisAvailable) {
+    if (isRedisAvailable && redis) {
       try {
         const value = await redis.get(key);
         if (value) {
@@ -69,7 +74,7 @@ class CacheManager {
     const { ttl = 300 } = options; // Default 5 minutes
     const isRedisAvailable = await this.checkRedis();
 
-    if (isRedisAvailable) {
+    if (isRedisAvailable && redis) {
       try {
         await redis.setex(key, ttl, JSON.stringify(value));
         return;
@@ -102,7 +107,7 @@ class CacheManager {
   async delete(key: string): Promise<void> {
     const isRedisAvailable = await this.checkRedis();
 
-    if (isRedisAvailable) {
+    if (isRedisAvailable && redis) {
       try {
         await redis.del(key);
       } catch (error) {
@@ -119,7 +124,7 @@ class CacheManager {
   async deletePattern(pattern: string): Promise<void> {
     const isRedisAvailable = await this.checkRedis();
 
-    if (isRedisAvailable) {
+    if (isRedisAvailable && redis) {
       try {
         const keys = await redis.keys(pattern);
         if (keys.length > 0) {
@@ -230,7 +235,7 @@ export const cacheInvalidation = {
   async all(): Promise<void> {
     cache.clearMemory();
     const isRedisAvailable = await cache['checkRedis']();
-    if (isRedisAvailable) {
+    if (isRedisAvailable && redis) {
       try {
         await redis.flushdb();
       } catch (error) {

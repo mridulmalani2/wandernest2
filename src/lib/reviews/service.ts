@@ -87,7 +87,7 @@ export async function updateStudentMetrics(
 
   // Calculate new average rating
   const newAverage =
-    allReviews.reduce((acc, r) => acc + r.rating, 0) / allReviews.length
+    allReviews.reduce((acc: number, r: any) => acc + r.rating, 0) / allReviews.length
 
   // Calculate completion rate (percentage of non-no-show experiences)
   const completedExperiences = allReviews.filter((r) => !r.noShow).length

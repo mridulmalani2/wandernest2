@@ -1,5 +1,7 @@
 import { prisma } from '@/lib/prisma'
-import { TouristRequest } from '@prisma/client'
+import { TouristRequest, Student, StudentAvailability, Prisma } from '@prisma/client'
+import { cache } from '@/lib/cache'
+import { CACHE_TTL } from '@/lib/constants'
 
 interface StudentWithScore {
   id: string
@@ -21,7 +23,6 @@ interface StudentWithScore {
     endTime: string
   }[]
   score: number
-  availability?: StudentAvailability[]
 }
 
 interface MatchingFilters {
@@ -67,48 +68,21 @@ export async function findMatches(request: TouristRequest): Promise<StudentWithS
   let candidates = allCandidates
 
   if (request.preferredNationality) {
-    candidates = candidates.filter(s => s.nationality === request.preferredNationality)
+    candidates = candidates.filter((s: any) => s.nationality === request.preferredNationality)
   }
 
   if (request.preferredLanguages && request.preferredLanguages.length > 0) {
-    candidates = candidates.filter(s =>
+    candidates = candidates.filter((s: any) =>
       request.preferredLanguages!.some(lang => s.languages.includes(lang))
     )
   }
 
   if (request.preferredGender && request.preferredGender !== 'no_preference') {
-    candidates = candidates.filter(s => s.gender === request.preferredGender)
+    candidates = candidates.filter((s: any) => s.gender === request.preferredGender)
   }
 
-  // Fetch candidate guides with only necessary fields
-  const candidates = await prisma.student.findMany({
-    where: filters,
-    select: {
-      id: true,
-      name: true,
-      nationality: true,
-      languages: true,
-      institute: true,
-      gender: true,
-      city: true,
-      tripsHosted: true,
-      averageRating: true,
-      noShowCount: true,
-      reliabilityBadge: true,
-      interests: true,
-      acceptanceRate: true,
-      availability: {
-        select: {
-          dayOfWeek: true,
-          startTime: true,
-          endTime: true,
-        },
-      },
-    },
-  })
-
   // Score each candidate
-  const scored: StudentWithScore[] = candidates.map(student => ({
+  const scored: StudentWithScore[] = candidates.map((student: any) => ({
     ...student,
     score: calculateScore(student, request)
   }))

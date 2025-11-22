@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Globe, Menu, X, User, LogOut, LayoutDashboard, ChevronLeft } from 'lucide-react'
 import { useSession, signOut } from 'next-auth/react'
 import { useState, useEffect } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 
 interface NavigationProps {
   variant?: 'default' | 'tourist' | 'student' | 'admin'
@@ -183,7 +184,7 @@ export default function Navigation({ variant = 'default', showBackButton = false
 
           {/* Mobile Menu Button */}
           <div className="md:hidden flex items-center">
-            <button
+            <motion.button
               className="p-2 rounded-lg hover:bg-white/10 active:bg-white/20 transition-all duration-200 focus-visible:ring-2 focus-visible:ring-white/30 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               aria-label="Toggle mobile menu"
@@ -216,20 +217,6 @@ export default function Navigation({ variant = 'default', showBackButton = false
               </AnimatePresence>
             </motion.button>
           </div>
-
-          <button
-            className="md:hidden p-2 rounded-lg hover:bg-white/10 transition-colors text-white"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
-            aria-expanded={mobileMenuOpen}
-            aria-controls="mobile-menu"
-          >
-            {mobileMenuOpen ? (
-              <X className="w-6 h-6" aria-hidden="true" />
-            ) : (
-              <Menu className="w-6 h-6" aria-hidden="true" />
-            )}
-          </button>
         </div>
 
         {mobileMenuOpen && (
@@ -243,20 +230,6 @@ export default function Navigation({ variant = 'default', showBackButton = false
             )}
 
             {!session && variant === 'default' && (
-              <>
-                <Link href="/student" onClick={() => setMobileMenuOpen(false)}>
-                  <Button variant="ghost" className="w-full rounded-full text-white/90 border border-white/20 hover:bg-white/10 hover:text-white transition-all font-sans text-sm font-medium">
-                    I&apos;m a Student
-                  </Button>
-                </Link>
-                <Link href="/booking" onClick={() => setMobileMenuOpen(false)}>
-                  <Button className="w-full rounded-full bg-white/15 hover:bg-white/25 border border-white/30 text-white font-sans text-sm font-semibold transition-all backdrop-blur-sm">
-                    Book a Guide
-                  </Button>
-                </Link>
-              )}
-
-              {!session && variant === 'default' && (
                 <>
                   <Link href="/student" onClick={() => setMobileMenuOpen(false)}>
                     <motion.div whileHover={{ x: 2 }} whileTap={{ scale: 0.98 }}>
@@ -358,9 +331,8 @@ export default function Navigation({ variant = 'default', showBackButton = false
                   </motion.div>
                 </>
               )}
-            </motion.nav>
+            </nav>
           )}
-        </AnimatePresence>
       </div>
     </header>
   )

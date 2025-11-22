@@ -402,8 +402,8 @@ export async function sendTouristAcceptanceNotification(
           <div class="contact-box">
             <h3 style="margin-top: 0;">Contact Information:</h3>
             <p><strong>Email:</strong> ${student.email}</p>
-            ${student.whatsapp ? `<p><strong>WhatsApp:</strong> ${student.whatsapp}</p>` : ''}
-            ${student.phone ? `<p><strong>Phone:</strong> ${student.phone}</p>` : ''}
+            ${(student as any).whatsapp ? `<p><strong>WhatsApp:</strong> ${(student as any).whatsapp}</p>` : ''}
+            ${(student as any).phone ? `<p><strong>Phone:</strong> ${(student as any).phone}</p>` : ''}
           </div>
 
           <h3>Next Steps:</h3>

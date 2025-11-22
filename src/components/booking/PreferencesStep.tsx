@@ -105,7 +105,7 @@ export function PreferencesStep({ data, errors, updateData }: Props) {
         <Label>Gender Preference (Optional)</Label>
         <RadioGroup
           value={data.preferredGender || 'no_preference'}
-          onValueChange={(value: string) => updateData({ preferredGender: value })}
+          onValueChange={(value: string) => updateData({ preferredGender: value as 'male' | 'female' | 'no_preference' })}
         >
           <div className="flex items-center space-x-2">
             <RadioGroupItem value="no_preference" id="no_preference" />
@@ -135,7 +135,7 @@ export function PreferencesStep({ data, errors, updateData }: Props) {
         </Label>
         <RadioGroup
           value={data.serviceType}
-          onValueChange={(value: string) => updateData({ serviceType: value })}
+          onValueChange={(value: string) => updateData({ serviceType: value as 'itinerary_help' | 'guided_experience' })}
           className={errors.serviceType ? 'border border-ui-error rounded p-4' : ''}
         >
           <div className="flex items-start space-x-2 p-3 border rounded hover:bg-gray-50">
