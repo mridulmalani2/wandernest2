@@ -36,31 +36,28 @@ export async function POST(req: NextRequest) {
 
     // For demo: If request is not in our in-memory store, try to find it from query params
     // This allows the flow to work even after server restarts
-    let touristRequest: TouristRequest | null = null
+    let touristRequest: TouristRequest = {
+      city: 'Paris', // Default to Paris for demo
+      dates: { start: '2025-12-01', end: '2025-12-03' },
+      preferredTime: 'afternoon',
+      numberOfGuests: 2,
+      groupType: 'friends',
+      preferredLanguages: ['English', 'French'],
+      serviceType: 'guided_experience',
+      interests: ['art', 'museums', 'food'],
+      email: 'demo@example.com',
+      contactMethod: 'email',
+    }
 
     // Try to get from in-memory store first
     if (demoRequests.has(requestId)) {
-      touristRequest = demoRequests.get(requestId)
+      touristRequest = demoRequests.get(requestId) || touristRequest
     } else {
       // For demo purposes, if we can't find the request, we'll create a sample one
       // based on common criteria. In production, this would be a 404 error.
       console.warn(
         'Demo: Request not found in memory, using sample criteria for matching'
       )
-
-      // Create a sample request for demo purposes
-      touristRequest = {
-        city: 'Paris', // Default to Paris for demo
-        dates: { start: '2025-12-01', end: '2025-12-03' },
-        preferredTime: 'afternoon',
-        numberOfGuests: 2,
-        groupType: 'friends',
-        preferredLanguages: ['English', 'French'],
-        serviceType: 'guided_experience',
-        interests: ['art', 'museums', 'food'],
-        email: 'demo@example.com',
-        contactMethod: 'email',
-      }
     }
 
     // Get all students in the requested city

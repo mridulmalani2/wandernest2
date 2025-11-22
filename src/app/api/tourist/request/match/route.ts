@@ -3,6 +3,18 @@ export const dynamic = 'force-dynamic'
 
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
+import { getStudentsByCity } from '@/lib/demo/dummyStudents'
+import { findMatchingStudents, calculateSuggestedPrice, TouristRequest } from '@/lib/demo/matchingAlgorithm'
+
+// Access the same in-memory storage as the create endpoint
+declare global {
+  var demoTouristRequests: Map<string, any> | undefined;
+}
+
+const demoRequests = globalThis.demoTouristRequests || new Map<string, any>();
+if (!globalThis.demoTouristRequests) {
+  globalThis.demoTouristRequests = demoRequests;
+}
 
 interface MatchingCriteria {
   city: string
@@ -153,10 +165,20 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Get the tourist request
-    const touristRequest = await prisma.touristRequest.findUnique({
-      where: { id: requestId },
-    })
+    let touristRequest: any = null;
+
+    // Try to get the tourist request from database first, then fall back to in-memory
+    if (prisma) {
+      touristRequest = await prisma.touristRequest.findUnique({
+        where: { id: requestId },
+      });
+    }
+
+    // If not found in database (or database not available), try in-memory storage
+    if (!touristRequest && demoRequests.has(requestId)) {
+      touristRequest = demoRequests.get(requestId);
+      console.log(`[DEMO MODE] Retrieved tourist request from memory: ${requestId}`);
+    }
 
     if (!touristRequest) {
       return NextResponse.json(
@@ -174,6 +196,54 @@ export async function POST(req: NextRequest) {
       interests: touristRequest.interests,
       dates: touristRequest.dates as { start: string; end?: string },
       preferredTime: touristRequest.preferredTime,
+    }
+
+    // If database is not available, use dummy students
+    if (!prisma) {
+      console.log(`[DEMO MODE] Using dummy students for matching in ${criteria.city}`);
+
+      const studentsInCity = getStudentsByCity(criteria.city);
+
+      if (studentsInCity.length === 0) {
+        return NextResponse.json({
+          success: true,
+          matches: [],
+          message: `No students available in ${criteria.city}`,
+        });
+      }
+
+      // Convert criteria to TouristRequest format for matching algorithm
+      const demoRequest: TouristRequest = {
+        city: criteria.city,
+        dates: criteria.dates,
+        preferredTime: criteria.preferredTime as any,
+        numberOfGuests: touristRequest.numberOfGuests || 1,
+        groupType: touristRequest.groupType || '',
+        accessibilityNeeds: touristRequest.accessibilityNeeds,
+        preferredNationality: criteria.preferredNationality,
+        preferredLanguages: criteria.preferredLanguages,
+        preferredGender: criteria.preferredGender as any,
+        serviceType: criteria.serviceType as any,
+        interests: criteria.interests,
+        totalBudget: touristRequest.budget,
+        email: touristRequest.email,
+        phone: touristRequest.phone,
+        whatsapp: touristRequest.whatsapp,
+        contactMethod: touristRequest.contactMethod as any,
+        tripNotes: touristRequest.tripNotes,
+      };
+
+      const matches = findMatchingStudents(studentsInCity, demoRequest, 5);
+      const suggestedPriceRange = calculateSuggestedPrice(criteria.city, criteria.serviceType);
+
+      console.log(`[DEMO MODE] Found ${matches.length} matching students`);
+
+      return NextResponse.json({
+        success: true,
+        matches,
+        suggestedPriceRange,
+        requestId: touristRequest.id,
+      });
     }
 
     // STEP 1: Build optimized WHERE clause for database-level filtering
@@ -384,35 +454,4 @@ function maskName(fullName: string | null): string {
   }
   // Show first name + last initial
   return `${parts[0]} ${parts[parts.length - 1][0]}.`
-}
-
-function calculateSuggestedPrice(city: string, serviceType: string): { min: number; max: number } {
-  // Base hourly rates by city (in local currency or EUR)
-  const cityRates: Record<string, { min: number; max: number }> = {
-    'Paris': { min: 20, max: 35 },
-    'London': { min: 20, max: 40 },
-    'Barcelona': { min: 15, max: 30 },
-    'Berlin': { min: 15, max: 28 },
-    'Amsterdam': { min: 18, max: 32 },
-    'Rome': { min: 15, max: 30 },
-    'Prague': { min: 12, max: 25 },
-    'Vienna': { min: 15, max: 28 },
-    'default': { min: 15, max: 30 },
-  }
-
-  const baseRate = cityRates[city] || cityRates['default']
-
-  if (serviceType === 'itinerary_help') {
-    // Online consultation, flat fee
-    return {
-      min: Math.round(baseRate.min * 1.5),
-      max: Math.round(baseRate.max * 2),
-    }
-  } else {
-    // Guided experience, hourly rate
-    return {
-      min: baseRate.min,
-      max: baseRate.max,
-    }
-  }
 }

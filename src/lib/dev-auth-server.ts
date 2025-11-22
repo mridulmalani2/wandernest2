@@ -53,7 +53,7 @@ export async function getSessionWithDevBypass(
             }
           : {
               studentId: 'dev-student-profile-456',
-              studentStatus: 'approved' as const,
+              studentStatus: 'APPROVED' as const,
               hasCompletedOnboarding: true,
             }),
       },
