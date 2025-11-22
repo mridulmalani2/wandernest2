@@ -31,27 +31,27 @@ export default function StudentLandingPage() {
         {/* Header */}
         <Navigation variant="student" />
 
-        {/* Hero Section */}
-        <main className="flex-1 container mx-auto px-4 py-16">
-          <div className="max-w-5xl mx-auto space-y-16">
+        {/* Hero Section - Optimized for mobile: reduced padding */}
+        <main className="flex-1 container mx-auto px-4 py-8 md:py-16">
+          <div className="max-w-5xl mx-auto space-y-10 md:space-y-16">
 
-            {/* Hero */}
-            <div className="text-center space-y-8 animate-slide-up-fade">
-              <h1 className="text-5xl md:text-6xl font-bold leading-tight tracking-tight text-white text-shadow-lg">
+            {/* Hero - Optimized for mobile: smaller text, tighter spacing */}
+            <div className="text-center space-y-6 md:space-y-8 animate-slide-up-fade">
+              <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold leading-tight tracking-tight text-white text-shadow-lg">
                 Earn More Than{' '}
-                <span className="text-gradient-vibrant animate-gradient-shift inline-block bg-white/10 px-4 py-2 rounded-2xl">
+                <span className="text-gradient-vibrant animate-gradient-shift inline-block bg-white/10 px-3 sm:px-4 py-1.5 sm:py-2 rounded-2xl">
                   Campus Jobs
                 </span>
                 <br />
                 While Sharing Your City
               </h1>
 
-              <p className="text-xl md:text-2xl text-white max-w-3xl mx-auto leading-relaxed font-medium text-shadow">
+              <p className="text-lg sm:text-xl md:text-2xl text-white max-w-3xl mx-auto leading-relaxed font-medium text-shadow">
                 Host visitors from your home country in Paris or London and earn more than typical student jobs.
                 Choose your schedule, meet interesting people, and share your local knowledge.
               </p>
 
-              <div className="flex justify-center gap-4 pt-4 animate-fade-in-up delay-300">
+              <div className="flex justify-center gap-3 sm:gap-4 pt-4 animate-fade-in-up delay-300">
                 <Link href="/student/onboarding">
                   <Button size="lg" className="text-lg px-10 py-7 gradient-vibrant hover:shadow-glow-purple shadow-premium text-white font-semibold group hover-lift">
                     Explore Now
@@ -61,7 +61,7 @@ export default function StudentLandingPage() {
               </div>
             </div>
 
-            {/* Value Proposition */}
+            {/* Value Proposition - Optimized for mobile: reduced padding, responsive gaps */}
             <div className="backdrop-blur-md rounded-3xl shadow-xl border-2 border-white/40 animate-fade-in-up delay-400 relative overflow-hidden">
               <div className="absolute inset-0 opacity-20">
                 <Image
@@ -74,9 +74,9 @@ export default function StudentLandingPage() {
                 />
               </div>
               <div className="absolute inset-0 bg-white/85 backdrop-blur-md" />
-              <div className="relative z-10 p-8 md:p-12">
-                <h2 className="text-4xl font-bold text-center mb-12">Why Guide with WanderNest?</h2>
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              <div className="relative z-10 p-6 sm:p-8 md:p-12">
+                <h2 className="text-3xl sm:text-4xl font-bold text-center mb-8 md:mb-12">Why Guide with WanderNest?</h2>
+                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
                 <div className="bg-gradient-to-br from-blue-50 to-blue-100/50 rounded-2xl p-6 shadow-soft hover:shadow-premium hover-lift-lg group border-2 border-ui-blue-primary/60 hover:border-ui-blue-accent/60 transition-all">
                   <div className="inline-flex p-3 rounded-xl bg-gradient-to-br from-ui-blue-primary to-ui-blue-secondary text-white mb-4 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-lg">
                     <DollarSign className="w-7 h-7" />
@@ -110,10 +110,10 @@ export default function StudentLandingPage() {
               </div>
             </div>
 
-            {/* How It Works */}
-            <div className="space-y-10 animate-fade-in-up delay-500">
-              <h2 className="text-4xl font-bold text-center text-white text-shadow-lg">How It Works</h2>
-              <div className="grid md:grid-cols-4 gap-8">
+            {/* How It Works - Optimized for mobile: better grid breakpoints, reduced gaps */}
+            <div className="space-y-8 md:space-y-10 animate-fade-in-up delay-500">
+              <h2 className="text-3xl sm:text-4xl font-bold text-center text-white text-shadow-lg">How It Works</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
                 <div className="text-center space-y-4 group hover-lift">
                   <div className="w-20 h-20 gradient-ocean rounded-2xl flex items-center justify-center mx-auto text-3xl font-bold text-white shadow-premium group-hover:shadow-glow-blue group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
                     1
@@ -159,9 +159,9 @@ export default function StudentLandingPage() {
             {/* Modern FAQ */}
             <ModernFAQ />
 
-            {/* Benefits Visualization with Images */}
-            <div className="grid md:grid-cols-2 gap-8 animate-fade-in-up delay-800">
-              <div className="relative h-72 rounded-2xl overflow-hidden shadow-lg group">
+            {/* Benefits Visualization with Images - Optimized for mobile: reduced gaps, better height for mobile */}
+            <div className="grid sm:grid-cols-2 gap-4 md:gap-8 animate-fade-in-up delay-800">
+              <div className="relative h-64 sm:h-72 rounded-2xl overflow-hidden shadow-lg group">
                 <Image
                   src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&q=80"
                   alt="Students working together and networking"
@@ -180,7 +180,7 @@ export default function StudentLandingPage() {
                   </div>
                 </div>
               </div>
-              <div className="relative h-72 rounded-2xl overflow-hidden shadow-lg group">
+              <div className="relative h-64 sm:h-72 rounded-2xl overflow-hidden shadow-lg group">
                 <Image
                   src="https://images.unsplash.com/photo-1517048676732-d65bc937f952?w=800&q=80"
                   alt="Students celebrating success and achievement"
@@ -201,10 +201,10 @@ export default function StudentLandingPage() {
               </div>
             </div>
 
-            {/* Final CTA */}
-            <div className="text-center space-y-6 py-12 animate-fade-in-up delay-1000">
-              <h2 className="text-4xl md:text-5xl font-bold text-white text-shadow-lg">Ready to Start Earning?</h2>
-              <p className="text-xl text-white max-w-2xl mx-auto leading-relaxed font-medium text-shadow">
+            {/* Final CTA - Optimized for mobile: reduced padding, responsive text */}
+            <div className="text-center space-y-4 md:space-y-6 py-8 md:py-12 animate-fade-in-up delay-1000">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white text-shadow-lg">Ready to Start Earning?</h2>
+              <p className="text-lg sm:text-xl text-white max-w-2xl mx-auto leading-relaxed font-medium text-shadow">
                 Join hundreds of students already earning flexible income by sharing their city with visitors.
               </p>
               <Link href="/student/signin">

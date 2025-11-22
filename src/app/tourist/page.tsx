@@ -31,30 +31,30 @@ export default function TouristLanding() {
         {/* Header - Dynamically imported to reduce initial bundle */}
         <DynamicNavigation variant="tourist" />
 
-        {/* Hero Section */}
-        <main className="flex-1 container mx-auto px-4 py-16">
-          <div className="max-w-5xl mx-auto space-y-16">
-            <div className="text-center space-y-8 animate-slide-up-fade">
-              <h1 className="text-5xl md:text-6xl font-bold leading-tight tracking-tight text-white text-shadow-lg">
+        {/* Hero Section - Optimized for mobile: reduced padding */}
+        <main className="flex-1 container mx-auto px-4 py-8 md:py-16">
+          <div className="max-w-5xl mx-auto space-y-10 md:space-y-16">
+            <div className="text-center space-y-6 md:space-y-8 animate-slide-up-fade">
+              <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold leading-tight tracking-tight text-white text-shadow-lg">
                 Experience{' '}
-                <span className="text-gradient-vibrant animate-gradient-shift inline-block bg-white/10 px-4 py-2 rounded-2xl">
+                <span className="text-gradient-vibrant animate-gradient-shift inline-block bg-white/10 px-3 sm:px-4 py-1.5 sm:py-2 rounded-2xl">
                   Authentic Travel
                 </span>
                 <br />
                 with Local Student Guides
               </h1>
 
-              <p className="text-xl md:text-2xl text-white max-w-3xl mx-auto leading-relaxed font-medium text-shadow">
+              <p className="text-lg sm:text-xl md:text-2xl text-white max-w-3xl mx-auto leading-relaxed font-medium text-shadow">
                 Connect with verified university students who will show you their city
                 through a local&apos;s eyes. Get personalized recommendations and authentic
                 experiences.
               </p>
 
-              <p className="text-sm md:text-base text-white/90 max-w-2xl mx-auto leading-relaxed text-shadow-sm">
+              <p className="text-sm sm:text-sm md:text-base text-white/90 max-w-2xl mx-auto leading-relaxed text-shadow-sm">
                 Choose a guide from your home country for added comfort, or explore connections with local students—it&apos;s entirely up to you.
               </p>
 
-              <div className="flex justify-center gap-4 pt-4 animate-fade-in-up delay-300">
+              <div className="flex justify-center gap-3 sm:gap-4 pt-4 animate-fade-in-up delay-300">
                 <Link href="/booking">
                   <Button size="lg" className="text-lg px-10 py-7 gradient-ocean hover:shadow-glow-blue shadow-premium text-white font-semibold group hover-lift">
                     Start Your Adventure
@@ -64,8 +64,8 @@ export default function TouristLanding() {
               </div>
             </div>
 
-            {/* Features */}
-            <div className="grid md:grid-cols-3 gap-8 pt-8 animate-fade-in-up delay-400">
+            {/* Features - Optimized for mobile: single column on mobile, reduced gaps */}
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8 pt-6 md:pt-8 animate-fade-in-up delay-400">
               <div className="backdrop-blur-md rounded-2xl shadow-lg border border-gray-200 hover-lift group relative overflow-hidden">
                 <div className="absolute inset-0 opacity-15 group-hover:opacity-25 transition-opacity duration-500">
                   <Image
@@ -142,10 +142,10 @@ export default function TouristLanding() {
               </div>
             </div>
 
-            {/* How It Works Section */}
-            <div className="space-y-10 pt-12 animate-fade-in-up delay-500">
-              <h2 className="text-4xl font-bold text-center text-white text-shadow-lg">How It Works</h2>
-              <div className="grid md:grid-cols-3 gap-8">
+            {/* How It Works Section - Optimized for mobile: single column on mobile, reduced spacing */}
+            <div className="space-y-8 md:space-y-10 pt-8 md:pt-12 animate-fade-in-up delay-500">
+              <h2 className="text-3xl sm:text-4xl font-bold text-center text-white text-shadow-lg">How It Works</h2>
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
                 <div className="text-center space-y-4 group hover-lift">
                   <div className="w-20 h-20 gradient-ocean rounded-2xl flex items-center justify-center mx-auto text-3xl font-bold text-white shadow-premium group-hover:shadow-glow-blue group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
                     1
@@ -178,9 +178,9 @@ export default function TouristLanding() {
               </div>
             </div>
 
-            {/* Image showcase - lazy loaded */}
-            <div className="grid md:grid-cols-3 gap-6 animate-fade-in-up delay-700">
-              <div className="relative h-72 rounded-2xl overflow-hidden shadow-lg group">
+            {/* Image showcase - lazy loaded - Optimized for mobile: single column on mobile, reduced gaps */}
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 animate-fade-in-up delay-700">
+              <div className="relative h-64 sm:h-72 rounded-2xl overflow-hidden shadow-lg group">
                 <Image
                   src="https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=600&q=80"
                   alt="Iconic Paris architecture and streets"
@@ -194,7 +194,7 @@ export default function TouristLanding() {
                   <span className="text-white font-bold text-xl">Paris</span>
                 </div>
               </div>
-              <div className="relative h-72 rounded-2xl overflow-hidden shadow-lg group">
+              <div className="relative h-64 sm:h-72 rounded-2xl overflow-hidden shadow-lg group">
                 <Image
                   src="https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=600&q=80"
                   alt="Iconic London landmarks and architecture"
@@ -208,7 +208,7 @@ export default function TouristLanding() {
                   <span className="text-white font-bold text-xl">London</span>
                 </div>
               </div>
-              <div className="relative h-72 rounded-2xl overflow-hidden shadow-lg group">
+              <div className="relative h-64 sm:h-72 rounded-2xl overflow-hidden shadow-lg group">
                 <Image
                   src="https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=600&q=80"
                   alt="Beautiful Rome cityscape with historic architecture"
@@ -224,9 +224,9 @@ export default function TouristLanding() {
               </div>
             </div>
 
-            {/* Marketplace Disclaimer */}
-            <div className="mt-16 bg-gradient-to-br from-amber-50 to-yellow-100/50 border-2 border-ui-warning/60 rounded-3xl p-6 md:p-8 max-w-4xl mx-auto shadow-premium hover-lift animate-fade-in-up delay-800">
-              <div className="flex items-start space-x-4">
+            {/* Marketplace Disclaimer - Optimized for mobile: reduced top margin, responsive padding */}
+            <div className="mt-8 md:mt-16 bg-gradient-to-br from-amber-50 to-yellow-100/50 border-2 border-ui-warning/60 rounded-3xl p-5 md:p-8 max-w-4xl mx-auto shadow-premium hover-lift animate-fade-in-up delay-800">
+              <div className="flex items-start space-x-3 md:space-x-4">
                 <div className="flex-shrink-0">
                   <div className="p-3 rounded-xl bg-gradient-to-br from-ui-warning to-ui-warning text-white shadow-soft">
                     <AlertTriangle className="w-6 h-6" />

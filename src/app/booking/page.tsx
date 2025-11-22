@@ -41,19 +41,19 @@ export default function BookingPage() {
         {/* Header */}
         <Navigation variant="tourist" />
 
-        {/* Main Content */}
-        <main className="container mx-auto px-4 py-12 flex-1">
-          <div className="max-w-4xl mx-auto mb-8 text-center animate-fade-in-up">
-            <h1 className="text-4xl font-bold mb-4 text-white text-shadow-lg">Book Your Local Guide</h1>
-            <p className="text-white text-lg text-shadow">
+        {/* Main Content - Optimized for mobile: reduced padding */}
+        <main className="container mx-auto px-4 py-8 md:py-12 flex-1">
+          <div className="max-w-4xl mx-auto mb-6 md:mb-8 text-center animate-fade-in-up">
+            <h1 className="text-3xl sm:text-4xl font-bold mb-3 md:mb-4 text-white text-shadow-lg">Book Your Local Guide</h1>
+            <p className="text-white text-base sm:text-lg text-shadow">
               Tell us about your trip and we'll match you with the perfect local student
               guide
             </p>
           </div>
 
-          {/* Marketplace Disclaimer */}
-          <div className="glass-frosted bg-gradient-to-br from-ui-warning/10 to-ui-warning/5 border-2 border-ui-warning rounded-2xl p-6 mb-8 max-w-4xl mx-auto shadow-premium hover-lift animate-fade-in-up delay-100">
-            <div className="flex items-start space-x-4">
+          {/* Marketplace Disclaimer - Optimized for mobile: responsive padding and spacing */}
+          <div className="glass-frosted bg-gradient-to-br from-ui-warning/10 to-ui-warning/5 border-2 border-ui-warning rounded-2xl p-4 md:p-6 mb-6 md:mb-8 max-w-4xl mx-auto shadow-premium hover-lift animate-fade-in-up delay-100">
+            <div className="flex items-start space-x-3 md:space-x-4">
               <div className="flex-shrink-0 p-3 rounded-xl bg-ui-warning text-white shadow-soft">
                 <AlertTriangle className="w-6 h-6" />
               </div>

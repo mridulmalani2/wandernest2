@@ -317,17 +317,18 @@ export default function StudentDashboard() {
         {/* Header */}
         <Navigation variant="student" />
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+        {/* Optimized for mobile: better responsive padding */}
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-6 md:py-8 w-full">
 
-        {/* Error Alert */}
+        {/* Error Alert - Optimized for mobile: responsive padding */}
         {error && (
-          <div className="glass-card bg-ui-error/10 border-2 border-ui-error/30 rounded-2xl p-4 mb-6 shadow-premium animate-scale-in">
-            <p className="text-ui-error font-semibold">{error}</p>
+          <div className="glass-card bg-ui-error/10 border-2 border-ui-error/30 rounded-2xl p-3 md:p-4 mb-4 md:mb-6 shadow-premium animate-scale-in">
+            <p className="text-ui-error font-semibold text-sm md:text-base">{error}</p>
           </div>
         )}
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 animate-fade-in-up delay-100">
+        {/* Stats Cards - Optimized for mobile: reduced gaps */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 mb-6 md:mb-8 animate-fade-in-up delay-100">
           <Card className="glass-card border border-white/40 hover-lift shadow-premium">
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium text-gray-700">Total Bookings</CardTitle>
@@ -372,11 +373,11 @@ export default function StudentDashboard() {
           </Card>
         </div>
 
-        {/* Pending Requests Section */}
+        {/* Pending Requests Section - Optimized for mobile: responsive spacing */}
         {data.pendingRequests.length > 0 && (
-          <div className="mb-8 animate-fade-in-up delay-200">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4 text-shadow">Pending Requests</h2>
-            <div className="grid gap-6">
+          <div className="mb-6 md:mb-8 animate-fade-in-up delay-200">
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3 md:mb-4 text-shadow">Pending Requests</h2>
+            <div className="grid gap-4 md:gap-6">
               {data.pendingRequests.map((pending) => {
                 const request = pending.request
                 const isProcessing = processingRequests.has(request.id)
@@ -384,11 +385,12 @@ export default function StudentDashboard() {
 
                 return (
                   <Card key={pending.id} className="glass-card border-2 border-white/40 shadow-premium hover-lift animate-fade-in">
-                    <CardContent className="p-6">
-                      <div className="flex justify-between items-start mb-4">
+                    {/* Optimized for mobile: responsive padding */}
+                    <CardContent className="p-4 sm:p-5 md:p-6">
+                      <div className="flex justify-between items-start mb-3 md:mb-4">
                         <div>
-                          <h3 className="text-xl font-semibold text-gray-900">{request.city}</h3>
-                          <p className="text-sm text-gray-500 mt-1">
+                          <h3 className="text-lg sm:text-xl font-semibold text-gray-900">{request.city}</h3>
+                          <p className="text-xs sm:text-sm text-gray-500 mt-1">
                             Received {new Date(pending.createdAt).toLocaleDateString()}
                           </p>
                         </div>
@@ -397,7 +399,8 @@ export default function StudentDashboard() {
                         </Badge>
                       </div>
 
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4 text-sm">
+                      {/* Optimized for mobile: single column on small screens */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-3 md:mb-4 text-sm">
                         <div>
                           <p className="text-gray-500">Dates</p>
                           <p className="font-medium text-gray-900">{formatDate(request.dates)}</p>
@@ -476,28 +479,30 @@ export default function StudentDashboard() {
           </div>
         )}
 
-        {/* Accepted Bookings Section */}
+        {/* Accepted Bookings Section - Optimized for mobile: responsive spacing */}
         {data.acceptedBookings.length > 0 && (
-          <div className="mb-8 animate-fade-in-up delay-300">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4 text-shadow">Accepted Bookings</h2>
-            <div className="grid gap-6">
+          <div className="mb-6 md:mb-8 animate-fade-in-up delay-300">
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3 md:mb-4 text-shadow">Accepted Bookings</h2>
+            <div className="grid gap-4 md:gap-6">
               {data.acceptedBookings.map((booking) => {
                 const request = booking.request
 
                 return (
                   <Card key={booking.id} className="glass-card border-2 border-white/40 border-l-4 border-l-ui-success shadow-premium hover-lift animate-fade-in">
-                    <CardContent className="p-6">
-                      <div className="flex justify-between items-start mb-4">
+                    {/* Optimized for mobile: responsive padding */}
+                    <CardContent className="p-4 sm:p-5 md:p-6">
+                      <div className="flex justify-between items-start mb-3 md:mb-4">
                         <div>
-                          <h3 className="text-xl font-semibold text-gray-900">{request.city}</h3>
-                          <p className="text-sm text-gray-500 mt-1">
+                          <h3 className="text-lg sm:text-xl font-semibold text-gray-900">{request.city}</h3>
+                          <p className="text-xs sm:text-sm text-gray-500 mt-1">
                             Accepted {booking.acceptedAt ? new Date(booking.acceptedAt).toLocaleDateString() : 'N/A'}
                           </p>
                         </div>
-                        <Badge className="bg-ui-success/10 text-ui-success">ACCEPTED</Badge>
+                        <Badge className="bg-ui-success/10 text-ui-success text-xs sm:text-sm">ACCEPTED</Badge>
                       </div>
 
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4 text-sm">
+                      {/* Optimized for mobile: single column on small screens */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-3 md:mb-4 text-sm">
                         <div>
                           <p className="text-gray-500">Dates</p>
                           <p className="font-medium text-gray-900">{formatDate(request.dates)}</p>
@@ -551,15 +556,16 @@ export default function StudentDashboard() {
           </div>
         )}
 
-        {/* Reviews Section */}
+        {/* Reviews Section - Optimized for mobile: responsive spacing */}
         {data.reviews.length > 0 && (
-          <div className="mb-8 animate-fade-in-up delay-400">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4 text-shadow">Your Reviews</h2>
-            <div className="grid gap-6">
+          <div className="mb-6 md:mb-8 animate-fade-in-up delay-400">
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3 md:mb-4 text-shadow">Your Reviews</h2>
+            <div className="grid gap-4 md:gap-6">
               {data.reviews.map((review) => (
                 <Card key={review.id} className="glass-card border-2 border-white/40 shadow-premium hover-lift animate-fade-in">
-                  <CardContent className="p-6">
-                    <div className="flex items-start justify-between mb-4">
+                  {/* Optimized for mobile: responsive padding */}
+                  <CardContent className="p-4 sm:p-5 md:p-6">
+                    <div className="flex items-start justify-between mb-3 md:mb-4">
                       <div>
                         <h3 className="text-lg font-semibold text-gray-900">
                           {review.request.city} - {review.request.serviceType.replace('_', ' ')}
@@ -624,10 +630,8 @@ export default function StudentDashboard() {
             </CardContent>
           </Card>
         )}
+        </div>
       </div>
-      </div>
-    </div>
-    </div>
     </div>
   )
 }

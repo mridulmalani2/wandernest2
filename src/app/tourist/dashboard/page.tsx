@@ -169,10 +169,12 @@ export default function TouristDashboard() {
         {/* Header */}
         <Navigation variant="tourist" />
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
-        {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 animate-fade-in-up delay-100">
-          <div className="glass-card rounded-2xl shadow-premium p-6 border-2 border-white/40 hover-lift">
+        {/* Optimized for mobile: better responsive padding */}
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-6 md:py-8 w-full">
+        {/* Stats Grid - Optimized for mobile: reduced gaps */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 mb-6 md:mb-8 animate-fade-in-up delay-100">
+          {/* Optimized for mobile: responsive padding */}
+          <div className="glass-card rounded-2xl shadow-premium p-4 sm:p-5 md:p-6 border-2 border-white/40 hover-lift">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-700">Total Requests</p>
@@ -184,7 +186,7 @@ export default function TouristDashboard() {
             </div>
           </div>
 
-          <div className="glass-card rounded-2xl shadow-premium p-6 border-2 border-white/40 hover-lift">
+          <div className="glass-card rounded-2xl shadow-premium p-4 sm:p-5 md:p-6 border-2 border-white/40 hover-lift">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-700">Pending</p>
@@ -196,7 +198,7 @@ export default function TouristDashboard() {
             </div>
           </div>
 
-          <div className="glass-card rounded-2xl shadow-premium p-6 border-2 border-white/40 hover-lift">
+          <div className="glass-card rounded-2xl shadow-premium p-4 sm:p-5 md:p-6 border-2 border-white/40 hover-lift">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-700">Accepted</p>
@@ -208,7 +210,7 @@ export default function TouristDashboard() {
             </div>
           </div>
 
-          <div className="glass-card rounded-2xl shadow-premium p-6 border-2 border-white/40 hover-lift">
+          <div className="glass-card rounded-2xl shadow-premium p-4 sm:p-5 md:p-6 border-2 border-white/40 hover-lift">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-700">Reviewed</p>
@@ -222,8 +224,8 @@ export default function TouristDashboard() {
         </div>
 
         {error && (
-          <div className="glass-card bg-ui-error/20 border-2 border-ui-error/40 rounded-2xl p-6 mb-6 shadow-premium animate-scale-in">
-            <div className="flex items-start gap-3">
+          <div className="glass-card bg-ui-error/20 border-2 border-ui-error/40 rounded-2xl p-4 md:p-6 mb-4 md:mb-6 shadow-premium animate-scale-in">
+            <div className="flex items-start gap-2 md:gap-3">
               <div className="flex-shrink-0 text-2xl">⚠️</div>
               <div className="flex-1">
                 <p className="text-ui-error font-semibold mb-2">Unable to load bookings</p>
@@ -252,7 +254,7 @@ export default function TouristDashboard() {
             </a>
           </div>
         ) : (
-          <div className="grid gap-6 animate-fade-in-up delay-200">
+          <div className="grid gap-4 md:gap-6 animate-fade-in-up delay-200">
             {requests.map((request) => {
               const dates = request.dates as { start: string; end?: string }
               const isAccepted = request.status === 'ACCEPTED'
@@ -265,23 +267,25 @@ export default function TouristDashboard() {
                     isAccepted ? 'border-l-ui-success' : isPending ? 'border-l-ui-warning' : 'border-l-gray-400'
                   }`}
                 >
-                  <div className="p-6">
-                    <div className="flex justify-between items-start mb-4">
+                  {/* Optimized for mobile: responsive padding */}
+                  <div className="p-4 sm:p-5 md:p-6">
+                    <div className="flex justify-between items-start mb-3 md:mb-4">
                       <div className="flex-1">
-                        <div className="flex items-center gap-3">
-                          <h3 className="text-xl font-bold text-gray-900">{request.city}</h3>
-                          <span className={`px-3 py-1 text-xs font-semibold rounded-full ${getStatusBadge(request.status)}`}>
+                        <div className="flex flex-wrap items-center gap-2 md:gap-3">
+                          <h3 className="text-lg sm:text-xl font-bold text-gray-900">{request.city}</h3>
+                          <span className={`px-2 sm:px-3 py-1 text-xs font-semibold rounded-full ${getStatusBadge(request.status)}`}>
                             {request.status}
                           </span>
                         </div>
-                        <p className="text-sm text-gray-600 mt-1">
+                        <p className="text-xs sm:text-sm text-gray-600 mt-1">
                           {request.serviceType.replace('_', ' ').charAt(0).toUpperCase() +
                            request.serviceType.replace('_', ' ').slice(1)}
                         </p>
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4 text-sm bg-gray-50 p-4 rounded-lg">
+                    {/* Optimized for mobile: single column on small screens, responsive padding */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-3 md:mb-4 text-sm bg-gray-50 p-3 md:p-4 rounded-lg">
                       <div>
                         <p className="text-gray-500 font-medium">📅 Dates</p>
                         <p className="font-semibold text-gray-900">

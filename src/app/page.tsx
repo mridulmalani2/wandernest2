@@ -49,12 +49,12 @@ export default function MainLanding() {
         {/* Header */}
         <Navigation variant="default" />
 
-        {/* Hero Section */}
-        <main className="flex-1 container mx-auto px-4 py-12 flex flex-col items-center justify-center">
-          <div className="max-w-5xl mx-auto text-center space-y-12">
-            {/* Hero Title */}
-            <div className="space-y-6 animate-slide-up-fade">
-              <h1 className="text-5xl md:text-7xl font-serif font-bold leading-tight tracking-tight text-white text-shadow-lg">
+        {/* Hero Section - Optimized for mobile: reduced padding */}
+        <main className="flex-1 container mx-auto px-4 py-8 md:py-12 flex flex-col items-center justify-center">
+          <div className="max-w-5xl mx-auto text-center space-y-8 md:space-y-12">
+            {/* Hero Title - Optimized for mobile: smaller text, tighter spacing */}
+            <div className="space-y-4 md:space-y-6 animate-slide-up-fade">
+              <h1 className="text-4xl sm:text-5xl md:text-7xl font-serif font-bold leading-tight tracking-tight text-white text-shadow-lg">
                 Experience Authentic Travel
                 <br />
                 <span className="relative inline-block">
@@ -63,18 +63,18 @@ export default function MainLanding() {
                 </span>
               </h1>
 
-              <p className="text-xl md:text-2xl text-white max-w-3xl mx-auto leading-relaxed font-sans animate-fade-in-up delay-200 text-shadow">
+              <p className="text-lg sm:text-xl md:text-2xl text-white max-w-3xl mx-auto leading-relaxed font-sans animate-fade-in-up delay-200 text-shadow">
                 Connect with verified university students who will show you their city
                 through a local&apos;s eyes. Get personalized recommendations and authentic
                 experiences.
               </p>
             </div>
 
-            {/* Two Large CTAs - Photo Cards with Glass Frame Effect */}
-            <div className="grid md:grid-cols-2 gap-6 pt-8 max-w-4xl mx-auto">
+            {/* Two Large CTAs - Photo Cards with Glass Frame Effect - Optimized for mobile: reduced gap, adjusted heights for better touch targets */}
+            <div className="grid md:grid-cols-2 gap-4 md:gap-6 pt-6 md:pt-8 max-w-4xl mx-auto">
               {/* Tourist CTA */}
               <Link href="/tourist" className="animate-fade-in-up block">
-                <div className="group cursor-pointer rounded-2xl shadow-xl hover:shadow-elevated transition-all duration-500 relative overflow-hidden h-[200px] md:h-[225px] hover:scale-105 hover:-translate-y-2 focus-visible:outline-3 focus-visible:outline-ui-blue-accent focus-visible:outline-offset-4">
+                <div className="group cursor-pointer rounded-2xl shadow-xl hover:shadow-elevated transition-all duration-500 relative overflow-hidden h-[220px] sm:h-[200px] md:h-[225px] hover:scale-105 hover:-translate-y-2 focus-visible:outline-3 focus-visible:outline-ui-blue-accent focus-visible:outline-offset-4">
                   {/* Photo - Fully visible like a photo card */}
                   <div className="absolute inset-0">
                     <Image
@@ -93,19 +93,19 @@ export default function MainLanding() {
                   {/* Glass border/frame effect - subtle frosted edge */}
                   <div className="absolute inset-0 rounded-2xl border-2 border-white/40 backdrop-blur-[2px] pointer-events-none" />
 
-                  {/* Content */}
-                  <div className="relative z-10 h-full flex flex-col justify-end p-4 md:p-5">
+                  {/* Content - Optimized for mobile: better padding and text sizing */}
+                  <div className="relative z-10 h-full flex flex-col justify-end p-5 md:p-5">
                     {/* Default state content - Always visible */}
                     <div className="space-y-2">
                       <div className="inline-flex p-2 rounded-xl bg-ui-blue-primary/90 backdrop-blur-sm text-white shadow-lg group-hover:scale-110 transition-transform duration-300">
-                        <Plane className="w-5 h-5" />
+                        <Plane className="w-6 h-6 sm:w-5 sm:h-5" />
                       </div>
 
-                      <h2 className="text-2xl md:text-3xl font-serif font-bold text-white text-shadow-lg tracking-tight">
+                      <h2 className="text-2xl sm:text-2xl md:text-3xl font-serif font-bold text-white text-shadow-lg tracking-tight">
                         I&apos;m a Tourist
                       </h2>
 
-                      <p className="text-sm md:text-base text-white font-sans text-shadow">
+                      <p className="text-base sm:text-sm md:text-base text-white font-sans text-shadow">
                         Discover the city with locals
                       </p>
                     </div>
@@ -127,9 +127,9 @@ export default function MainLanding() {
                 </div>
               </Link>
 
-              {/* Student CTA */}
+              {/* Student CTA - Optimized for mobile: adjusted heights */}
               <Link href="/student" className="animate-fade-in-up delay-100 block">
-                <div className="group cursor-pointer rounded-2xl shadow-xl hover:shadow-elevated transition-all duration-500 relative overflow-hidden h-[200px] md:h-[225px] hover:scale-105 hover:-translate-y-2 focus-visible:outline-3 focus-visible:outline-ui-purple-accent focus-visible:outline-offset-4">
+                <div className="group cursor-pointer rounded-2xl shadow-xl hover:shadow-elevated transition-all duration-500 relative overflow-hidden h-[220px] sm:h-[200px] md:h-[225px] hover:scale-105 hover:-translate-y-2 focus-visible:outline-3 focus-visible:outline-ui-purple-accent focus-visible:outline-offset-4">
                   {/* Photo - Fully visible like a photo card */}
                   <div className="absolute inset-0">
                     <Image
@@ -148,19 +148,19 @@ export default function MainLanding() {
                   {/* Glass border/frame effect - subtle frosted edge */}
                   <div className="absolute inset-0 rounded-2xl border-2 border-white/40 backdrop-blur-[2px] pointer-events-none" />
 
-                  {/* Content */}
-                  <div className="relative z-10 h-full flex flex-col justify-end p-4 md:p-5">
+                  {/* Content - Optimized for mobile: better padding and text sizing */}
+                  <div className="relative z-10 h-full flex flex-col justify-end p-5 md:p-5">
                     {/* Default state content - Always visible */}
                     <div className="space-y-2">
                       <div className="inline-flex p-2 rounded-xl bg-ui-purple-primary/90 backdrop-blur-sm text-white shadow-lg group-hover:scale-110 transition-transform duration-300">
-                        <GraduationCap className="w-5 h-5" />
+                        <GraduationCap className="w-6 h-6 sm:w-5 sm:h-5" />
                       </div>
 
-                      <h2 className="text-2xl md:text-3xl font-serif font-bold text-white text-shadow-lg tracking-tight">
+                      <h2 className="text-2xl sm:text-2xl md:text-3xl font-serif font-bold text-white text-shadow-lg tracking-tight">
                         I&apos;m a Student
                       </h2>
 
-                      <p className="text-sm md:text-base text-white font-sans text-shadow">
+                      <p className="text-base sm:text-sm md:text-base text-white font-sans text-shadow">
                         Earn while sharing your city
                       </p>
                     </div>
@@ -186,8 +186,8 @@ export default function MainLanding() {
             {/* Premium Carousel - Why Choose WanderNest */}
             <WhyChooseCarousel />
 
-            {/* Footer Note */}
-            <p className="text-sm text-white/90 pt-16 animate-fade-in text-shadow">
+            {/* Footer Note - Optimized for mobile: reduced top padding */}
+            <p className="text-sm text-white/90 pt-8 md:pt-16 animate-fade-in text-shadow">
               © {new Date().getFullYear()} WanderNest. Connecting cultures, one guide at a time.
             </p>
           </div>
