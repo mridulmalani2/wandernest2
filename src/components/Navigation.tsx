@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Menu, X, User, LogOut, LayoutDashboard, ChevronLeft } from 'lucide-react'
 import { useSession, signOut } from 'next-auth/react'
 import { useState, useEffect } from 'react'
+import { motion } from 'framer-motion'
 
 interface NavigationProps {
   variant?: 'default' | 'tourist' | 'student' | 'admin'
