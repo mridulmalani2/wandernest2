@@ -16,6 +16,8 @@ import { CACHE_TTL } from '@/lib/constants'
 export async function POST(request: NextRequest) {
   const prisma = requireDatabase()
   try {
+    const db = requireDatabase()
+
     const body = await request.json()
     const { requestId } = body
 
@@ -27,7 +29,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Fetch the tourist request
-    const touristRequest = await prisma.touristRequest.findUnique({
+    const touristRequest = await db.touristRequest.findUnique({
       where: { id: requestId }
     })
 
@@ -82,6 +84,8 @@ export async function POST(request: NextRequest) {
 export async function GET(request: NextRequest) {
   const prisma = requireDatabase()
   try {
+    const db = requireDatabase()
+
     const searchParams = request.nextUrl.searchParams
     const requestId = searchParams.get('requestId')
 
@@ -93,7 +97,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Fetch the tourist request with selections
-    const touristRequest = await prisma.touristRequest.findUnique({
+    const touristRequest = await db.touristRequest.findUnique({
       where: { id: requestId },
       include: {
         selections: {

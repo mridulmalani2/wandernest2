@@ -7,7 +7,8 @@ import { verifyPassword, generateToken } from '@/lib/auth'
 import { withErrorHandler, withDatabaseRetry, AppError } from '@/lib/error-handler'
 
 async function adminLogin(request: NextRequest) {
-  const prisma = requireDatabase()
+  const db = requireDatabase()
+
   const { email, password } = await request.json()
 
   if (!email || !password) {
@@ -16,7 +17,7 @@ async function adminLogin(request: NextRequest) {
 
   // Find admin by email
   const admin = await withDatabaseRetry(async () =>
-    prisma.admin.findUnique({
+    db.admin.findUnique({
       where: { email },
     })
   )

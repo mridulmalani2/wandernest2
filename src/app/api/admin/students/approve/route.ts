@@ -8,7 +8,8 @@ import { withErrorHandler, withDatabaseRetry, AppError } from '@/lib/error-handl
 
 // Approve or reject a student
 async function approveStudent(request: NextRequest) {
-  const prisma = requireDatabase()
+  const db = requireDatabase()
+
   const authResult = await verifyAdmin(request)
 
   if (!authResult.authorized) {
@@ -28,7 +29,7 @@ async function approveStudent(request: NextRequest) {
 
   // Find student with retry logic
   const student = await withDatabaseRetry(async () =>
-    prisma.student.findUnique({
+    db.student.findUnique({
       where: { id: studentId },
     })
   )
@@ -43,7 +44,7 @@ async function approveStudent(request: NextRequest) {
 
   // Update student status with retry logic
   const updatedStudent = await withDatabaseRetry(async () =>
-    prisma.student.update({
+    db.student.update({
       where: { id: studentId },
       data: {
         status: action === 'approve' ? 'APPROVED' : 'SUSPENDED',

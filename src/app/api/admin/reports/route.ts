@@ -18,6 +18,8 @@ export async function GET(request: NextRequest) {
   }
 
   try {
+    const db = requireDatabase()
+
     const { searchParams } = new URL(request.url)
     const status = searchParams.get('status')
     const page = parseInt(searchParams.get('page') || '1')
@@ -30,7 +32,7 @@ export async function GET(request: NextRequest) {
     }
 
     const [reports, total] = await Promise.all([
-      prisma.report.findMany({
+      db.report.findMany({
         where,
         skip: (page - 1) * limit,
         take: limit,
@@ -49,7 +51,7 @@ export async function GET(request: NextRequest) {
           },
         },
       }),
-      prisma.report.count({ where }),
+      db.report.count({ where }),
     ])
 
     return NextResponse.json({
@@ -83,6 +85,8 @@ export async function PATCH(request: NextRequest) {
   }
 
   try {
+    const db = requireDatabase()
+
     const { reportId, status } = await request.json()
 
     if (!reportId || !status) {
@@ -99,7 +103,7 @@ export async function PATCH(request: NextRequest) {
       )
     }
 
-    const report = await prisma.report.update({
+    const report = await db.report.update({
       where: { id: reportId },
       data: { status },
       include: {

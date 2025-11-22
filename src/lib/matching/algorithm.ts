@@ -39,10 +39,11 @@ interface MatchingFilters {
  * Get all approved students in a city (cached for 15 minutes)
  */
 async function getApprovedStudentsByCity(city: string) {
+  const db = requireDatabase()
   return cache.cached(
     `students:approved:${city}`,
     async () => {
-      return prisma.student.findMany({
+      return db.student.findMany({
         where: {
           city,
           status: 'APPROVED',

@@ -97,7 +97,7 @@ function calculateProfileCompleteness(data: Record<string, unknown>): number {
 }
 
 async function submitOnboarding(req: NextRequest) {
-  const prisma = requireDatabase()
+  const db = requireDatabase();
   const body = await req.json();
 
   // Validate input
@@ -105,7 +105,7 @@ async function submitOnboarding(req: NextRequest) {
 
   // Check if student already exists
   const existingStudent = await withDatabaseRetry(async () =>
-    prisma.student.findUnique({
+    db.student.findUnique({
       where: { email: validatedData.email },
     })
   );
@@ -117,7 +117,7 @@ async function submitOnboarding(req: NextRequest) {
   // Check if googleId is already used (only if provided)
   if (validatedData.googleId) {
     const existingGoogleId = await withDatabaseRetry(async () =>
-      prisma.student.findUnique({
+      db.student.findUnique({
         where: { googleId: validatedData.googleId },
       })
     );
@@ -132,7 +132,7 @@ async function submitOnboarding(req: NextRequest) {
 
   // Create student profile
   const student = await withDatabaseRetry(async () =>
-    prisma.student.create({
+    db.student.create({
       data: {
         // Authentication
         email: validatedData.email,
@@ -200,7 +200,7 @@ async function submitOnboarding(req: NextRequest) {
   // Create availability slots
   if (validatedData.availability.length > 0) {
     await withDatabaseRetry(async () =>
-      prisma.studentAvailability.createMany({
+      db.studentAvailability.createMany({
         data: validatedData.availability.map((slot) => ({
           studentId: student.id,
           dayOfWeek: slot.dayOfWeek,
@@ -215,7 +215,7 @@ async function submitOnboarding(req: NextRequest) {
   // Create unavailability exceptions if provided
   if (validatedData.unavailabilityExceptions && validatedData.unavailabilityExceptions.length > 0) {
     await withDatabaseRetry(async () =>
-      prisma.unavailabilityException.createMany({
+      db.unavailabilityException.createMany({
         data: validatedData.unavailabilityExceptions!.map((exception) => ({
           studentId: student.id,
           date: exception.date,

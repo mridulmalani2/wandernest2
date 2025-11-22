@@ -18,7 +18,9 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const students = await prisma.student.findMany({
+    const db = requireDatabase()
+
+    const students = await db.student.findMany({
       where: {
         status: 'PENDING_APPROVAL',
       },
