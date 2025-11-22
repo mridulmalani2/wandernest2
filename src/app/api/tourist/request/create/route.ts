@@ -8,6 +8,8 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { prisma } from '@/lib/prisma';
 import { sendBookingConfirmation } from '@/lib/email';
+import { withErrorHandler, withDatabaseRetry, AppError } from '@/lib/error-handler';
+
 // Validation schema for authenticated booking request
 const createBookingSchema = z.object({
   // Trip Details
@@ -40,45 +42,36 @@ const createBookingSchema = z.object({
  * POST /api/tourist/request/create
  * Create a new booking request for an authenticated tourist
  */
-export async function POST(req: NextRequest) {
-  try {
-    // Get session from NextAuth
-    const session = await getServerSession(authOptions);
+async function createTouristRequest(req: NextRequest) {
+  // Get session from NextAuth
+  const session = await getServerSession(authOptions);
 
-    if (!session?.user?.email) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized. Please sign in.' },
-        { status: 401 }
-      );
-    }
+  if (!session?.user?.email) {
+    throw new AppError(401, 'Unauthorized. Please sign in.', 'UNAUTHORIZED');
+  }
 
-    // Verify user is a tourist
-    if (session.user.userType !== 'tourist') {
-      return NextResponse.json(
-        { success: false, error: 'Access denied. Tourist account required.' },
-        { status: 403 }
-      );
-    }
+  // Verify user is a tourist
+  if (session.user.userType !== 'tourist') {
+    throw new AppError(403, 'Access denied. Tourist account required.', 'ACCESS_DENIED');
+  }
 
-    // Get tourist ID
-    const touristId = session.user.touristId;
+  // Get tourist ID
+  const touristId = session.user.touristId;
 
-    if (!touristId) {
-      return NextResponse.json(
-        { success: false, error: 'Tourist profile not found' },
-        { status: 404 }
-      );
-    }
+  if (!touristId) {
+    throw new AppError(404, 'Tourist profile not found', 'TOURIST_NOT_FOUND');
+  }
 
-    // Parse and validate request body
-    const body = await req.json();
-    const validatedData = createBookingSchema.parse(body);
+  // Parse and validate request body
+  const body = await req.json();
+  const validatedData = createBookingSchema.parse(body);
 
-    // Create the TouristRequest in database
-    const expiresAt = new Date();
-    expiresAt.setDate(expiresAt.getDate() + 7); // Expires in 7 days
+  // Create the TouristRequest in database
+  const expiresAt = new Date();
+  expiresAt.setDate(expiresAt.getDate() + 7); // Expires in 7 days
 
-    const touristRequest = await prisma.touristRequest.create({
+  const touristRequest = await withDatabaseRetry(async () =>
+    prisma.touristRequest.create({
       data: {
         // Link to tourist
         touristId: touristId,
@@ -111,39 +104,21 @@ export async function POST(req: NextRequest) {
         status: 'PENDING',
         expiresAt,
       },
-    });
+    })
+  );
 
-    // Send booking confirmation email
-    await sendBookingConfirmation(session.user.email, touristRequest.id);
+  // Send booking confirmation email
+  await sendBookingConfirmation(session.user.email, touristRequest.id);
 
-    return NextResponse.json(
-      {
-        success: true,
-        message: 'Booking request created successfully',
-        requestId: touristRequest.id,
-        request: touristRequest,
-      },
-      { status: 201 }
-    );
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: 'Validation failed',
-          details: error.errors,
-        },
-        { status: 400 }
-      );
-    }
-
-    console.error('Error creating booking request:', error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Failed to create booking request',
-      },
-      { status: 500 }
-    );
-  }
+  return NextResponse.json(
+    {
+      success: true,
+      message: 'Booking request created successfully',
+      requestId: touristRequest.id,
+      request: touristRequest,
+    },
+    { status: 201 }
+  );
 }
+
+export const POST = withErrorHandler(createTouristRequest, 'POST /api/tourist/request/create');
