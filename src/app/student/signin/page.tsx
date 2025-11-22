@@ -16,6 +16,7 @@ export default function StudentSignIn() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get('callbackUrl') || '/student/onboarding';
   const error = searchParams.get('error');
 
   useEffect(() => {
@@ -30,8 +31,8 @@ export default function StudentSignIn() {
   }, [session, router]);
 
   const handleGoogleSignIn = () => {
-    // Sign in with Google, with callback to student onboarding
-    signIn('google', { callbackUrl: '/student/onboarding' });
+    // Sign in with Google, with callback URL
+    signIn('google', { callbackUrl });
   };
 
   return (

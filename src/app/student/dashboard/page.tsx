@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { useSession, signOut } from 'next-auth/react'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -83,35 +84,36 @@ interface DashboardData {
 
 export default function StudentDashboard() {
   const router = useRouter()
+  const { data: session, status } = useSession()
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [data, setData] = useState<DashboardData | null>(null)
   const [processingRequests, setProcessingRequests] = useState<Set<string>>(new Set())
 
-  // PHASE 2 NOTE: Auth disabled for preview mode - token check bypassed
-  // Dashboard loads immediately with demo data
   useEffect(() => {
-    // const token = localStorage.getItem('student_token')
-    // if (!token) {
-    //   router.push('/student/signin')
-    //   return
-    // }
-    // For preview mode, fetch with a dummy token
-    fetchDashboardData('preview-token')
-  }, [router])
+    // Wait for session to load
+    if (status === 'loading') {
+      return
+    }
 
-  const fetchDashboardData = async (token: string) => {
+    // If not authenticated, redirect to signin
+    if (!session?.user?.email) {
+      router.push('/student/signin')
+      return
+    }
+
+    fetchDashboardData()
+  }, [session, status, router])
+
+  const fetchDashboardData = async () => {
+    if (!session?.user?.email) return
+
     try {
       setLoading(true)
-      const response = await fetch('/api/student/dashboard', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
-      })
+      const response = await fetch(`/api/student/dashboard?email=${encodeURIComponent(session.user.email)}`)
 
       if (!response.ok) {
         if (response.status === 401) {
-          localStorage.removeItem('student_token')
           router.push('/student/signin')
           return
         }
@@ -128,8 +130,7 @@ export default function StudentDashboard() {
   }
 
   const handleAcceptRequest = async (requestId: string) => {
-    const token = localStorage.getItem('student_token')
-    if (!token) return
+    if (!session?.user?.email) return
 
     setProcessingRequests(prev => new Set(prev).add(requestId))
     setError(null)
@@ -139,9 +140,11 @@ export default function StudentDashboard() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({ requestId }),
+        body: JSON.stringify({
+          requestId,
+          studentEmail: session.user.email,
+        }),
       })
 
       const result = await response.json()
@@ -159,7 +162,7 @@ export default function StudentDashboard() {
       )
 
       // Refresh dashboard data
-      await fetchDashboardData(token)
+      await fetchDashboardData()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to accept request')
     } finally {
@@ -172,8 +175,7 @@ export default function StudentDashboard() {
   }
 
   const handleRejectRequest = async (requestId: string) => {
-    const token = localStorage.getItem('student_token')
-    if (!token) return
+    if (!session?.user?.email) return
 
     if (!confirm('Are you sure you want to reject this request?')) {
       return
@@ -187,9 +189,11 @@ export default function StudentDashboard() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({ requestId }),
+        body: JSON.stringify({
+          requestId,
+          studentEmail: session.user.email,
+        }),
       })
 
       const result = await response.json()
@@ -199,7 +203,7 @@ export default function StudentDashboard() {
       }
 
       // Refresh dashboard data
-      await fetchDashboardData(token)
+      await fetchDashboardData()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to reject request')
     } finally {
@@ -211,9 +215,8 @@ export default function StudentDashboard() {
     }
   }
 
-  const handleLogout = () => {
-    localStorage.removeItem('student_token')
-    router.push('/student/signin')
+  const handleLogout = async () => {
+    await signOut({ callbackUrl: '/student/signin' })
   }
 
   const formatDate = (dates: unknown) => {

@@ -2,61 +2,61 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { OnboardingWizard } from '@/components/student/OnboardingWizard';
 
 export default function StudentOnboarding() {
   const router = useRouter();
-  const [session, setSession] = useState<any>(null);
+  const { data: session, status } = useSession();
   const [loading, setLoading] = useState(true);
+  const [checkingOnboarding, setCheckingOnboarding] = useState(false);
 
   useEffect(() => {
     const validateSession = async () => {
-      try {
-        // Fetch NextAuth session
-        const response = await fetch('/api/auth/session');
+      // Wait for session to load
+      if (status === 'loading') {
+        return;
+      }
 
-        if (!response.ok) {
-          router.push('/student/signin');
-          return;
-        }
-
-        const sessionData = await response.json();
-
-        // Check if user is authenticated
-        if (!sessionData || !sessionData.user) {
-          router.push('/student/signin');
-          return;
-        }
-
-        // Verify this is a student account
-        if (sessionData.user.userType !== 'student') {
-          // Wrong account type - redirect to appropriate signin
-          router.push('/tourist/signin');
-          return;
-        }
-
-        // Check if already onboarded
-        if (sessionData.user.hasCompletedOnboarding) {
-          router.push('/student/dashboard');
-          return;
-        }
-
-        // Set session for onboarding wizard
-        setSession(sessionData);
-      } catch (error) {
-        console.error('Session validation error:', error);
+      // If not authenticated, redirect to signin
+      if (!session?.user) {
         router.push('/student/signin');
+        return;
+      }
+
+      // Verify this is a student account (not tourist)
+      if (session.user.userType !== 'student') {
+        router.push('/tourist/signin');
+        return;
+      }
+
+      // Check if student has already completed onboarding
+      try {
+        setCheckingOnboarding(true);
+        const response = await fetch(`/api/student/dashboard?email=${encodeURIComponent(session.user.email || '')}`);
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.student?.hasCompletedOnboarding) {
+            // Already onboarded, redirect to dashboard
+            router.push('/student/dashboard');
+            return;
+          }
+        }
+      } catch (error) {
+        console.error('Error checking onboarding status:', error);
       } finally {
+        setCheckingOnboarding(false);
         setLoading(false);
       }
     };
 
     validateSession();
-  }, [router]);
+  }, [session, status, router]);
 
-  // Simplified loading state - full UI will be in OnboardingWizard
-  if (loading) {
+  // Loading state - full UI will be in OnboardingWizard
+  if (loading || status === 'loading') {
     return (
       <div className="min-h-screen flex flex-col relative overflow-hidden">
         {/* Background Image with Overlays */}
