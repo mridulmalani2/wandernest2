@@ -33,7 +33,7 @@ export default function TouristLanding() {
 
         {/* Hero Section */}
         <main className="flex-1 container mx-auto px-4 py-16">
-          <div className="max-w-5xl mx-auto space-y-12">
+          <div className="max-w-5xl mx-auto space-y-16">
             <div className="text-center space-y-8 animate-slide-up-fade">
               <h1 className="text-5xl md:text-6xl font-bold leading-tight tracking-tight text-white text-shadow-lg">
                 Experience{' '}
@@ -65,7 +65,7 @@ export default function TouristLanding() {
             </div>
 
             {/* Features */}
-            <div className="grid md:grid-cols-3 gap-8 pt-8 animate-fade-in-up delay-100">
+            <div className="grid md:grid-cols-3 gap-8 pt-8 animate-fade-in-up delay-400">
               <div className="backdrop-blur-md rounded-2xl shadow-lg border border-gray-200 hover-lift group relative overflow-hidden">
                 <div className="absolute inset-0 opacity-15 group-hover:opacity-25 transition-opacity duration-500">
                   <Image
@@ -147,7 +147,7 @@ export default function TouristLanding() {
               <h2 className="text-4xl font-bold text-center text-white text-shadow-lg">How It Works</h2>
               <div className="grid md:grid-cols-3 gap-8">
                 <div className="text-center space-y-4 group hover-lift">
-                  <div className="w-20 h-20 gradient-ocean rounded-2xl flex items-center justify-center mx-auto text-3xl font-bold text-white shadow-premium group-hover:shadow-glow-blue group-hover:scale-110 transition-all duration-300">
+                  <div className="w-20 h-20 gradient-ocean rounded-2xl flex items-center justify-center mx-auto text-3xl font-bold text-white shadow-premium group-hover:shadow-glow-blue group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
                     1
                   </div>
                   <h3 className="font-bold text-lg text-white group-hover:text-ui-blue-accent transition-colors">Submit Your Request</h3>
@@ -157,7 +157,7 @@ export default function TouristLanding() {
                 </div>
 
                 <div className="text-center space-y-4 group hover-lift">
-                  <div className="w-20 h-20 gradient-vibrant rounded-2xl flex items-center justify-center mx-auto text-3xl font-bold text-white shadow-premium group-hover:shadow-glow-purple group-hover:scale-110 transition-all duration-300">
+                  <div className="w-20 h-20 gradient-vibrant rounded-2xl flex items-center justify-center mx-auto text-3xl font-bold text-white shadow-premium group-hover:shadow-glow-purple group-hover:scale-110 group-hover:-rotate-6 transition-all duration-300">
                     2
                   </div>
                   <h3 className="font-bold text-lg text-white group-hover:text-ui-purple-accent transition-colors">Get Matched with Guides</h3>
@@ -167,7 +167,7 @@ export default function TouristLanding() {
                 </div>
 
                 <div className="text-center space-y-4 group hover-lift">
-                  <div className="w-20 h-20 bg-gradient-to-br from-ui-success to-ui-success rounded-2xl flex items-center justify-center mx-auto text-3xl font-bold text-white shadow-premium group-hover:shadow-soft group-hover:scale-110 transition-all duration-300">
+                  <div className="w-20 h-20 bg-gradient-to-br from-ui-success to-ui-success rounded-2xl flex items-center justify-center mx-auto text-3xl font-bold text-white shadow-premium group-hover:shadow-soft group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
                     3
                   </div>
                   <h3 className="font-bold text-lg text-white group-hover:text-ui-success transition-colors">Experience the City</h3>
@@ -179,8 +179,8 @@ export default function TouristLanding() {
             </div>
 
             {/* Image showcase - lazy loaded */}
-            <div className="grid md:grid-cols-3 gap-6 pt-12 animate-fade-in-up delay-600">
-              <div className="relative h-64 rounded-2xl overflow-hidden shadow-lg group">
+            <div className="grid md:grid-cols-3 gap-6 animate-fade-in-up delay-700">
+              <div className="relative h-72 rounded-2xl overflow-hidden shadow-lg group">
                 <Image
                   src="https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=600&q=80"
                   alt="Iconic Paris architecture and streets"
@@ -190,11 +190,11 @@ export default function TouristLanding() {
                   className="object-cover group-hover:scale-110 transition-transform duration-500"
                   loading="lazy"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-6">
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent flex items-end p-6">
                   <span className="text-white font-bold text-xl">Paris</span>
                 </div>
               </div>
-              <div className="relative h-64 rounded-2xl overflow-hidden shadow-lg group">
+              <div className="relative h-72 rounded-2xl overflow-hidden shadow-lg group">
                 <Image
                   src="https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=600&q=80"
                   alt="Iconic London landmarks and architecture"
@@ -204,11 +204,11 @@ export default function TouristLanding() {
                   className="object-cover group-hover:scale-110 transition-transform duration-500"
                   loading="lazy"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-6">
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent flex items-end p-6">
                   <span className="text-white font-bold text-xl">London</span>
                 </div>
               </div>
-              <div className="relative h-64 rounded-2xl overflow-hidden shadow-lg group">
+              <div className="relative h-72 rounded-2xl overflow-hidden shadow-lg group">
                 <Image
                   src="https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=600&q=80"
                   alt="Beautiful Rome cityscape with historic architecture"
@@ -218,14 +218,14 @@ export default function TouristLanding() {
                   className="object-cover group-hover:scale-110 transition-transform duration-500"
                   loading="lazy"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end p-6">
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent flex items-end p-6">
                   <span className="text-white font-bold text-xl">Rome</span>
                 </div>
               </div>
             </div>
 
             {/* Marketplace Disclaimer */}
-            <div className="mt-16 bg-gradient-to-br from-amber-50 to-yellow-100/50 border-2 border-ui-warning/60 rounded-3xl p-6 md:p-8 max-w-4xl mx-auto shadow-premium hover-lift animate-fade-in-up delay-400">
+            <div className="mt-16 bg-gradient-to-br from-amber-50 to-yellow-100/50 border-2 border-ui-warning/60 rounded-3xl p-6 md:p-8 max-w-4xl mx-auto shadow-premium hover-lift animate-fade-in-up delay-800">
               <div className="flex items-start space-x-4">
                 <div className="flex-shrink-0">
                   <div className="p-3 rounded-xl bg-gradient-to-br from-ui-warning to-ui-warning text-white shadow-soft">
