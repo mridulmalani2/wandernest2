@@ -10,9 +10,8 @@ export default function MatchesPage({
       <div className="max-w-7xl mx-auto">
         <GuideSelection
           requestId={params.requestId}
-          onSelectionComplete={(selectedGuides) => {
-            console.log('Selected guides:', selectedGuides)
-            // Redirect or show confirmation
+          onSelectionComplete={() => {
+            // Selection handled by GuideSelection component
           }}
         />
       </div>
