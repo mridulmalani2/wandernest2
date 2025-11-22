@@ -1,8 +1,10 @@
 // Force dynamic rendering for Vercel
 export const dynamic = 'force-dynamic'
+export const maxDuration = 10
 
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { requireDatabase } from '@/lib/prisma'
+import { AppError, withErrorHandler } from '@/lib/error-handler'
 
 // Helper function to calculate suggested price range
 function calculateSuggestedPrice(city: string, serviceType: string): { min: number; max: number } {
@@ -26,15 +28,6 @@ function calculateSuggestedPrice(city: string, serviceType: string): { min: numb
   return baseRate
 }
 
-// Access the same in-memory storage as the create endpoint
-declare global {
-  var demoTouristRequests: Map<string, any> | undefined;
-}
-
-const demoRequests = globalThis.demoTouristRequests || new Map<string, any>();
-if (!globalThis.demoTouristRequests) {
-  globalThis.demoTouristRequests = demoRequests;
-}
 
 interface MatchingCriteria {
   city: string
@@ -173,39 +166,25 @@ function extractTags(student: { coverLetter: string | null; bio: string | null }
   return Array.from(new Set(tags)).slice(0, 5) // Unique tags, max 5
 }
 
-export async function POST(req: NextRequest) {
-  try {
-    const body = await req.json()
-    const { requestId } = body
+async function matchStudents(req: NextRequest) {
+  const body = await req.json()
+  const { requestId } = body
 
-    if (!requestId) {
-      return NextResponse.json(
-        { success: false, error: 'Request ID is required' },
-        { status: 400 }
-      )
-    }
+  if (!requestId) {
+    throw new AppError(400, 'Request ID is required', 'MISSING_REQUEST_ID')
+  }
 
-    let touristRequest: any = null;
+  // Ensure database is available
+  const prisma = requireDatabase()
 
-    // Try to get the tourist request from database first, then fall back to in-memory
-    if (prisma) {
-      touristRequest = await prisma.touristRequest.findUnique({
-        where: { id: requestId },
-      });
-    }
+  // Get the tourist request from database
+  const touristRequest = await prisma.touristRequest.findUnique({
+    where: { id: requestId },
+  });
 
-    // If not found in database (or database not available), try in-memory storage
-    if (!touristRequest && demoRequests.has(requestId)) {
-      touristRequest = demoRequests.get(requestId);
-      console.log(`[DEMO MODE] Retrieved tourist request from memory: ${requestId}`);
-    }
-
-    if (!touristRequest) {
-      return NextResponse.json(
-        { success: false, error: 'Request not found' },
-        { status: 404 }
-      )
-    }
+  if (!touristRequest) {
+    throw new AppError(404, 'Request not found', 'REQUEST_NOT_FOUND')
+  }
 
     const criteria: MatchingCriteria = {
       city: touristRequest.city,
@@ -406,17 +385,9 @@ export async function POST(req: NextRequest) {
       suggestedPriceRange,
       requestId: touristRequest.id,
     })
-  } catch (error) {
-    console.error('Error matching students:', error)
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Failed to find matching students',
-      },
-      { status: 500 }
-    )
-  }
 }
+
+export const POST = withErrorHandler(matchStudents, 'POST /api/tourist/request/match')
 
 function maskName(fullName: string | null): string {
   if (!fullName) return 'Anonymous'

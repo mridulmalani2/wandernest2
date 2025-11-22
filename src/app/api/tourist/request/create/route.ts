@@ -6,20 +6,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
-import { prisma } from '@/lib/prisma';
+import { requireDatabase } from '@/lib/prisma';
 import { sendBookingConfirmation } from '@/lib/email';
 import { withErrorHandler, withDatabaseRetry, AppError } from '@/lib/error-handler';
-
-// In-memory storage for demo mode (when database is not available)
-// This is shared globally across the serverless function instances
-declare global {
-  var demoTouristRequests: Map<string, any> | undefined;
-}
-
-const demoRequests = globalThis.demoTouristRequests || new Map<string, any>();
-if (!globalThis.demoTouristRequests) {
-  globalThis.demoTouristRequests = demoRequests;
-}
 
 // Validation schema for authenticated booking request
 const createBookingSchema = z.object({
@@ -77,101 +66,55 @@ async function createTouristRequest(req: NextRequest) {
   const body = await req.json();
   const validatedData = createBookingSchema.parse(body);
 
-  // Create the TouristRequest - use database if available, otherwise in-memory storage
+  // Ensure database is available (throws clear error if not)
+  const prisma = requireDatabase();
+
+  // Create the TouristRequest
   const expiresAt = new Date();
   expiresAt.setDate(expiresAt.getDate() + 7); // Expires in 7 days
 
-  let touristRequest: any;
+  const touristRequest = await withDatabaseRetry(async () =>
+    prisma.touristRequest.create({
+      data: {
+        // Link to tourist
+        touristId: touristId,
+        email: session.user.email,
+        emailVerified: true, // Already verified via Google OAuth
 
-  if (prisma) {
-    // Database is available - use Prisma
-    touristRequest = await withDatabaseRetry(async () =>
-      prisma.touristRequest.create({
-        data: {
-          // Link to tourist
-          touristId: touristId,
-          email: session.user.email,
-          emailVerified: true, // Already verified via Google OAuth
+        // Trip Details
+        city: validatedData.city,
+        dates: validatedData.dates,
+        preferredTime: validatedData.preferredTime,
+        numberOfGuests: validatedData.numberOfGuests,
+        groupType: validatedData.groupType,
+        accessibilityNeeds: validatedData.accessibilityNeeds,
 
-          // Trip Details
-          city: validatedData.city,
-          dates: validatedData.dates,
-          preferredTime: validatedData.preferredTime,
-          numberOfGuests: validatedData.numberOfGuests,
-          groupType: validatedData.groupType,
-          accessibilityNeeds: validatedData.accessibilityNeeds,
+        // Preferences
+        preferredNationality: validatedData.preferredNationality,
+        preferredLanguages: validatedData.preferredLanguages,
+        preferredGender: validatedData.preferredGender,
+        serviceType: validatedData.serviceType,
+        interests: validatedData.interests,
+        budget: validatedData.budget,
 
-          // Preferences
-          preferredNationality: validatedData.preferredNationality,
-          preferredLanguages: validatedData.preferredLanguages,
-          preferredGender: validatedData.preferredGender,
-          serviceType: validatedData.serviceType,
-          interests: validatedData.interests,
-          budget: validatedData.budget,
+        // Contact
+        phone: validatedData.phone,
+        whatsapp: validatedData.whatsapp,
+        contactMethod: validatedData.contactMethod,
+        meetingPreference: 'public_place', // Default value
+        tripNotes: validatedData.tripNotes,
 
-          // Contact
-          phone: validatedData.phone,
-          whatsapp: validatedData.whatsapp,
-          contactMethod: validatedData.contactMethod,
-          meetingPreference: 'public_place', // Default value
-          tripNotes: validatedData.tripNotes,
+        status: 'PENDING',
+        expiresAt,
+      },
+    })
+  );
 
-          status: 'PENDING',
-          expiresAt,
-        },
-      })
-    );
-
-    // Send booking confirmation email (non-critical)
-    const emailResult = await sendBookingConfirmation(session.user.email, touristRequest.id)
-    if (!emailResult.success) {
-      console.warn('⚠️  Failed to send booking confirmation email:', emailResult.error)
-      // Continue anyway - email is not critical for the booking
-    }
-  } else {
-    // Database not available - use in-memory storage for demo
-    const requestId = `demo-request-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-
-    touristRequest = {
-      id: requestId,
-      touristId: touristId,
-      email: session.user.email,
-      emailVerified: true,
-
-      // Trip Details
-      city: validatedData.city,
-      dates: validatedData.dates,
-      preferredTime: validatedData.preferredTime,
-      numberOfGuests: validatedData.numberOfGuests,
-      groupType: validatedData.groupType,
-      accessibilityNeeds: validatedData.accessibilityNeeds,
-
-      // Preferences
-      preferredNationality: validatedData.preferredNationality,
-      preferredLanguages: validatedData.preferredLanguages,
-      preferredGender: validatedData.preferredGender,
-      serviceType: validatedData.serviceType,
-      interests: validatedData.interests,
-      budget: validatedData.budget,
-
-      // Contact
-      phone: validatedData.phone,
-      whatsapp: validatedData.whatsapp,
-      contactMethod: validatedData.contactMethod,
-      meetingPreference: 'public_place',
-      tripNotes: validatedData.tripNotes,
-
-      status: 'PENDING',
-      expiresAt,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-
-    // Store in memory
-    demoRequests.set(requestId, touristRequest);
-
-    console.log(`[DEMO MODE] Created tourist request: ${requestId}`);
-    console.log(`[DEMO MODE] Stored ${demoRequests.size} requests in memory`);
+  // Send booking confirmation email (non-critical - doesn't block response)
+  const emailResult = await sendBookingConfirmation(session.user.email, touristRequest.id)
+  if (!emailResult.success) {
+    console.warn('⚠️  Failed to send booking confirmation email:', emailResult.error)
+    // Continue anyway - email is not critical for the booking
   }
 
   return NextResponse.json(

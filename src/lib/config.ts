@@ -41,15 +41,6 @@ export interface AppConfig {
       isConfigured: boolean
     }
   }
-  payment: {
-    razorpay: {
-      keyId: string | null
-      keySecret: string | null
-      webhookSecret: string | null
-      isConfigured: boolean
-    }
-    discoveryFee: number
-  }
   app: {
     nodeEnv: string
     baseUrl: string | null
@@ -59,6 +50,9 @@ export interface AppConfig {
   redis: {
     url: string | null
     isConfigured: boolean
+  }
+  verification: {
+    codeExpiry: number  // Seconds until verification code expires
   }
 }
 
@@ -152,19 +146,8 @@ function loadConfig(): AppConfig {
     configWarnings.push('JWT_SECRET is not set - admin authentication will not work')
   }
 
-  // Payment configuration
-  const razorpayKeyId = process.env.RAZORPAY_KEY_ID || null
-  const razorpayKeySecret = process.env.RAZORPAY_KEY_SECRET || null
-  const razorpayWebhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET || null
-  const isPaymentConfigured = !!(razorpayKeyId && razorpayKeySecret)
-
-  if (!isPaymentConfigured && isProduction) {
-    configWarnings.push(
-      'Razorpay is not configured - payment processing will not work'
-    )
-  }
-
-  const discoveryFee = parseFloat(process.env.DISCOVERY_FEE_AMOUNT || '99.00')
+  // Verification code expiry (in seconds)
+  const verificationCodeExpiry = parseInt(process.env.VERIFICATION_CODE_EXPIRY || '600', 10)
 
   // App configuration
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXTAUTH_URL || null
@@ -175,12 +158,14 @@ function loadConfig(): AppConfig {
     )
   }
 
-  // Redis configuration (optional)
+  // Redis configuration (optional - used for caching and verification codes)
   const redisUrl = process.env.REDIS_URL || null
   const isRedisConfigured = !!redisUrl
 
-  if (!isRedisConfigured) {
-    configWarnings.push('REDIS_URL is not set - using in-memory cache (not recommended for production)')
+  if (!isRedisConfigured && isProduction) {
+    configWarnings.push(
+      'REDIS_URL is not set - verification codes will use database fallback (slower but functional)'
+    )
   }
 
   return {
@@ -213,15 +198,6 @@ function loadConfig(): AppConfig {
         isConfigured: isJwtConfigured,
       },
     },
-    payment: {
-      razorpay: {
-        keyId: razorpayKeyId,
-        keySecret: razorpayKeySecret,
-        webhookSecret: razorpayWebhookSecret,
-        isConfigured: isPaymentConfigured,
-      },
-      discoveryFee,
-    },
     app: {
       nodeEnv,
       baseUrl,
@@ -231,6 +207,9 @@ function loadConfig(): AppConfig {
     redis: {
       url: redisUrl,
       isConfigured: isRedisConfigured,
+    },
+    verification: {
+      codeExpiry: verificationCodeExpiry,
     },
   }
 }
@@ -246,12 +225,11 @@ export function logConfigStatus(): void {
   console.log(`\n📊 Environment: ${config.app.nodeEnv}`)
 
   console.log('\n🔌 Integration Status:')
-  console.log(`  Database:     ${config.database.isAvailable ? '✅ Connected' : '⚠️  Not configured'}`)
+  console.log(`  Database:     ${config.database.isAvailable ? '✅ Connected' : '❌ NOT CONFIGURED (REQUIRED)'}`)
   console.log(`  Email:        ${config.email.isConfigured ? '✅ Configured' : '⚠️  Not configured'}`)
-  console.log(`  Google Auth:  ${config.auth.google.isConfigured ? '✅ Configured' : '❌ Not configured'}`)
+  console.log(`  Google Auth:  ${config.auth.google.isConfigured ? '✅ Configured' : '❌ NOT CONFIGURED (REQUIRED)'}`)
   console.log(`  NextAuth:     ${config.auth.nextAuth.isConfigured ? '✅ Configured' : '⚠️  Partial config'}`)
-  console.log(`  Payment:      ${config.payment.razorpay.isConfigured ? '✅ Configured' : '⚠️  Not configured'}`)
-  console.log(`  Redis Cache:  ${config.redis.isConfigured ? '✅ Configured' : '⚠️  Using in-memory'}`)
+  console.log(`  Redis Cache:  ${config.redis.isConfigured ? '✅ Configured' : '⚠️  DB fallback mode'}`)
 
   if (configWarnings.length > 0) {
     console.log('\n⚠️  Configuration Warnings:')
@@ -295,8 +273,7 @@ export function getConfigSummary() {
       database: config.database.isAvailable ? 'connected' : 'unavailable',
       email: config.email.isConfigured ? 'configured' : 'not_configured',
       googleAuth: config.auth.google.isConfigured ? 'configured' : 'not_configured',
-      payment: config.payment.razorpay.isConfigured ? 'configured' : 'not_configured',
-      redis: config.redis.isConfigured ? 'configured' : 'not_configured',
+      redis: config.redis.isConfigured ? 'configured' : 'database_fallback',
     },
     warnings: configWarnings.length,
     errors: configErrors.length,
