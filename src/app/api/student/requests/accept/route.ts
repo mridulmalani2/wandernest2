@@ -8,7 +8,7 @@ import { prisma } from '@/lib/prisma'
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
-    const { requestId } = body
+    const { requestId, studentEmail } = body
 
     if (!requestId) {
       return NextResponse.json(
@@ -17,39 +17,26 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Get token from cookie or header
-    const token =
-      req.cookies.get('student_token')?.value ||
-      req.headers.get('authorization')?.replace('Bearer ', '')
-
-    if (!token) {
+    if (!studentEmail) {
       return NextResponse.json(
-        { error: 'Unauthorized - No token provided' },
-        { status: 401 }
+        { error: 'Student email is required' },
+        { status: 400 }
       )
     }
 
-    // Find session
-    const session = await prisma.studentSession.findUnique({
-      where: { token },
+    // Find student by email
+    const student = await prisma.student.findUnique({
+      where: { email: studentEmail },
     })
 
-    if (!session || !session.studentId) {
+    if (!student) {
       return NextResponse.json(
-        { error: 'Invalid or expired session' },
-        { status: 401 }
+        { error: 'Student not found' },
+        { status: 404 }
       )
     }
 
-    // Check if session is expired
-    if (new Date() > session.expiresAt) {
-      return NextResponse.json(
-        { error: 'Session expired' },
-        { status: 401 }
-      )
-    }
-
-    const studentId = session.studentId
+    const studentId = student.id
 
     // Call the acceptRequest helper
     const result = await acceptRequest(requestId, studentId)

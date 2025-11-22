@@ -1,15 +1,13 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-// import { useSession, signOut } from 'next-auth/react'
+import { useSession, signOut } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import Navigation from '@/components/Navigation'
 import { PrimaryCTAButton } from '@/components/ui/PrimaryCTAButton'
-
-// AUTH DISABLED FOR DEVELOPMENT - DATABASE_URL not configured
 
 interface TouristRequest {
   id: string
@@ -37,27 +35,29 @@ interface TouristRequest {
 }
 
 export default function TouristDashboard() {
-  // const { data: session, status } = useSession()
+  const { data: session, status } = useSession()
   const router = useRouter()
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [requests, setRequests] = useState<TouristRequest[]>([])
 
-  // DEV MODE: Mock session data
-  const session = { user: { email: 'dev@example.com', userType: 'tourist' } }
-  const status = 'authenticated'
-
   useEffect(() => {
-    // // Redirect to signin if not authenticated
-    // if (status === 'unauthenticated') {
-    //   router.push('/tourist/signin?callbackUrl=/tourist/dashboard')
-    // } else if (status === 'authenticated' && session?.user?.userType === 'tourist') {
-    //   fetchRequests()
-    // }
+    // Wait for session to load
+    if (status === 'loading') {
+      return
+    }
 
-    // DEV MODE: Always fetch requests
-    fetchRequests()
-  }, [])
+    // Redirect to signin if not authenticated
+    if (status === 'unauthenticated') {
+      router.push('/tourist/signin?callbackUrl=/tourist/dashboard')
+      return
+    }
+
+    // Fetch requests if authenticated
+    if (status === 'authenticated' && session?.user) {
+      fetchRequests()
+    }
+  }, [status, session, router])
 
   const fetchRequests = async () => {
     try {
@@ -87,9 +87,7 @@ export default function TouristDashboard() {
   }
 
   const handleLogout = async () => {
-    // await signOut({ callbackUrl: '/tourist/signin' })
-    // DEV MODE: Just redirect
-    router.push('/tourist/signin')
+    await signOut({ callbackUrl: '/tourist/signin' })
   }
 
   const getStatusBadge = (status: string) => {

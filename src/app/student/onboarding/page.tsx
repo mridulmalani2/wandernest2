@@ -2,86 +2,52 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { OnboardingWizard } from '@/components/student/OnboardingWizard';
 
 export default function StudentOnboarding() {
   const router = useRouter();
-  const [session, setSession] = useState<any>(null);
+  const { data: session, status } = useSession();
   const [loading, setLoading] = useState(true);
+  const [checkingOnboarding, setCheckingOnboarding] = useState(false);
 
   useEffect(() => {
-    // PHASE 2 NOTE: Auth disabled for preview mode - session validation bypassed
-    // Student can go straight to onboarding without login
-    setSession({
-      user: {
-        id: 'preview-student',
-        email: 'student@example.edu',
-        name: 'Student',
-      },
-    });
-    setLoading(false);
+    const validateSession = async () => {
+      // Wait for session to load
+      if (status === 'loading') {
+        return;
+      }
 
-    // Original validateSession function commented out:
-    // const validateSession = async () => {
-    //   try {
-    //     // Get token from localStorage or cookie
-    //     const token = localStorage.getItem('student_token') ||
-    //                  document.cookie
-    //                    .split('; ')
-    //                    .find(row => row.startsWith('student_token='))
-    //                    ?.split('=')[1];
-    //
-    //     if (!token) {
-    //       router.push('/student/signin');
-    //       return;
-    //     }
-    //
-    //     // Validate session with backend
-    //     const response = await fetch('/api/student/auth/session', {
-    //       headers: {
-    //         'Authorization': `Bearer ${token}`,
-    //       },
-    //     });
-    //
-    //     if (!response.ok) {
-    //       // Session invalid or expired
-    //       localStorage.removeItem('student_token');
-    //       document.cookie = 'student_token=; path=/; max-age=0';
-    //       router.push('/student/signin');
-    //       return;
-    //     }
-    //
-    //     const data = await response.json();
-    //
-    //     if (data.success) {
-    //       // Check if already onboarded
-    //       if (data.student.hasCompletedOnboarding) {
-    //         router.push('/student/dashboard');
-    //         return;
-    //       }
-    //
-    //       // Create a session-like object for OnboardingWizard
-    //       setSession({
-    //         user: {
-    //           id: data.student.id,
-    //           email: data.student.email,
-    //           name: data.student.name,
-    //         },
-    //       });
-    //     } else {
-    //       router.push('/student/signin');
-    //     }
-    //   } catch (error) {
-    //     console.error('Session validation error:', error);
-    //     router.push('/student/signin');
-    //   } finally {
-    //     setLoading(false);
-    //   }
-    // };
-    //
-    // validateSession();
-  }, [router]);
+      // If not authenticated, redirect to signin
+      if (!session?.user) {
+        router.push('/student/signin');
+        return;
+      }
+
+      // Check if student has already completed onboarding
+      try {
+        setCheckingOnboarding(true);
+        const response = await fetch(`/api/student/dashboard?email=${encodeURIComponent(session.user.email || '')}`);
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.student?.hasCompletedOnboarding) {
+            // Already onboarded, redirect to dashboard
+            router.push('/student/dashboard');
+            return;
+          }
+        }
+      } catch (error) {
+        console.error('Error checking onboarding status:', error);
+      } finally {
+        setCheckingOnboarding(false);
+        setLoading(false);
+      }
+    };
+
+    validateSession();
+  }, [session, status, router]);
 
   // Simplified loading state - full UI will be in OnboardingWizard
   if (loading) {
