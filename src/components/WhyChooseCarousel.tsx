@@ -1,3 +1,4 @@
+// Visual: Using design system border radii, shadows, and typography for consistency
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'

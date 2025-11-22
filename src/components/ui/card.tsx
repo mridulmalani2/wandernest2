@@ -1,3 +1,4 @@
+// Design System: Modern card component with cohesive border radius and shadows
 import * as React from "react"
 
 const Card = React.forwardRef<
@@ -6,7 +7,7 @@ const Card = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={`rounded-2xl border border-border/50 bg-card/80 backdrop-blur-sm text-card-foreground shadow-soft hover:shadow-premium transition-all duration-300 ${className || ''}`}
+    className={`rounded-xl border border-border/50 bg-card/80 backdrop-blur-sm text-card-foreground shadow-soft hover:shadow-premium transition-all duration-300 ${className || ''}`}
     {...props}
   />
 ))
