@@ -45,7 +45,25 @@ export async function GET(req: NextRequest) {
     }
 
     // Build response based on status
-    const response: any = {
+    const response: {
+      status: string;
+      city: string;
+      dates: unknown;
+      numberOfGuests: number;
+      expiresAt: Date;
+      selectionsCount: number;
+      assignedStudent: {
+        name: string | null;
+        email: string;
+        phone: string | null;
+        whatsapp: null;
+        institute: string | null;
+        nationality: string | null;
+        languages: string[];
+        averageRating: number | null;
+        tripsHosted: number;
+      } | null;
+    } = {
       status: touristRequest.status,
       city: touristRequest.city,
       dates: touristRequest.dates,

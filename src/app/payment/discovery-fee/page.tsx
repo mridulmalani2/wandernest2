@@ -11,7 +11,17 @@ import { Alert } from '@/components/ui/alert'
 
 declare global {
   interface Window {
-    Razorpay: any;
+    Razorpay: new (options: {
+      key: string;
+      amount: number;
+      currency: string;
+      name: string;
+      description: string;
+      order_id: string;
+      handler: (response: { razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string }) => void;
+      prefill?: { email?: string; contact?: string };
+      theme?: { color: string };
+    }) => { open: () => void };
   }
 }
 
@@ -86,7 +96,7 @@ export default function DiscoveryFeePage() {
         name: 'WanderNest',
         description: 'Discovery Fee - Access to Local Guides',
         order_id: orderData.orderId,
-        handler: async function (response: any) {
+        handler: async function (response: { razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string }) {
           try {
             // Verify payment
             const verifyResponse = await fetch('/api/payment/verify', {
@@ -130,9 +140,9 @@ export default function DiscoveryFeePage() {
 
       const razorpay = new window.Razorpay(options)
       razorpay.open()
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Payment error:', error)
-      setError(error.message || 'Failed to initiate payment. Please try again.')
+      setError(error instanceof Error ? error.message : 'Failed to initiate payment. Please try again.')
       setLoading(false)
     }
   }

@@ -17,11 +17,11 @@ export async function POST(request: NextRequest) {
       success: true,
       data: review,
     }, { status: 201 })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error creating review:', error)
     return NextResponse.json({
       success: false,
-      error: error.message,
+      error: error instanceof Error ? error.message : "An error occurred",
     }, { status: 400 })
   }
 }

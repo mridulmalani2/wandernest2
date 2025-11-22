@@ -106,7 +106,7 @@ export function TripDetailsStep({ data, errors, updateData }: Props) {
         </Label>
         <RadioGroup
           value={data.preferredTime}
-          onValueChange={(value: any) => updateData({ preferredTime: value })}
+          onValueChange={(value: string) => updateData({ preferredTime: value })}
           className={errors.preferredTime ? 'border border-ui-error rounded p-4' : ''}
         >
           <div className="flex items-center space-x-2">
@@ -159,7 +159,7 @@ export function TripDetailsStep({ data, errors, updateData }: Props) {
         </Label>
         <Select
           value={data.groupType}
-          onValueChange={(value: any) => updateData({ groupType: value })}
+          onValueChange={(value: string) => updateData({ groupType: value })}
         >
           <SelectTrigger className={errors.groupType ? 'border-ui-error' : ''}>
             <SelectValue placeholder="Select group type" />

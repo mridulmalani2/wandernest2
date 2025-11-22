@@ -73,7 +73,7 @@ const onboardingSchema = z.object({
 });
 
 // Helper function to calculate profile completeness
-function calculateProfileCompleteness(data: any): number {
+function calculateProfileCompleteness(data: Record<string, unknown>): number {
   const requiredFields = [
     'name', 'dateOfBirth', 'gender', 'nationality', 'phoneNumber',
     'city', 'campus', 'institute', 'programDegree', 'yearOfStudy',
@@ -88,9 +88,9 @@ function calculateProfileCompleteness(data: any): number {
   const total = requiredFields.length + arrayFields.length + booleanFields.length + 1; // +1 for availability
 
   requiredFields.forEach(field => { if (data[field]) completed++; });
-  arrayFields.forEach(field => { if (data[field]?.length > 0) completed++; });
+  arrayFields.forEach(field => { if (Array.isArray(data[field]) && (data[field] as unknown[]).length > 0) completed++; });
   booleanFields.forEach(field => { if (data[field]) completed++; });
-  if (data.availability?.length > 0) completed++;
+  if (Array.isArray(data.availability) && data.availability.length > 0) completed++;
 
   return Math.round((completed / total) * 100);
 }

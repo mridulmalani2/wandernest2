@@ -13,7 +13,7 @@ import Navigation from '@/components/Navigation'
 interface TouristRequest {
   id: string
   city: string
-  dates: any
+  dates: unknown
   preferredTime: string
   numberOfGuests: number
   groupType: string

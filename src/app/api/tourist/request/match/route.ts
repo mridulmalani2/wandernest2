@@ -28,7 +28,7 @@ interface ScoredStudent {
   noShowCount: number
   reliabilityBadge: string | null
   interests: string[]
-  priceRange: any
+  priceRange: { min: number; max: number } | null
   bio: string | null
   coverLetter: string | null
   score: number
@@ -36,7 +36,7 @@ interface ScoredStudent {
 }
 
 function calculateMatchScore(
-  student: any,
+  student: { nationality: string | null; languages: string[]; interests: string[]; averageRating: number | null },
   criteria: MatchingCriteria
 ): { score: number; reasons: string[] } {
   let score = 0
@@ -111,7 +111,7 @@ function calculateMatchScore(
   return { score, reasons }
 }
 
-function maskStudentIdentity(student: any, index: number): string {
+function maskStudentIdentity(student: { id: string }, index: number): string {
   // Create a masked identifier like "Guide #A73F"
   const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
   const letter = letters[index % letters.length]
@@ -119,7 +119,7 @@ function maskStudentIdentity(student: any, index: number): string {
   return `Guide #${letter}${numbers}`
 }
 
-function extractTags(student: any): string[] {
+function extractTags(student: { coverLetter: string | null; bio: string | null }): string[] {
   const tags: string[] = []
 
   // Extract from cover letter and bio (simple keyword extraction)
@@ -298,7 +298,7 @@ function maskName(fullName: string | null): string {
   return `${parts[0]} ${parts[parts.length - 1][0]}.`
 }
 
-function calculateSuggestedPrice(city: string, serviceType: string): any {
+function calculateSuggestedPrice(city: string, serviceType: string): { min: number; max: number } {
   // Base hourly rates by city (in local currency or EUR)
   const cityRates: Record<string, { min: number; max: number }> = {
     'Paris': { min: 20, max: 35 },

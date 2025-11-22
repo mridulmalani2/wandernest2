@@ -15,7 +15,7 @@ export function generateToken(payload: object, expiresIn: string = '1h'): string
 }
 
 // Verify JWT token
-export function verifyToken(token: string): any {
+export function verifyToken(token: string): jwt.JwtPayload | string | null {
   try {
     return jwt.verify(token, JWT_SECRET)
   } catch (error) {

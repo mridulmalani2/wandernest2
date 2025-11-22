@@ -113,7 +113,7 @@ export function ContactStep({ data, errors, updateData }: Props) {
         </Label>
         <RadioGroup
           value={data.contactMethod}
-          onValueChange={(value: any) => updateData({ contactMethod: value })}
+          onValueChange={(value: string) => updateData({ contactMethod: value })}
           className={errors.contactMethod ? 'border border-ui-error rounded p-4' : ''}
         >
           <div className="flex items-center space-x-2">

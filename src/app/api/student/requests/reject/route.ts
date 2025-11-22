@@ -91,10 +91,10 @@ export async function POST(req: NextRequest) {
       success: true,
       message: 'Request rejected successfully',
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error rejecting request:', error)
     return NextResponse.json(
-      { error: error.message || 'Failed to reject request' },
+      { error: error instanceof Error ? error.message : 'Failed to reject request' },
       { status: 500 }
     )
   }

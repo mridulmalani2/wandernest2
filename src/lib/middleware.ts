@@ -14,7 +14,7 @@ export interface AuthenticatedRequest extends NextRequest {
 }
 
 // Middleware to verify admin authentication
-export async function verifyAdmin(request: NextRequest): Promise<{ authorized: boolean; admin?: any; error?: string }> {
+export async function verifyAdmin(request: NextRequest): Promise<{ authorized: boolean; admin?: { id: string; email: string; role: string; isActive: boolean }; error?: string }> {
   try {
     const authHeader = request.headers.get('authorization')
 
@@ -46,7 +46,7 @@ export async function verifyAdmin(request: NextRequest): Promise<{ authorized: b
 }
 
 // Middleware to verify tourist authentication
-export async function verifyTourist(request: NextRequest): Promise<{ authorized: boolean; tourist?: any; error?: string }> {
+export async function verifyTourist(request: NextRequest): Promise<{ authorized: boolean; tourist?: { email: string }; error?: string }> {
   try {
     const authHeader = request.headers.get('authorization')
 

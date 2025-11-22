@@ -20,7 +20,7 @@ interface Student {
   interests: string[]
   bio?: string
   city: string
-  priceRange?: any
+  priceRange?: { min: number; max: number }
   createdAt: string
 }
 

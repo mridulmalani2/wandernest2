@@ -64,7 +64,7 @@ export async function createReview(input: CreateReviewInput) {
  */
 export async function updateStudentMetrics(
   studentId: string,
-  newReview?: any
+  newReview?: { rating: number; wouldRecommend: boolean; guideShowedUp: boolean }
 ) {
   // Get all reviews for the student
   const allReviews = await prisma.review.findMany({

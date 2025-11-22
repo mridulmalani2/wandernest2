@@ -71,10 +71,10 @@ export async function POST(
       message: 'Request rejected successfully',
       selection: updatedSelection,
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error rejecting request:', error)
     return NextResponse.json(
-      { error: error.message || 'Failed to reject request' },
+      { error: (error instanceof Error ? error.message : null) || 'Failed to reject request' },
       { status: 400 }
     )
   }

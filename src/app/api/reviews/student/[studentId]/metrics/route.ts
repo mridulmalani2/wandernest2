@@ -27,11 +27,11 @@ export async function GET(
       success: true,
       data: metrics,
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error fetching metrics:', error)
     return NextResponse.json({
       success: false,
-      error: error.message,
+      error: error instanceof Error ? error.message : "An error occurred",
     }, { status: 500 })
   }
 }

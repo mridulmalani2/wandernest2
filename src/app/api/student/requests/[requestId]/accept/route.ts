@@ -30,30 +30,30 @@ export async function POST(
       touristPhone: result.touristRequest.phone,
       touristWhatsapp: result.touristRequest.whatsapp,
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error accepting request:', error)
 
-    if (error.message.includes('already been accepted') || error.message.includes('already accepted')) {
+    if (error instanceof Error && (error.message.includes('already been accepted') || error.message.includes('already accepted'))) {
       return NextResponse.json(
         {
           success: false,
-          error: error.message,
+          error: error instanceof Error ? error.message : "An error occurred",
           code: 'ALREADY_ACCEPTED',
         },
         { status: 409 }
       )
     }
 
-    if (error.message.includes('not found')) {
+    if (error instanceof Error && error.message.includes('not found')) {
       return NextResponse.json(
-        { success: false, error: error.message },
+        { success: false, error: error instanceof Error ? error.message : "An error occurred" },
         { status: 404 }
       )
     }
 
-    if (error.message.includes('expired') || error.message.includes('no longer available')) {
+    if (error instanceof Error && (error.message.includes('expired') || error.message.includes('no longer available'))) {
       return NextResponse.json(
-        { success: false, error: error.message },
+        { success: false, error: error instanceof Error ? error.message : "An error occurred" },
         { status: 409 }
       )
     }
@@ -61,7 +61,7 @@ export async function POST(
     return NextResponse.json(
       {
         success: false,
-        error: error.message || 'Failed to accept request',
+        error: (error instanceof Error ? error.message : null) || 'Failed to accept request',
       },
       { status: 500 }
     )

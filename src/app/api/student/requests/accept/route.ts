@@ -64,25 +64,27 @@ export async function POST(req: NextRequest) {
         contactMethod: result.touristRequest.contactMethod,
       },
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error accepting request:', error)
 
-    if (error.message.includes('not found')) {
+    const errorMessage = error instanceof Error ? error.message : 'Failed to accept request'
+
+    if (error instanceof Error && error.message.includes('not found')) {
       return NextResponse.json(
-        { error: error.message },
+        { error: errorMessage },
         { status: 404 }
       )
     }
 
-    if (error.message.includes('no longer available') || error.message.includes('expired')) {
+    if (error instanceof Error && (error.message.includes('no longer available') || error.message.includes('expired'))) {
       return NextResponse.json(
-        { error: error.message },
+        { error: errorMessage },
         { status: 409 }
       )
     }
 
     return NextResponse.json(
-      { error: error.message || 'Failed to accept request' },
+      { error: errorMessage },
       { status: 500 }
     )
   }

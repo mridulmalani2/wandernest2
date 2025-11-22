@@ -20,11 +20,11 @@ export async function GET(
       success: true,
       data: reviews,
     })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error fetching reviews:', error)
     return NextResponse.json({
       success: false,
-      error: error.message,
+      error: error instanceof Error ? error.message : "An error occurred",
     }, { status: 500 })
   }
 }

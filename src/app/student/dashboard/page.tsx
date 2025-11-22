@@ -11,7 +11,7 @@ import Navigation from '@/components/Navigation'
 interface Request {
   id: string
   city: string
-  dates: any
+  dates: unknown
   numberOfGuests: number
   groupType: string
   serviceType: string
@@ -52,7 +52,7 @@ interface Review {
   wasNoShow: boolean
   request: {
     city: string
-    dates: any
+    dates: unknown
     serviceType: string
   }
 }
@@ -215,11 +215,12 @@ export default function StudentDashboard() {
     router.push('/student/signin')
   }
 
-  const formatDate = (dates: any) => {
+  const formatDate = (dates: unknown) => {
     if (!dates) return 'N/A'
     if (typeof dates === 'string') return dates
-    if (dates.start && dates.end) {
-      return `${new Date(dates.start).toLocaleDateString()} - ${new Date(dates.end).toLocaleDateString()}`
+    if (typeof dates === 'object' && dates !== null && 'start' in dates && 'end' in dates) {
+      const datesObj = dates as { start: string; end: string }
+      return `${new Date(datesObj.start).toLocaleDateString()} - ${new Date(datesObj.end).toLocaleDateString()}`
     }
     return 'N/A'
   }
@@ -624,6 +625,7 @@ export default function StudentDashboard() {
           </Card>
         )}
       </div>
+    </div>
     </div>
   )
 }

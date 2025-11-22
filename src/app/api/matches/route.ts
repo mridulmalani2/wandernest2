@@ -100,7 +100,7 @@ export async function GET(request: NextRequest) {
 
     // Return existing selections if any
     if (touristRequest.selections && touristRequest.selections.length > 0) {
-      const selectedGuides = touristRequest.selections.map(selection => ({
+      const selectedGuides = touristRequest.selections.map((selection: { student: { id: string; institute: string | null; languages: string[]; tripsHosted: number; averageRating: number | null; reliabilityBadge: string | null }; status: string }) => ({
         id: selection.student.id,
         anonymousId: generateAnonymousId(selection.student.id),
         university: selection.student.institute,

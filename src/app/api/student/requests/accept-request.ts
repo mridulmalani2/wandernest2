@@ -3,10 +3,11 @@ import {
   sendTouristAcceptanceNotification,
   sendStudentConfirmation,
 } from '@/lib/email'
+import type { Prisma } from '@prisma/client'
 
 export async function acceptRequest(requestId: string, studentId: string) {
   // Start transaction
-  const result = await prisma.$transaction(async (tx) => {
+  const result = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
     // Get the tourist request
     const touristRequest = await tx.touristRequest.findUnique({
       where: { id: requestId },
