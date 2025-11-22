@@ -1,9 +1,25 @@
 import { prisma } from '@/lib/prisma'
-import { Student, TouristRequest } from '@prisma/client'
-import { cache } from '@/lib/cache'
-import { CACHE_TTL } from '@/lib/constants'
+import { TouristRequest } from '@prisma/client'
 
-interface StudentWithScore extends Student {
+interface StudentWithScore {
+  id: string
+  name: string | null
+  nationality: string | null
+  languages: string[]
+  institute: string | null
+  gender: string | null
+  city: string | null
+  tripsHosted: number
+  averageRating: number | null
+  noShowCount: number
+  reliabilityBadge: string | null
+  interests: string[]
+  acceptanceRate: number | null
+  availability: {
+    dayOfWeek: number
+    startTime: string
+    endTime: string
+  }[]
   score: number
 }
 
@@ -62,6 +78,33 @@ export async function findMatches(request: TouristRequest): Promise<StudentWithS
   if (request.preferredGender && request.preferredGender !== 'no_preference') {
     candidates = candidates.filter(s => s.gender === request.preferredGender)
   }
+
+  // Fetch candidate guides with only necessary fields
+  const candidates = await prisma.student.findMany({
+    where: filters,
+    select: {
+      id: true,
+      name: true,
+      nationality: true,
+      languages: true,
+      institute: true,
+      gender: true,
+      city: true,
+      tripsHosted: true,
+      averageRating: true,
+      noShowCount: true,
+      reliabilityBadge: true,
+      interests: true,
+      acceptanceRate: true,
+      availability: {
+        select: {
+          dayOfWeek: true,
+          startTime: true,
+          endTime: true,
+        },
+      },
+    },
+  })
 
   // Score each candidate
   const scored: StudentWithScore[] = candidates.map(student => ({

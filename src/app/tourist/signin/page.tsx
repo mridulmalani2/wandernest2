@@ -22,20 +22,9 @@ export default function TouristSignIn() {
     }
   }, [session, router, callbackUrl])
 
-  // ====== TEMPORARY DEV BYPASS ======
-  // This function bypasses Google OAuth for local development
-  // REMOVE THIS when ready to use real Google authentication
-  const handleDevBypass = async () => {
-    await signIn('dev-bypass', { callbackUrl })
-  }
-  // ====== END TEMPORARY DEV BYPASS ======
-
-  // ====== PRODUCTION GOOGLE AUTH (PRESERVED FOR LATER) ======
-  // Uncomment this when ready to use real Google authentication
   const handleGoogleSignIn = () => {
     signIn('google', { callbackUrl })
   }
-  // ====== END GOOGLE AUTH ======
 
   return (
     <div className="min-h-screen flex flex-col relative overflow-hidden">
@@ -55,7 +44,7 @@ export default function TouristSignIn() {
         {/* Gradient overlay for visual depth */}
         <div className="absolute inset-0 bg-gradient-to-br from-ui-blue-primary/20 via-ui-blue-accent/15 to-ui-purple-primary/20" />
       </div>
-      <div className="absolute inset-0 pattern-grid opacity-15" />
+      <div className="absolute inset-0 pattern-dots opacity-15" />
 
       {/* Content */}
       <div className="relative z-10 flex flex-col min-h-screen">
@@ -106,34 +95,9 @@ export default function TouristSignIn() {
 
           {/* Sign In Card */}
           <div className="glass-card rounded-3xl border-2 border-white/40 p-8 shadow-premium space-y-6">
-            {/* ====== TEMPORARY DEV BYPASS BUTTON ====== */}
-            <Button
-              onClick={handleDevBypass}
-              className="w-full flex items-center justify-center space-x-3 py-6 text-lg gradient-ocean hover:shadow-glow-blue shadow-premium hover-lift"
-              disabled={status === 'loading'}
-            >
-              <span>🚀</span>
-              <span>Dev Login (Temporary Bypass)</span>
-            </Button>
-
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300"></div>
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">
-                  Production Google Auth (Preserved for later)
-                </span>
-              </div>
-            </div>
-
-            {/* ====== GOOGLE AUTH BUTTON (COMMENTED OUT) ====== */}
-            {/* Uncomment this button when ready to use real Google authentication */}
-            {/*
             <Button
               onClick={handleGoogleSignIn}
-              className="w-full flex items-center justify-center space-x-3 py-6 text-lg"
-              variant="outline"
+              className="w-full flex items-center justify-center space-x-3 py-6 text-lg gradient-ocean hover:shadow-glow-blue shadow-premium hover-lift"
               disabled={status === 'loading'}
             >
               <svg className="w-6 h-6" viewBox="0 0 24 24">
@@ -156,8 +120,6 @@ export default function TouristSignIn() {
               </svg>
               <span>Continue with Google</span>
             </Button>
-            */}
-            {/* ====== END GOOGLE AUTH BUTTON ====== */}
 
             <div className="text-center text-sm text-gray-500">
               <p>
@@ -170,19 +132,6 @@ export default function TouristSignIn() {
                   Privacy Policy
                 </Link>
               </p>
-            </div>
-          </div>
-
-          {/* Dev Warning Box */}
-          <div className="glass-frosted bg-ui-warning/10 border-2 border-ui-warning/30 rounded-2xl p-6 shadow-soft hover-lift">
-            <div className="flex items-start space-x-3">
-              <div className="text-2xl">⚠️</div>
-              <div>
-                <h3 className="font-bold text-ui-warning mb-2">Development Mode</h3>
-                <p className="text-sm text-ui-warning/80">
-                  You're using a temporary bypass for local development. The "Dev Login" button will log you in as a test user without Google authentication. This will be removed when Google OAuth is properly configured.
-                </p>
-              </div>
             </div>
           </div>
 

@@ -71,9 +71,13 @@ export async function updateStudentMetrics(
   studentId: string,
   newReview?: any
 ) {
-  // Get all reviews for the student
+  // Get only necessary review fields for calculations (optimized)
   const allReviews = await prisma.review.findMany({
     where: { studentId },
+    select: {
+      rating: true,
+      noShow: true,
+    },
     orderBy: { createdAt: 'desc' },
   })
 
@@ -148,36 +152,34 @@ export async function getStudentReviews(studentId: string) {
  * Get a student's current metrics (cached for 30 minutes)
  */
 export async function getStudentMetrics(studentId: string): Promise<ReviewMetrics | null> {
-  return cache.cached(
-    `student:${studentId}:metrics`,
-    async () => {
-      const student = await prisma.student.findUnique({
-        where: { id: studentId },
+  const student = await prisma.student.findUnique({
+    where: { id: studentId },
+    select: {
+      averageRating: true,
+      reliabilityBadge: true,
+      tripsHosted: true,
+      noShowCount: true,
+      _count: {
         select: {
-          averageRating: true,
-          reliabilityBadge: true,
-          tripsHosted: true,
-          noShowCount: true,
           reviews: true,
         },
-      })
-
-      if (!student) {
-        return null
-      }
-
-      const totalReviews = student.reviews.length
-      const completionRate = totalReviews > 0
-        ? ((totalReviews - student.noShowCount) / totalReviews) * 100
-        : 0
-
-      return {
-        averageRating: student.averageRating ?? 0,
-        completionRate,
-        reliabilityBadge: (student.reliabilityBadge as ReliabilityBadge) ?? 'bronze',
-        totalReviews,
-      }
+      },
     },
-    { ttl: CACHE_TTL.STUDENT_METRICS }
-  )
+  })
+
+  if (!student) {
+    return null
+  }
+
+  const totalReviews = student._count.reviews
+  const completionRate = totalReviews > 0
+    ? ((totalReviews - student.noShowCount) / totalReviews) * 100
+    : 0
+
+  return {
+    averageRating: student.averageRating ?? 0,
+    completionRate,
+    reliabilityBadge: (student.reliabilityBadge as ReliabilityBadge) ?? 'bronze',
+    totalReviews,
+  }
 }

@@ -4,6 +4,9 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Enable React Strict Mode for better development experience and future-proofing
+  reactStrictMode: true,
+
   // Performance optimizations
   compress: true,
   poweredByHeader: false,
@@ -12,10 +15,7 @@ const nextConfig = {
   swcMinify: true,
 
   // Production browser source maps disabled for smaller bundles
-  productionBrowserSourceMaps: false,
-
-  // Production-specific settings
-  productionBrowserSourceMaps: false, // Disable source maps in production for smaller bundles
+  productionBrowserSourceMaps: false
 
   // Compiler optimizations for production
   compiler: {
@@ -57,6 +57,12 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'images.pexels.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.public.blob.vercel-storage.com',
         port: '',
         pathname: '/**',
       },

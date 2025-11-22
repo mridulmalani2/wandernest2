@@ -41,11 +41,16 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Verify all selected students exist and are approved
+    // Verify all selected students exist and are approved (only fetch needed fields)
     const students = await prisma.student.findMany({
       where: {
         id: { in: selectedStudentIds },
         status: 'APPROVED',
+      },
+      select: {
+        id: true,
+        email: true,
+        name: true,
       },
     })
 
