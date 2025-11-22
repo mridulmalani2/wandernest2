@@ -176,48 +176,136 @@ export async function POST(req: NextRequest) {
       preferredTime: touristRequest.preferredTime,
     }
 
-    // STEP 1: Filter students by city and approval status
-    let students = await prisma.student.findMany({
-      where: {
-        city: criteria.city,
-        status: 'APPROVED',
+    // STEP 1: Build optimized WHERE clause for database-level filtering
+    const whereClause: any = {
+      city: criteria.city,
+      status: 'APPROVED',
+      // Only include students with availability set
+      availability: {
+        some: {},
       },
-      include: {
-        availability: true,
-      },
-    })
+    }
 
-    if (students.length === 0) {
+    // Apply gender preference filter at DB level
+    if (criteria.preferredGender && criteria.preferredGender !== 'no_preference') {
+      whereClause.gender = criteria.preferredGender
+    }
+
+    // Try to fetch students matching nationality first
+    let candidatePool: any[] = []
+
+    if (criteria.preferredNationality) {
+      const nationalityMatches = await prisma.student.findMany({
+        where: {
+          ...whereClause,
+          nationality: criteria.preferredNationality,
+        },
+        select: {
+          id: true,
+          name: true,
+          nationality: true,
+          languages: true,
+          institute: true,
+          gender: true,
+          tripsHosted: true,
+          averageRating: true,
+          noShowCount: true,
+          reliabilityBadge: true,
+          interests: true,
+          priceRange: true,
+          bio: true,
+          coverLetter: true,
+          acceptanceRate: true,
+          availability: {
+            select: {
+              dayOfWeek: true,
+              startTime: true,
+              endTime: true,
+            },
+          },
+        },
+      })
+
+      if (nationalityMatches.length >= 3) {
+        candidatePool = nationalityMatches
+      }
+    }
+
+    // If not enough nationality matches, try language matches
+    if (candidatePool.length < 3 && criteria.preferredLanguages.length > 0) {
+      const languageMatches = await prisma.student.findMany({
+        where: {
+          ...whereClause,
+          languages: {
+            hasSome: criteria.preferredLanguages,
+          },
+        },
+        select: {
+          id: true,
+          name: true,
+          nationality: true,
+          languages: true,
+          institute: true,
+          gender: true,
+          tripsHosted: true,
+          averageRating: true,
+          noShowCount: true,
+          reliabilityBadge: true,
+          interests: true,
+          priceRange: true,
+          bio: true,
+          coverLetter: true,
+          acceptanceRate: true,
+          availability: {
+            select: {
+              dayOfWeek: true,
+              startTime: true,
+              endTime: true,
+            },
+          },
+        },
+      })
+
+      candidatePool = languageMatches
+    }
+
+    // If still not enough, expand to all approved students in city
+    if (candidatePool.length < 3) {
+      candidatePool = await prisma.student.findMany({
+        where: whereClause,
+        select: {
+          id: true,
+          name: true,
+          nationality: true,
+          languages: true,
+          institute: true,
+          gender: true,
+          tripsHosted: true,
+          averageRating: true,
+          noShowCount: true,
+          reliabilityBadge: true,
+          interests: true,
+          priceRange: true,
+          bio: true,
+          coverLetter: true,
+          acceptanceRate: true,
+          availability: {
+            select: {
+              dayOfWeek: true,
+              startTime: true,
+              endTime: true,
+            },
+          },
+        },
+      })
+    }
+
+    if (candidatePool.length === 0) {
       return NextResponse.json({
         success: true,
         matches: [],
         message: 'No approved students found in this city',
       })
-    }
-
-    // STEP 2: Apply gender preference filter
-    if (criteria.preferredGender && criteria.preferredGender !== 'no_preference') {
-      students = students.filter((s) => s.gender === criteria.preferredGender)
-    }
-
-    // STEP 3: Filter by availability (students must have some availability set)
-    students = students.filter((s) => s.availability && s.availability.length > 0)
-
-    // STEP 4: Filter by nationality (primary), expand to language if needed
-    let nationalityMatches = students.filter(
-      (s) => criteria.preferredNationality && s.nationality === criteria.preferredNationality
-    )
-
-    let languageMatches = students.filter((s) =>
-      criteria.preferredLanguages.some((lang) => s.languages.includes(lang))
-    )
-
-    // If we have nationality matches, prioritize them, otherwise use language matches
-    let candidatePool = nationalityMatches.length >= 3 ? nationalityMatches : students
-
-    // If still too few candidates, expand to all students in city
-    if (candidatePool.length < 3) {
-      candidatePool = students
     }
 
     // STEP 5: Score and sort candidates
