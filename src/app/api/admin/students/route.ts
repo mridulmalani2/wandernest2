@@ -2,7 +2,7 @@
 export const dynamic = 'force-dynamic'
 
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { requireDatabase } from '@/lib/prisma'
 import { verifyAdmin } from '@/lib/middleware'
 
 // Get all students with optional filtering
@@ -17,6 +17,8 @@ export async function GET(request: NextRequest) {
   }
 
   try {
+    const db = requireDatabase()
+
     const { searchParams } = new URL(request.url)
     const status = searchParams.get('status')
     const city = searchParams.get('city')
@@ -26,7 +28,7 @@ export async function GET(request: NextRequest) {
     const where: any = {}
 
     if (status && ['PENDING_APPROVAL', 'APPROVED', 'SUSPENDED'].includes(status)) {
-      where.status = status
+      where.status = status as 'PENDING_APPROVAL' | 'APPROVED' | 'SUSPENDED'
     }
 
     if (city) {
@@ -34,7 +36,7 @@ export async function GET(request: NextRequest) {
     }
 
     const [students, total] = await Promise.all([
-      prisma.student.findMany({
+      db.student.findMany({
         where,
         skip: (page - 1) * limit,
         take: limit,
@@ -58,7 +60,7 @@ export async function GET(request: NextRequest) {
           createdAt: true,
         },
       }),
-      prisma.student.count({ where }),
+      db.student.count({ where }),
     ])
 
     return NextResponse.json({
