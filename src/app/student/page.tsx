@@ -9,8 +9,7 @@ import { DollarSign, Clock, Users } from 'lucide-react'
 export default function StudentLandingPage() {
   return (
     <div className="min-h-screen flex flex-col relative overflow-hidden">
-      {/* Full-bleed Background with Paris imagery */}
-      <div className="absolute inset-0" role="img" aria-label="Beautiful Paris street scene with classic architecture">
+      <div className="absolute inset-0">
         <Image
           src="https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=1920&q=80"
           alt="Beautiful Paris street scene with classic architecture"
@@ -27,9 +26,7 @@ export default function StudentLandingPage() {
       </div>
       <div className="absolute inset-0 pattern-grid opacity-10" />
 
-      {/* Content */}
-      <div className="relative z-10">
-        {/* Header */}
+      <div className="relative z-10 flex flex-col min-h-screen">
         <Navigation variant="student" />
 
         {/* Hero Section */}
@@ -59,11 +56,11 @@ export default function StudentLandingPage() {
                     className="text-lg px-12 py-8 h-auto gradient-vibrant hover:shadow-glow-purple shadow-premium text-white font-semibold group hover-lift transition-all duration-300 focus-visible:ring-4 focus-visible:ring-white/50 focus-visible:ring-offset-4"
                   >
                     Explore Now
-                    <span className="ml-2 group-hover:translate-x-1 transition-transform inline-block">→</span>
+                    <span className="ml-2 group-hover:translate-x-1 transition-transform inline-block" aria-hidden="true">→</span>
                   </Button>
                 </Link>
               </div>
-            </div>
+            </section>
 
             {/* Value Proposition */}
             <div className="backdrop-blur-xl rounded-3xl shadow-2xl border border-white/30 animate-fade-in-up delay-400 relative overflow-hidden">
@@ -125,7 +122,7 @@ export default function StudentLandingPage() {
                   </div>
                 </div>
               </div>
-            </div>
+            </section>
 
             {/* How It Works */}
             <div className="space-y-12 animate-fade-in-up delay-500">
@@ -139,7 +136,7 @@ export default function StudentLandingPage() {
                   <p className="text-base text-white/90 leading-relaxed font-medium px-2">
                     Use your student email (.edu) to sign in with Google
                   </p>
-                </div>
+                </article>
 
                 <div className="text-center space-y-5 group hover-lift">
                   <div className="w-24 h-24 gradient-vibrant rounded-2xl flex items-center justify-center mx-auto text-4xl font-bold text-white shadow-premium group-hover:shadow-glow-purple group-hover:scale-110 group-hover:-rotate-6 transition-all duration-300">
@@ -149,7 +146,7 @@ export default function StudentLandingPage() {
                   <p className="text-base text-white/90 leading-relaxed font-medium px-2">
                     Upload your student ID to confirm your enrollment
                   </p>
-                </div>
+                </article>
 
                 <div className="text-center space-y-5 group hover-lift">
                   <div className="w-24 h-24 bg-gradient-to-br from-ui-success to-ui-success rounded-2xl flex items-center justify-center mx-auto text-4xl font-bold text-white shadow-premium group-hover:shadow-soft group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
@@ -159,7 +156,7 @@ export default function StudentLandingPage() {
                   <p className="text-base text-white/90 leading-relaxed font-medium px-2">
                     Describe your ideal day-out and share your expertise
                   </p>
-                </div>
+                </article>
 
                 <div className="text-center space-y-5 group hover-lift">
                   <div className="w-24 h-24 gradient-sunset rounded-2xl flex items-center justify-center mx-auto text-4xl font-bold text-white shadow-premium group-hover:shadow-soft group-hover:scale-110 group-hover:-rotate-6 transition-all duration-300">
@@ -169,11 +166,10 @@ export default function StudentLandingPage() {
                   <p className="text-base text-white/90 leading-relaxed font-medium px-2">
                     Set your availability and start receiving booking requests
                   </p>
-                </div>
+                </article>
               </div>
-            </div>
+            </section>
 
-            {/* Modern FAQ */}
             <ModernFAQ />
 
             {/* Benefits Visualization with Images */}
@@ -216,7 +212,7 @@ export default function StudentLandingPage() {
                   </div>
                 </div>
               </div>
-            </div>
+            </section>
 
             {/* Final CTA */}
             <div className="text-center space-y-8 py-16 animate-fade-in-up delay-1000">
@@ -230,10 +226,10 @@ export default function StudentLandingPage() {
                   className="text-lg px-12 py-8 h-auto gradient-vibrant hover:shadow-glow-purple shadow-premium text-white font-semibold group hover-lift-lg transition-all duration-300 focus-visible:ring-4 focus-visible:ring-white/50 focus-visible:ring-offset-4"
                 >
                   Explore Now
-                  <span className="ml-2 group-hover:translate-x-2 transition-transform inline-block">→</span>
+                  <span className="ml-2 group-hover:translate-x-2 transition-transform inline-block" aria-hidden="true">→</span>
                 </Button>
               </Link>
-            </div>
+            </section>
 
           </div>
         </main>

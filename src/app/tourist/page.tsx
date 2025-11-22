@@ -5,12 +5,10 @@ import { GraduationCap, MessageCircle, Star, AlertTriangle, Send, Users, PartyPo
 import { DynamicNavigation } from '@/components/DynamicNavigation'
 import Footer from '@/components/Footer'
 
-// Server Component - no client-side bundle overhead
 export default function TouristLanding() {
   return (
     <div className="min-h-screen flex flex-col relative overflow-hidden">
-      {/* Full-bleed Background with London imagery */}
-      <div className="absolute inset-0" role="img" aria-label="Beautiful London Thames River with iconic architecture">
+      <div className="absolute inset-0">
         <Image
           src="https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=1920&q=80"
           alt="Beautiful London Thames River with iconic architecture"
@@ -20,16 +18,12 @@ export default function TouristLanding() {
           sizes="100vw"
           className="object-cover"
         />
-        {/* Dark overlay for text contrast */}
-        <div className="absolute inset-0 bg-black/25 backdrop-blur-[4px]" />
-        {/* Gradient overlay for visual depth */}
+        <div className="absolute inset-0 bg-black/30 backdrop-blur-[4px]" />
         <div className="absolute inset-0 bg-gradient-to-br from-ui-blue-primary/20 via-ui-blue-accent/15 to-ui-purple-primary/20" />
       </div>
       <div className="absolute inset-0 pattern-dots opacity-15" />
 
-      {/* Content */}
-      <div className="relative z-10">
-        {/* Header - Dynamically imported to reduce initial bundle */}
+      <div className="relative z-10 flex flex-col min-h-screen">
         <DynamicNavigation variant="tourist" />
 
         {/* Hero Section - Optimized for mobile: reduced padding */}
@@ -59,11 +53,11 @@ export default function TouristLanding() {
                 <Link href="/booking">
                   <Button size="lg" className="text-lg px-10 py-7 gradient-ocean hover:shadow-glow-blue shadow-premium text-white font-semibold group hover-lift">
                     Start Your Adventure
-                    <span className="ml-2 group-hover:translate-x-1 transition-transform inline-block">→</span>
+                    <span className="ml-2 group-hover:translate-x-1 transition-transform inline-block" aria-hidden="true">→</span>
                   </Button>
                 </Link>
               </div>
-            </div>
+            </section>
 
             {/* Features */}
             <div className="pt-8 animate-fade-in-up delay-400">
@@ -272,7 +266,7 @@ export default function TouristLanding() {
                   </div>
                 </div>
               </div>
-            </div>
+            </section>
 
             {/* City Destination Cards - Enhanced Design */}
             <div className="space-y-8 pt-8 animate-fade-in-up delay-700">
@@ -447,7 +441,7 @@ export default function TouristLanding() {
                   </div>
                 </Link>
               </div>
-            </div>
+            </section>
 
             {/* Marketplace Disclaimer - Enhanced */}
             <div className="mt-16 max-w-4xl mx-auto animate-fade-in-up delay-800">
@@ -522,7 +516,7 @@ export default function TouristLanding() {
                   </div>
                 </div>
               </div>
-            </div>
+            </section>
           </div>
         </main>
 

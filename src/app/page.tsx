@@ -17,7 +17,6 @@ export default function MainLanding() {
 
   return (
     <div className="min-h-screen flex flex-col relative overflow-hidden">
-      {/* Schema.org structured data */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
@@ -26,7 +25,6 @@ export default function MainLanding() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationData) }}
       />
-      {/* Full-bleed Background Image with Overlay - Optimized with Next.js Image */}
       <div className="absolute inset-0">
         <Image
           src="https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=1920&q=80"
@@ -37,16 +35,12 @@ export default function MainLanding() {
           sizes="100vw"
           className="object-cover"
         />
-        {/* Dark overlay for text contrast */}
-        <div className="absolute inset-0 bg-black/25 backdrop-blur-[4px]" />
-        {/* Gradient overlay for visual depth */}
+        <div className="absolute inset-0 bg-black/30 backdrop-blur-[4px]" />
         <div className="absolute inset-0 bg-gradient-to-br from-ui-blue-accent/15 via-ui-purple-accent/10 to-ui-purple-primary/15" />
       </div>
       <div className="absolute inset-0 pattern-dots opacity-20" />
 
-      {/* Content */}
       <div className="relative z-10 flex flex-col min-h-screen">
-        {/* Header */}
         <Navigation variant="default" />
 
         {/* Hero Section */}
@@ -262,7 +256,6 @@ export default function MainLanding() {
               </Link>
             </motion.div>
 
-            {/* Premium Carousel - Why Choose WanderNest */}
             <WhyChooseCarousel />
           </div>
         </main>

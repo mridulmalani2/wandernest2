@@ -260,33 +260,6 @@
     animation: slide-up-fade 0.8s ease-out;
   }
 
-  .delay-100 {
-    animation-delay: 100ms;
-  }
-
-  .delay-200 {
-    animation-delay: 200ms;
-  }
-
-  .delay-300 {
-    animation-delay: 300ms;
-  }
-
-  .delay-400 {
-    animation-delay: 400ms;
-  }
-
-  .delay-500 {
-    animation-delay: 500ms;
-  }
-
-  .delay-700 {
-    animation-delay: 700ms;
-  }
-
-  .delay-1000 {
-    animation-delay: 1000ms;
-  }
 
   /* Glass morphism effect - Used heavily throughout the app */
   .glass-card {
@@ -399,38 +372,6 @@
     background-size: 30px 30px;
   }
 
-  /* Staggered animations - Used for list animations */
-  .stagger-1 {
-    animation-delay: 50ms;
-  }
-
-  .stagger-2 {
-    animation-delay: 100ms;
-  }
-
-  .stagger-3 {
-    animation-delay: 150ms;
-  }
-
-  .stagger-4 {
-    animation-delay: 200ms;
-  }
-
-  .stagger-5 {
-    animation-delay: 250ms;
-  }
-
-  .stagger-6 {
-    animation-delay: 300ms;
-  }
-
-  /* Parallax effects - Used in layout */
-  .parallax-bg {
-    background-attachment: fixed;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: cover;
-  }
 
   /* Accessibility Enhancements */
   /* Enhanced focus states for better keyboard navigation */
