@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
-import { GraduationCap, MessageCircle, Star, AlertTriangle } from 'lucide-react'
+import { GraduationCap, MessageCircle, Star, AlertTriangle, Send, Users, PartyPopper, MapPin, Calendar, TrendingUp } from 'lucide-react'
 import { DynamicNavigation } from '@/components/DynamicNavigation'
 import Footer from '@/components/Footer'
 
@@ -153,122 +153,373 @@ export default function TouristLanding() {
               </div>
             </div>
 
-            {/* How It Works Section */}
-            <div className="space-y-10 pt-12 animate-fade-in-up delay-500">
-              <h2 className="text-4xl font-bold text-center text-white text-shadow-lg">How It Works</h2>
+            {/* How It Works Section - Modern Timeline */}
+            <div className="space-y-12 pt-12 animate-fade-in-up delay-500">
+              <h2 className="text-4xl md:text-5xl font-bold text-center text-white text-shadow-lg">How It Works</h2>
+
+              {/* Desktop Timeline */}
+              <div className="hidden md:block relative max-w-5xl mx-auto">
+                {/* Connecting Line */}
+                <div className="absolute top-20 left-0 right-0 h-1 bg-gradient-to-r from-ui-blue-primary via-ui-purple-primary to-ui-success opacity-30"
+                     style={{marginLeft: '10%', marginRight: '10%'}}></div>
+
+                <div className="grid md:grid-cols-3 gap-12 relative z-10">
+                  {/* Step 1 */}
+                  <div className="text-center space-y-6 group">
+                    <div className="relative mx-auto w-40 h-40 gradient-ocean rounded-3xl flex items-center justify-center shadow-premium group-hover:shadow-glow-blue group-hover:scale-110 transition-all duration-500 rotate-3 group-hover:rotate-6">
+                      <div className="absolute -top-3 -right-3 w-12 h-12 bg-white rounded-full flex items-center justify-center text-ui-blue-accent font-bold text-xl shadow-lg">
+                        1
+                      </div>
+                      <Send className="w-16 h-16 text-white" strokeWidth={1.5} />
+                    </div>
+                    <div className="space-y-3 backdrop-blur-sm bg-white/10 rounded-2xl p-6 border border-white/20 group-hover:bg-white/20 transition-all">
+                      <h3 className="font-bold text-xl text-white">Submit Your Request</h3>
+                      <p className="text-sm text-white/90 leading-relaxed">
+                        Tell us about your trip preferences, dates, and interests
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Step 2 */}
+                  <div className="text-center space-y-6 group">
+                    <div className="relative mx-auto w-40 h-40 gradient-vibrant rounded-3xl flex items-center justify-center shadow-premium group-hover:shadow-glow-purple group-hover:scale-110 transition-all duration-500 -rotate-3 group-hover:-rotate-6">
+                      <div className="absolute -top-3 -right-3 w-12 h-12 bg-white rounded-full flex items-center justify-center text-ui-purple-accent font-bold text-xl shadow-lg">
+                        2
+                      </div>
+                      <Users className="w-16 h-16 text-white" strokeWidth={1.5} />
+                    </div>
+                    <div className="space-y-3 backdrop-blur-sm bg-white/10 rounded-2xl p-6 border border-white/20 group-hover:bg-white/20 transition-all">
+                      <h3 className="font-bold text-xl text-white">Get Matched with Guides</h3>
+                      <p className="text-sm text-white/90 leading-relaxed">
+                        We match you with verified student guides who fit your needs—including options from your home country if you prefer
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Step 3 */}
+                  <div className="text-center space-y-6 group">
+                    <div className="relative mx-auto w-40 h-40 bg-gradient-to-br from-ui-success to-emerald-500 rounded-3xl flex items-center justify-center shadow-premium group-hover:shadow-soft group-hover:scale-110 transition-all duration-500 rotate-3 group-hover:rotate-6">
+                      <div className="absolute -top-3 -right-3 w-12 h-12 bg-white rounded-full flex items-center justify-center text-ui-success font-bold text-xl shadow-lg">
+                        3
+                      </div>
+                      <PartyPopper className="w-16 h-16 text-white" strokeWidth={1.5} />
+                    </div>
+                    <div className="space-y-3 backdrop-blur-sm bg-white/10 rounded-2xl p-6 border border-white/20 group-hover:bg-white/20 transition-all">
+                      <h3 className="font-bold text-xl text-white">Experience the City</h3>
+                      <p className="text-sm text-white/90 leading-relaxed">
+                        Connect directly with your guide and enjoy an authentic local experience
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Mobile Vertical Timeline */}
+              <div className="md:hidden space-y-8 max-w-md mx-auto">
+                {/* Step 1 */}
+                <div className="relative flex gap-6 group">
+                  <div className="flex flex-col items-center">
+                    <div className="relative w-20 h-20 gradient-ocean rounded-2xl flex items-center justify-center shadow-premium shrink-0 group-hover:scale-110 transition-transform">
+                      <Send className="w-10 h-10 text-white" strokeWidth={1.5} />
+                      <div className="absolute -top-2 -right-2 w-8 h-8 bg-white rounded-full flex items-center justify-center text-ui-blue-accent font-bold text-sm shadow-lg">
+                        1
+                      </div>
+                    </div>
+                    <div className="w-1 flex-1 bg-gradient-to-b from-ui-blue-primary to-ui-purple-primary opacity-30 my-4"></div>
+                  </div>
+                  <div className="flex-1 pt-2 space-y-2 backdrop-blur-sm bg-white/10 rounded-2xl p-5 border border-white/20">
+                    <h3 className="font-bold text-lg text-white">Submit Your Request</h3>
+                    <p className="text-sm text-white/90 leading-relaxed">
+                      Tell us about your trip preferences, dates, and interests
+                    </p>
+                  </div>
+                </div>
+
+                {/* Step 2 */}
+                <div className="relative flex gap-6 group">
+                  <div className="flex flex-col items-center">
+                    <div className="relative w-20 h-20 gradient-vibrant rounded-2xl flex items-center justify-center shadow-premium shrink-0 group-hover:scale-110 transition-transform">
+                      <Users className="w-10 h-10 text-white" strokeWidth={1.5} />
+                      <div className="absolute -top-2 -right-2 w-8 h-8 bg-white rounded-full flex items-center justify-center text-ui-purple-accent font-bold text-sm shadow-lg">
+                        2
+                      </div>
+                    </div>
+                    <div className="w-1 flex-1 bg-gradient-to-b from-ui-purple-primary to-ui-success opacity-30 my-4"></div>
+                  </div>
+                  <div className="flex-1 pt-2 space-y-2 backdrop-blur-sm bg-white/10 rounded-2xl p-5 border border-white/20">
+                    <h3 className="font-bold text-lg text-white">Get Matched with Guides</h3>
+                    <p className="text-sm text-white/90 leading-relaxed">
+                      We match you with verified student guides who fit your needs—including options from your home country if you prefer
+                    </p>
+                  </div>
+                </div>
+
+                {/* Step 3 */}
+                <div className="relative flex gap-6 group">
+                  <div className="flex flex-col items-center">
+                    <div className="relative w-20 h-20 bg-gradient-to-br from-ui-success to-emerald-500 rounded-2xl flex items-center justify-center shadow-premium shrink-0 group-hover:scale-110 transition-transform">
+                      <PartyPopper className="w-10 h-10 text-white" strokeWidth={1.5} />
+                      <div className="absolute -top-2 -right-2 w-8 h-8 bg-white rounded-full flex items-center justify-center text-ui-success font-bold text-sm shadow-lg">
+                        3
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex-1 pt-2 space-y-2 backdrop-blur-sm bg-white/10 rounded-2xl p-5 border border-white/20">
+                    <h3 className="font-bold text-lg text-white">Experience the City</h3>
+                    <p className="text-sm text-white/90 leading-relaxed">
+                      Connect directly with your guide and enjoy an authentic local experience
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* City Destination Cards - Enhanced Design */}
+            <div className="space-y-8 pt-8 animate-fade-in-up delay-700">
+              <h2 className="text-4xl md:text-5xl font-bold text-center text-white text-shadow-lg">Choose Your Destination</h2>
+
               <div className="grid md:grid-cols-3 gap-8">
-                <div className="text-center space-y-4 group hover-lift">
-                  <div className="w-20 h-20 gradient-ocean rounded-2xl flex items-center justify-center mx-auto text-3xl font-bold text-white shadow-premium group-hover:shadow-glow-blue group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
-                    1
-                  </div>
-                  <h3 className="font-bold text-lg text-white group-hover:text-ui-blue-accent transition-colors">Submit Your Request</h3>
-                  <p className="text-sm text-white/90 leading-relaxed font-medium">
-                    Tell us about your trip preferences, dates, and interests
-                  </p>
-                </div>
+                {/* Paris Card */}
+                <Link href="/booking" className="group block">
+                  <div className="relative h-96 rounded-3xl overflow-hidden shadow-premium hover:shadow-elevated transition-all duration-500 hover:-translate-y-2">
+                    {/* Background Image */}
+                    <Image
+                      src="https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=600&q=80"
+                      alt="Iconic Paris architecture and streets"
+                      fill
+                      quality={75}
+                      sizes="(max-width: 768px) 100vw, 33vw"
+                      className="object-cover group-hover:scale-110 transition-transform duration-700"
+                      loading="lazy"
+                    />
 
-                <div className="text-center space-y-4 group hover-lift">
-                  <div className="w-20 h-20 gradient-vibrant rounded-2xl flex items-center justify-center mx-auto text-3xl font-bold text-white shadow-premium group-hover:shadow-glow-purple group-hover:scale-110 group-hover:-rotate-6 transition-all duration-300">
-                    2
-                  </div>
-                  <h3 className="font-bold text-lg text-white group-hover:text-ui-purple-accent transition-colors">Get Matched with Guides</h3>
-                  <p className="text-sm text-white/90 leading-relaxed font-medium">
-                    We match you with verified student guides who fit your needs—including options from your home country if you prefer
-                  </p>
-                </div>
+                    {/* Gradient Overlays */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
+                    <div className="absolute inset-0 bg-gradient-to-br from-ui-purple-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 
-                <div className="text-center space-y-4 group hover-lift">
-                  <div className="w-20 h-20 bg-gradient-to-br from-ui-success to-ui-success rounded-2xl flex items-center justify-center mx-auto text-3xl font-bold text-white shadow-premium group-hover:shadow-soft group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
-                    3
+                    {/* Content */}
+                    <div className="absolute inset-0 flex flex-col justify-end p-8">
+                      {/* City Badge */}
+                      <div className="mb-4 inline-flex items-center gap-2 self-start backdrop-blur-md bg-white/20 px-4 py-2 rounded-full border border-white/30 group-hover:bg-white/30 transition-colors">
+                        <MapPin className="w-4 h-4 text-white" />
+                        <span className="text-white text-sm font-medium">France</span>
+                      </div>
+
+                      {/* City Name */}
+                      <h3 className="text-4xl font-bold text-white mb-3 text-shadow-lg group-hover:text-ui-purple-primary transition-colors">
+                        Paris
+                      </h3>
+
+                      {/* Description */}
+                      <p className="text-white/90 text-sm mb-4 leading-relaxed backdrop-blur-sm bg-black/20 px-4 py-3 rounded-xl inline-block">
+                        Explore the City of Light with local students
+                      </p>
+
+                      {/* Stats */}
+                      <div className="flex gap-6 text-white/80 text-sm">
+                        <div className="flex items-center gap-2">
+                          <Users className="w-4 h-4" />
+                          <span>45+ guides</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                          <span>4.8 rating</span>
+                        </div>
+                      </div>
+
+                      {/* Hover Arrow */}
+                      <div className="absolute top-6 right-6 w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 border border-white/30">
+                        <span className="text-white text-xl">→</span>
+                      </div>
+                    </div>
                   </div>
-                  <h3 className="font-bold text-lg text-white group-hover:text-ui-success transition-colors">Experience the City</h3>
-                  <p className="text-sm text-white/90 leading-relaxed font-medium">
-                    Connect directly with your guide and enjoy an authentic local experience
-                  </p>
-                </div>
+                </Link>
+
+                {/* London Card */}
+                <Link href="/booking" className="group block">
+                  <div className="relative h-96 rounded-3xl overflow-hidden shadow-premium hover:shadow-elevated transition-all duration-500 hover:-translate-y-2">
+                    {/* Background Image */}
+                    <Image
+                      src="https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=600&q=80"
+                      alt="Iconic London landmarks and architecture"
+                      fill
+                      quality={75}
+                      sizes="(max-width: 768px) 100vw, 33vw"
+                      className="object-cover group-hover:scale-110 transition-transform duration-700"
+                      loading="lazy"
+                    />
+
+                    {/* Gradient Overlays */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
+                    <div className="absolute inset-0 bg-gradient-to-br from-ui-blue-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+
+                    {/* Content */}
+                    <div className="absolute inset-0 flex flex-col justify-end p-8">
+                      {/* City Badge */}
+                      <div className="mb-4 inline-flex items-center gap-2 self-start backdrop-blur-md bg-white/20 px-4 py-2 rounded-full border border-white/30 group-hover:bg-white/30 transition-colors">
+                        <MapPin className="w-4 h-4 text-white" />
+                        <span className="text-white text-sm font-medium">United Kingdom</span>
+                      </div>
+
+                      {/* City Name */}
+                      <h3 className="text-4xl font-bold text-white mb-3 text-shadow-lg group-hover:text-ui-blue-primary transition-colors">
+                        London
+                      </h3>
+
+                      {/* Description */}
+                      <p className="text-white/90 text-sm mb-4 leading-relaxed backdrop-blur-sm bg-black/20 px-4 py-3 rounded-xl inline-block">
+                        Discover royal history and modern culture
+                      </p>
+
+                      {/* Stats */}
+                      <div className="flex gap-6 text-white/80 text-sm">
+                        <div className="flex items-center gap-2">
+                          <Users className="w-4 h-4" />
+                          <span>60+ guides</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                          <span>4.9 rating</span>
+                        </div>
+                      </div>
+
+                      {/* Hover Arrow */}
+                      <div className="absolute top-6 right-6 w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 border border-white/30">
+                        <span className="text-white text-xl">→</span>
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+
+                {/* Rome Card */}
+                <Link href="/booking" className="group block">
+                  <div className="relative h-96 rounded-3xl overflow-hidden shadow-premium hover:shadow-elevated transition-all duration-500 hover:-translate-y-2">
+                    {/* Background Image */}
+                    <Image
+                      src="https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=600&q=80"
+                      alt="Beautiful Rome cityscape with historic architecture"
+                      fill
+                      quality={75}
+                      sizes="(max-width: 768px) 100vw, 33vw"
+                      className="object-cover group-hover:scale-110 transition-transform duration-700"
+                      loading="lazy"
+                    />
+
+                    {/* Gradient Overlays */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
+                    <div className="absolute inset-0 bg-gradient-to-br from-ui-success/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+
+                    {/* Content */}
+                    <div className="absolute inset-0 flex flex-col justify-end p-8">
+                      {/* City Badge */}
+                      <div className="mb-4 inline-flex items-center gap-2 self-start backdrop-blur-md bg-white/20 px-4 py-2 rounded-full border border-white/30 group-hover:bg-white/30 transition-colors">
+                        <MapPin className="w-4 h-4 text-white" />
+                        <span className="text-white text-sm font-medium">Italy</span>
+                      </div>
+
+                      {/* City Name */}
+                      <h3 className="text-4xl font-bold text-white mb-3 text-shadow-lg group-hover:text-ui-success transition-colors">
+                        Rome
+                      </h3>
+
+                      {/* Description */}
+                      <p className="text-white/90 text-sm mb-4 leading-relaxed backdrop-blur-sm bg-black/20 px-4 py-3 rounded-xl inline-block">
+                        Walk through ancient history and Italian charm
+                      </p>
+
+                      {/* Stats */}
+                      <div className="flex gap-6 text-white/80 text-sm">
+                        <div className="flex items-center gap-2">
+                          <Users className="w-4 h-4" />
+                          <span>38+ guides</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                          <span>4.7 rating</span>
+                        </div>
+                      </div>
+
+                      {/* Hover Arrow */}
+                      <div className="absolute top-6 right-6 w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 border border-white/30">
+                        <span className="text-white text-xl">→</span>
+                      </div>
+                    </div>
+                  </div>
+                </Link>
               </div>
             </div>
 
-            {/* Image showcase - lazy loaded */}
-            <div className="grid md:grid-cols-3 gap-6 animate-fade-in-up delay-700">
-              <div className="relative h-72 rounded-2xl overflow-hidden shadow-lg group">
-                <Image
-                  src="https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=600&q=80"
-                  alt="Iconic Paris architecture and streets"
-                  fill
-                  quality={70}
-                  sizes="(max-width: 768px) 100vw, 33vw"
-                  className="object-cover group-hover:scale-110 transition-transform duration-500"
-                  loading="lazy"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent flex items-end p-6">
-                  <span className="text-white font-bold text-xl">Paris</span>
-                </div>
-              </div>
-              <div className="relative h-72 rounded-2xl overflow-hidden shadow-lg group">
-                <Image
-                  src="https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=600&q=80"
-                  alt="Iconic London landmarks and architecture"
-                  fill
-                  quality={70}
-                  sizes="(max-width: 768px) 100vw, 33vw"
-                  className="object-cover group-hover:scale-110 transition-transform duration-500"
-                  loading="lazy"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent flex items-end p-6">
-                  <span className="text-white font-bold text-xl">London</span>
-                </div>
-              </div>
-              <div className="relative h-72 rounded-2xl overflow-hidden shadow-lg group">
-                <Image
-                  src="https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=600&q=80"
-                  alt="Beautiful Rome cityscape with historic architecture"
-                  fill
-                  quality={70}
-                  sizes="(max-width: 768px) 100vw, 33vw"
-                  className="object-cover group-hover:scale-110 transition-transform duration-500"
-                  loading="lazy"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent flex items-end p-6">
-                  <span className="text-white font-bold text-xl">Rome</span>
-                </div>
-              </div>
-            </div>
+            {/* Marketplace Disclaimer - Enhanced */}
+            <div className="mt-16 max-w-4xl mx-auto animate-fade-in-up delay-800">
+              <div className="relative overflow-hidden backdrop-blur-md bg-gradient-to-br from-amber-50/95 to-yellow-50/95 border-2 border-amber-300/60 rounded-3xl shadow-premium hover:shadow-elevated transition-all duration-300">
+                {/* Decorative Elements */}
+                <div className="absolute -top-24 -right-24 w-48 h-48 bg-amber-300/20 rounded-full blur-3xl"></div>
+                <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-yellow-300/20 rounded-full blur-3xl"></div>
 
-            {/* Marketplace Disclaimer */}
-            <div className="mt-16 bg-gradient-to-br from-amber-50 to-yellow-100/50 border-2 border-ui-warning/60 rounded-3xl p-6 md:p-8 max-w-4xl mx-auto shadow-premium hover-lift animate-fade-in-up delay-800">
-              <div className="flex items-start space-x-4">
-                <div className="flex-shrink-0">
-                  <div className="p-3 rounded-xl bg-gradient-to-br from-ui-warning to-ui-warning text-white shadow-soft">
-                    <AlertTriangle className="w-6 h-6" />
+                <div className="relative p-6 md:p-10">
+                  <div className="flex flex-col md:flex-row md:items-start gap-6">
+                    {/* Icon Section */}
+                    <div className="flex-shrink-0">
+                      <div className="relative">
+                        <div className="absolute inset-0 bg-amber-400 rounded-2xl blur-md opacity-50"></div>
+                        <div className="relative p-4 rounded-2xl bg-gradient-to-br from-amber-400 to-yellow-500 text-white shadow-lg">
+                          <AlertTriangle className="w-8 h-8" strokeWidth={2} />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Content Section */}
+                    <div className="flex-1 space-y-5">
+                      {/* Title */}
+                      <div className="space-y-2">
+                        <h2 className="font-bold text-amber-900 text-2xl md:text-3xl">Important Notice</h2>
+                        <div className="h-1 w-20 bg-gradient-to-r from-amber-500 to-yellow-500 rounded-full"></div>
+                      </div>
+
+                      {/* Main Text */}
+                      <div className="space-y-4">
+                        <p className="text-base text-amber-900/90 leading-relaxed font-medium bg-white/50 backdrop-blur-sm px-5 py-4 rounded-2xl border border-amber-200/50">
+                          <strong className="text-amber-950">WanderNest is a marketplace connector only.</strong> We facilitate connections between tourists and local student guides but do not:
+                        </p>
+
+                        {/* List of Items */}
+                        <div className="grid md:grid-cols-2 gap-3">
+                          <div className="flex items-start gap-3 bg-white/60 backdrop-blur-sm px-4 py-3 rounded-xl border border-amber-200/50 hover:bg-white/80 transition-colors">
+                            <div className="w-6 h-6 rounded-full bg-amber-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                              <span className="text-amber-700 text-sm">✕</span>
+                            </div>
+                            <span className="text-sm text-amber-900 font-medium">Handle any payments or financial transactions</span>
+                          </div>
+
+                          <div className="flex items-start gap-3 bg-white/60 backdrop-blur-sm px-4 py-3 rounded-xl border border-amber-200/50 hover:bg-white/80 transition-colors">
+                            <div className="w-6 h-6 rounded-full bg-amber-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                              <span className="text-amber-700 text-sm">✕</span>
+                            </div>
+                            <span className="text-sm text-amber-900 font-medium">Guarantee the quality of services provided</span>
+                          </div>
+
+                          <div className="flex items-start gap-3 bg-white/60 backdrop-blur-sm px-4 py-3 rounded-xl border border-amber-200/50 hover:bg-white/80 transition-colors">
+                            <div className="w-6 h-6 rounded-full bg-amber-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                              <span className="text-amber-700 text-sm">✕</span>
+                            </div>
+                            <span className="text-sm text-amber-900 font-medium">Act as an employer or agency for guides</span>
+                          </div>
+
+                          <div className="flex items-start gap-3 bg-white/60 backdrop-blur-sm px-4 py-3 rounded-xl border border-amber-200/50 hover:bg-white/80 transition-colors">
+                            <div className="w-6 h-6 rounded-full bg-amber-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                              <span className="text-amber-700 text-sm">✕</span>
+                            </div>
+                            <span className="text-sm text-amber-900 font-medium">Assume liability for guide-tourist interactions</span>
+                          </div>
+                        </div>
+
+                        {/* Footer Note */}
+                        <p className="text-sm text-amber-900/80 leading-relaxed italic bg-amber-100/50 px-5 py-3 rounded-xl border-l-4 border-amber-500">
+                          All arrangements, payments, and services are agreed upon directly between you and your guide.
+                        </p>
+                      </div>
+                    </div>
                   </div>
-                </div>
-                <div className="flex-1">
-                  <h2 className="font-bold text-ui-warning mb-3 text-lg">Important Notice</h2>
-                  <p className="text-sm text-ui-warning mb-3 leading-relaxed">
-                    <strong>WanderNest is a marketplace connector only.</strong> We facilitate connections between tourists and local student guides but do not:
-                  </p>
-                  <ul className="space-y-2 text-sm text-ui-warning">
-                    <li className="flex items-start">
-                      <span className="mr-2 mt-0.5">•</span>
-                      <span>Handle any payments or financial transactions</span>
-                    </li>
-                    <li className="flex items-start">
-                      <span className="mr-2 mt-0.5">•</span>
-                      <span>Guarantee the quality of services provided</span>
-                    </li>
-                    <li className="flex items-start">
-                      <span className="mr-2 mt-0.5">•</span>
-                      <span>Act as an employer or agency for guides</span>
-                    </li>
-                    <li className="flex items-start">
-                      <span className="mr-2 mt-0.5">•</span>
-                      <span>Assume liability for guide-tourist interactions</span>
-                    </li>
-                  </ul>
-                  <p className="text-sm text-ui-warning mt-3 leading-relaxed">
-                    All arrangements, payments, and services are agreed upon directly between you and your guide.
-                  </p>
                 </div>
               </div>
             </div>
