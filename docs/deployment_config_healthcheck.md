@@ -1,258 +1,358 @@
 # Deployment Configuration Health Check
 
-**Last Updated:** 2025-11-22
-**Status:** ✅ Hardened and Verified
+**Last Audit:** November 22, 2025
+**Status:** ✅ Hardened and Production-Ready
 
-## Overview
+---
 
-This document explains the deployment configuration for WanderNest2 on Vercel. The configuration has been audited and hardened to prevent common deployment failures.
+## Executive Summary
+
+This document summarizes the deployment configuration audit and hardening performed on the WanderNest2 repository to prevent Vercel deployment issues.
+
+### Issues Found and Fixed:
+
+1. ✅ **Critical:** Removed custom `buildCommand` from vercel.json that prevented Next.js framework auto-detection
+2. ✅ **Critical:** Enabled automatic database migrations during deployment (via vercel-build script)
+3. ✅ **Verified:** No conflicting configuration files
+4. ✅ **Verified:** All schema validation requirements met
+
+---
+
+## Configuration Files Overview
+
+### 1. `/vercel.json` - Vercel Deployment Configuration
+
+**Location:** Repository root
+**Purpose:** Configures Vercel-specific deployment settings
+
+**Current Configuration:**
+```json
+{
+  "regions": ["iad1"],
+  "functions": { /* API route timeouts and memory */ },
+  "headers": [ /* CORS, security, caching */ ],
+  "env": { /* environment variable mappings */ }
+}
+```
+
+**What was changed:**
+- ❌ **Removed:** `buildCommand` field (was overriding framework detection)
+
+**Why this matters:**
+- Vercel can now **auto-detect this as a Next.js project** (not "Other" framework)
+- The better `vercel-build` script from package.json is now used
+- Database migrations are now automatically applied during deployment
+
+**Schema Compliance:** ✅ All fields valid, no extra properties that would trigger validation errors
+
+---
+
+### 2. `/package.json` - Build Scripts
+
+**Location:** Repository root
+**Purpose:** Defines npm scripts including the Vercel build command
+
+**Relevant Scripts:**
+```json
+{
+  "build": "next build",
+  "postinstall": "prisma generate --schema=./src/prisma/schema.prisma",
+  "vercel-build": "prisma generate --schema=./src/prisma/schema.prisma && prisma migrate deploy --schema=./src/prisma/schema.prisma && next build"
+}
+```
+
+**Build Flow on Vercel:**
+1. Install dependencies
+2. Run `postinstall` → generates Prisma Client
+3. Run `vercel-build` → generates Prisma Client (again, idempotent), deploys migrations, builds Next.js
+4. Deploy
+
+**Why this is correct:**
+- The `vercel-build` script is **complete** (includes migrations)
+- No buildCommand override in vercel.json means this script is actually used
+- Prisma schema path (`./src/prisma/schema.prisma`) is correctly specified
+
+---
+
+### 3. `/next.config.js` - Next.js Framework Configuration
+
+**Location:** Repository root
+**Purpose:** Configures Next.js framework settings, optimizations, and build behavior
+
+**Status:** ✅ Clean, no deployment blockers
+
+**Key Settings:**
+- `reactStrictMode: true` - Good for catching issues early
+- `compress: true` - Enables gzip compression
+- `poweredByHeader: false` - Security best practice
+- No custom `output` config - Compatible with Vercel's serverless deployment
+- Image optimization properly configured with allowed domains
+- Webpack optimizations for production builds
+
+**No conflicts:** Does not define headers/rewrites/redirects (those are in vercel.json)
+
+---
+
+### 4. `/tsconfig.json` - TypeScript Configuration
+
+**Location:** Repository root
+**Purpose:** TypeScript compiler settings
+
+**Status:** ✅ Properly configured
+
+**Key Settings:**
+- Path alias: `@/*` maps to `./src/*`
+- Target: ES2020 (modern browsers)
+- Module resolution: bundler (Next.js compatible)
+
+---
+
+### 5. `/.vercelignore` - Vercel Ignore File
+
+**Location:** Repository root
+**Purpose:** Specifies files/folders to exclude from Vercel deployment
+
+**Status:** ✅ Comprehensive
+
+**Excludes:**
+- Development files (.env.local, .vscode, etc.)
+- Documentation (README, docs/)
+- Build artifacts (.next, out, dist)
+- Test files
+- Git metadata
 
 ---
 
 ## Deployment Assumptions
 
-### Framework & Build System
-- **Framework:** Next.js 14.2.15 (App Router)
-- **Project Root:** Repository root (`/`)
-- **Source Directory:** `src/` (all application code lives here)
-- **Build Command:** Automatic (Vercel uses `vercel-build` script from package.json)
-- **Node Version:** Automatically detected by Vercel from package.json engines (defaults to Node 20.x LTS)
+### Framework Detection
+- **Framework:** Next.js 14 (auto-detected by Vercel)
+- **Preset:** nextjs (NOT "Other")
+- **Detection Method:** Automatic (presence of `next.config.js` + no buildCommand override)
 
-### Database & Prisma
-- **Prisma Schema Location:** `src/prisma/schema.prisma`
-- **Build Process:**
-  1. `prisma generate` - Generates Prisma Client
-  2. `prisma migrate deploy` - Applies migrations to production database
-  3. `next build` - Builds the Next.js application
+### Project Root
+- **Root Directory:** `/` (repository root)
+- **Source Directory:** `/src` (for app code)
+- **App Directory:** `/src/app` (Next.js App Router)
 
-### Environment Variables
-- **Configuration Method:** Vercel Dashboard (NOT vercel.json)
-- **Required Variables:** See `.env.example` for the complete list
-- **Critical Variables:**
-  - `DATABASE_URL` - PostgreSQL connection string
-  - `NEXTAUTH_SECRET` - Auth.js session encryption key
-  - `NEXTAUTH_URL` - Production URL for OAuth callbacks
-  - `RAZORPAY_KEY_ID` & `RAZORPAY_KEY_SECRET` - Payment integration
+### Build Command
+- **Command:** `vercel-build` script from package.json
+- **Full Command:** `prisma generate --schema=./src/prisma/schema.prisma && prisma migrate deploy --schema=./src/prisma/schema.prisma && next build`
+- **Output:** `.next/` directory with production build
+
+### Database
+- **ORM:** Prisma
+- **Schema Location:** `./src/prisma/schema.prisma` (non-standard location)
+- **Migration Strategy:** Automatic during build via `prisma migrate deploy`
 
 ---
 
-## Configuration Files
+## Common Failure Modes - PREVENTED
 
-### 1. vercel.json
+### ❌ Wrong Framework Detection (NOW FIXED)
+**Before:** Custom `buildCommand` in vercel.json caused Vercel to use "Other" framework preset
+**After:** No buildCommand → Vercel auto-detects Next.js → Correct optimizations applied
 
-**Location:** `/vercel.json`
+### ❌ Missing Migrations (NOW FIXED)
+**Before:** Old buildCommand didn't include `prisma migrate deploy`
+**After:** vercel-build script includes migrations → Schema changes automatically applied
 
-**Purpose:** Configures Vercel-specific deployment settings (function limits, headers, and caching).
+### ❌ Schema Validation Errors (PREVENTED)
+**Status:** All fields in vercel.json conform to Vercel's schema
+**No:** Extra properties like `comment` in header objects
+**No:** Invalid region codes
+**No:** maxDuration exceeding plan limits (currently max 15s for analytics)
 
-**What's Inside:**
+### ❌ Hard-coded Paths (VERIFIED CORRECT)
+**Prisma Schema:** `./src/prisma/schema.prisma` (relative to repo root)
+**Consistency:** Same path used in both `postinstall` and `vercel-build` scripts
+**Also defined in:** package.json `prisma.schema` field
 
-```json
-{
-  "functions": { ... },  // API route timeout and memory limits
-  "headers": [ ... ]      // Security headers and caching rules
-}
-```
-
-**Key Points:**
-- ✅ **NO** `buildCommand` - Lets Vercel auto-detect Next.js and use framework preset
-- ✅ **NO** `env` - Environment variables are set in Vercel dashboard
-- ✅ **NO** `regions` - Deprecated field, Vercel auto-manages regions
-- ✅ Schema-compliant configuration (no extra properties)
-
-**Function Limits:**
-- Default API routes: 8s max duration, 512MB memory
-- Specific high-load routes (matches, analytics): 10-15s, 1024MB
-- Cities endpoint: 5s, 512MB (fast lookup)
-
-**Headers:**
-- Security headers on all routes (XSS protection, frame options, CSP)
-- CORS headers for API routes
-- Optimized caching for static assets (31536000s = 1 year)
-- Short cache for tourist page (300s with stale-while-revalidate)
-
-### 2. next.config.js
-
-**Location:** `/next.config.js`
-
-**Purpose:** Next.js framework configuration.
-
-**What Changed:**
-- ❌ **Removed:** Custom webpack configuration (conflicts with Vercel optimizations)
-- ❌ **Removed:** `compress: true` (redundant, Vercel handles compression)
-- ❌ **Removed:** `swcMinify: true` (now the default in Next.js 14)
-- ❌ **Removed:** Manual chunk splitting (Vercel optimizes this automatically)
-- ✅ **Kept:** Essential optimizations (package imports, CSS optimization, image config)
-- ✅ **Kept:** Bundle analyzer for performance debugging
-- ✅ **Kept:** Console log removal in production
-
-**Key Optimizations:**
-- `optimizePackageImports` - Tree-shaking for large libraries (Radix UI, Lucide)
-- `optimizeCss: true` - CSS bundle optimization
-- `modularizeImports` - Reduces Lucide React bundle size by ~70%
-- Image optimization for Unsplash, Pexels, and Vercel Blob Storage
-
-### 3. package.json
-
-**Location:** `/package.json`
-
-**Build Scripts:**
-```json
-{
-  "build": "next build",
-  "vercel-build": "prisma generate --schema=./src/prisma/schema.prisma && prisma migrate deploy --schema=./src/prisma/schema.prisma && next build",
-  "postinstall": "prisma generate --schema=./src/prisma/schema.prisma"
-}
-```
-
-**How It Works:**
-- `postinstall` - Runs after `npm install` (generates Prisma Client locally)
-- `vercel-build` - Vercel automatically uses this script (if present) instead of `build`
-- Prisma schema path is explicitly specified to handle `src/` directory structure
-
-### 4. .vercelignore
-
-**Location:** `/.vercelignore`
-
-**Purpose:** Excludes unnecessary files from deployment (reduces upload time and build size).
-
-**What's Excluded:**
-- Development files (.env.local, test files, IDE configs)
-- Build artifacts (.next, out, dist - rebuilt on Vercel)
-- Documentation (README.md, docs/)
-- Git metadata (.git, .gitignore)
-- Logs and temporary files
+### ❌ Conflicting Config Files (NONE FOUND)
+**Verified:** Only one `vercel.json` (at repo root)
+**Verified:** Only one `next.config.js` (at repo root)
+**No:** Subdirectory configs that could cause conflicts
 
 ---
 
-## What Vercel Auto-Detects
+## Do Not Touch Without Care ⚠️
 
-When you deploy, Vercel will automatically detect:
+### 1. Do NOT add `buildCommand` to vercel.json
+**Why:** It overrides framework detection and prevents the vercel-build script from running
+**Result:** Vercel treats this as "Other" framework instead of Next.js
+**Impact:** Missing Next.js optimizations, migrations won't run
 
-✅ **Framework:** Next.js 14 (App Router)
-✅ **Root Directory:** `/` (repository root)
-✅ **Build Command:** `npm run vercel-build` (from package.json)
-✅ **Install Command:** `npm install` (with postinstall hook for Prisma)
-✅ **Output Directory:** `.next` (Next.js default)
-✅ **Development Command:** `npm run dev`
+### 2. Do NOT change Prisma schema path without updating all references
+**Current Path:** `./src/prisma/schema.prisma`
+**Must Update:**
+- `package.json` → `prisma.schema` field
+- `package.json` → `postinstall` script
+- `package.json` → `vercel-build` script
 
-**Why this matters:** By NOT overriding these in vercel.json, we let Vercel use its optimized framework preset, which includes:
-- Intelligent caching
-- Automatic static optimization
-- Edge function detection
-- Image optimization CDN
-- Serverless function bundling
+### 3. Do NOT add extra properties to header objects in vercel.json
+**Valid Keys ONLY:** `key`, `value`
+**Invalid Keys:** `comment`, `description`, anything else
+**Result if violated:** Schema validation error, deployment fails
 
----
+### 4. Do NOT change region without considering database location
+**Current Region:** `iad1` (AWS US-East, Washington DC)
+**Best Practice:** Deploy to same region as your database for low latency
 
-## Common Pitfalls & Prevention
-
-### ❌ Problem: Schema Validation Errors
-**Cause:** Extra properties in vercel.json (e.g., `regions`, `env`, invalid headers config)
-**Prevention:** Our vercel.json only uses documented, schema-compliant fields
-
-### ❌ Problem: Build Command Failures
-**Cause:** Custom buildCommand that doesn't match package.json or assumes wrong paths
-**Prevention:** Removed buildCommand, rely on framework preset + vercel-build script
-
-### ❌ Problem: Framework Not Detected
-**Cause:** vercel.json overrides prevent Vercel from detecting Next.js
-**Prevention:** Minimal vercel.json, no buildCommand or framework overrides
-
-### ❌ Problem: Prisma Client Not Generated
-**Cause:** Build command doesn't run `prisma generate` with correct schema path
-**Prevention:** Explicit `--schema=./src/prisma/schema.prisma` in vercel-build script
-
-### ❌ Problem: Environment Variables Not Found
-**Cause:** Using `env` field in vercel.json (deprecated)
-**Prevention:** All env vars are set in Vercel dashboard under Project Settings → Environment Variables
-
-### ❌ Problem: Wrong Root Directory
-**Cause:** Vercel detects `src/` as project root instead of repository root
-**Prevention:** Standard Next.js structure with `src/` as source directory (not project root)
+### 5. Do NOT set `maxDuration` above your Vercel plan limits
+**Current Max:** 15s (for `/api/admin/analytics`)
+**Hobby Plan Limit:** 10s
+**Pro Plan Limit:** 60s
+**Enterprise Plan Limit:** 900s (15 minutes)
 
 ---
 
-## DO NOT TOUCH Without Care
+## Environment Variables Required
 
-### Critical Configuration That Must Stay Stable:
+All environment variables use the `@variable_name` syntax in vercel.json, which references secrets/env vars set in the Vercel dashboard.
 
-1. **Prisma Schema Path**
-   - Always use `--schema=./src/prisma/schema.prisma` in scripts
-   - Changing this breaks builds and migrations
+**You must set these in Vercel Dashboard → Settings → Environment Variables:**
 
-2. **vercel-build Script**
-   - Must run in order: prisma generate → migrate deploy → next build
-   - Changing order or removing steps will break deployments
+### Core Application
+- `DATABASE_URL` - PostgreSQL connection string
+- `NODE_ENV` - Should be "production"
+- `NEXT_PUBLIC_BASE_URL` - Your production URL (e.g., https://wandernest.app)
 
-3. **Function Timeout Limits**
-   - Some API routes (analytics, matches) need 10-15s timeouts
-   - Reducing these will cause "Function Execution Timeout" errors
+### Authentication
+- `NEXTAUTH_SECRET` - Secret for NextAuth.js session encryption
+- `NEXTAUTH_URL` - Your production URL (same as NEXT_PUBLIC_BASE_URL)
+- `JWT_SECRET` - Secret for JWT token signing
+- `GOOGLE_CLIENT_ID` - Google OAuth client ID
+- `GOOGLE_CLIENT_SECRET` - Google OAuth client secret
 
-4. **Image Remote Patterns**
-   - Required for Unsplash, Pexels, and Vercel Blob Storage
-   - Removing these breaks image loading
+### Email
+- `EMAIL_HOST` - SMTP server hostname
+- `EMAIL_PORT` - SMTP port (typically 587)
+- `EMAIL_USER` - SMTP username
+- `EMAIL_PASS` - SMTP password
+- `EMAIL_FROM` - From address for outgoing emails
 
-5. **vercel.json Headers**
-   - Security headers protect against XSS, clickjacking, MIME-sniffing
-   - DO NOT remove or weaken these without security review
+### Payment (Razorpay)
+- `RAZORPAY_KEY_ID` - Razorpay API key ID
+- `RAZORPAY_KEY_SECRET` - Razorpay API secret
+- `RAZORPAY_WEBHOOK_SECRET` - Razorpay webhook signature secret
+- `DISCOVERY_FEE_AMOUNT` - Amount in paise (e.g., 9900 for ₹99)
+
+### Redis (Optional)
+- `REDIS_URL` - Redis connection string (for rate limiting, caching)
+
+### Other
+- `VERIFICATION_CODE_EXPIRY` - Expiry time for email verification codes (in minutes)
+
+**See also:** `docs/post-go-live-checklist.md` for detailed environment variable documentation
+
+---
+
+## What Vercel Will Auto-Detect
+
+With the hardened configuration, Vercel will automatically detect:
+
+### ✅ Framework
+- **Detected:** Next.js
+- **Version:** 14.2.15 (from package.json)
+- **Preset:** nextjs
+
+### ✅ Build Command
+- **Command:** Uses `vercel-build` from package.json
+- **No Override:** No custom buildCommand in vercel.json
+
+### ✅ Output Directory
+- **Directory:** `.next` (standard Next.js output)
+- **Auto-detected:** Yes
+
+### ✅ Install Command
+- **Command:** `npm install` (or `pnpm install` if lockfile detected)
+- **Auto-detected:** Yes (from package-lock.json)
+
+### ✅ Development Command
+- **Command:** `npm run dev` (uses `next dev` from package.json)
+- **Auto-detected:** Yes
 
 ---
 
 ## Deployment Checklist
 
-Before deploying changes to Vercel:
+Before deploying to production, verify:
 
-- [ ] Run `npm run build` locally to verify Next.js builds successfully
-- [ ] Verify `prisma generate --schema=./src/prisma/schema.prisma` works
-- [ ] Check that no new env vars are needed (add to Vercel dashboard first)
-- [ ] Confirm vercel.json is still schema-compliant (no extra properties)
-- [ ] Test API routes locally to ensure they don't exceed function timeout limits
-- [ ] Verify no hard-coded localhost URLs or file paths
-- [ ] Check that new dependencies don't conflict with Vercel's build environment
+### Pre-Deployment
+- [ ] All environment variables set in Vercel dashboard (see list above)
+- [ ] Database created and accessible from Vercel's iad1 region
+- [ ] Google OAuth credentials configured with correct redirect URLs
+- [ ] Razorpay account set up with webhook configured
+- [ ] SMTP credentials tested for email sending
 
----
+### During First Deployment
+- [ ] Watch build logs for any Prisma migration errors
+- [ ] Verify Next.js build completes successfully
+- [ ] Check that framework is detected as "Next.js" (not "Other")
 
-## Debugging Deployment Failures
+### Post-Deployment
+- [ ] Test authentication flows (Google OAuth, email/password)
+- [ ] Verify database connection works (check any API route)
+- [ ] Test email sending (registration, password reset)
+- [ ] Test payment flow (Razorpay integration)
+- [ ] Check function logs for errors
+- [ ] Verify security headers: https://securityheaders.com
 
-### If Vercel Build Fails:
-
-1. **Check Build Logs** - Look for the specific error (Prisma, TypeScript, dependency issues)
-2. **Verify Environment Variables** - Ensure all required vars are set in Vercel dashboard
-3. **Test Locally** - Run `npm run vercel-build` to replicate the production build
-4. **Check Prisma Schema** - Ensure `prisma generate --schema=./src/prisma/schema.prisma` works
-5. **Review Recent Changes** - Compare vercel.json and next.config.js with this documentation
-
-### If Functions Timeout:
-
-1. **Check Function Limits** - Verify timeout in vercel.json matches route requirements
-2. **Optimize Database Queries** - Slow queries are the #1 cause of timeouts
-3. **Add Indexes** - Ensure Prisma schema has proper indexes for frequently queried fields
-4. **Reduce Data Fetching** - Limit SELECT fields, use pagination, implement caching
-
-### If Framework Not Detected:
-
-1. **Remove Build Overrides** - Check vercel.json for `buildCommand` or `framework` fields
-2. **Verify package.json** - Ensure Next.js is in dependencies (not devDependencies)
-3. **Check Root Directory** - Confirm Vercel project settings use `/` as root
+### Monitoring
+- [ ] Set up Vercel alerts for function errors
+- [ ] Monitor function execution times (watch for timeouts)
+- [ ] Monitor database connection pool usage
+- [ ] Check for any Redis connection errors (if using)
 
 ---
 
-## Next Steps
+## Troubleshooting Quick Reference
 
-After any configuration changes:
+### Build Fails: "Cannot find module '@prisma/client'"
+- **Cause:** Prisma Client generation failed
+- **Fix:** Verify `--schema=./src/prisma/schema.prisma` is in build command
+- **Status:** ✅ Already correct in vercel-build script
 
-1. **Test Locally First** - Always run `npm run build` before pushing
-2. **Deploy to Preview** - Push to a branch and test the Vercel preview deployment
-3. **Monitor Build Logs** - Watch for warnings or deprecation notices
-4. **Update This Document** - Keep this healthcheck doc in sync with any config changes
+### Build Fails: "Schema validation error"
+- **Cause:** Invalid field in vercel.json
+- **Fix:** Remove extra properties, check JSON syntax
+- **Status:** ✅ Schema already validated
+
+### Deployment Works but App Crashes
+- **Cause:** Missing environment variables or failed migrations
+- **Fix:** Check Vercel logs, verify DATABASE_URL is set, check migration status
+- **How to Check:** `npx prisma migrate status --schema=./src/prisma/schema.prisma`
+
+### Functions Timing Out
+- **Cause:** maxDuration too low or slow database queries
+- **Fix:** Increase maxDuration in vercel.json or optimize queries
+- **Current Max:** 15s for admin analytics, 10s for most APIs
+
+### Framework Detected as "Other"
+- **Cause:** Custom buildCommand in vercel.json
+- **Fix:** Remove buildCommand, use vercel-build script instead
+- **Status:** ✅ Already fixed
 
 ---
 
-## Questions & Support
+## Related Documentation
 
-- **Vercel Documentation:** https://vercel.com/docs
-- **Next.js Deployment:** https://nextjs.org/docs/deployment
-- **Prisma on Vercel:** https://www.prisma.io/docs/guides/deployment/deployment-guides/deploying-to-vercel
+- **Detailed Vercel Config:** `docs/vercel-config-notes.md`
+- **Environment Variables:** `docs/post-go-live-checklist.md`
+- **Deployment Guide:** `VERCEL_DEPLOYMENT.md`
+- **API Documentation:** `API_DOCUMENTATION.md`
 
-**Last Audit:** 2025-11-22
-**Audit By:** Claude Code (automated deployment config review)
+---
+
+## Audit History
+
+| Date | Change | Reason |
+|------|--------|--------|
+| 2025-11-22 | Removed `buildCommand` from vercel.json | Enable Next.js framework auto-detection |
+| 2025-11-22 | Updated documentation | Reflect new build configuration |
+| 2025-11-22 | Verified schema compliance | Prevent validation errors |
+
+---
+
+**Audited by:** Claude (Deployment Config Hardening)
+**Next Review:** Before any major framework upgrades or infrastructure changes
