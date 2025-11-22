@@ -1,7 +1,7 @@
 export const dynamic = 'force-dynamic'
 
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { requireDatabase } from '@/lib/prisma'
 import { z } from 'zod'
 import { withErrorHandler, withDatabaseRetry } from '@/lib/error-handler'
 
@@ -245,14 +245,18 @@ async function sendContactNotification(data: {
  * Handle contact form submissions
  */
 async function handleContactSubmission(req: NextRequest) {
+  const db = requireDatabase()
+
   const body = await req.json()
 
   // Validate input
   const validatedData = contactSchema.parse(body)
+  const prisma = requireDatabase()
+
 
   // Save to database
   const contactMessage = await withDatabaseRetry(async () =>
-    prisma.contactMessage.create({
+    db.contactMessage.create({
       data: {
         name: validatedData.name,
         email: validatedData.email,

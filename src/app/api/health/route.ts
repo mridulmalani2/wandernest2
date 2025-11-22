@@ -67,12 +67,6 @@ export async function GET() {
             : 'not_configured',
           configured: configSummary.integrations.googleAuth === 'configured',
         },
-        payment: {
-          status: configSummary.integrations.payment === 'configured'
-            ? 'healthy'
-            : 'not_configured',
-          configured: configSummary.integrations.payment === 'configured',
-        },
         redis: {
           status: configSummary.integrations.redis === 'configured'
             ? 'healthy'

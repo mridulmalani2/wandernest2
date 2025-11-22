@@ -4,7 +4,7 @@ export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
-import { prisma } from '@/lib/prisma';
+import { requireDatabase } from '@/lib/prisma';
 import { withErrorHandler, withDatabaseRetry, AppError } from '@/lib/error-handler';
 
 /**
@@ -12,7 +12,10 @@ import { withErrorHandler, withDatabaseRetry, AppError } from '@/lib/error-handl
  * Fetch all bookings for the authenticated tourist
  */
 async function getTouristBookings(request: NextRequest) {
+  const db = requireDatabase()
   // Get session from NextAuth
+  const prisma = requireDatabase()
+
   const session = await getServerSession(authOptions);
 
   if (!session?.user?.email) {
@@ -20,7 +23,7 @@ async function getTouristBookings(request: NextRequest) {
   }
 
   // Find tourist by email
-  const tourist = await prisma.tourist.findUnique({
+  const tourist = await db.tourist.findUnique({
     where: { email: session.user.email },
   });
 
@@ -34,7 +37,7 @@ async function getTouristBookings(request: NextRequest) {
 
   // Fetch all bookings for this tourist with retry logic
   const bookings = await withDatabaseRetry(async () =>
-    prisma.touristRequest.findMany({
+    db.touristRequest.findMany({
       where: {
         touristId: tourist.id,
       },

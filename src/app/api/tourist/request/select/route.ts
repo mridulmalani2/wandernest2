@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth-options'
 import { z } from 'zod'
-import { prisma, requireDatabase } from '@/lib/prisma'
+import { requireDatabase } from '@/lib/prisma'
 import { sendStudentRequestNotification } from '@/lib/email'
 import { withErrorHandler, withDatabaseRetry, AppError } from '@/lib/error-handler'
 

@@ -2,10 +2,11 @@
 export const dynamic = 'force-dynamic'
 
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { requireDatabase } from '@/lib/prisma'
 
 export async function GET(req: NextRequest) {
   try {
+    const db = requireDatabase()
     const searchParams = req.nextUrl.searchParams
     const requestId = searchParams.get('requestId')
 
@@ -16,7 +17,7 @@ export async function GET(req: NextRequest) {
       )
     }
 
-    const touristRequest = await prisma.touristRequest.findUnique({
+    const touristRequest = await db.touristRequest.findUnique({
       where: { id: requestId },
       include: {
         selections: {
@@ -37,7 +38,7 @@ export async function GET(req: NextRequest) {
     // Check if request is expired
     if (new Date() > touristRequest.expiresAt && touristRequest.status === 'PENDING') {
       // Auto-expire the request
-      await prisma.touristRequest.update({
+      await db.touristRequest.update({
         where: { id: requestId },
         data: { status: 'EXPIRED' },
       })

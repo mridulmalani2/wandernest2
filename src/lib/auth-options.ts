@@ -22,7 +22,7 @@ function isStudentEmail(email: string): boolean {
 }
 
 export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(prisma) as any,
+  adapter: PrismaAdapter(requireDatabase()) as any,
   providers: [
     // Google OAuth for tourist authentication
     GoogleProvider({

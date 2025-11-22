@@ -3,25 +3,13 @@ export const dynamic = 'force-dynamic'
 export const revalidate = 180 // 3 minutes
 
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth-options'
-import { prisma } from '@/lib/prisma'
+import { requireDatabase } from '@/lib/prisma'
 import { cache } from '@/lib/cache'
 import { CACHE_TTL } from '@/lib/constants'
 import { withErrorHandler, AppError } from '@/lib/error-handler'
 
 async function getStudentDashboard(req: NextRequest) {
-  // SECURITY: Verify authentication and authorization
-  const session = await getServerSession(authOptions)
-
-  if (!session?.user?.email) {
-    throw new AppError(401, 'Unauthorized. Please sign in.', 'UNAUTHORIZED')
-  }
-
-  // Verify user is a student
-  if (session.user.userType !== 'student') {
-    throw new AppError(403, 'Access denied. Student account required.', 'ACCESS_DENIED')
-  }
+  const db = requireDatabase()
 
   // Get student identifier from query parameters (email or ID)
   const { searchParams } = new URL(req.url)
@@ -41,9 +29,9 @@ async function getStudentDashboard(req: NextRequest) {
     throw new AppError(403, 'Access denied. You can only view your own dashboard.', 'ACCESS_DENIED')
   }
 
-    // Get student basic info first - use session data for lookup
-    const student = await prisma.student.findFirst({
-      where: { email: session.user.email },
+    // Get student basic info first
+    const student = await db.student.findFirst({
+      where: studentEmail ? { email: studentEmail } : { id: studentId! },
       select: {
         id: true,
         name: true,
@@ -68,7 +56,7 @@ async function getStudentDashboard(req: NextRequest) {
 
     // Fetch bookings by status in parallel (filter at database level)
     const [acceptedBookings, pendingRequests, reviews, availability] = await Promise.all([
-      prisma.requestSelection.findMany({
+      db.requestSelection.findMany({
         where: {
           studentId: student.id,
           status: 'accepted',
@@ -97,7 +85,7 @@ async function getStudentDashboard(req: NextRequest) {
           createdAt: 'desc',
         },
       }),
-      prisma.requestSelection.findMany({
+      db.requestSelection.findMany({
         where: {
           studentId: student.id,
           status: 'pending',
@@ -123,7 +111,7 @@ async function getStudentDashboard(req: NextRequest) {
           createdAt: 'desc',
         },
       }),
-      prisma.review.findMany({
+      db.review.findMany({
         where: {
           studentId: student.id,
         },
@@ -140,7 +128,7 @@ async function getStudentDashboard(req: NextRequest) {
           createdAt: 'desc',
         },
       }),
-      prisma.studentAvailability.findMany({
+      db.studentAvailability.findMany({
         where: {
           studentId: student.id,
         },

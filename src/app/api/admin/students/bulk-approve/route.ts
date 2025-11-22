@@ -2,12 +2,15 @@
 export const dynamic = 'force-dynamic'
 
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { requireDatabase } from '@/lib/prisma'
 import { verifyAdmin } from '@/lib/middleware'
 
 // Bulk approve or reject students
 export async function POST(request: NextRequest) {
+  const prisma = requireDatabase()
   const authResult = await verifyAdmin(request)
+  const prisma = requireDatabase()
+
 
   if (!authResult.authorized) {
     return NextResponse.json(
@@ -17,6 +20,8 @@ export async function POST(request: NextRequest) {
   }
 
   try {
+    const db = requireDatabase()
+
     const { studentIds, action } = await request.json()
 
     if (!studentIds || !Array.isArray(studentIds) || studentIds.length === 0) {
@@ -34,7 +39,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Update all students in bulk
-    const result = await prisma.student.updateMany({
+    const result = await db.student.updateMany({
       where: {
         id: { in: studentIds },
         status: 'PENDING_APPROVAL',

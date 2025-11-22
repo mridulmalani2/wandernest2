@@ -21,11 +21,22 @@ const nextConfig = {
     } : false,
   },
 
-  // REMOVED: Experimental flags can be unstable in production
-  // The experimental.optimizePackageImports and experimental.optimizeCss flags
-  // have been removed for production stability. The modularizeImports config
-  // below provides stable tree-shaking for lucide-react.
-  // If you need these optimizations later, re-enable after testing thoroughly.
+  // Experimental features for better optimization
+  experimental: {
+    // Optimize package imports to reduce bundle size (stable in Next.js 14)
+    optimizePackageImports: [
+      'lucide-react',
+      '@radix-ui/react-select',
+      '@radix-ui/react-dialog',
+      '@radix-ui/react-checkbox',
+      '@radix-ui/react-label',
+      '@radix-ui/react-radio-group',
+      '@radix-ui/react-slider',
+      'date-fns',
+      'react-hook-form',
+      'zod',
+    ],
+  },
 
   // Modularize imports to reduce initial bundle size
   modularizeImports: {

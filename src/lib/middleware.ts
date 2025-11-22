@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyToken } from './auth'
-import { prisma } from './prisma'
+import { requireDatabase } from './prisma'
 
 export interface AuthenticatedRequest extends NextRequest {
   admin?: {
@@ -16,6 +16,10 @@ export interface AuthenticatedRequest extends NextRequest {
 // Middleware to verify admin authentication
 export async function verifyAdmin(request: NextRequest): Promise<{ authorized: boolean; admin?: { id: string; email: string; role: string; isActive: boolean }; error?: string }> {
   try {
+    if (!prisma) {
+      return { authorized: false, error: 'Database not available' }
+    }
+
     const authHeader = request.headers.get('authorization')
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -28,6 +32,8 @@ export async function verifyAdmin(request: NextRequest): Promise<{ authorized: b
     if (!decoded || typeof decoded === 'string' || !(decoded as any).adminId) {
       return { authorized: false, error: 'Invalid token' }
     }
+
+    const prisma = requireDatabase()
 
     // Verify admin exists and is active
     const admin = await prisma.admin.findUnique({
@@ -48,6 +54,10 @@ export async function verifyAdmin(request: NextRequest): Promise<{ authorized: b
 // Middleware to verify tourist authentication
 export async function verifyTourist(request: NextRequest): Promise<{ authorized: boolean; tourist?: { email: string }; error?: string }> {
   try {
+    if (!prisma) {
+      return { authorized: false, error: 'Database not available' }
+    }
+
     const authHeader = request.headers.get('authorization')
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -55,6 +65,8 @@ export async function verifyTourist(request: NextRequest): Promise<{ authorized:
     }
 
     const token = authHeader.substring(7)
+
+    const prisma = requireDatabase()
 
     // Verify token exists in TouristSession
     const session = await prisma.touristSession.findUnique({
