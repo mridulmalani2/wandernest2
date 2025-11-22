@@ -83,10 +83,22 @@ export default function MainLanding() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.7, delay: 0.4 }}
                   >
-                    Connect with verified university students who will show you their city
+                    Connect with verified university students in Paris and London who will show you their city
                     through a local&apos;s eyes. Get personalized recommendations and authentic
                     experiences.
                   </motion.p>
+
+                  {/* Availability Notice */}
+                  <motion.div
+                    className="inline-block bg-gradient-to-r from-blue-50 to-purple-50 border-2 border-blue-200 px-5 py-3 rounded-xl shadow-sm"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.7, delay: 0.5 }}
+                  >
+                    <p className="text-base font-medium text-blue-900">
+                      ✨ Currently available in Paris and London
+                    </p>
+                  </motion.div>
                 </div>
 
                 {/* Gradient CTAs with Soft Glow */}

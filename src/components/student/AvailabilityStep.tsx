@@ -32,9 +32,6 @@ const DURATION_OPTIONS = ['1 hour', '2 hours', '3-4 hours', 'Half day (4-6 hours
 const TIMEZONE_OPTIONS = [
   { value: 'Europe/Paris', label: 'Paris (CET/CEST)' },
   { value: 'Europe/London', label: 'London (GMT/BST)' },
-  { value: 'Europe/Berlin', label: 'Berlin (CET/CEST)' },
-  { value: 'Europe/Madrid', label: 'Madrid (CET/CEST)' },
-  { value: 'Europe/Rome', label: 'Rome (CET/CEST)' },
 ];
 
 export function AvailabilityStep({ formData, updateFormData, errors }: AvailabilityStepProps) {
