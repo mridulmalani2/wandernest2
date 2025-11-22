@@ -9,8 +9,6 @@ import { signIn } from 'next-auth/react'
 import { useAuth } from '@/lib/use-auth'
 import { Button } from '@/components/ui/button'
 import { AlertTriangle, Loader2, LogIn } from 'lucide-react'
-import FAQAccordion from '@/components/shared/FAQAccordion'
-import { paymentFAQs } from '@/lib/faq/data'
 
 export default function BookingPage() {
   const { data: session, status } = useAuth()
@@ -112,10 +110,6 @@ export default function BookingPage() {
               <BookingForm />
             )}
           </div>
-
-          <section aria-label="Frequently asked questions" className="mt-16">
-            <FAQAccordion faqs={paymentFAQs} title="Common Questions" />
-          </section>
         </main>
 
         {/* Footer */}
