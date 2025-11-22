@@ -113,7 +113,7 @@ export function ContactStep({ data, errors, updateData }: Props) {
         </Label>
         <RadioGroup
           value={data.contactMethod}
-          onValueChange={(value: string) => updateData({ contactMethod: value as 'email' | 'phone' | 'whatsapp' })}
+          onValueChange={(value: string) => updateData({ contactMethod: value as 'email' | 'phone' | 'whatsapp' | 'sms' })}
           className={errors.contactMethod ? 'border border-ui-error rounded p-4' : ''}
         >
           <div className="flex items-center space-x-2">
@@ -122,22 +122,24 @@ export function ContactStep({ data, errors, updateData }: Props) {
               Email
             </Label>
           </div>
-          {data.phone && (
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="phone" id="contact_phone" />
-              <Label htmlFor="contact_phone" className="font-normal cursor-pointer">
-                Phone Call
-              </Label>
-            </div>
-          )}
-          {(data.whatsapp || data.phone) && (
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="whatsapp" id="contact_whatsapp" />
-              <Label htmlFor="contact_whatsapp" className="font-normal cursor-pointer">
-                WhatsApp
-              </Label>
-            </div>
-          )}
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="phone" id="contact_phone" />
+            <Label htmlFor="contact_phone" className="font-normal cursor-pointer">
+              Phone call
+            </Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="whatsapp" id="contact_whatsapp" />
+            <Label htmlFor="contact_whatsapp" className="font-normal cursor-pointer">
+              WhatsApp
+            </Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="sms" id="contact_sms" />
+            <Label htmlFor="contact_sms" className="font-normal cursor-pointer">
+              SMS / text message
+            </Label>
+          </div>
         </RadioGroup>
         {errors.contactMethod && (
           <p className="text-sm text-ui-error">{errors.contactMethod}</p>
