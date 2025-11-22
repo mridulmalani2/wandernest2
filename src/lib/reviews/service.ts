@@ -66,9 +66,13 @@ export async function updateStudentMetrics(
   studentId: string,
   newReview?: any
 ) {
-  // Get all reviews for the student
+  // Get only necessary review fields for calculations (optimized)
   const allReviews = await prisma.review.findMany({
     where: { studentId },
+    select: {
+      rating: true,
+      noShow: true,
+    },
     orderBy: { createdAt: 'desc' },
   })
 
@@ -144,7 +148,11 @@ export async function getStudentMetrics(studentId: string): Promise<ReviewMetric
       reliabilityBadge: true,
       tripsHosted: true,
       noShowCount: true,
-      reviews: true,
+      _count: {
+        select: {
+          reviews: true,
+        },
+      },
     },
   })
 
@@ -152,7 +160,7 @@ export async function getStudentMetrics(studentId: string): Promise<ReviewMetric
     return null
   }
 
-  const totalReviews = student.reviews.length
+  const totalReviews = student._count.reviews
   const completionRate = totalReviews > 0
     ? ((totalReviews - student.noShowCount) / totalReviews) * 100
     : 0
