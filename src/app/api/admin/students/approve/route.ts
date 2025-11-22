@@ -11,6 +11,8 @@ async function approveStudent(request: NextRequest) {
   const db = requireDatabase()
 
   const authResult = await verifyAdmin(request)
+  const prisma = requireDatabase()
+
 
   if (!authResult.authorized) {
     throw new AppError(401, authResult.error || 'Unauthorized', 'AUTH_FAILED')
@@ -26,6 +28,7 @@ async function approveStudent(request: NextRequest) {
   if (action !== 'approve' && action !== 'reject') {
     throw new AppError(400, 'Invalid action. Must be "approve" or "reject"', 'INVALID_ACTION')
   }
+
 
   // Find student with retry logic
   const student = await withDatabaseRetry(async () =>

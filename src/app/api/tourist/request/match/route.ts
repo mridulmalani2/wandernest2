@@ -165,9 +165,12 @@ function extractTags(student: { coverLetter: string | null; bio: string | null }
   return Array.from(new Set(tags)).slice(0, 5) // Unique tags, max 5
 }
 
-async function matchStudents(req: NextRequest) {
-  const body = await req.json()
-  const { requestId } = body
+export async function POST(req: NextRequest) {
+  try {
+      const prisma = requireDatabase()
+
+    const body = await req.json()
+    const { requestId } = body
 
   if (!requestId) {
     throw new AppError(400, 'Request ID is required', 'MISSING_REQUEST_ID')

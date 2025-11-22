@@ -41,6 +41,9 @@ export interface AppConfig {
       isConfigured: boolean
     }
   }
+  payment: {
+    discoveryFee: number
+  }
   app: {
     nodeEnv: string
     baseUrl: string | null
@@ -146,8 +149,8 @@ function loadConfig(): AppConfig {
     configWarnings.push('JWT_SECRET is not set - admin authentication will not work')
   }
 
-  // Verification code expiry (in seconds)
-  const verificationCodeExpiry = parseInt(process.env.VERIFICATION_CODE_EXPIRY || '600', 10)
+  // Payment configuration
+  const discoveryFee = parseFloat(process.env.DISCOVERY_FEE_AMOUNT || '99.00')
 
   // App configuration
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXTAUTH_URL || null
@@ -198,6 +201,9 @@ function loadConfig(): AppConfig {
         isConfigured: isJwtConfigured,
       },
     },
+    payment: {
+      discoveryFee,
+    },
     app: {
       nodeEnv,
       baseUrl,
@@ -229,7 +235,7 @@ export function logConfigStatus(): void {
   console.log(`  Email:        ${config.email.isConfigured ? '✅ Configured' : '⚠️  Not configured'}`)
   console.log(`  Google Auth:  ${config.auth.google.isConfigured ? '✅ Configured' : '❌ NOT CONFIGURED (REQUIRED)'}`)
   console.log(`  NextAuth:     ${config.auth.nextAuth.isConfigured ? '✅ Configured' : '⚠️  Partial config'}`)
-  console.log(`  Redis Cache:  ${config.redis.isConfigured ? '✅ Configured' : '⚠️  DB fallback mode'}`)
+  console.log(`  Redis Cache:  ${config.redis.isConfigured ? '✅ Configured' : '⚠️  Using in-memory'}`)
 
   if (configWarnings.length > 0) {
     console.log('\n⚠️  Configuration Warnings:')
@@ -273,7 +279,7 @@ export function getConfigSummary() {
       database: config.database.isAvailable ? 'connected' : 'unavailable',
       email: config.email.isConfigured ? 'configured' : 'not_configured',
       googleAuth: config.auth.google.isConfigured ? 'configured' : 'not_configured',
-      redis: config.redis.isConfigured ? 'configured' : 'database_fallback',
+      redis: config.redis.isConfigured ? 'configured' : 'not_configured',
     },
     warnings: configWarnings.length,
     errors: configErrors.length,

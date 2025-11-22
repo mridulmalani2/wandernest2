@@ -9,6 +9,8 @@ import { verifyAdmin } from '@/lib/middleware'
 export async function POST(request: NextRequest) {
   const prisma = requireDatabase()
   const authResult = await verifyAdmin(request)
+  const prisma = requireDatabase()
+
 
   if (!authResult.authorized) {
     return NextResponse.json(

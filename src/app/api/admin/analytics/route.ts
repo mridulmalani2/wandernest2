@@ -11,6 +11,8 @@ import { CACHE_TTL } from '@/lib/constants'
 // Get platform analytics
 export async function GET(request: NextRequest) {
   const authResult = await verifyAdmin(request)
+  const prisma = requireDatabase()
+
 
   if (!authResult.authorized) {
     return NextResponse.json(

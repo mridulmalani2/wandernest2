@@ -2,10 +2,30 @@
 export const dynamic = 'force-dynamic'
 
 import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth-options';
 import { put } from '@vercel/blob';
 
 export async function POST(req: NextRequest) {
   try {
+    // SECURITY: Verify authentication - only authenticated students can upload
+    const session = await getServerSession(authOptions);
+
+    if (!session?.user?.email) {
+      return NextResponse.json(
+        { error: 'Unauthorized. Please sign in.' },
+        { status: 401 }
+      );
+    }
+
+    // Verify user is a student
+    if (session.user.userType !== 'student') {
+      return NextResponse.json(
+        { error: 'Access denied. Only students can upload files.' },
+        { status: 403 }
+      );
+    }
+
     const formData = await req.formData();
     const file = formData.get('file') as File | null;
     const type = formData.get('type') as string;

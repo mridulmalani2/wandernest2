@@ -14,6 +14,8 @@ import { withErrorHandler, withDatabaseRetry, AppError } from '@/lib/error-handl
 async function getTouristBookings(request: NextRequest) {
   const db = requireDatabase()
   // Get session from NextAuth
+  const prisma = requireDatabase()
+
   const session = await getServerSession(authOptions);
 
   if (!session?.user?.email) {

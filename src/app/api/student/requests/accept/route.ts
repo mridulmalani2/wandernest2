@@ -2,6 +2,8 @@
 export const dynamic = 'force-dynamic'
 
 import { NextRequest, NextResponse } from 'next/server'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth-options'
 import { acceptRequest } from '../accept-request'
 import { requireDatabase } from '@/lib/prisma'
 
@@ -20,10 +22,11 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    if (!studentEmail) {
+    // SECURITY: Ensure student can only accept requests for themselves
+    if (studentEmail && studentEmail !== session.user.email) {
       return NextResponse.json(
-        { error: 'Student email is required' },
-        { status: 400 }
+        { error: 'Access denied. You can only accept requests for yourself.' },
+        { status: 403 }
       )
     }
 
@@ -34,7 +37,7 @@ export async function POST(req: NextRequest) {
 
     if (!student) {
       return NextResponse.json(
-        { error: 'Student not found' },
+        { error: 'Student profile not found' },
         { status: 404 }
       )
     }

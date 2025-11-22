@@ -19,10 +19,11 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    if (!studentEmail) {
+    // SECURITY: Ensure student can only reject requests for themselves
+    if (studentEmail && studentEmail !== session.user.email) {
       return NextResponse.json(
-        { error: 'Student email is required' },
-        { status: 400 }
+        { error: 'Access denied. You can only reject requests for yourself.' },
+        { status: 403 }
       )
     }
 
@@ -33,7 +34,7 @@ export async function POST(req: NextRequest) {
 
     if (!student) {
       return NextResponse.json(
-        { error: 'Student not found' },
+        { error: 'Student profile not found' },
         { status: 404 }
       )
     }

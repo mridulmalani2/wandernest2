@@ -28,6 +28,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
+
     // Fetch the tourist request
     const touristRequest = await db.touristRequest.findUnique({
       where: { id: requestId }

@@ -21,6 +21,8 @@ async function rejectStudentRequest(
     throw new AppError(401, 'Unauthorized - No token provided', 'NO_TOKEN')
   }
 
+  const prisma = requireDatabase()
+
   // Find session
   const session = await withDatabaseRetry(async () =>
     db.studentSession.findUnique({
