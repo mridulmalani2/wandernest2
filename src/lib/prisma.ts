@@ -60,7 +60,7 @@ if (config.database.isAvailable) {
   }
 }
 
-export const prisma = prismaClient
+export const prisma = prismaClient as PrismaClient
 
 /**
  * Check if database is available and healthy
