@@ -16,8 +16,17 @@ async function getStudentDashboard(req: NextRequest) {
   const studentEmail = searchParams.get('email')
   const studentId = searchParams.get('id')
 
-  if (!studentEmail && !studentId) {
-    throw new AppError(400, 'Student email or ID required', 'MISSING_IDENTIFIER')
+  // SECURITY: Ensure user can only access their own dashboard
+  // Either no params (use session email) or params must match session
+  const requestedEmail = studentEmail || session.user.email
+  const requestedId = studentId || session.user.studentId
+
+  if (studentEmail && studentEmail !== session.user.email) {
+    throw new AppError(403, 'Access denied. You can only view your own dashboard.', 'ACCESS_DENIED')
+  }
+
+  if (studentId && studentId !== session.user.studentId) {
+    throw new AppError(403, 'Access denied. You can only view your own dashboard.', 'ACCESS_DENIED')
   }
 
     // Get student basic info first
