@@ -4,7 +4,7 @@ export const maxDuration = 10
 export const revalidate = 300 // 5 minutes
 
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { requireDatabase } from '@/lib/prisma'
 import { findMatches, generateAnonymousId } from '@/lib/matching/algorithm'
 import { cache } from '@/lib/cache'
 import { CACHE_TTL } from '@/lib/constants'
@@ -14,6 +14,7 @@ import { CACHE_TTL } from '@/lib/constants'
  * Find matching guides for a tourist request
  */
 export async function POST(request: NextRequest) {
+  const prisma = requireDatabase()
   try {
     const body = await request.json()
     const { requestId } = body
@@ -79,6 +80,7 @@ export async function POST(request: NextRequest) {
  * Get existing matches for a request
  */
 export async function GET(request: NextRequest) {
+  const prisma = requireDatabase()
   try {
     const searchParams = request.nextUrl.searchParams
     const requestId = searchParams.get('requestId')

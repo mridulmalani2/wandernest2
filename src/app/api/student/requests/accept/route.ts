@@ -3,9 +3,10 @@ export const dynamic = 'force-dynamic'
 
 import { NextRequest, NextResponse } from 'next/server'
 import { acceptRequest } from '../accept-request'
-import { prisma } from '@/lib/prisma'
+import { requireDatabase } from '@/lib/prisma'
 
 export async function POST(req: NextRequest) {
+  const prisma = requireDatabase()
   try {
     const body = await req.json()
     const { requestId, studentEmail } = body

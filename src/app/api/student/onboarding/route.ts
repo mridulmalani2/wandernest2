@@ -2,7 +2,7 @@
 export const dynamic = 'force-dynamic'
 
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { requireDatabase } from '@/lib/prisma';
 import { z } from 'zod';
 import { withErrorHandler, withDatabaseRetry, AppError } from '@/lib/error-handler';
 
@@ -97,6 +97,7 @@ function calculateProfileCompleteness(data: Record<string, unknown>): number {
 }
 
 async function submitOnboarding(req: NextRequest) {
+  const prisma = requireDatabase()
   const body = await req.json();
 
   // Validate input

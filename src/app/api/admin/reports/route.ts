@@ -2,11 +2,12 @@
 export const dynamic = 'force-dynamic'
 
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { requireDatabase } from '@/lib/prisma'
 import { verifyAdmin } from '@/lib/middleware'
 
 // Get all reports with optional filtering
 export async function GET(request: NextRequest) {
+  const prisma = requireDatabase()
   const authResult = await verifyAdmin(request)
 
   if (!authResult.authorized) {
@@ -71,6 +72,7 @@ export async function GET(request: NextRequest) {
 
 // Update report status
 export async function PATCH(request: NextRequest) {
+  const prisma = requireDatabase()
   const authResult = await verifyAdmin(request)
 
   if (!authResult.authorized) {

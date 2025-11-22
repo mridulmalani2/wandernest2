@@ -1,4 +1,4 @@
-import { prisma } from '@/lib/prisma'
+import { requireDatabase } from '@/lib/prisma'
 import { TouristRequest, Student, StudentAvailability, Prisma } from '@prisma/client'
 import { cache } from '@/lib/cache'
 import { CACHE_TTL } from '@/lib/constants'

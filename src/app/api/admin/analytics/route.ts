@@ -3,7 +3,7 @@ export const dynamic = 'force-dynamic'
 export const revalidate = 600 // 10 minutes
 
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { requireDatabase } from '@/lib/prisma'
 import { verifyAdmin } from '@/lib/middleware'
 import { cache } from '@/lib/cache'
 import { CACHE_TTL } from '@/lib/constants'
@@ -18,6 +18,8 @@ export async function GET(request: NextRequest) {
       { status: 401 }
     )
   }
+
+  const prisma = requireDatabase()
 
   try {
     // Use cache for expensive analytics queries

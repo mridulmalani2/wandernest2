@@ -2,13 +2,14 @@
 export const dynamic = 'force-dynamic'
 
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { requireDatabase } from '@/lib/prisma'
 import { withErrorHandler, withDatabaseRetry, AppError } from '@/lib/error-handler'
 
 async function rejectStudentRequest(
   req: NextRequest,
   { params }: { params: { requestId: string } }
 ) {
+  const prisma = requireDatabase()
   const { requestId } = params
 
   // Get token from cookie or header

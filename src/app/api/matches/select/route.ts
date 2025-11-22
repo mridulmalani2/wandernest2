@@ -2,13 +2,14 @@
 export const dynamic = 'force-dynamic'
 
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { requireDatabase } from '@/lib/prisma'
 
 /**
  * POST /api/matches/select
  * Save tourist's guide selections
  */
 export async function POST(request: NextRequest) {
+  const prisma = requireDatabase()
   try {
     const body = await request.json()
     const { requestId, selectedGuideIds } = body

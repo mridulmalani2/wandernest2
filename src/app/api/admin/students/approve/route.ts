@@ -2,12 +2,13 @@
 export const dynamic = 'force-dynamic'
 
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { requireDatabase } from '@/lib/prisma'
 import { verifyAdmin } from '@/lib/middleware'
 import { withErrorHandler, withDatabaseRetry, AppError } from '@/lib/error-handler'
 
 // Approve or reject a student
 async function approveStudent(request: NextRequest) {
+  const prisma = requireDatabase()
   const authResult = await verifyAdmin(request)
 
   if (!authResult.authorized) {

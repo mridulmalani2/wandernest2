@@ -2,11 +2,12 @@
 export const dynamic = 'force-dynamic'
 
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { requireDatabase } from '@/lib/prisma'
 import { verifyAdmin } from '@/lib/middleware'
 
 // Bulk approve or reject students
 export async function POST(request: NextRequest) {
+  const prisma = requireDatabase()
   const authResult = await verifyAdmin(request)
 
   if (!authResult.authorized) {

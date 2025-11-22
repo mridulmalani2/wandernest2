@@ -1,5 +1,5 @@
 import 'server-only'
-import { prisma } from '@/lib/prisma'
+import { requireDatabase } from '@/lib/prisma'
 import { CreateReviewInput, ReviewMetrics, ReliabilityBadge } from './types'
 import { isValidAttribute } from './constants'
 import { cache, cacheInvalidation } from '@/lib/cache'

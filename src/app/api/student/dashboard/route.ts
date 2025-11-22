@@ -3,12 +3,13 @@ export const dynamic = 'force-dynamic'
 export const revalidate = 180 // 3 minutes
 
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { requireDatabase } from '@/lib/prisma'
 import { cache } from '@/lib/cache'
 import { CACHE_TTL } from '@/lib/constants'
 import { withErrorHandler, AppError } from '@/lib/error-handler'
 
 async function getStudentDashboard(req: NextRequest) {
+  const prisma = requireDatabase()
   // Get student identifier from query parameters (email or ID)
   const { searchParams } = new URL(req.url)
   const studentEmail = searchParams.get('email')
