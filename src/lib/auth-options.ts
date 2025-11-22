@@ -207,10 +207,10 @@ export const authOptions: NextAuthOptions = {
           })
 
           if (dbUser) {
-            token.userType = dbUser.userType
+            token.userType = dbUser.userType as 'student' | 'tourist'
 
             // Check if student has completed onboarding
-            if (dbUser.userType === 'student') {
+            if (dbUser.userType === 'student' && dbUser.email) {
               const student = await prisma.student.findUnique({
                 where: { email: dbUser.email },
                 select: {

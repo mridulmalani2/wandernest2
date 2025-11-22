@@ -2,6 +2,9 @@
 export const dynamic = 'force-dynamic'
 
 import { NextRequest, NextResponse } from 'next/server'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth-options'
+import { prisma } from '@/lib/prisma'
 import { acceptRequest } from '../../accept-request'
 import { withErrorHandler, AppError } from '@/lib/error-handler'
 
@@ -9,17 +12,44 @@ async function acceptStudentRequest(
   req: NextRequest,
   { params }: { params: { requestId: string } }
 ) {
+  // SECURITY: Verify authentication
+  const session = await getServerSession(authOptions)
+
+  if (!session?.user?.email) {
+    throw new AppError(401, 'Unauthorized. Please sign in.', 'UNAUTHORIZED')
+  }
+
+  // Verify user is a student
+  if (session.user.userType !== 'student') {
+    throw new AppError(403, 'Access denied. Student account required.', 'ACCESS_DENIED')
+  }
+
   const { requestId } = params
   const body = await req.json()
   const { studentId } = body
 
-  if (!studentId) {
-    throw new AppError(400, 'Student ID is required', 'MISSING_STUDENT_ID')
+  // SECURITY: Ensure student can only accept requests for themselves
+  // Get the actual student ID from the session
+  const student = await prisma.student.findUnique({
+    where: { email: session.user.email },
+    select: { id: true }
+  })
+
+  if (!student) {
+    throw new AppError(404, 'Student profile not found', 'STUDENT_NOT_FOUND')
   }
 
+  // If studentId is provided, it must match the authenticated student
+  if (studentId && studentId !== student.id) {
+    throw new AppError(403, 'Access denied. You can only accept requests for yourself.', 'ACCESS_DENIED')
+  }
+
+  // Use the authenticated student's ID
+  const authenticatedStudentId = student.id
+
   try {
-    // Call the shared acceptRequest helper
-    const result = await acceptRequest(requestId, studentId)
+    // Call the shared acceptRequest helper using the authenticated student ID
+    const result = await acceptRequest(requestId, authenticatedStudentId)
 
     return NextResponse.json({
       success: true,

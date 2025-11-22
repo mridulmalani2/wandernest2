@@ -2,11 +2,31 @@
 export const dynamic = 'force-dynamic'
 
 import { NextRequest, NextResponse } from 'next/server'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth-options'
 import { acceptRequest } from '../accept-request'
 import { prisma } from '@/lib/prisma'
 
 export async function POST(req: NextRequest) {
   try {
+    // SECURITY: Verify authentication
+    const session = await getServerSession(authOptions)
+
+    if (!session?.user?.email) {
+      return NextResponse.json(
+        { error: 'Unauthorized. Please sign in.' },
+        { status: 401 }
+      )
+    }
+
+    // Verify user is a student
+    if (session.user.userType !== 'student') {
+      return NextResponse.json(
+        { error: 'Access denied. Student account required.' },
+        { status: 403 }
+      )
+    }
+
     const body = await req.json()
     const { requestId, studentEmail } = body
 
@@ -17,21 +37,22 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    if (!studentEmail) {
+    // SECURITY: Ensure student can only accept requests for themselves
+    if (studentEmail && studentEmail !== session.user.email) {
       return NextResponse.json(
-        { error: 'Student email is required' },
-        { status: 400 }
+        { error: 'Access denied. You can only accept requests for yourself.' },
+        { status: 403 }
       )
     }
 
-    // Find student by email
+    // Find student by session email (not body email)
     const student = await prisma.student.findUnique({
-      where: { email: studentEmail },
+      where: { email: session.user.email },
     })
 
     if (!student) {
       return NextResponse.json(
-        { error: 'Student not found' },
+        { error: 'Student profile not found' },
         { status: 404 }
       )
     }

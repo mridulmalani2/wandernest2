@@ -3,24 +3,47 @@ export const dynamic = 'force-dynamic'
 export const revalidate = 180 // 3 minutes
 
 import { NextRequest, NextResponse } from 'next/server'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth-options'
 import { prisma } from '@/lib/prisma'
 import { cache } from '@/lib/cache'
 import { CACHE_TTL } from '@/lib/constants'
 import { withErrorHandler, AppError } from '@/lib/error-handler'
 
 async function getStudentDashboard(req: NextRequest) {
+  // SECURITY: Verify authentication and authorization
+  const session = await getServerSession(authOptions)
+
+  if (!session?.user?.email) {
+    throw new AppError(401, 'Unauthorized. Please sign in.', 'UNAUTHORIZED')
+  }
+
+  // Verify user is a student
+  if (session.user.userType !== 'student') {
+    throw new AppError(403, 'Access denied. Student account required.', 'ACCESS_DENIED')
+  }
+
   // Get student identifier from query parameters (email or ID)
   const { searchParams } = new URL(req.url)
   const studentEmail = searchParams.get('email')
   const studentId = searchParams.get('id')
 
-  if (!studentEmail && !studentId) {
-    throw new AppError(400, 'Student email or ID required', 'MISSING_IDENTIFIER')
+  // SECURITY: Ensure user can only access their own dashboard
+  // Either no params (use session email) or params must match session
+  const requestedEmail = studentEmail || session.user.email
+  const requestedId = studentId || session.user.studentId
+
+  if (studentEmail && studentEmail !== session.user.email) {
+    throw new AppError(403, 'Access denied. You can only view your own dashboard.', 'ACCESS_DENIED')
   }
 
-    // Get student basic info first
+  if (studentId && studentId !== session.user.studentId) {
+    throw new AppError(403, 'Access denied. You can only view your own dashboard.', 'ACCESS_DENIED')
+  }
+
+    // Get student basic info first - use session data for lookup
     const student = await prisma.student.findFirst({
-      where: studentEmail ? { email: studentEmail } : { id: studentId! },
+      where: { email: session.user.email },
       select: {
         id: true,
         name: true,

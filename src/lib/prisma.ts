@@ -60,7 +60,10 @@ if (config.database.isAvailable) {
   }
 }
 
-export const prisma = prismaClient
+// Export with non-null assertion in production mode
+// In production, initialization throws if DB is unavailable (line 53-55 above)
+// So prisma will never be null in production
+export const prisma = prismaClient as PrismaClient
 
 /**
  * Check if database is available and healthy

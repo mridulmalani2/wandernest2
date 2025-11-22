@@ -54,8 +54,8 @@ export async function createReview(input: CreateReviewInput) {
     },
   })
 
-  // Update student metrics
-  await updateStudentMetrics(input.studentId, review)
+  // Update student metrics (no need to pass review, function fetches all reviews)
+  await updateStudentMetrics(input.studentId)
 
   // Invalidate student caches
   await cacheInvalidation.student(input.studentId)

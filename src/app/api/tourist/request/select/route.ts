@@ -2,6 +2,8 @@
 export const dynamic = 'force-dynamic'
 
 import { NextRequest, NextResponse } from 'next/server'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth-options'
 import { z } from 'zod'
 import { prisma, requireDatabase } from '@/lib/prisma'
 import { sendStudentRequestNotification } from '@/lib/email'
@@ -13,6 +15,18 @@ const selectSchema = z.object({
 })
 
 async function selectStudents(req: NextRequest) {
+  // SECURITY: Verify authentication
+  const session = await getServerSession(authOptions)
+
+  if (!session?.user?.email) {
+    throw new AppError(401, 'Unauthorized. Please sign in.', 'UNAUTHORIZED')
+  }
+
+  // Verify user is a tourist
+  if (session.user.userType !== 'tourist') {
+    throw new AppError(403, 'Access denied. Tourist account required.', 'ACCESS_DENIED')
+  }
+
   // Ensure database is available
   const db = requireDatabase()
 
@@ -30,6 +44,11 @@ async function selectStudents(req: NextRequest) {
 
   if (!touristRequest) {
     throw new AppError(404, 'Request not found', 'REQUEST_NOT_FOUND')
+  }
+
+  // SECURITY: Verify the tourist owns this request
+  if (touristRequest.email !== session.user.email && touristRequest.touristId !== session.user.touristId) {
+    throw new AppError(403, 'Access denied. You can only select students for your own requests.', 'ACCESS_DENIED')
   }
 
   // Check if request is still pending

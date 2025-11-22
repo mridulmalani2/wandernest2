@@ -23,10 +23,10 @@ export async function GET(request: NextRequest) {
     const page = parseInt(searchParams.get('page') || '1')
     const limit = parseInt(searchParams.get('limit') || '20')
 
-    const where: { status?: string; city?: string } = {}
+    const where: { status?: 'PENDING_APPROVAL' | 'APPROVED' | 'SUSPENDED'; city?: string } = {}
 
     if (status && ['PENDING_APPROVAL', 'APPROVED', 'SUSPENDED'].includes(status)) {
-      where.status = status
+      where.status = status as 'PENDING_APPROVAL' | 'APPROVED' | 'SUSPENDED'
     }
 
     if (city) {
