@@ -50,22 +50,22 @@ export default function MainLanding() {
       <div className="relative z-10 flex flex-col min-h-screen">
         <Navigation variant="default" />
 
-        {/* Hero Section - Asymmetric Layout */}
-        <main className="flex-1 container mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16 lg:py-20">
-          <div className="max-w-7xl mx-auto">
-            <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-center min-h-[calc(100vh-12rem)]">
+        {/* Hero Section - Asymmetric Layout with 90% zoom effect */}
+        <main className="flex-1 container mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-14 lg:py-18">
+          <div className="max-w-6xl mx-auto">
+            <div className="grid lg:grid-cols-2 gap-7 lg:gap-14 items-center min-h-[calc(100vh-14rem)]">
 
               {/* Left Column - Editorial Text Content */}
               <motion.div
-                className="space-y-8 lg:space-y-10"
+                className="space-y-7 lg:space-y-9"
                 initial={{ opacity: 0, x: -40 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
               >
                 {/* Headline - Left-aligned Serif */}
-                <div className="space-y-4">
+                <div className="space-y-3">
                   <motion.h1
-                    className="text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-serif font-bold leading-[1.05] tracking-tight text-stone-900"
+                    className="text-[2.7rem] sm:text-[3.375rem] lg:text-[4rem] xl:text-[5.4rem] font-serif font-bold leading-[1.05] tracking-tight text-white text-shadow-lg"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.7, delay: 0.2 }}
@@ -78,7 +78,7 @@ export default function MainLanding() {
 
                   {/* Subheadline - Modern Sans-serif */}
                   <motion.p
-                    className="text-lg sm:text-xl lg:text-2xl text-stone-600 leading-relaxed font-light max-w-xl"
+                    className="text-base sm:text-lg lg:text-xl text-stone-100 leading-relaxed font-light max-w-xl"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.7, delay: 0.4 }}
@@ -105,9 +105,9 @@ export default function MainLanding() {
                       transition={{ duration: 0.2 }}
                     >
                       {/* Soft glow effect */}
-                      <div className="absolute -inset-1 bg-gradient-to-r from-blue-500 via-blue-600 to-purple-600 rounded-2xl opacity-30 blur-xl group-hover:opacity-50 transition-opacity duration-500" />
+                      <div className="absolute -inset-1 bg-gradient-to-r from-blue-300 via-blue-400 to-purple-400 rounded-2xl opacity-25 blur-xl group-hover:opacity-40 transition-opacity duration-500" />
 
-                      <div className="relative px-8 py-4 bg-gradient-to-r from-blue-500 via-blue-600 to-purple-600 rounded-2xl shadow-lg overflow-hidden">
+                      <div className="relative px-8 py-4 bg-gradient-to-r from-blue-300 via-blue-400 to-purple-400 rounded-2xl shadow-lg overflow-hidden">
                         {/* Shimmer effect */}
                         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
 
@@ -133,9 +133,9 @@ export default function MainLanding() {
                       transition={{ duration: 0.2 }}
                     >
                       {/* Soft glow effect */}
-                      <div className="absolute -inset-1 bg-gradient-to-r from-purple-500 via-purple-600 to-pink-600 rounded-2xl opacity-30 blur-xl group-hover:opacity-50 transition-opacity duration-500" />
+                      <div className="absolute -inset-1 bg-gradient-to-r from-purple-300 via-purple-400 to-pink-400 rounded-2xl opacity-25 blur-xl group-hover:opacity-40 transition-opacity duration-500" />
 
-                      <div className="relative px-8 py-4 bg-gradient-to-r from-purple-500 via-purple-600 to-pink-600 rounded-2xl shadow-lg overflow-hidden">
+                      <div className="relative px-8 py-4 bg-gradient-to-r from-purple-300 via-purple-400 to-pink-400 rounded-2xl shadow-lg overflow-hidden">
                         {/* Shimmer effect */}
                         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
 
@@ -155,7 +155,7 @@ export default function MainLanding() {
               </motion.div>
 
               {/* Right Column - Floating Layered Image Collage */}
-              <div className="relative h-[500px] md:h-[600px] lg:h-[700px]">
+              <div className="relative h-[450px] md:h-[540px] lg:h-[630px]">
                 {/* Image 1 - Back layer */}
                 <motion.div
                   className="absolute top-[10%] left-[5%] w-[65%] h-[45%] rounded-3xl overflow-hidden shadow-2xl"
@@ -266,7 +266,7 @@ export default function MainLanding() {
 
             {/* Why Choose Carousel - Below Hero */}
             <motion.div
-              className="mt-16 lg:mt-24"
+              className="mt-14 lg:mt-20"
               initial={{ opacity: 0, y: 40 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.9 }}
