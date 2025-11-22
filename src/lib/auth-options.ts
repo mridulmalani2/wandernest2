@@ -207,7 +207,7 @@ export const authOptions: NextAuthOptions = {
           })
 
           if (dbUser) {
-            token.userType = dbUser.userType as "student" | "tourist"
+            token.userType = dbUser.userType as 'student' | 'tourist'
 
             // Check if student has completed onboarding
             if (dbUser.userType === 'student' && dbUser.email) {
