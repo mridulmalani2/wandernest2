@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 
 export default function AdminNav() {
@@ -18,7 +19,16 @@ export default function AdminNav() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex space-x-8">
-            <div className="flex items-center">
+            <div className="flex items-center space-x-3">
+              <div className="relative w-10 h-10 rounded-lg overflow-hidden">
+                <Image
+                  src="/images/logo-large.png"
+                  alt="WanderNest Logo"
+                  fill
+                  className="object-cover"
+                  sizes="40px"
+                />
+              </div>
               <span className="text-xl font-bold text-gray-900">WanderNest Admin</span>
             </div>
             <div className="hidden sm:flex sm:space-x-8">
