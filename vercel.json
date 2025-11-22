@@ -1,7 +1,5 @@
 {
-  "buildCommand": "(prisma generate --skip-seed || echo 'Prisma generation skipped - DATABASE_URL not available') && next build",
-  "framework": "nextjs",
-  "installCommand": "npm ci",
+  "buildCommand": "prisma generate --schema=./src/prisma/schema.prisma && next build",
   "regions": ["iad1"],
   "functions": {
     "app/api/cities/route.ts": {
