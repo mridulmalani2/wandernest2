@@ -86,8 +86,8 @@ export default function TouristLanding() {
                 <div className="group bg-white/95 backdrop-blur-xl rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 border border-white/40 hover:border-ui-blue-primary/50 hover:-translate-y-1 relative overflow-hidden">
                   <div className="absolute inset-0 opacity-5 group-hover:opacity-10 transition-opacity duration-500">
                     <Image
-                      src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=800&q=80"
-                      alt="University students with graduation caps celebrating success"
+                      src="https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=800&q=80"
+                      alt="University students studying together with books and laptops"
                       fill
                       quality={60}
                       sizes="(max-width: 768px) 100vw, 33vw"
