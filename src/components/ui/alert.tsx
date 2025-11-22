@@ -1,8 +1,9 @@
+// Design System: Modern alert with cohesive border radius and semantic colors
 import * as React from "react"
 import { cva, type VariantProps } from "class-variance-authority"
 
 const alertVariants = cva(
-  "relative w-full rounded-lg border p-4 [&>svg~*]:pl-7 [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4",
+  "relative w-full rounded-md border p-4 shadow-soft [&>svg~*]:pl-7 [&>svg+div]:translate-y-[-3px] [&>svg]:absolute [&>svg]:left-4 [&>svg]:top-4",
   {
     variants: {
       variant: {

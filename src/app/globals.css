@@ -13,10 +13,12 @@
     --card-foreground: 222.2 84% 4.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
+    --surface: 0 0% 99%;
+    --surface-elevated: 0 0% 100%;
 
     /* ========================================
-       STANDARDIZED COLOR SYSTEM
-       Soft Blues & Purples for Pastel/Glassmorphism
+       MODERN COLOR SYSTEM
+       Muted blues, violets, and sand tones
        ======================================== */
 
     /* Primary UI Colors - Main interactive elements */
@@ -31,7 +33,12 @@
     --ui-blue-accent: 215 75% 55%;           /* Deeper blue for emphasis */
     --ui-purple-accent: 265 70% 55%;         /* Deeper purple for emphasis */
 
-    /* Semantic Colors - Softened for pastel aesthetic */
+    /* Sand/Neutral Tones - Warm neutrals for backgrounds and surfaces */
+    --ui-sand-light: 40 30% 96%;             /* Very light warm sand */
+    --ui-sand: 38 25% 88%;                   /* Medium warm sand */
+    --ui-sand-dark: 36 20% 75%;              /* Darker warm sand */
+
+    /* Semantic Colors - Softened for modern aesthetic */
     --ui-success: 150 50% 60%;               /* Soft green */
     --ui-warning: 45 85% 70%;                /* Soft yellow */
     --ui-error: 0 70% 70%;                   /* Soft red */
@@ -59,7 +66,7 @@
     --border: 214.3 31.8% 91.4%;
     --border-subtle: 214.3 31.8% 94%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 174 72% 42%;
+    --ring: 220 70% 65%;
 
     /* Border radius */
     --radius: 0.5rem;

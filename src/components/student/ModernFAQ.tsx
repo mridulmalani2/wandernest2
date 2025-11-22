@@ -43,25 +43,31 @@ export default function ModernFAQ() {
 
   return (
     <section className="py-20 animate-fade-in-up delay-700">
-      <div className="max-w-3xl mx-auto">
+      <div className="max-w-4xl mx-auto">
         <h2 className="text-4xl md:text-5xl font-bold text-center mb-16 text-white text-shadow-lg">
           Common Questions
         </h2>
 
-        <div className="space-y-1">
+        <div className="backdrop-blur-md bg-white/10 rounded-3xl border border-white/20 shadow-premium overflow-hidden">
           {faqData.map((faq, index) => {
             const isOpen = openIndex === index
+            const isLast = index === faqData.length - 1
 
             return (
               <div
                 key={index}
-                className="group"
+                className={`group ${!isLast ? 'border-b border-white/10' : ''}`}
               >
                 {/* Question Button */}
                 <button
                   onClick={() => toggleFAQ(index)}
                   onKeyDown={(e) => handleKeyDown(e, index)}
-                  className="w-full text-left py-6 flex items-center justify-between gap-6 cursor-pointer focus:outline-none focus-visible:outline-2 focus-visible:outline-white/60 focus-visible:outline-offset-4 rounded-lg transition-all duration-200"
+                  className={`
+                    w-full text-left px-8 py-7 flex items-center justify-between gap-6 cursor-pointer
+                    transition-all duration-300 ease-out
+                    focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent
+                    ${isOpen ? 'bg-white/5' : 'hover:bg-white/5'}
+                  `}
                   aria-expanded={isOpen}
                   aria-controls={`faq-answer-${index}`}
                 >
@@ -70,50 +76,44 @@ export default function ModernFAQ() {
                     text-xl md:text-2xl font-semibold transition-all duration-300
                     ${isOpen
                       ? 'text-white text-shadow-lg'
-                      : 'text-white/90 text-shadow group-hover:text-white group-hover:text-shadow-lg group-hover:translate-x-1'
+                      : 'text-white/95 group-hover:text-white text-shadow'
                     }
                   `}>
                     {faq.question}
                   </h3>
 
-                  {/* Arrow */}
-                  <ChevronDown
-                    className={`
-                      flex-shrink-0 w-7 h-7 text-white/90 transition-all duration-300
-                      ${isOpen
-                        ? 'rotate-180 text-white'
-                        : 'group-hover:text-white group-hover:translate-y-0.5'
-                      }
-                    `}
-                    strokeWidth={2.5}
-                  />
+                  {/* Arrow Icon */}
+                  <div className={`
+                    flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center
+                    transition-all duration-300 ease-out
+                    ${isOpen
+                      ? 'bg-white/20 rotate-180'
+                      : 'bg-white/10 group-hover:bg-white/15'
+                    }
+                  `}>
+                    <ChevronDown
+                      className="w-6 h-6 text-white"
+                      strokeWidth={2.5}
+                    />
+                  </div>
                 </button>
 
                 {/* Answer Panel */}
                 <div
                   id={`faq-answer-${index}`}
                   className={`
-                    overflow-hidden transition-all duration-500 ease-out
-                    ${isOpen ? 'max-h-96 opacity-100 mb-4' : 'max-h-0 opacity-0'}
+                    overflow-hidden transition-all duration-500 ease-in-out
+                    ${isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'}
                   `}
                   role="region"
                   aria-labelledby={`faq-question-${index}`}
                 >
-                  <div className="pb-6 pr-12">
-                    <p className="text-lg md:text-xl leading-relaxed text-white/80 font-light">
+                  <div className="px-8 pb-7 pt-2">
+                    <p className="text-lg md:text-xl leading-relaxed text-white/90 font-normal">
                       {faq.answer}
                     </p>
                   </div>
                 </div>
-
-                {/* Subtle Divider */}
-                <div className={`
-                  h-px transition-all duration-300
-                  ${isOpen
-                    ? 'bg-gradient-to-r from-transparent via-white/30 to-transparent opacity-60'
-                    : 'bg-gradient-to-r from-transparent via-white/15 to-transparent opacity-40 group-hover:opacity-60'
-                  }
-                `} />
               </div>
             )
           })}
@@ -121,7 +121,7 @@ export default function ModernFAQ() {
 
         {/* Bottom Text */}
         <div className="mt-12 text-center">
-          <p className="text-white/70 text-lg font-light">
+          <p className="text-white/80 text-lg md:text-xl font-normal text-shadow">
             Have more questions? We're here to help you get started.
           </p>
         </div>

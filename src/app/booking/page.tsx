@@ -4,6 +4,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { BookingForm } from '@/components/booking/BookingForm'
 import Navigation from '@/components/Navigation'
+import Footer from '@/components/Footer'
 // import { useSession, signIn } from 'next-auth/react'
 import { Button } from '@/components/ui/button'
 import { AlertTriangle } from 'lucide-react'
@@ -90,6 +91,9 @@ export default function BookingPage() {
             <FAQAccordion faqs={paymentFAQs} title="Common Questions" />
           </div>
         </main>
+
+        {/* Footer */}
+        <Footer variant="minimal" />
       </div>
     </div>
   )
