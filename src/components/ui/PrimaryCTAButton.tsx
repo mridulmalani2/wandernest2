@@ -45,7 +45,7 @@ export function PrimaryCTAButton({
 
   const buttonContent = (
     <motion.div
-      className="relative"
+      className="relative pointer-events-none"
       whileHover={disabled ? undefined : { scale: 1.03 }}
       whileTap={disabled ? undefined : { scale: 0.98 }}
     >
@@ -92,6 +92,8 @@ export function PrimaryCTAButton({
     <button
       type={type}
       onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
         if (!disabled && onClick) {
           onClick();
         }
