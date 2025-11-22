@@ -3,7 +3,7 @@ export const dynamic = 'force-dynamic'
 
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
-import { prisma } from '@/lib/prisma'
+import { requireDatabase } from '@/lib/prisma'
 import {
   getVerificationData,
   incrementVerificationAttempts,
@@ -39,6 +39,7 @@ const verifySchema = z.object({
 
 export async function POST(req: NextRequest) {
   try {
+    const db = requireDatabase()
     const body = await req.json()
     const validatedData = verifySchema.parse(body)
 
@@ -88,7 +89,7 @@ export async function POST(req: NextRequest) {
     const expiresAt = new Date()
     expiresAt.setDate(expiresAt.getDate() + 7) // Expires in 7 days
 
-    const touristRequest = await prisma.touristRequest.create({
+    const touristRequest = await db.touristRequest.create({
       data: {
         email: validatedData.email,
         emailVerified: true,

@@ -4,7 +4,6 @@ export const maxDuration = 10
 
 import { NextRequest, NextResponse } from 'next/server'
 import { requireDatabase } from '@/lib/prisma'
-import { AppError, withErrorHandler } from '@/lib/error-handler'
 
 // Helper function to calculate suggested price range
 function calculateSuggestedPrice(city: string, serviceType: string): { min: number; max: number } {
@@ -186,6 +185,17 @@ async function matchStudents(req: NextRequest) {
     throw new AppError(404, 'Request not found', 'REQUEST_NOT_FOUND')
   }
 
+    // Database is required for matching - return error if not available
+    if (!prisma) {
+      return NextResponse.json(
+        { success: false, error: 'Database not available - matching requires database access' },
+        { status: 503 }
+      )
+    }
+
+    // At this point, prisma is confirmed to be available
+    const db = prisma
+
     const criteria: MatchingCriteria = {
       city: touristRequest.city,
       preferredNationality: touristRequest.preferredNationality || undefined,
@@ -216,7 +226,7 @@ async function matchStudents(req: NextRequest) {
     let candidatePool: any[] = []
 
     if (criteria.preferredNationality) {
-      const nationalityMatches = await prisma.student.findMany({
+      const nationalityMatches = await db.student.findMany({
         where: {
           ...whereClause,
           nationality: criteria.preferredNationality,
@@ -254,7 +264,7 @@ async function matchStudents(req: NextRequest) {
 
     // If not enough nationality matches, try language matches
     if (candidatePool.length < 3 && criteria.preferredLanguages.length > 0) {
-      const languageMatches = await prisma.student.findMany({
+      const languageMatches = await db.student.findMany({
         where: {
           ...whereClause,
           languages: {
@@ -292,7 +302,7 @@ async function matchStudents(req: NextRequest) {
 
     // If still not enough, expand to all approved students in city
     if (candidatePool.length < 3) {
-      candidatePool = await prisma.student.findMany({
+      candidatePool = await db.student.findMany({
         where: whereClause,
         select: {
           id: true,

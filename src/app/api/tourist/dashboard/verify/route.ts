@@ -2,12 +2,13 @@
 export const dynamic = 'force-dynamic'
 
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { requireDatabase } from '@/lib/prisma'
 import { generateToken } from '@/lib/auth'
 
 // Verify code and create JWT token
 export async function POST(request: NextRequest) {
   try {
+    const db = requireDatabase()
     const { email, code } = await request.json()
 
     if (!email || !code) {
@@ -18,7 +19,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Find the session
-    const session = await prisma.touristSession.findFirst({
+    const session = await db.touristSession.findFirst({
       where: {
         email,
         verificationCode: code,
@@ -48,7 +49,7 @@ export async function POST(request: NextRequest) {
     const token = generateToken({ email }, '1h')
 
     // Update session with token and mark as verified
-    await prisma.touristSession.update({
+    await db.touristSession.update({
       where: { id: session.id },
       data: {
         token,

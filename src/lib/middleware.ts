@@ -16,6 +16,10 @@ export interface AuthenticatedRequest extends NextRequest {
 // Middleware to verify admin authentication
 export async function verifyAdmin(request: NextRequest): Promise<{ authorized: boolean; admin?: { id: string; email: string; role: string; isActive: boolean }; error?: string }> {
   try {
+    if (!prisma) {
+      return { authorized: false, error: 'Database not available' }
+    }
+
     const authHeader = request.headers.get('authorization')
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -48,6 +52,10 @@ export async function verifyAdmin(request: NextRequest): Promise<{ authorized: b
 // Middleware to verify tourist authentication
 export async function verifyTourist(request: NextRequest): Promise<{ authorized: boolean; tourist?: { email: string }; error?: string }> {
   try {
+    if (!prisma) {
+      return { authorized: false, error: 'Database not available' }
+    }
+
     const authHeader = request.headers.get('authorization')
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
