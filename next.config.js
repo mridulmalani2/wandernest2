@@ -42,6 +42,20 @@ const nextConfig = {
     ],
     // Optimize CSS bundle size
     optimizeCss: true,
+    // Enable turbo mode for faster builds
+    turbo: {
+      resolveAlias: {
+        // Reduce bundle size by using lightweight alternatives where possible
+      },
+    },
+  },
+
+  // Modularize imports to reduce initial bundle size
+  modularizeImports: {
+    'lucide-react': {
+      transform: 'lucide-react/dist/esm/icons/{{kebabCase member}}',
+      skipDefaultConversion: true,
+    },
   },
 
   // Image optimization configuration

@@ -2,7 +2,6 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
 import { LucideIcon } from 'lucide-react';
 
 export type CTAVariant = 'blue' | 'purple';
@@ -44,11 +43,7 @@ export function PrimaryCTAButton({
   const styles = variantStyles[variant];
 
   const buttonContent = (
-    <motion.div
-      className="relative"
-      whileHover={disabled ? undefined : { scale: 1.03 }}
-      whileTap={disabled ? undefined : { scale: 0.98 }}
-    >
+    <div className={`relative transition-transform duration-200 ${disabled ? '' : 'hover:scale-103 active:scale-98'}`}>
       {/* Glow effect */}
       <div
         className={`absolute -inset-1 ${styles.glow} rounded-2xl opacity-25 blur-xl group-hover:opacity-40 transition-opacity duration-500 pointer-events-none ${
@@ -77,7 +72,7 @@ export function PrimaryCTAButton({
           )}
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 
   if (href && !disabled) {

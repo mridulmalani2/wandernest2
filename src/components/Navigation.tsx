@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button'
 import { Globe, Menu, X, User, LogOut, LayoutDashboard, ChevronLeft } from 'lucide-react'
 import { useSession, signOut } from 'next-auth/react'
 import { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
 
 interface NavigationProps {
   variant?: 'default' | 'tourist' | 'student' | 'admin'
@@ -39,21 +38,12 @@ export default function Navigation({ variant = 'default', showBackButton = false
         <div className="flex justify-between items-center">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2.5 group">
-            <motion.div
-              className="p-1 rounded-lg bg-white/10 text-white backdrop-blur-sm border border-white/20"
-              whileHover={{ scale: 1.05, backgroundColor: 'rgba(255, 255, 255, 0.2)' }}
-              whileTap={{ scale: 0.95 }}
-              transition={{ type: "spring", stiffness: 400, damping: 20 }}
-            >
+            <div className="p-1 rounded-lg bg-white/10 text-white backdrop-blur-sm border border-white/20 transition-all duration-200 hover:bg-white/20 hover:scale-105 active:scale-95">
               <Globe className="w-5 h-5" />
-            </motion.div>
-            <motion.span
-              className="text-xl md:text-2xl font-sans font-semibold text-white tracking-tight"
-              whileHover={{ opacity: 0.9 }}
-              transition={{ duration: 0.2 }}
-            >
+            </div>
+            <span className="text-xl md:text-2xl font-sans font-semibold text-white tracking-tight transition-opacity duration-200 hover:opacity-90">
               WanderNest
-            </motion.span>
+            </span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -69,22 +59,14 @@ export default function Navigation({ variant = 'default', showBackButton = false
             {!session && variant === 'default' && (
               <>
                 <Link href="/student">
-                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                    <Button variant="ghost" className="rounded-full px-4 py-2 h-auto text-white/90 border border-white/20 hover:bg-white/10 hover:text-white transition-all font-sans text-sm font-medium">
-                      I&apos;m a Student
-                    </Button>
-                  </motion.div>
+                  <Button variant="ghost" className="rounded-full px-4 py-2 h-auto text-white/90 border border-white/20 hover:bg-white/10 hover:text-white transition-all duration-200 hover:scale-105 active:scale-95 font-sans text-sm font-medium">
+                    I&apos;m a Student
+                  </Button>
                 </Link>
                 <Link href="/booking">
-                  <motion.div
-                    whileHover={{ scale: 1.05, y: -2 }}
-                    whileTap={{ scale: 0.95 }}
-                    transition={{ type: "spring", stiffness: 400, damping: 20 }}
-                  >
-                    <Button className="rounded-full px-5 py-2 h-auto bg-white/15 hover:bg-white/25 border border-white/30 text-white font-sans text-sm font-semibold transition-all backdrop-blur-sm">
-                      Book a Guide
-                    </Button>
-                  </motion.div>
+                  <Button className="rounded-full px-5 py-2 h-auto bg-white/15 hover:bg-white/25 border border-white/30 text-white font-sans text-sm font-semibold transition-all duration-200 hover:scale-105 hover:-translate-y-0.5 active:scale-95 backdrop-blur-sm">
+                    Book a Guide
+                  </Button>
                 </Link>
               </>
             )}
@@ -92,22 +74,14 @@ export default function Navigation({ variant = 'default', showBackButton = false
             {!session && variant === 'tourist' && (
               <>
                 <Link href="/">
-                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                    <Button variant="ghost" className="rounded-full px-4 py-2 h-auto text-white/90 hover:bg-white/10 hover:text-white transition-all font-sans text-sm font-medium">
-                      <ChevronLeft className="w-4 h-4 mr-1" /> Back to Home
-                    </Button>
-                  </motion.div>
+                  <Button variant="ghost" className="rounded-full px-4 py-2 h-auto text-white/90 hover:bg-white/10 hover:text-white transition-all duration-200 hover:scale-105 active:scale-95 font-sans text-sm font-medium">
+                    <ChevronLeft className="w-4 h-4 mr-1" /> Back to Home
+                  </Button>
                 </Link>
                 <Link href="/booking">
-                  <motion.div
-                    whileHover={{ scale: 1.05, y: -2 }}
-                    whileTap={{ scale: 0.95 }}
-                    transition={{ type: "spring", stiffness: 400, damping: 20 }}
-                  >
-                    <Button className="rounded-full px-5 py-2 h-auto bg-white/15 hover:bg-white/25 border border-white/30 text-white font-sans text-sm font-semibold transition-all backdrop-blur-sm">
-                      Book a Guide
-                    </Button>
-                  </motion.div>
+                  <Button className="rounded-full px-5 py-2 h-auto bg-white/15 hover:bg-white/25 border border-white/30 text-white font-sans text-sm font-semibold transition-all duration-200 hover:scale-105 hover:-translate-y-0.5 active:scale-95 backdrop-blur-sm">
+                    Book a Guide
+                  </Button>
                 </Link>
               </>
             )}
@@ -115,18 +89,14 @@ export default function Navigation({ variant = 'default', showBackButton = false
             {!session && variant === 'student' && (
               <>
                 <Link href="/">
-                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                    <Button variant="ghost" className="rounded-full px-4 py-2 h-auto text-white/90 hover:bg-white/10 hover:text-white transition-all font-sans text-sm font-medium">
-                      <ChevronLeft className="w-4 h-4 mr-1" /> Back to Home
-                    </Button>
-                  </motion.div>
+                  <Button variant="ghost" className="rounded-full px-4 py-2 h-auto text-white/90 hover:bg-white/10 hover:text-white transition-all duration-200 hover:scale-105 active:scale-95 font-sans text-sm font-medium">
+                    <ChevronLeft className="w-4 h-4 mr-1" /> Back to Home
+                  </Button>
                 </Link>
                 <Link href="/student/signin">
-                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                    <Button variant="ghost" className="rounded-full px-5 py-2 h-auto text-white/90 border border-white/20 hover:bg-white/10 hover:text-white transition-all font-sans text-sm font-medium">
-                      Sign In
-                    </Button>
-                  </motion.div>
+                  <Button variant="ghost" className="rounded-full px-5 py-2 h-auto text-white/90 border border-white/20 hover:bg-white/10 hover:text-white transition-all duration-200 hover:scale-105 active:scale-95 font-sans text-sm font-medium">
+                    Sign In
+                  </Button>
                 </Link>
               </>
             )}
@@ -135,48 +105,38 @@ export default function Navigation({ variant = 'default', showBackButton = false
               <>
                 {session.user?.userType === 'tourist' && (
                   <Link href="/tourist/dashboard">
-                    <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                      <Button variant="ghost" className="rounded-full px-4 py-2 h-auto text-white/90 hover:bg-white/10 hover:text-white transition-all font-sans text-sm font-medium">
-                        <LayoutDashboard className="w-4 h-4 mr-2" />
-                        Dashboard
-                      </Button>
-                    </motion.div>
+                    <Button variant="ghost" className="rounded-full px-4 py-2 h-auto text-white/90 hover:bg-white/10 hover:text-white transition-all duration-200 hover:scale-105 active:scale-95 font-sans text-sm font-medium">
+                      <LayoutDashboard className="w-4 h-4 mr-2" />
+                      Dashboard
+                    </Button>
                   </Link>
                 )}
                 {session.user?.userType === 'student' && (
                   <Link href="/student/dashboard">
-                    <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                      <Button variant="ghost" className="rounded-full px-4 py-2 h-auto text-white/90 hover:bg-white/10 hover:text-white transition-all font-sans text-sm font-medium">
-                        <LayoutDashboard className="w-4 h-4 mr-2" />
-                        Dashboard
-                      </Button>
-                    </motion.div>
+                    <Button variant="ghost" className="rounded-full px-4 py-2 h-auto text-white/90 hover:bg-white/10 hover:text-white transition-all duration-200 hover:scale-105 active:scale-95 font-sans text-sm font-medium">
+                      <LayoutDashboard className="w-4 h-4 mr-2" />
+                      Dashboard
+                    </Button>
                   </Link>
                 )}
                 <div className="flex items-center space-x-2 pl-3 border-l border-white/20">
                   <div className="flex items-center space-x-2">
-                    <motion.div
-                      className="w-8 h-8 rounded-full bg-white/15 border border-white/30 flex items-center justify-center text-white font-semibold text-sm backdrop-blur-sm"
-                      whileHover={{ scale: 1.1 }}
-                      transition={{ type: "spring", stiffness: 400, damping: 20 }}
-                    >
+                    <div className="w-8 h-8 rounded-full bg-white/15 border border-white/30 flex items-center justify-center text-white font-semibold text-sm backdrop-blur-sm transition-transform duration-200 hover:scale-110">
                       {session.user?.name?.charAt(0).toUpperCase() || <User className="w-4 h-4" />}
-                    </motion.div>
+                    </div>
                     <span className="text-sm font-medium text-white max-w-[120px] truncate">
                       {session.user?.name}
                     </span>
                   </div>
-                  <motion.div whileHover={{ scale: 1.1, rotate: 5 }} whileTap={{ scale: 0.9 }}>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={handleSignOut}
-                      className="rounded-full h-auto w-auto p-2 hover:bg-red-500/20 hover:text-red-300 text-white/80 transition-all"
-                      aria-label="Sign out"
-                    >
-                      <LogOut className="w-4 h-4" />
-                    </Button>
-                  </motion.div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleSignOut}
+                    className="rounded-full h-auto w-auto p-2 hover:bg-red-500/20 hover:text-red-300 text-white/80 transition-all duration-200 hover:scale-110 hover:rotate-6 active:scale-90"
+                    aria-label="Sign out"
+                  >
+                    <LogOut className="w-4 h-4" />
+                  </Button>
                 </div>
               </>
             )}
@@ -184,38 +144,18 @@ export default function Navigation({ variant = 'default', showBackButton = false
 
           {/* Mobile Menu Button */}
           <div className="md:hidden flex items-center">
-            <motion.button
-              className="p-2 rounded-lg hover:bg-white/10 active:bg-white/20 transition-all duration-200 focus-visible:ring-2 focus-visible:ring-white/30 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
+            <button
+              className="p-2 rounded-lg hover:bg-white/10 active:bg-white/20 transition-all duration-200 focus-visible:ring-2 focus-visible:ring-white/30 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent hover:scale-105 active:scale-95"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               aria-label="Toggle mobile menu"
               aria-expanded={mobileMenuOpen}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
             >
-              <AnimatePresence mode="wait">
-                {mobileMenuOpen ? (
-                  <motion.div
-                    key="close"
-                    initial={{ rotate: -90, opacity: 0 }}
-                    animate={{ rotate: 0, opacity: 1 }}
-                    exit={{ rotate: 90, opacity: 0 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <X className="w-6 h-6 text-white" />
-                  </motion.div>
-                ) : (
-                  <motion.div
-                    key="menu"
-                    initial={{ rotate: 90, opacity: 0 }}
-                    animate={{ rotate: 0, opacity: 1 }}
-                    exit={{ rotate: -90, opacity: 0 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <Menu className="w-6 h-6 text-white" />
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </motion.button>
+              {mobileMenuOpen ? (
+                <X className="w-6 h-6 text-white transition-transform duration-200 rotate-0 hover:rotate-90" />
+              ) : (
+                <Menu className="w-6 h-6 text-white transition-transform duration-200" />
+              )}
+            </button>
           </div>
         </div>
 
@@ -232,18 +172,14 @@ export default function Navigation({ variant = 'default', showBackButton = false
             {!session && variant === 'default' && (
                 <>
                   <Link href="/student" onClick={() => setMobileMenuOpen(false)}>
-                    <motion.div whileHover={{ x: 2 }} whileTap={{ scale: 0.98 }}>
-                      <Button variant="ghost" className="w-full rounded-full text-white/90 border border-white/20 hover:bg-white/10 hover:text-white transition-all font-sans text-sm font-medium">
-                        I&apos;m a Student
-                      </Button>
-                    </motion.div>
+                    <Button variant="ghost" className="w-full rounded-full text-white/90 border border-white/20 hover:bg-white/10 hover:text-white transition-all font-sans text-sm font-medium">
+                      I&apos;m a Student
+                    </Button>
                   </Link>
                   <Link href="/booking" onClick={() => setMobileMenuOpen(false)}>
-                    <motion.div whileHover={{ x: 2 }} whileTap={{ scale: 0.98 }}>
-                      <Button className="w-full rounded-full bg-white/15 hover:bg-white/25 border border-white/30 text-white font-sans text-sm font-semibold transition-all backdrop-blur-sm">
-                        Book a Guide
-                      </Button>
-                    </motion.div>
+                    <Button className="w-full rounded-full bg-white/15 hover:bg-white/25 border border-white/30 text-white font-sans text-sm font-semibold transition-all backdrop-blur-sm">
+                      Book a Guide
+                    </Button>
                   </Link>
                 </>
               )}
@@ -251,18 +187,14 @@ export default function Navigation({ variant = 'default', showBackButton = false
               {!session && variant === 'tourist' && (
                 <>
                   <Link href="/" onClick={() => setMobileMenuOpen(false)}>
-                    <motion.div whileHover={{ x: 2 }} whileTap={{ scale: 0.98 }}>
-                      <Button variant="ghost" className="w-full justify-start rounded-full text-white/90 hover:bg-white/10 hover:text-white transition-all font-sans text-sm font-medium">
-                        <ChevronLeft className="w-4 h-4 mr-2" /> Back to Home
-                      </Button>
-                    </motion.div>
+                    <Button variant="ghost" className="w-full justify-start rounded-full text-white/90 hover:bg-white/10 hover:text-white transition-all font-sans text-sm font-medium">
+                      <ChevronLeft className="w-4 h-4 mr-2" /> Back to Home
+                    </Button>
                   </Link>
                   <Link href="/booking" onClick={() => setMobileMenuOpen(false)}>
-                    <motion.div whileHover={{ x: 2 }} whileTap={{ scale: 0.98 }}>
-                      <Button className="w-full rounded-full bg-white/15 hover:bg-white/25 border border-white/30 text-white font-sans text-sm font-semibold transition-all backdrop-blur-sm">
-                        Book a Guide
-                      </Button>
-                    </motion.div>
+                    <Button className="w-full rounded-full bg-white/15 hover:bg-white/25 border border-white/30 text-white font-sans text-sm font-semibold transition-all backdrop-blur-sm">
+                      Book a Guide
+                    </Button>
                   </Link>
                 </>
               )}
@@ -270,18 +202,14 @@ export default function Navigation({ variant = 'default', showBackButton = false
               {!session && variant === 'student' && (
                 <>
                   <Link href="/" onClick={() => setMobileMenuOpen(false)}>
-                    <motion.div whileHover={{ x: 2 }} whileTap={{ scale: 0.98 }}>
-                      <Button variant="ghost" className="w-full justify-start rounded-full text-white/90 hover:bg-white/10 hover:text-white transition-all font-sans text-sm font-medium">
-                        <ChevronLeft className="w-4 h-4 mr-2" /> Back to Home
-                      </Button>
-                    </motion.div>
+                    <Button variant="ghost" className="w-full justify-start rounded-full text-white/90 hover:bg-white/10 hover:text-white transition-all font-sans text-sm font-medium">
+                      <ChevronLeft className="w-4 h-4 mr-2" /> Back to Home
+                    </Button>
                   </Link>
                   <Link href="/student/signin" onClick={() => setMobileMenuOpen(false)}>
-                    <motion.div whileHover={{ x: 2 }} whileTap={{ scale: 0.98 }}>
-                      <Button variant="ghost" className="w-full rounded-full text-white/90 border border-white/20 hover:bg-white/10 hover:text-white transition-all font-sans text-sm font-medium">
-                        Sign In
-                      </Button>
-                    </motion.div>
+                    <Button variant="ghost" className="w-full rounded-full text-white/90 border border-white/20 hover:bg-white/10 hover:text-white transition-all font-sans text-sm font-medium">
+                      Sign In
+                    </Button>
                   </Link>
                 </>
               )}
@@ -298,37 +226,31 @@ export default function Navigation({ variant = 'default', showBackButton = false
                   </div>
                   {session.user?.userType === 'tourist' && (
                     <Link href="/tourist/dashboard" onClick={() => setMobileMenuOpen(false)}>
-                      <motion.div whileHover={{ x: 2 }} whileTap={{ scale: 0.98 }}>
-                        <Button variant="ghost" className="w-full justify-start rounded-full text-white/90 hover:bg-white/10 hover:text-white transition-all font-sans text-sm font-medium">
-                          <LayoutDashboard className="w-4 h-4 mr-2" />
-                          Dashboard
-                        </Button>
-                      </motion.div>
+                      <Button variant="ghost" className="w-full justify-start rounded-full text-white/90 hover:bg-white/10 hover:text-white transition-all font-sans text-sm font-medium">
+                        <LayoutDashboard className="w-4 h-4 mr-2" />
+                        Dashboard
+                      </Button>
                     </Link>
                   )}
                   {session.user?.userType === 'student' && (
                     <Link href="/student/dashboard" onClick={() => setMobileMenuOpen(false)}>
-                      <motion.div whileHover={{ x: 2 }} whileTap={{ scale: 0.98 }}>
-                        <Button variant="ghost" className="w-full justify-start rounded-full text-white/90 hover:bg-white/10 hover:text-white transition-all font-sans text-sm font-medium">
-                          <LayoutDashboard className="w-4 h-4 mr-2" />
-                          Dashboard
-                        </Button>
-                      </motion.div>
+                      <Button variant="ghost" className="w-full justify-start rounded-full text-white/90 hover:bg-white/10 hover:text-white transition-all font-sans text-sm font-medium">
+                        <LayoutDashboard className="w-4 h-4 mr-2" />
+                        Dashboard
+                      </Button>
                     </Link>
                   )}
-                  <motion.div whileHover={{ x: 2 }} whileTap={{ scale: 0.98 }}>
-                    <Button
-                      variant="ghost"
-                      onClick={() => {
-                        setMobileMenuOpen(false)
-                        handleSignOut()
-                      }}
-                      className="w-full justify-start rounded-full hover:bg-red-500/20 hover:text-red-300 text-white/90 transition-all font-sans text-sm font-medium"
-                    >
-                      <LogOut className="w-4 h-4 mr-2" />
-                      Sign Out
-                    </Button>
-                  </motion.div>
+                  <Button
+                    variant="ghost"
+                    onClick={() => {
+                      setMobileMenuOpen(false)
+                      handleSignOut()
+                    }}
+                    className="w-full justify-start rounded-full hover:bg-red-500/20 hover:text-red-300 text-white/90 transition-all font-sans text-sm font-medium"
+                  >
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Sign Out
+                  </Button>
                 </>
               )}
             </nav>

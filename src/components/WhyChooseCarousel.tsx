@@ -4,7 +4,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import Image from 'next/image'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
-import { motion, AnimatePresence } from 'framer-motion'
 
 interface Feature {
   title: string
@@ -81,26 +80,24 @@ const accentColors = {
 export default function WhyChooseCarousel() {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isTransitioning, setIsTransitioning] = useState(false)
-  const [direction, setDirection] = useState(0) // -1 for left, 1 for right
   const [touchStart, setTouchStart] = useState(0)
   const [touchEnd, setTouchEnd] = useState(0)
 
-  const goToSlide = useCallback((index: number, dir: number) => {
+  const goToSlide = useCallback((index: number) => {
     if (isTransitioning) return
     setIsTransitioning(true)
-    setDirection(dir)
     setCurrentIndex(index)
     setTimeout(() => setIsTransitioning(false), 600)
   }, [isTransitioning])
 
   const nextSlide = useCallback(() => {
     const newIndex = (currentIndex + 1) % features.length
-    goToSlide(newIndex, 1)
+    goToSlide(newIndex)
   }, [currentIndex, goToSlide])
 
   const prevSlide = useCallback(() => {
     const newIndex = (currentIndex - 1 + features.length) % features.length
-    goToSlide(newIndex, -1)
+    goToSlide(newIndex)
   }, [currentIndex, goToSlide])
 
   // Handle touch events for mobile swipe
@@ -143,40 +140,6 @@ export default function WhyChooseCarousel() {
 
   const currentFeature = features[currentIndex]
   const colors = accentColors[currentFeature.accentColor as keyof typeof accentColors]
-
-  // Slide animation variants
-  const slideVariants = {
-    enter: (direction: number) => ({
-      x: direction > 0 ? 1000 : -1000,
-      opacity: 0,
-    }),
-    center: {
-      x: 0,
-      opacity: 1,
-    },
-    exit: (direction: number) => ({
-      x: direction < 0 ? 1000 : -1000,
-      opacity: 0,
-    }),
-  }
-
-  const contentVariants = {
-    enter: {
-      opacity: 0,
-      y: 20,
-      scale: 0.95,
-    },
-    center: {
-      opacity: 1,
-      y: 0,
-      scale: 1,
-    },
-    exit: {
-      opacity: 0,
-      y: -20,
-      scale: 0.95,
-    },
-  }
 
   return (
     <div className="pt-12 space-y-6 animate-fade-in-up delay-300">
@@ -251,7 +214,6 @@ export default function WhyChooseCarousel() {
                     <li
                       key={idx}
                       className="flex items-start transition-all duration-300"
-                      style={{ animationDelay: `${idx * 100}ms` }}
                     >
                       <span className={`mr-3 font-bold text-xl flex-shrink-0 ${colors.check}`}>
                         ✓
@@ -269,20 +231,20 @@ export default function WhyChooseCarousel() {
             <button
               onClick={prevSlide}
               disabled={isTransitioning}
-              className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 p-2 md:p-3 rounded-full bg-white/95 dark:bg-gray-900/95 backdrop-blur-md shadow-xl hover:bg-white dark:hover:bg-gray-800 transition-all duration-300 hover:scale-105 disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white border border-white/40 dark:border-gray-700/40"
+              className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 p-2 md:p-3 rounded-full bg-white/95 dark:bg-gray-900/95 backdrop-blur-md shadow-xl hover:bg-white dark:hover:bg-gray-800 transition-all duration-300 hover:scale-105 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white border border-white/40 dark:border-gray-700/40"
               aria-label="Previous feature"
             >
               <ChevronLeft className="w-5 h-5 md:w-6 md:h-6 text-gray-900 dark:text-white" />
             </button>
 
-            <motion.button
+            <button
               onClick={nextSlide}
               disabled={isTransitioning}
-              className="absolute right-3 md:right-4 top-1/2 -translate-y-1/2 p-2 md:p-3 rounded-full bg-white/95 dark:bg-gray-900/95 backdrop-blur-md shadow-xl hover:bg-white dark:hover:bg-gray-800 transition-all duration-300 hover:scale-105 disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white border border-white/40 dark:border-gray-700/40"
+              className="absolute right-3 md:right-4 top-1/2 -translate-y-1/2 p-2 md:p-3 rounded-full bg-white/95 dark:bg-gray-900/95 backdrop-blur-md shadow-xl hover:bg-white dark:hover:bg-gray-800 transition-all duration-300 hover:scale-105 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white border border-white/40 dark:border-gray-700/40"
               aria-label="Next feature"
             >
               <ChevronRight className="w-5 h-5 md:w-6 md:h-6 text-gray-900 dark:text-white" />
-            </motion.button>
+            </button>
           </div>
         </div>
 
@@ -292,12 +254,9 @@ export default function WhyChooseCarousel() {
             const dotColors = accentColors[feature.accentColor as keyof typeof accentColors]
             const isActive = index === currentIndex
             return (
-              <motion.button
+              <button
                 key={feature.title}
-                onClick={() => {
-                  const dir = index > currentIndex ? 1 : -1
-                  goToSlide(index, dir)
-                }}
+                onClick={() => goToSlide(index)}
                 disabled={isTransitioning}
                 className={`group transition-all duration-300 focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2 rounded-full ${
                   index === currentIndex ? 'w-10 md:w-12' : 'w-2.5 md:w-3'
@@ -309,10 +268,10 @@ export default function WhyChooseCarousel() {
                   className={`h-2.5 md:h-3 rounded-full transition-all duration-300 ${
                     index === currentIndex
                       ? `${dotColors.dotActive} shadow-md`
-                      : 'bg-white/70 hover:bg-white/90'
+                      : 'bg-white/70 hover:bg-white/90 hover:scale-110'
                   }`}
                 />
-              </motion.button>
+              </button>
             )
           })}
         </div>
