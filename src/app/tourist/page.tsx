@@ -160,27 +160,27 @@ export default function TouristLanding() {
               </div>
             </div>
 
-            {/* How It Works Section - Modern Timeline */}
-            <div className="space-y-12 pt-12 animate-fade-in-up delay-500">
-              <h2 className="text-4xl md:text-5xl font-bold text-center text-white text-shadow-lg">How It Works</h2>
+            {/* How It Works Section - Compact & Consistent */}
+            <div className="space-y-6 pt-8 animate-fade-in-up delay-500">
+              <h2 className="text-3xl md:text-4xl font-bold text-center text-white text-shadow-lg">How It Works</h2>
 
               {/* Desktop Timeline */}
-              <div className="hidden md:block relative max-w-5xl mx-auto">
+              <div className="hidden md:block relative max-w-4xl mx-auto">
                 {/* Connecting Line */}
-                <div className="absolute top-20 left-0 right-0 h-1 bg-gradient-to-r from-ui-blue-primary via-ui-purple-primary to-ui-success opacity-30"
+                <div className="absolute top-16 left-0 right-0 h-0.5 bg-gradient-to-r from-ui-blue-primary via-ui-purple-primary to-ui-success opacity-20"
                      style={{marginLeft: '10%', marginRight: '10%'}}></div>
 
-                <div className="grid md:grid-cols-3 gap-12 relative z-10">
+                <div className="grid md:grid-cols-3 gap-8 relative z-10">
                   {/* Step 1 */}
-                  <div className="text-center space-y-6 group">
-                    <div className="relative mx-auto w-40 h-40 gradient-ocean rounded-3xl flex items-center justify-center shadow-premium group-hover:shadow-glow-blue group-hover:scale-110 transition-all duration-500 rotate-3 group-hover:rotate-6">
-                      <div className="absolute -top-3 -right-3 w-12 h-12 bg-white rounded-full flex items-center justify-center text-ui-blue-accent font-bold text-xl shadow-lg">
+                  <div className="text-center space-y-4 group">
+                    <div className="relative mx-auto w-32 h-32 gradient-ocean rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl group-hover:scale-105 transition-all duration-300">
+                      <div className="absolute -top-2 -right-2 w-10 h-10 bg-white rounded-full flex items-center justify-center text-ui-blue-primary font-bold text-lg shadow-md">
                         1
                       </div>
-                      <Send className="w-16 h-16 text-white" strokeWidth={1.5} />
+                      <Send className="w-12 h-12 text-white" strokeWidth={1.5} />
                     </div>
-                    <div className="space-y-3 backdrop-blur-sm bg-white/10 rounded-2xl p-6 border border-white/20 group-hover:bg-white/20 transition-all">
-                      <h3 className="font-bold text-xl text-white">Submit Your Request</h3>
+                    <div className="min-h-[120px] space-y-2 backdrop-blur-sm bg-white/10 rounded-xl p-5 border border-white/20 group-hover:bg-white/20 transition-all">
+                      <h3 className="font-bold text-lg text-white">Submit Your Request</h3>
                       <p className="text-sm text-white/90 leading-relaxed">
                         Tell us about your trip preferences, dates, and interests
                       </p>
@@ -188,31 +188,31 @@ export default function TouristLanding() {
                   </div>
 
                   {/* Step 2 */}
-                  <div className="text-center space-y-6 group">
-                    <div className="relative mx-auto w-40 h-40 gradient-vibrant rounded-3xl flex items-center justify-center shadow-premium group-hover:shadow-glow-purple group-hover:scale-110 transition-all duration-500 -rotate-3 group-hover:-rotate-6">
-                      <div className="absolute -top-3 -right-3 w-12 h-12 bg-white rounded-full flex items-center justify-center text-ui-purple-accent font-bold text-xl shadow-lg">
+                  <div className="text-center space-y-4 group">
+                    <div className="relative mx-auto w-32 h-32 gradient-vibrant rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl group-hover:scale-105 transition-all duration-300">
+                      <div className="absolute -top-2 -right-2 w-10 h-10 bg-white rounded-full flex items-center justify-center text-ui-purple-primary font-bold text-lg shadow-md">
                         2
                       </div>
-                      <Users className="w-16 h-16 text-white" strokeWidth={1.5} />
+                      <Users className="w-12 h-12 text-white" strokeWidth={1.5} />
                     </div>
-                    <div className="space-y-3 backdrop-blur-sm bg-white/10 rounded-2xl p-6 border border-white/20 group-hover:bg-white/20 transition-all">
-                      <h3 className="font-bold text-xl text-white">Get Matched with Guides</h3>
+                    <div className="min-h-[120px] space-y-2 backdrop-blur-sm bg-white/10 rounded-xl p-5 border border-white/20 group-hover:bg-white/20 transition-all">
+                      <h3 className="font-bold text-lg text-white">Get Matched with Guides</h3>
                       <p className="text-sm text-white/90 leading-relaxed">
-                        We match you with verified student guides who fit your needs—including options from your home country if you prefer
+                        We match you with verified student guides who fit your needs
                       </p>
                     </div>
                   </div>
 
                   {/* Step 3 */}
-                  <div className="text-center space-y-6 group">
-                    <div className="relative mx-auto w-40 h-40 bg-gradient-to-br from-ui-success to-emerald-500 rounded-3xl flex items-center justify-center shadow-premium group-hover:shadow-soft group-hover:scale-110 transition-all duration-500 rotate-3 group-hover:rotate-6">
-                      <div className="absolute -top-3 -right-3 w-12 h-12 bg-white rounded-full flex items-center justify-center text-ui-success font-bold text-xl shadow-lg">
+                  <div className="text-center space-y-4 group">
+                    <div className="relative mx-auto w-32 h-32 bg-gradient-to-br from-ui-success to-emerald-500 rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-xl group-hover:scale-105 transition-all duration-300">
+                      <div className="absolute -top-2 -right-2 w-10 h-10 bg-white rounded-full flex items-center justify-center text-ui-success font-bold text-lg shadow-md">
                         3
                       </div>
-                      <PartyPopper className="w-16 h-16 text-white" strokeWidth={1.5} />
+                      <PartyPopper className="w-12 h-12 text-white" strokeWidth={1.5} />
                     </div>
-                    <div className="space-y-3 backdrop-blur-sm bg-white/10 rounded-2xl p-6 border border-white/20 group-hover:bg-white/20 transition-all">
-                      <h3 className="font-bold text-xl text-white">Experience the City</h3>
+                    <div className="min-h-[120px] space-y-2 backdrop-blur-sm bg-white/10 rounded-xl p-5 border border-white/20 group-hover:bg-white/20 transition-all">
+                      <h3 className="font-bold text-lg text-white">Experience the City</h3>
                       <p className="text-sm text-white/90 leading-relaxed">
                         Connect directly with your guide and enjoy an authentic local experience
                       </p>
@@ -222,20 +222,20 @@ export default function TouristLanding() {
               </div>
 
               {/* Mobile Vertical Timeline */}
-              <div className="md:hidden space-y-8 max-w-md mx-auto">
+              <div className="md:hidden space-y-6 max-w-md mx-auto">
                 {/* Step 1 */}
-                <div className="relative flex gap-6 group">
+                <div className="relative flex gap-4 group">
                   <div className="flex flex-col items-center">
-                    <div className="relative w-20 h-20 gradient-ocean rounded-2xl flex items-center justify-center shadow-premium shrink-0 group-hover:scale-110 transition-transform">
-                      <Send className="w-10 h-10 text-white" strokeWidth={1.5} />
-                      <div className="absolute -top-2 -right-2 w-8 h-8 bg-white rounded-full flex items-center justify-center text-ui-blue-accent font-bold text-sm shadow-lg">
+                    <div className="relative w-16 h-16 gradient-ocean rounded-xl flex items-center justify-center shadow-lg shrink-0 group-hover:scale-105 transition-transform">
+                      <Send className="w-8 h-8 text-white" strokeWidth={1.5} />
+                      <div className="absolute -top-1.5 -right-1.5 w-7 h-7 bg-white rounded-full flex items-center justify-center text-ui-blue-primary font-bold text-xs shadow-md">
                         1
                       </div>
                     </div>
-                    <div className="w-1 flex-1 bg-gradient-to-b from-ui-blue-primary to-ui-purple-primary opacity-30 my-4"></div>
+                    <div className="w-0.5 flex-1 bg-gradient-to-b from-ui-blue-primary to-ui-purple-primary opacity-20 my-3"></div>
                   </div>
-                  <div className="flex-1 pt-2 space-y-2 backdrop-blur-sm bg-white/10 rounded-2xl p-5 border border-white/20">
-                    <h3 className="font-bold text-lg text-white">Submit Your Request</h3>
+                  <div className="flex-1 pt-1 space-y-2 backdrop-blur-sm bg-white/10 rounded-xl p-4 border border-white/20">
+                    <h3 className="font-bold text-base text-white">Submit Your Request</h3>
                     <p className="text-sm text-white/90 leading-relaxed">
                       Tell us about your trip preferences, dates, and interests
                     </p>
@@ -243,36 +243,36 @@ export default function TouristLanding() {
                 </div>
 
                 {/* Step 2 */}
-                <div className="relative flex gap-6 group">
+                <div className="relative flex gap-4 group">
                   <div className="flex flex-col items-center">
-                    <div className="relative w-20 h-20 gradient-vibrant rounded-2xl flex items-center justify-center shadow-premium shrink-0 group-hover:scale-110 transition-transform">
-                      <Users className="w-10 h-10 text-white" strokeWidth={1.5} />
-                      <div className="absolute -top-2 -right-2 w-8 h-8 bg-white rounded-full flex items-center justify-center text-ui-purple-accent font-bold text-sm shadow-lg">
+                    <div className="relative w-16 h-16 gradient-vibrant rounded-xl flex items-center justify-center shadow-lg shrink-0 group-hover:scale-105 transition-transform">
+                      <Users className="w-8 h-8 text-white" strokeWidth={1.5} />
+                      <div className="absolute -top-1.5 -right-1.5 w-7 h-7 bg-white rounded-full flex items-center justify-center text-ui-purple-primary font-bold text-xs shadow-md">
                         2
                       </div>
                     </div>
-                    <div className="w-1 flex-1 bg-gradient-to-b from-ui-purple-primary to-ui-success opacity-30 my-4"></div>
+                    <div className="w-0.5 flex-1 bg-gradient-to-b from-ui-purple-primary to-ui-success opacity-20 my-3"></div>
                   </div>
-                  <div className="flex-1 pt-2 space-y-2 backdrop-blur-sm bg-white/10 rounded-2xl p-5 border border-white/20">
-                    <h3 className="font-bold text-lg text-white">Get Matched with Guides</h3>
+                  <div className="flex-1 pt-1 space-y-2 backdrop-blur-sm bg-white/10 rounded-xl p-4 border border-white/20">
+                    <h3 className="font-bold text-base text-white">Get Matched with Guides</h3>
                     <p className="text-sm text-white/90 leading-relaxed">
-                      We match you with verified student guides who fit your needs—including options from your home country if you prefer
+                      We match you with verified student guides who fit your needs
                     </p>
                   </div>
                 </div>
 
                 {/* Step 3 */}
-                <div className="relative flex gap-6 group">
+                <div className="relative flex gap-4 group">
                   <div className="flex flex-col items-center">
-                    <div className="relative w-20 h-20 bg-gradient-to-br from-ui-success to-emerald-500 rounded-2xl flex items-center justify-center shadow-premium shrink-0 group-hover:scale-110 transition-transform">
-                      <PartyPopper className="w-10 h-10 text-white" strokeWidth={1.5} />
-                      <div className="absolute -top-2 -right-2 w-8 h-8 bg-white rounded-full flex items-center justify-center text-ui-success font-bold text-sm shadow-lg">
+                    <div className="relative w-16 h-16 bg-gradient-to-br from-ui-success to-emerald-500 rounded-xl flex items-center justify-center shadow-lg shrink-0 group-hover:scale-105 transition-transform">
+                      <PartyPopper className="w-8 h-8 text-white" strokeWidth={1.5} />
+                      <div className="absolute -top-1.5 -right-1.5 w-7 h-7 bg-white rounded-full flex items-center justify-center text-ui-success font-bold text-xs shadow-md">
                         3
                       </div>
                     </div>
                   </div>
-                  <div className="flex-1 pt-2 space-y-2 backdrop-blur-sm bg-white/10 rounded-2xl p-5 border border-white/20">
-                    <h3 className="font-bold text-lg text-white">Experience the City</h3>
+                  <div className="flex-1 pt-1 space-y-2 backdrop-blur-sm bg-white/10 rounded-xl p-4 border border-white/20">
+                    <h3 className="font-bold text-base text-white">Experience the City</h3>
                     <p className="text-sm text-white/90 leading-relaxed">
                       Connect directly with your guide and enjoy an authentic local experience
                     </p>
