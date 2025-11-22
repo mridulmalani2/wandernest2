@@ -54,6 +54,9 @@ export interface AppConfig {
     url: string | null
     isConfigured: boolean
   }
+  verification: {
+    codeExpiry: number  // Seconds until verification code expires
+  }
 }
 
 /**
@@ -158,12 +161,14 @@ function loadConfig(): AppConfig {
     )
   }
 
-  // Redis configuration (optional)
+  // Redis configuration (optional - used for caching and verification codes)
   const redisUrl = process.env.REDIS_URL || null
   const isRedisConfigured = !!redisUrl
 
-  if (!isRedisConfigured) {
-    configWarnings.push('REDIS_URL is not set - using in-memory cache (not recommended for production)')
+  if (!isRedisConfigured && isProduction) {
+    configWarnings.push(
+      'REDIS_URL is not set - verification codes will use database fallback (slower but functional)'
+    )
   }
 
   return {
@@ -209,6 +214,9 @@ function loadConfig(): AppConfig {
       url: redisUrl,
       isConfigured: isRedisConfigured,
     },
+    verification: {
+      codeExpiry: verificationCodeExpiry,
+    },
   }
 }
 
@@ -223,9 +231,9 @@ export function logConfigStatus(): void {
   console.log(`\n📊 Environment: ${config.app.nodeEnv}`)
 
   console.log('\n🔌 Integration Status:')
-  console.log(`  Database:     ${config.database.isAvailable ? '✅ Connected' : '⚠️  Not configured'}`)
+  console.log(`  Database:     ${config.database.isAvailable ? '✅ Connected' : '❌ NOT CONFIGURED (REQUIRED)'}`)
   console.log(`  Email:        ${config.email.isConfigured ? '✅ Configured' : '⚠️  Not configured'}`)
-  console.log(`  Google Auth:  ${config.auth.google.isConfigured ? '✅ Configured' : '❌ Not configured'}`)
+  console.log(`  Google Auth:  ${config.auth.google.isConfigured ? '✅ Configured' : '❌ NOT CONFIGURED (REQUIRED)'}`)
   console.log(`  NextAuth:     ${config.auth.nextAuth.isConfigured ? '✅ Configured' : '⚠️  Partial config'}`)
   console.log(`  Redis Cache:  ${config.redis.isConfigured ? '✅ Configured' : '⚠️  Using in-memory'}`)
 

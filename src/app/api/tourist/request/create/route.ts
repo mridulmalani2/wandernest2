@@ -10,17 +10,6 @@ import { requireDatabase } from '@/lib/prisma';
 import { sendBookingConfirmation } from '@/lib/email';
 import { withErrorHandler, withDatabaseRetry, AppError } from '@/lib/error-handler';
 
-// In-memory storage for demo mode (when database is not available)
-// This is shared globally across the serverless function instances
-declare global {
-  var demoTouristRequests: Map<string, any> | undefined;
-}
-
-const demoRequests = globalThis.demoTouristRequests || new Map<string, any>();
-if (!globalThis.demoTouristRequests) {
-  globalThis.demoTouristRequests = demoRequests;
-}
-
 // Validation schema for authenticated booking request
 const createBookingSchema = z.object({
   // Trip Details
@@ -78,7 +67,10 @@ async function createTouristRequest(req: NextRequest) {
   const body = await req.json();
   const validatedData = createBookingSchema.parse(body);
 
-  // Create the TouristRequest - use database if available, otherwise in-memory storage
+  // Ensure database is available (throws clear error if not)
+  const prisma = requireDatabase();
+
+  // Create the TouristRequest
   const expiresAt = new Date();
   expiresAt.setDate(expiresAt.getDate() + 7); // Expires in 7 days
 
