@@ -39,8 +39,7 @@ export default function ApprovalQueue({ students, onApprove, onReject, onBulkApp
     if (selectedStudent && !highlighter) {
       Promise.all([
         import('highlight.js/lib/core'),
-        import('highlight.js/lib/languages/markdown'),
-        import('highlight.js/styles/github-dark.css')
+        import('highlight.js/lib/languages/markdown')
       ]).then(([hljsModule, markdownModule]) => {
         const hljs = hljsModule.default
         hljs.registerLanguage('markdown', markdownModule.default)

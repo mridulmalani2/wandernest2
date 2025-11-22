@@ -60,3 +60,39 @@ function getRedisClient(): Redis | null {
 // Export the Redis client
 export const redis = getRedisClient()
 
+// Verification code functions
+export async function storeVerificationCode(email: string, code: string, data: any): Promise<void> {
+  if (!redis) return
+
+  const key = `verification:${email}`
+  await redis.setex(key, 600, JSON.stringify({ code, data, attempts: 0 })) // 10 minutes
+}
+
+export async function getVerificationData(email: string): Promise<any | null> {
+  if (!redis) return null
+
+  const key = `verification:${email}`
+  const data = await redis.get(key)
+  return data ? JSON.parse(data) : null
+}
+
+export async function deleteVerificationCode(email: string): Promise<void> {
+  if (!redis) return
+
+  const key = `verification:${email}`
+  await redis.del(key)
+}
+
+export async function incrementVerificationAttempts(email: string): Promise<number> {
+  if (!redis) return 0
+
+  const key = `verification:${email}`
+  const data = await redis.get(key)
+  if (!data) return 0
+
+  const parsed = JSON.parse(data)
+  parsed.attempts = (parsed.attempts || 0) + 1
+  await redis.setex(key, 600, JSON.stringify(parsed))
+  return parsed.attempts
+}
+

@@ -1,3 +1,5 @@
+'use client'
+
 import Link from 'next/link'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
@@ -57,7 +59,7 @@ export default function TouristLanding() {
                   </Button>
                 </Link>
               </div>
-            </section>
+            </div>
 
             {/* Features */}
             <div className="pt-8 animate-fade-in-up delay-400">
@@ -266,7 +268,7 @@ export default function TouristLanding() {
                   </div>
                 </div>
               </div>
-            </section>
+            </div>
 
             {/* City Destination Cards - Enhanced Design */}
             <div className="space-y-8 pt-8 animate-fade-in-up delay-700">
@@ -441,7 +443,7 @@ export default function TouristLanding() {
                   </div>
                 </Link>
               </div>
-            </section>
+            </div>
 
             {/* Marketplace Disclaimer - Enhanced */}
             <div className="mt-16 max-w-4xl mx-auto animate-fade-in-up delay-800">
@@ -516,7 +518,7 @@ export default function TouristLanding() {
                   </div>
                 </div>
               </div>
-            </section>
+            </div>
           </div>
         </main>
 

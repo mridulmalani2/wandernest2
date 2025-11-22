@@ -76,7 +76,7 @@ export async function GET(req: NextRequest) {
     // If accepted, include student details
     if (touristRequest.status === 'ACCEPTED' && touristRequest.assignedStudentId) {
       const assignedStudent = touristRequest.selections.find(
-        (s) => s.studentId === touristRequest.assignedStudentId && s.status === 'accepted'
+        (s: any) => s.studentId === touristRequest.assignedStudentId && s.status === 'accepted'
       )
 
       if (assignedStudent && assignedStudent.student) {

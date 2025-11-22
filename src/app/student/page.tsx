@@ -1,3 +1,5 @@
+'use client'
+
 import Link from 'next/link'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
@@ -60,7 +62,7 @@ export default function StudentLandingPage() {
                   </Button>
                 </Link>
               </div>
-            </section>
+            </div>
 
             {/* Value Proposition */}
             <div className="backdrop-blur-xl rounded-3xl shadow-2xl border border-white/30 animate-fade-in-up delay-400 relative overflow-hidden">
@@ -122,7 +124,7 @@ export default function StudentLandingPage() {
                   </div>
                 </div>
               </div>
-            </section>
+            </div>
 
             {/* How It Works */}
             <div className="space-y-12 animate-fade-in-up delay-500">
@@ -136,7 +138,7 @@ export default function StudentLandingPage() {
                   <p className="text-base text-white/90 leading-relaxed font-medium px-2">
                     Use your student email (.edu) to sign in with Google
                   </p>
-                </article>
+                </div>
 
                 <div className="text-center space-y-5 group hover-lift">
                   <div className="w-24 h-24 gradient-vibrant rounded-2xl flex items-center justify-center mx-auto text-4xl font-bold text-white shadow-premium group-hover:shadow-glow-purple group-hover:scale-110 group-hover:-rotate-6 transition-all duration-300">
@@ -146,7 +148,7 @@ export default function StudentLandingPage() {
                   <p className="text-base text-white/90 leading-relaxed font-medium px-2">
                     Upload your student ID to confirm your enrollment
                   </p>
-                </article>
+                </div>
 
                 <div className="text-center space-y-5 group hover-lift">
                   <div className="w-24 h-24 bg-gradient-to-br from-ui-success to-ui-success rounded-2xl flex items-center justify-center mx-auto text-4xl font-bold text-white shadow-premium group-hover:shadow-soft group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
@@ -156,7 +158,7 @@ export default function StudentLandingPage() {
                   <p className="text-base text-white/90 leading-relaxed font-medium px-2">
                     Describe your ideal day-out and share your expertise
                   </p>
-                </article>
+                </div>
 
                 <div className="text-center space-y-5 group hover-lift">
                   <div className="w-24 h-24 gradient-sunset rounded-2xl flex items-center justify-center mx-auto text-4xl font-bold text-white shadow-premium group-hover:shadow-soft group-hover:scale-110 group-hover:-rotate-6 transition-all duration-300">
@@ -166,9 +168,9 @@ export default function StudentLandingPage() {
                   <p className="text-base text-white/90 leading-relaxed font-medium px-2">
                     Set your availability and start receiving booking requests
                   </p>
-                </article>
+                </div>
               </div>
-            </section>
+            </div>
 
             <ModernFAQ />
 
@@ -212,7 +214,7 @@ export default function StudentLandingPage() {
                   </div>
                 </div>
               </div>
-            </section>
+            </div>
 
             {/* Final CTA */}
             <div className="text-center space-y-8 py-16 animate-fade-in-up delay-1000">
@@ -229,7 +231,7 @@ export default function StudentLandingPage() {
                   <span className="ml-2 group-hover:translate-x-2 transition-transform inline-block" aria-hidden="true">→</span>
                 </Button>
               </Link>
-            </section>
+            </div>
 
           </div>
         </main>

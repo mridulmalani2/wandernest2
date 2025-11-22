@@ -282,7 +282,7 @@ export default function WhyChooseCarousel() {
               aria-label="Next feature"
             >
               <ChevronRight className="w-5 h-5 md:w-6 md:h-6 text-gray-900 dark:text-white" />
-            </button>
+            </motion.button>
           </div>
         </div>
 

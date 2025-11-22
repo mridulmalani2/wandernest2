@@ -36,7 +36,7 @@ interface ScoredStudent {
 }
 
 function calculateMatchScore(
-  student: { nationality: string | null; languages: string[]; interests: string[]; averageRating: number | null },
+  student: { nationality: string | null; languages: string[]; interests: string[]; averageRating: number | null; tripsHosted: number; noShowCount: number; reliabilityBadge: string | null; acceptanceRate: number | null },
   criteria: MatchingCriteria
 ): { score: number; reasons: string[] } {
   let score = 0
@@ -405,20 +405,14 @@ function calculateSuggestedPrice(city: string, serviceType: string): { min: numb
   if (serviceType === 'itinerary_help') {
     // Online consultation, flat fee
     return {
-      type: 'flat',
       min: Math.round(baseRate.min * 1.5),
       max: Math.round(baseRate.max * 2),
-      currency: 'EUR',
-      note: 'Suggested fee for online itinerary consultation',
     }
   } else {
     // Guided experience, hourly rate
     return {
-      type: 'hourly',
       min: baseRate.min,
       max: baseRate.max,
-      currency: 'EUR',
-      note: 'Suggested hourly rate for 3-4 hours guided experience',
     }
   }
 }

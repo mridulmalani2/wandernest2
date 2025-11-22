@@ -25,7 +25,7 @@ export async function verifyAdmin(request: NextRequest): Promise<{ authorized: b
     const token = authHeader.substring(7)
     const decoded = verifyToken(token)
 
-    if (!decoded || !decoded.adminId) {
+    if (!decoded || typeof decoded === 'string' || !(decoded as any).adminId) {
       return { authorized: false, error: 'Invalid token' }
     }
 
