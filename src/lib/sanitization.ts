@@ -91,7 +91,7 @@ export function sanitizeObject<T extends Record<string, any>>(
 
   for (const field of fieldsToSanitize) {
     if (typeof sanitized[field] === 'string') {
-      (sanitized[field] as any) = sanitizeText(sanitized[field] as string, maxLength);
+      sanitized[field] = sanitizeText(sanitized[field] as string, maxLength) as T[keyof T];
     }
   }
 

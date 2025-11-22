@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import './critical.css'
 import { Providers } from './providers'
+import { PageTransition } from '@/components/transitions/PageTransition'
 
 /*
  * Font Configuration:
@@ -79,7 +80,9 @@ export default function RootLayout({
             {/* Light mode gradient background */}
             <div className="fixed inset-0 z-0 bg-gradient-to-br from-slate-50 via-blue-50/50 to-purple-50/50 transition-colors duration-300" />
             <div className="relative z-10">
-              {children}
+              <PageTransition>
+                {children}
+              </PageTransition>
             </div>
           </div>
         </Providers>

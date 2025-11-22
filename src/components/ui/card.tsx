@@ -1,16 +1,47 @@
 // Design System: Modern card component with cohesive border radius and shadows
-import * as React from "react"
+'use client';
 
-const Card = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={`rounded-xl border border-border/50 bg-card/80 backdrop-blur-sm text-card-foreground shadow-soft hover:shadow-premium transition-all duration-300 ${className || ''}`}
-    {...props}
-  />
-))
+import * as React from "react"
+import { motion } from "framer-motion"
+
+interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
+  disableMotion?: boolean
+  hoverScale?: number
+  hoverY?: number
+}
+
+const Card = React.forwardRef<HTMLDivElement, CardProps>(
+  ({ className, disableMotion = false, hoverScale = 1.02, hoverY = -4, ...props }, ref) => {
+    const cardClassName = `rounded-xl border border-border/50 bg-card/80 backdrop-blur-sm text-card-foreground shadow-soft ${className || ''}`
+
+    if (disableMotion) {
+      return (
+        <div
+          ref={ref}
+          className={`${cardClassName} hover:shadow-premium transition-all duration-300`}
+          {...props}
+        />
+      )
+    }
+
+    const MotionDiv = motion.div as any
+
+    return (
+      <MotionDiv
+        ref={ref}
+        className={cardClassName}
+        whileHover={{
+          scale: hoverScale,
+          y: hoverY,
+          boxShadow: '0 20px 40px -12px rgba(0, 0, 0, 0.15), 0 8px 16px -8px rgba(0, 0, 0, 0.1)',
+          transition: { duration: 0.3, ease: [0.22, 1, 0.36, 1] }
+        }}
+        transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+        {...props}
+      />
+    )
+  }
+)
 Card.displayName = "Card"
 
 const CardHeader = React.forwardRef<

@@ -7,11 +7,20 @@ import Navigation from '@/components/Navigation'
 import Footer from '@/components/Footer'
 import ModernFAQ from '@/components/student/ModernFAQ'
 import { DollarSign, Clock, Users } from 'lucide-react'
+import { motion, useScroll, useTransform } from 'framer-motion'
+import { useRef } from 'react'
 
 export default function StudentLandingPage() {
+  const heroRef = useRef<HTMLDivElement>(null)
+  const { scrollYProgress } = useScroll({
+    target: heroRef,
+    offset: ['start start', 'end start']
+  })
+  const y = useTransform(scrollYProgress, [0, 1], [0, 150])
+
   return (
-    <div className="min-h-screen flex flex-col relative overflow-hidden">
-      <div className="absolute inset-0">
+    <div ref={heroRef} className="min-h-screen flex flex-col relative overflow-hidden">
+      <motion.div className="absolute inset-0" style={{ y }}>
         <Image
           src="https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=1920&q=80"
           alt="Beautiful Paris street scene with classic architecture"
@@ -25,7 +34,7 @@ export default function StudentLandingPage() {
         <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" />
         {/* Gradient overlay for visual depth */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/20" />
-      </div>
+      </motion.div>
       <div className="absolute inset-0 pattern-grid opacity-10" />
 
       <div className="relative z-10 flex flex-col min-h-screen">
