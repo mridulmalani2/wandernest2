@@ -5,14 +5,15 @@ import Image from 'next/image'
 import { BookingForm } from '@/components/booking/BookingForm'
 import Navigation from '@/components/Navigation'
 import Footer from '@/components/Footer'
-import { useSession, signIn } from 'next-auth/react'
+import { signIn } from 'next-auth/react'
+import { useAuth } from '@/lib/use-auth'
 import { Button } from '@/components/ui/button'
 import { AlertTriangle, Loader2, LogIn } from 'lucide-react'
 import FAQAccordion from '@/components/shared/FAQAccordion'
 import { paymentFAQs } from '@/lib/faq/data'
 
 export default function BookingPage() {
-  const { data: session, status } = useSession()
+  const { data: session, status } = useAuth()
   const loading = status === 'loading'
   const isTourist = session?.user?.userType === 'tourist'
 

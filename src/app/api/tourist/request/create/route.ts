@@ -4,8 +4,7 @@ export const maxDuration = 10
 
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth-options';
+import { getSessionWithDevBypass } from '@/lib/dev-auth-server';
 import { prisma } from '@/lib/prisma';
 import { sendBookingConfirmation } from '@/lib/email';
 import { withErrorHandler, withDatabaseRetry, AppError } from '@/lib/error-handler';
@@ -43,8 +42,8 @@ const createBookingSchema = z.object({
  * Create a new booking request for an authenticated tourist
  */
 async function createTouristRequest(req: NextRequest) {
-  // Get session from NextAuth
-  const session = await getServerSession(authOptions);
+  // Get session (with dev bypass support in development)
+  const session = await getSessionWithDevBypass(req);
 
   if (!session?.user?.email) {
     throw new AppError(401, 'Unauthorized. Please sign in.', 'UNAUTHORIZED');
