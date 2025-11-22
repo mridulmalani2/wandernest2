@@ -9,6 +9,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import Navigation from '@/components/Navigation'
+import { PrimaryCTAButton } from '@/components/ui/PrimaryCTAButton'
 
 export default function TouristSignIn() {
   const { data: session, status } = useSession()
@@ -97,12 +98,13 @@ export default function TouristSignIn() {
 
           {/* Sign In Card */}
           <div className="glass-card rounded-3xl border-2 border-white/40 p-8 shadow-premium space-y-6">
-            <Button
+            <PrimaryCTAButton
               onClick={handleGoogleSignIn}
-              className="w-full flex items-center justify-center space-x-3 py-6 text-lg gradient-ocean hover:shadow-glow-blue shadow-premium hover-lift"
               disabled={status === 'loading'}
+              variant="blue"
+              className="w-full justify-center"
             >
-              <svg className="w-6 h-6" viewBox="0 0 24 24">
+              <svg className="w-6 h-6 mr-3" viewBox="0 0 24 24">
                 <path
                   fill="currentColor"
                   d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -121,7 +123,7 @@ export default function TouristSignIn() {
                 />
               </svg>
               <span>Continue with Google</span>
-            </Button>
+            </PrimaryCTAButton>
 
             <div className="text-center text-sm text-gray-500">
               <p>

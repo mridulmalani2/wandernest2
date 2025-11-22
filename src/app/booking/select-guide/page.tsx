@@ -7,6 +7,7 @@ import { StudentProfileCard, StudentMatch } from '@/components/tourist/StudentPr
 import { Button } from '@/components/ui/button'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Loader2, AlertCircle, Info } from 'lucide-react'
+import { PrimaryCTAButton } from '@/components/ui/PrimaryCTAButton'
 
 function SelectGuideContent() {
   const searchParams = useSearchParams()
@@ -270,10 +271,11 @@ function SelectGuideContent() {
             Modify Request
           </Button>
 
-          <Button
+          <PrimaryCTAButton
             onClick={handleSubmitSelection}
             disabled={selectedStudents.length === 0 || submitting}
-            className="w-full sm:w-auto gradient-ocean hover:shadow-glow-blue shadow-premium text-white font-semibold group"
+            variant="blue"
+            className="w-full sm:w-auto"
           >
             {submitting ? (
               <>
@@ -284,10 +286,9 @@ function SelectGuideContent() {
               <>
                 Confirm & Send Request
                 {selectedStudents.length > 0 && ` (${selectedStudents.length})`}
-                <span className="ml-2 group-hover:translate-x-1 transition-transform inline-block">→</span>
               </>
             )}
-          </Button>
+          </PrimaryCTAButton>
         </div>
 
         {/* Selection Summary */}

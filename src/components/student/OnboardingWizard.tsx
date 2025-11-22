@@ -8,6 +8,7 @@ import dynamic from 'next/dynamic';
 import { Button } from '@/components/ui/button';
 import Navigation from '@/components/Navigation';
 import { FormProgressHeader } from '@/components/shared/FormProgressHeader';
+import { PrimaryCTAButton } from '@/components/ui/PrimaryCTAButton';
 
 // Dynamically import step components to reduce initial bundle size
 // Each step loads only when needed
@@ -581,23 +582,23 @@ export function OnboardingWizard({ session }: OnboardingWizardProps) {
                   </Button>
 
                   {currentStep < STEPS.length ? (
-                    <Button
+                    <PrimaryCTAButton
                       type="button"
                       onClick={handleNext}
                       disabled={isSubmitting}
-                      className="gradient-ocean hover:shadow-glow-blue shadow-premium hover-lift"
+                      variant="blue"
                     >
                       Next
-                    </Button>
+                    </PrimaryCTAButton>
                   ) : (
-                    <Button
+                    <PrimaryCTAButton
                       type="button"
                       onClick={handleSubmit}
                       disabled={isSubmitting}
-                      className="gradient-ocean hover:shadow-glow-blue shadow-premium hover-lift"
+                      variant="blue"
                     >
                       {isSubmitting ? 'Submitting for Review...' : 'Submit for Review'}
-                    </Button>
+                    </PrimaryCTAButton>
                   )}
                 </div>
 

@@ -2,6 +2,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Globe } from 'lucide-react';
+import { PrimaryCTAButton } from '@/components/ui/PrimaryCTAButton';
 
 export default function OnboardingSuccess() {
   return (
@@ -137,11 +138,12 @@ export default function OnboardingSuccess() {
                 Return to Home
               </Button>
             </Link>
-            <Link href="/student">
-              <Button size="lg" className="gradient-ocean hover:shadow-glow-blue shadow-premium">
-                Learn More About Guiding
-              </Button>
-            </Link>
+            <PrimaryCTAButton
+              href="/student"
+              variant="blue"
+            >
+              Learn More About Guiding
+            </PrimaryCTAButton>
           </div>
 
           {/* Support */}

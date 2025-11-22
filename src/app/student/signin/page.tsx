@@ -7,6 +7,7 @@ import Image from 'next/image';
 import Navigation from '@/components/Navigation';
 import { Button } from '@/components/ui/button';
 import { CheckCircle2 } from 'lucide-react';
+import { PrimaryCTAButton } from '@/components/ui/PrimaryCTAButton';
 
 export default function StudentSignIn() {
   const router = useRouter();
@@ -80,11 +81,13 @@ export default function StudentSignIn() {
               </div>
 
               <div className="pt-4">
-                <Link href="/student/onboarding">
-                  <Button className="w-full h-12 text-base gradient-ocean hover:shadow-glow-blue shadow-premium hover-lift" size="lg">
-                    Continue to Onboarding
-                  </Button>
-                </Link>
+                <PrimaryCTAButton
+                  href="/student/onboarding"
+                  variant="blue"
+                  className="w-full"
+                >
+                  Continue to Onboarding
+                </PrimaryCTAButton>
               </div>
             </div>
           </div>
