@@ -56,22 +56,43 @@ export const authOptions: NextAuthOptions = {
         },
       });
 
-      // If tourist, create or update Tourist record
-      if (!isStudent && account?.providerAccountId) {
-        await prisma.tourist.upsert({
-          where: { email: user.email },
-          create: {
-            email: user.email,
-            name: user.name,
-            image: user.image,
-            googleId: account.providerAccountId,
-          },
-          update: {
-            name: user.name,
-            image: user.image,
-            googleId: account.providerAccountId,
-          },
-        });
+      // Create or update role-specific record based on user type
+      if (account?.providerAccountId) {
+        if (isStudent) {
+          // Create or update Student record for academic emails
+          await prisma.student.upsert({
+            where: { email: user.email },
+            create: {
+              email: user.email,
+              name: user.name,
+              googleId: account.providerAccountId,
+              emailVerified: true,
+              profilePhotoUrl: user.image,
+            },
+            update: {
+              name: user.name,
+              googleId: account.providerAccountId,
+              emailVerified: true,
+              profilePhotoUrl: user.image,
+            },
+          });
+        } else {
+          // Create or update Tourist record for non-academic emails
+          await prisma.tourist.upsert({
+            where: { email: user.email },
+            create: {
+              email: user.email,
+              name: user.name,
+              image: user.image,
+              googleId: account.providerAccountId,
+            },
+            update: {
+              name: user.name,
+              image: user.image,
+              googleId: account.providerAccountId,
+            },
+          });
+        }
       }
 
       return true;
@@ -123,8 +144,51 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
     async redirect({ url, baseUrl }) {
-      // After sign in, check user type and redirect accordingly
-      return url.startsWith(baseUrl) ? url : baseUrl;
+      // Custom redirect based on user type
+      // If url is already specified and starts with baseUrl, use it
+      if (url.startsWith(baseUrl)) {
+        return url;
+      }
+
+      // Default redirect to baseUrl
+      return baseUrl;
+    },
+    async jwt({ token, user, trigger }) {
+      // Add custom fields to JWT token for middleware access
+      if (user) {
+        token.id = user.id;
+      }
+
+      // Always fetch fresh user data to keep token in sync with database
+      if (token.email) {
+        const dbUser = await prisma.user.findUnique({
+          where: { email: token.email },
+          select: {
+            id: true,
+            userType: true,
+            email: true,
+          },
+        });
+
+        if (dbUser) {
+          token.userType = dbUser.userType;
+
+          // Check if student has completed onboarding
+          if (dbUser.userType === 'student') {
+            const student = await prisma.student.findUnique({
+              where: { email: dbUser.email },
+              select: {
+                id: true,
+                status: true,
+                city: true,
+              },
+            });
+            token.hasCompletedOnboarding = !!student?.city; // city is required field from onboarding
+          }
+        }
+      }
+
+      return token;
     },
   },
   session: {

@@ -134,6 +134,7 @@ async function getStudentDashboard(req: NextRequest) {
     )
 
   return NextResponse.json({
+    success: true,
     student: {
       id: student.id,
       name: student.name,
@@ -146,6 +147,7 @@ async function getStudentDashboard(req: NextRequest) {
       reliabilityBadge: student.reliabilityBadge,
       languages: student.languages,
       interests: student.interests,
+      hasCompletedOnboarding: !!student.city, // City is required field in onboarding
     },
     stats: {
       totalBookings: acceptedBookings.length,

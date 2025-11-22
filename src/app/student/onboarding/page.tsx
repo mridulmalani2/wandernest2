@@ -25,6 +25,12 @@ export default function StudentOnboarding() {
         return;
       }
 
+      // Verify this is a student account (not tourist)
+      if (session.user.userType !== 'student') {
+        router.push('/tourist/signin');
+        return;
+      }
+
       // Check if student has already completed onboarding
       try {
         setCheckingOnboarding(true);
@@ -49,8 +55,8 @@ export default function StudentOnboarding() {
     validateSession();
   }, [session, status, router]);
 
-  // Simplified loading state - full UI will be in OnboardingWizard
-  if (loading) {
+  // Loading state - full UI will be in OnboardingWizard
+  if (loading || status === 'loading') {
     return (
       <div className="min-h-screen flex flex-col relative overflow-hidden">
         {/* Background Image with Overlays */}
