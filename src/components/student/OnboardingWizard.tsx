@@ -4,16 +4,40 @@ import { useState } from 'react';
 import { Session } from 'next-auth';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import dynamic from 'next/dynamic';
 import { Button } from '@/components/ui/button';
 import Navigation from '@/components/Navigation';
-import { BasicProfileStep } from './BasicProfileStep';
-import { StudentVerificationStep } from './StudentVerificationStep';
-import { CoverLetterStep } from './CoverLetterStep';
-import { AvailabilityStep } from './AvailabilityStep';
-import { ServicePreferencesStep } from './ServicePreferencesStep';
-import { SafetyComplianceStep } from './SafetyComplianceStep';
-import { ReviewSubmitStep } from './ReviewSubmitStep';
 import { FormProgressHeader } from '@/components/shared/FormProgressHeader';
+
+// Dynamically import step components to reduce initial bundle size
+// Each step loads only when needed
+const BasicProfileStep = dynamic(() => import('./BasicProfileStep').then(mod => ({ default: mod.BasicProfileStep })), {
+  loading: () => <div className="flex justify-center p-8"><div className="animate-spin h-8 w-8 border-4 border-ui-blue-primary border-t-transparent rounded-full" /></div>
+});
+
+const StudentVerificationStep = dynamic(() => import('./StudentVerificationStep').then(mod => ({ default: mod.StudentVerificationStep })), {
+  loading: () => <div className="flex justify-center p-8"><div className="animate-spin h-8 w-8 border-4 border-ui-blue-primary border-t-transparent rounded-full" /></div>
+});
+
+const CoverLetterStep = dynamic(() => import('./CoverLetterStep').then(mod => ({ default: mod.CoverLetterStep })), {
+  loading: () => <div className="flex justify-center p-8"><div className="animate-spin h-8 w-8 border-4 border-ui-blue-primary border-t-transparent rounded-full" /></div>
+});
+
+const AvailabilityStep = dynamic(() => import('./AvailabilityStep').then(mod => ({ default: mod.AvailabilityStep })), {
+  loading: () => <div className="flex justify-center p-8"><div className="animate-spin h-8 w-8 border-4 border-ui-blue-primary border-t-transparent rounded-full" /></div>
+});
+
+const ServicePreferencesStep = dynamic(() => import('./ServicePreferencesStep').then(mod => ({ default: mod.ServicePreferencesStep })), {
+  loading: () => <div className="flex justify-center p-8"><div className="animate-spin h-8 w-8 border-4 border-ui-blue-primary border-t-transparent rounded-full" /></div>
+});
+
+const SafetyComplianceStep = dynamic(() => import('./SafetyComplianceStep').then(mod => ({ default: mod.SafetyComplianceStep })), {
+  loading: () => <div className="flex justify-center p-8"><div className="animate-spin h-8 w-8 border-4 border-ui-blue-primary border-t-transparent rounded-full" /></div>
+});
+
+const ReviewSubmitStep = dynamic(() => import('./ReviewSubmitStep').then(mod => ({ default: mod.ReviewSubmitStep })), {
+  loading: () => <div className="flex justify-center p-8"><div className="animate-spin h-8 w-8 border-4 border-ui-blue-primary border-t-transparent rounded-full" /></div>
+});
 
 export type OnboardingFormData = {
   // Step 1: Basic Profile - Personal Details
