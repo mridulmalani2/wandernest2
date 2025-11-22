@@ -6,6 +6,7 @@ import { acceptRequest } from '../accept-request'
 import { requireDatabase } from '@/lib/prisma'
 
 export async function POST(req: NextRequest) {
+  const prisma = requireDatabase()
   try {
     const db = requireDatabase()
 

@@ -9,6 +9,7 @@ import { requireDatabase } from '@/lib/prisma'
  * Save tourist's guide selections
  */
 export async function POST(request: NextRequest) {
+  const prisma = requireDatabase()
   try {
     const db = requireDatabase()
 

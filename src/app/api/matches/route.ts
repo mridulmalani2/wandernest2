@@ -14,6 +14,7 @@ import { CACHE_TTL } from '@/lib/constants'
  * Find matching guides for a tourist request
  */
 export async function POST(request: NextRequest) {
+  const prisma = requireDatabase()
   try {
     const db = requireDatabase()
 
@@ -81,6 +82,7 @@ export async function POST(request: NextRequest) {
  * Get existing matches for a request
  */
 export async function GET(request: NextRequest) {
+  const prisma = requireDatabase()
   try {
     const db = requireDatabase()
 

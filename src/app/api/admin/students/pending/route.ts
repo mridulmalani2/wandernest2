@@ -7,6 +7,7 @@ import { verifyAdmin } from '@/lib/middleware'
 
 // Get pending student approvals
 export async function GET(request: NextRequest) {
+  const prisma = requireDatabase()
   const authResult = await verifyAdmin(request)
 
   if (!authResult.authorized) {
