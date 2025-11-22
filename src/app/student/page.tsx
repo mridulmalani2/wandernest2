@@ -80,7 +80,7 @@ export default function StudentLandingPage() {
 
             {/* Value Proposition */}
             <div className="backdrop-blur-xl rounded-3xl shadow-2xl border border-white/30 animate-fade-in-up delay-400 relative overflow-hidden">
-              <div className="absolute inset-0 opacity-10">
+              <div className="absolute inset-0 opacity-22">
                 <Image
                   src="https://images.unsplash.com/photo-1499856871958-5b9627545d1a?w=1200&q=80"
                   alt="Arc de Triomphe and Paris landmarks"
@@ -90,7 +90,7 @@ export default function StudentLandingPage() {
                   className="object-cover"
                 />
               </div>
-              <div className="absolute inset-0 bg-white/5 backdrop-blur-xl" />
+              <div className="absolute inset-0 bg-white/0 backdrop-blur-xl" />
               <div className="relative z-10 p-8 md:p-12 lg:p-16">
                 <div className="text-center space-y-3 mb-12">
                   <h2 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-white text-shadow-lg">
