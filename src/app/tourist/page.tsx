@@ -3,6 +3,7 @@ import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { GraduationCap, MessageCircle, Star, AlertTriangle } from 'lucide-react'
 import { DynamicNavigation } from '@/components/DynamicNavigation'
+import Footer from '@/components/Footer'
 
 // Server Component - no client-side bundle overhead
 export default function TouristLanding() {
@@ -275,11 +276,7 @@ export default function TouristLanding() {
         </main>
 
         {/* Footer */}
-        <footer className="border-t bg-white/40 backdrop-blur-md mt-16">
-          <div className="container mx-auto px-4 py-8 text-center text-gray-600">
-            <p>&copy; {new Date().getFullYear()} WanderNest. All rights reserved.</p>
-          </div>
-        </footer>
+        <Footer />
       </div>
     </div>
   )

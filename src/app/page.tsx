@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Plane, GraduationCap } from 'lucide-react'
 import Navigation from '@/components/Navigation'
+import Footer from '@/components/Footer'
 import TouristCTA from '@/components/cta/TouristCTA'
 import StudentCTA from '@/components/cta/StudentCTA'
 import WhyChooseCarousel from '@/components/WhyChooseCarousel'
@@ -185,13 +186,11 @@ export default function MainLanding() {
 
             {/* Premium Carousel - Why Choose WanderNest */}
             <WhyChooseCarousel />
-
-            {/* Footer Note */}
-            <p className="text-sm text-white/90 pt-16 animate-fade-in text-shadow">
-              © {new Date().getFullYear()} WanderNest. Connecting cultures, one guide at a time.
-            </p>
           </div>
         </main>
+
+        {/* Footer */}
+        <Footer />
       </div>
     </div>
   )

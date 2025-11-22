@@ -2,6 +2,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import Navigation from '@/components/Navigation'
+import Footer from '@/components/Footer'
 import ModernFAQ from '@/components/student/ModernFAQ'
 import { DollarSign, Clock, Users } from 'lucide-react'
 
@@ -238,11 +239,7 @@ export default function StudentLandingPage() {
         </main>
 
         {/* Footer */}
-        <footer className="border-t bg-white/40 backdrop-blur-md mt-16">
-          <div className="container mx-auto px-4 py-8 text-center text-gray-600">
-            <p>&copy; {new Date().getFullYear()} WanderNest. All rights reserved.</p>
-          </div>
-        </footer>
+        <Footer />
       </div>
     </div>
   )
