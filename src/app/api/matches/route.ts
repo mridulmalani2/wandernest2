@@ -1,10 +1,13 @@
-// Optimized for Vercel serverless functions
+// Optimized for Vercel serverless functions with caching
 export const dynamic = 'force-dynamic'
 export const maxDuration = 10
+export const revalidate = 300 // 5 minutes
 
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { findMatches, generateAnonymousId } from '@/lib/matching/algorithm'
+import { cache } from '@/lib/cache'
+import { CACHE_TTL } from '@/lib/constants'
 
 /**
  * POST /api/matches
@@ -34,8 +37,12 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Find matches
-    const matches = await findMatches(touristRequest)
+    // Find matches with caching
+    const matches = await cache.cached(
+      `matches:${requestId}`,
+      async () => findMatches(touristRequest),
+      { ttl: CACHE_TTL.MATCHES }
+    )
 
     // Format response with anonymized data
     const anonymizedMatches = matches.map(student => ({
@@ -53,6 +60,10 @@ export async function POST(request: NextRequest) {
       success: true,
       matches: anonymizedMatches,
       count: anonymizedMatches.length
+    }, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600',
+      },
     })
   } catch (error) {
     console.error('Error finding matches:', error)
@@ -118,8 +129,12 @@ export async function GET(request: NextRequest) {
       })
     }
 
-    // If no selections, find fresh matches
-    const matches = await findMatches(touristRequest)
+    // If no selections, find fresh matches with caching
+    const matches = await cache.cached(
+      `matches:${requestId}`,
+      async () => findMatches(touristRequest),
+      { ttl: CACHE_TTL.MATCHES }
+    )
 
     const anonymizedMatches = matches.map(student => ({
       id: student.id,
@@ -136,6 +151,10 @@ export async function GET(request: NextRequest) {
       success: true,
       matches: anonymizedMatches,
       count: anonymizedMatches.length
+    }, {
+      headers: {
+        'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600',
+      },
     })
   } catch (error) {
     console.error('Error fetching matches:', error)

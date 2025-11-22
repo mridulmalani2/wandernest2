@@ -1,11 +1,8 @@
 'use client'
 
-import { useState } from 'react'
-import hljs from 'highlight.js/lib/core'
-import markdown from 'highlight.js/lib/languages/markdown'
-import 'highlight.js/styles/github-dark.css'
-
-hljs.registerLanguage('markdown', markdown)
+import { useState, useEffect } from 'react'
+import Image from 'next/image'
+import type hljs from 'highlight.js'
 
 interface Student {
   id: string
@@ -35,6 +32,22 @@ export default function ApprovalQueue({ students, onApprove, onReject, onBulkApp
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null)
   const [selectedStudents, setSelectedStudents] = useState<Set<string>>(new Set())
   const [loading, setLoading] = useState<string | null>(null)
+  const [highlighter, setHighlighter] = useState<typeof hljs | null>(null)
+
+  // Dynamically load highlight.js only when needed (when modal is opened)
+  useEffect(() => {
+    if (selectedStudent && !highlighter) {
+      Promise.all([
+        import('highlight.js/lib/core'),
+        import('highlight.js/lib/languages/markdown'),
+        import('highlight.js/styles/github-dark.css')
+      ]).then(([hljsModule, markdownModule]) => {
+        const hljs = hljsModule.default
+        hljs.registerLanguage('markdown', markdownModule.default)
+        setHighlighter(hljs)
+      })
+    }
+  }, [selectedStudent, highlighter])
 
   const handleApprove = async (studentId: string) => {
     setLoading(studentId)
@@ -87,8 +100,12 @@ export default function ApprovalQueue({ students, onApprove, onReject, onBulkApp
   }
 
   const highlightCoverLetter = (text: string) => {
+    if (!highlighter) {
+      // Return plain text while highlight.js is loading
+      return text
+    }
     try {
-      return hljs.highlight(text, { language: 'markdown' }).value
+      return highlighter.highlight(text, { language: 'markdown' }).value
     } catch {
       return text
     }
@@ -253,11 +270,15 @@ export default function ApprovalQueue({ students, onApprove, onReject, onBulkApp
               {selectedStudent.idCardUrl && (
                 <div className="mb-6">
                   <h3 className="text-sm font-medium text-gray-700 mb-2">Student ID Card</h3>
-                  <div className="border border-gray-200 rounded-lg overflow-hidden">
-                    <img
+                  <div className="border border-gray-200 rounded-lg overflow-hidden relative w-full" style={{ minHeight: '300px' }}>
+                    <Image
                       src={selectedStudent.idCardUrl}
                       alt="Student ID"
+                      width={800}
+                      height={600}
                       className="w-full h-auto"
+                      sizes="(max-width: 768px) 100vw, 800px"
+                      quality={90}
                     />
                   </div>
                 </div>

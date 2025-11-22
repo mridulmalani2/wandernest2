@@ -4,74 +4,60 @@ export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { verifyAdmin } from '@/lib/middleware'
+import { withErrorHandler, withDatabaseRetry, AppError } from '@/lib/error-handler'
 
 // Approve or reject a student
-export async function POST(request: NextRequest) {
+async function approveStudent(request: NextRequest) {
   const authResult = await verifyAdmin(request)
 
   if (!authResult.authorized) {
-    return NextResponse.json(
-      { error: authResult.error || 'Unauthorized' },
-      { status: 401 }
-    )
+    throw new AppError(401, authResult.error || 'Unauthorized', 'AUTH_FAILED')
   }
 
-  try {
-    const { studentId, action } = await request.json()
+  const body = await request.json()
+  const { studentId, action } = body
 
-    if (!studentId || !action) {
-      return NextResponse.json(
-        { error: 'Student ID and action are required' },
-        { status: 400 }
-      )
-    }
+  if (!studentId || !action) {
+    throw new AppError(400, 'Student ID and action are required', 'MISSING_FIELDS')
+  }
 
-    if (action !== 'approve' && action !== 'reject') {
-      return NextResponse.json(
-        { error: 'Invalid action. Must be "approve" or "reject"' },
-        { status: 400 }
-      )
-    }
+  if (action !== 'approve' && action !== 'reject') {
+    throw new AppError(400, 'Invalid action. Must be "approve" or "reject"', 'INVALID_ACTION')
+  }
 
-    const student = await prisma.student.findUnique({
+  // Find student with retry logic
+  const student = await withDatabaseRetry(async () =>
+    prisma.student.findUnique({
       where: { id: studentId },
     })
+  )
 
-    if (!student) {
-      return NextResponse.json(
-        { error: 'Student not found' },
-        { status: 404 }
-      )
-    }
+  if (!student) {
+    throw new AppError(404, 'Student not found', 'STUDENT_NOT_FOUND')
+  }
 
-    if (student.status !== 'PENDING_APPROVAL') {
-      return NextResponse.json(
-        { error: 'Student is not pending approval' },
-        { status: 400 }
-      )
-    }
+  if (student.status !== 'PENDING_APPROVAL') {
+    throw new AppError(400, 'Student is not pending approval', 'INVALID_STATUS')
+  }
 
-    // Update student status
-    const updatedStudent = await prisma.student.update({
+  // Update student status with retry logic
+  const updatedStudent = await withDatabaseRetry(async () =>
+    prisma.student.update({
       where: { id: studentId },
       data: {
         status: action === 'approve' ? 'APPROVED' : 'SUSPENDED',
       },
     })
+  )
 
-    return NextResponse.json({
-      success: true,
-      student: {
-        id: updatedStudent.id,
-        name: updatedStudent.name,
-        status: updatedStudent.status,
-      },
-    })
-  } catch (error) {
-    console.error('Error approving/rejecting student:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
-  }
+  return NextResponse.json({
+    success: true,
+    student: {
+      id: updatedStudent.id,
+      name: updatedStudent.name,
+      status: updatedStudent.status,
+    },
+  })
 }
+
+export const POST = withErrorHandler(approveStudent, 'POST /api/admin/students/approve');

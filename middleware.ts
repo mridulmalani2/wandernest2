@@ -22,16 +22,15 @@ export function middleware(request: NextRequest) {
     }
   }
 
-  // PHASE 2 NOTE: Student dashboard auth disabled for preview mode
   // Student dashboard - check for student session
-  // if (pathname.startsWith('/student/dashboard')) {
-  //   const studentToken = request.cookies.get('student-token')?.value ||
-  //                        request.headers.get('authorization')?.replace('Bearer ', '')
-  //
-  //   if (!studentToken) {
-  //     return NextResponse.redirect(new URL('/student/signin', request.url))
-  //   }
-  // }
+  if (pathname.startsWith('/student/dashboard')) {
+    const studentToken = request.cookies.get('student-token')?.value ||
+                         request.headers.get('authorization')?.replace('Bearer ', '')
+
+    if (!studentToken) {
+      return NextResponse.redirect(new URL('/student/signin', request.url))
+    }
+  }
 
   // Tourist dashboard - check for tourist session
   if (pathname.startsWith('/tourist/dashboard')) {
@@ -39,7 +38,7 @@ export function middleware(request: NextRequest) {
                          request.headers.get('authorization')?.replace('Bearer ', '')
 
     if (!touristToken) {
-      return NextResponse.redirect(new URL('/tourist/dashboard', request.url))
+      return NextResponse.redirect(new URL('/tourist/signin', request.url))
     }
   }
 

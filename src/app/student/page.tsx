@@ -33,7 +33,7 @@ export default function StudentLandingPage() {
 
         {/* Hero Section */}
         <main className="flex-1 container mx-auto px-4 py-16">
-          <div className="max-w-5xl mx-auto space-y-20">
+          <div className="max-w-5xl mx-auto space-y-16">
 
             {/* Hero */}
             <div className="text-center space-y-8 animate-slide-up-fade">
@@ -62,7 +62,7 @@ export default function StudentLandingPage() {
             </div>
 
             {/* Value Proposition */}
-            <div className="backdrop-blur-md rounded-3xl shadow-xl border-2 border-white/40 animate-fade-in-up relative overflow-hidden">
+            <div className="backdrop-blur-md rounded-3xl shadow-xl border-2 border-white/40 animate-fade-in-up delay-400 relative overflow-hidden">
               <div className="absolute inset-0 opacity-20">
                 <Image
                   src="https://images.unsplash.com/photo-1499856871958-5b9627545d1a?w=1200&q=80"
@@ -77,8 +77,8 @@ export default function StudentLandingPage() {
               <div className="relative z-10 p-8 md:p-12">
                 <h2 className="text-4xl font-bold text-center mb-12">Why Guide with WanderNest?</h2>
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <div className="bg-gradient-to-br from-blue-50 to-blue-100/50 rounded-2xl p-6 shadow-sm hover-lift group">
-                  <div className="inline-flex p-3 rounded-xl bg-gradient-to-br from-ui-blue-primary to-ui-blue-secondary text-white mb-4 group-hover:scale-110 transition-transform duration-300">
+                <div className="bg-gradient-to-br from-blue-50 to-blue-100/50 rounded-2xl p-6 shadow-soft hover:shadow-premium hover-lift-lg group border-2 border-ui-blue-primary/60 hover:border-ui-blue-accent/60 transition-all">
+                  <div className="inline-flex p-3 rounded-xl bg-gradient-to-br from-ui-blue-primary to-ui-blue-secondary text-white mb-4 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-lg">
                     <DollarSign className="w-7 h-7" />
                   </div>
                   <h3 className="font-bold text-lg mb-2 group-hover:text-ui-blue-accent transition-colors">Earn More</h3>
@@ -98,7 +98,7 @@ export default function StudentLandingPage() {
                 </div>
 
                 <div className="bg-gradient-to-br from-green-50 to-green-100/50 rounded-2xl p-6 shadow-soft hover:shadow-premium hover-lift-lg group border-2 border-ui-success/60 hover:border-ui-success/60 transition-all">
-                  <div className="inline-flex p-3 rounded-xl bg-gradient-to-br from-ui-success to-ui-success text-white mb-4 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-soft">
+                  <div className="inline-flex p-3 rounded-xl bg-gradient-to-br from-ui-success to-ui-success text-white mb-4 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-lg">
                     <Users className="w-7 h-7" />
                   </div>
                   <h3 className="font-bold text-lg mb-2 group-hover:text-ui-success transition-colors">Cultural Connection</h3>
@@ -161,14 +161,15 @@ export default function StudentLandingPage() {
 
             {/* Benefits Visualization with Images */}
             <div className="grid md:grid-cols-2 gap-8 animate-fade-in-up delay-800">
-              <div className="relative h-80 rounded-2xl overflow-hidden shadow-2xl group">
+              <div className="relative h-72 rounded-2xl overflow-hidden shadow-lg group">
                 <Image
                   src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=800&q=80"
                   alt="Students working together and networking"
                   fill
                   quality={80}
                   sizes="(max-width: 768px) 100vw, 50vw"
-                  className="object-cover group-hover:scale-105 transition-transform duration-500"
+                  className="object-cover group-hover:scale-110 transition-transform duration-500"
+                  loading="lazy"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent flex items-end p-8">
                   <div className="text-white space-y-2">
@@ -179,14 +180,15 @@ export default function StudentLandingPage() {
                   </div>
                 </div>
               </div>
-              <div className="relative h-80 rounded-2xl overflow-hidden shadow-2xl group">
+              <div className="relative h-72 rounded-2xl overflow-hidden shadow-lg group">
                 <Image
                   src="https://images.unsplash.com/photo-1517048676732-d65bc937f952?w=800&q=80"
                   alt="Students celebrating success and achievement"
                   fill
                   quality={80}
                   sizes="(max-width: 768px) 100vw, 50vw"
-                  className="object-cover group-hover:scale-105 transition-transform duration-500"
+                  className="object-cover group-hover:scale-110 transition-transform duration-500"
+                  loading="lazy"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent flex items-end p-8">
                   <div className="text-white space-y-2">

@@ -245,6 +245,9 @@ model RequestSelection {
 
   @@index([requestId])
   @@index([studentId])
+  @@index([status])
+  @@index([requestId, status])
+  @@index([studentId, status])
 }
 
 model Review {

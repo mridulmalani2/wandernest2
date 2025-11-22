@@ -4,6 +4,7 @@ export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
+import { withErrorHandler, withDatabaseRetry, AppError } from '@/lib/error-handler';
 
 const onboardingSchema = z.object({
   // Authentication
@@ -95,44 +96,42 @@ function calculateProfileCompleteness(data: any): number {
   return Math.round((completed / total) * 100);
 }
 
-export async function POST(req: NextRequest) {
-  try {
-    const body = await req.json();
+async function submitOnboarding(req: NextRequest) {
+  const body = await req.json();
 
-    // Validate input
-    const validatedData = onboardingSchema.parse(body);
+  // Validate input
+  const validatedData = onboardingSchema.parse(body);
 
-    // Check if student already exists
-    const existingStudent = await prisma.student.findUnique({
+  // Check if student already exists
+  const existingStudent = await withDatabaseRetry(async () =>
+    prisma.student.findUnique({
       where: { email: validatedData.email },
-    });
+    })
+  );
 
-    if (existingStudent) {
-      return NextResponse.json(
-        { error: 'A profile with this email already exists' },
-        { status: 400 }
-      );
-    }
+  if (existingStudent) {
+    throw new AppError(400, 'A profile with this email already exists', 'EMAIL_EXISTS');
+  }
 
-    // Check if googleId is already used (only if provided)
-    if (validatedData.googleId) {
-      const existingGoogleId = await prisma.student.findUnique({
+  // Check if googleId is already used (only if provided)
+  if (validatedData.googleId) {
+    const existingGoogleId = await withDatabaseRetry(async () =>
+      prisma.student.findUnique({
         where: { googleId: validatedData.googleId },
-      });
+      })
+    );
 
-      if (existingGoogleId) {
-        return NextResponse.json(
-          { error: 'This Google account is already registered' },
-          { status: 400 }
-        );
-      }
+    if (existingGoogleId) {
+      throw new AppError(400, 'This Google account is already registered', 'GOOGLE_ID_EXISTS');
     }
+  }
 
-    // Calculate profile completeness
-    const completeness = calculateProfileCompleteness(validatedData);
+  // Calculate profile completeness
+  const completeness = calculateProfileCompleteness(validatedData);
 
-    // Create student profile
-    const student = await prisma.student.create({
+  // Create student profile
+  const student = await withDatabaseRetry(async () =>
+    prisma.student.create({
       data: {
         // Authentication
         email: validatedData.email,
@@ -194,11 +193,13 @@ export async function POST(req: NextRequest) {
         status: 'PENDING_APPROVAL',
         profileCompleteness: completeness,
       },
-    });
+    })
+  );
 
-    // Create availability slots
-    if (validatedData.availability.length > 0) {
-      await prisma.studentAvailability.createMany({
+  // Create availability slots
+  if (validatedData.availability.length > 0) {
+    await withDatabaseRetry(async () =>
+      prisma.studentAvailability.createMany({
         data: validatedData.availability.map((slot) => ({
           studentId: student.id,
           dayOfWeek: slot.dayOfWeek,
@@ -206,12 +207,14 @@ export async function POST(req: NextRequest) {
           endTime: slot.endTime,
           note: slot.note,
         })),
-      });
-    }
+      })
+    );
+  }
 
-    // Create unavailability exceptions if provided
-    if (validatedData.unavailabilityExceptions && validatedData.unavailabilityExceptions.length > 0) {
-      await prisma.unavailabilityException.createMany({
+  // Create unavailability exceptions if provided
+  if (validatedData.unavailabilityExceptions && validatedData.unavailabilityExceptions.length > 0) {
+    await withDatabaseRetry(async () =>
+      prisma.unavailabilityException.createMany({
         data: validatedData.unavailabilityExceptions.map((exception) => ({
           studentId: student.id,
           date: exception.date,
@@ -219,9 +222,6 @@ export async function POST(req: NextRequest) {
         })),
       });
     }
-
-    // TODO: Send email notification to student
-    // TODO: Send notification to admin team for review
 
     return NextResponse.json({
       success: true,
@@ -244,4 +244,16 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     );
   }
+
+  // TODO: Send email notification to student
+  // TODO: Send notification to admin team for review
+
+  return NextResponse.json({
+    success: true,
+    studentId: student.id,
+    profileCompleteness: completeness,
+    message: 'Onboarding submitted successfully. Your profile is under review.',
+  });
 }
+
+export const POST = withErrorHandler(submitOnboarding, 'POST /api/student/onboarding');

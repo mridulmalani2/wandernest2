@@ -38,7 +38,7 @@ export default function StudentSignIn() {
         {/* Gradient overlay for visual depth */}
         <div className="absolute inset-0 bg-gradient-to-br from-ui-blue-primary/20 via-ui-purple-primary/15 to-ui-purple-accent/20" />
       </div>
-      <div className="absolute inset-0 pattern-dots opacity-15" />
+      <div className="absolute inset-0 pattern-grid opacity-15" />
 
       {/* Content */}
       <div className="relative z-10 flex flex-col min-h-screen">
@@ -91,7 +91,7 @@ export default function StudentSignIn() {
         </main>
 
         {/* Footer */}
-        <footer className="border-t-2 glass-card border-white/40 animate-fade-in">
+        <footer className="border-t-2 glass-card border-white/40 mt-16 animate-fade-in">
           <div className="container mx-auto px-4 py-8 text-center text-gray-700">
             <p>&copy; {new Date().getFullYear()} WanderNest. All rights reserved.</p>
           </div>
