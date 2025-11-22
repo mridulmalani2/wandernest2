@@ -90,7 +90,7 @@ export default function StudentLandingPage() {
                   className="object-cover"
                 />
               </div>
-              <div className="absolute inset-0 bg-white/90 backdrop-blur-xl" />
+              <div className="absolute inset-0 bg-white/5 backdrop-blur-xl" />
               <div className="relative z-10 p-8 md:p-12 lg:p-16">
                 <div className="text-center space-y-3 mb-12">
                   <h2 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-gray-900">
@@ -102,10 +102,7 @@ export default function StudentLandingPage() {
                 </div>
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 max-w-6xl mx-auto">
                   <div className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-100 hover:border-ui-blue-primary/30 hover:-translate-y-1">
-                    <div className="inline-flex p-4 rounded-2xl bg-gradient-to-br from-ui-blue-primary to-ui-blue-secondary text-white mb-6 group-hover:scale-105 transition-all duration-300 shadow-md">
-                      <DollarSign className="w-8 h-8" />
-                    </div>
-                    <h3 className="font-bold text-xl mb-3 text-gray-900 group-hover:text-ui-blue-primary transition-colors">
+                    <h3 className="font-bold text-xl mb-4 text-gray-900 group-hover:text-ui-blue-primary transition-colors">
                       Earn More
                     </h3>
                     <p className="text-base text-gray-600 leading-relaxed">
@@ -114,10 +111,7 @@ export default function StudentLandingPage() {
                   </div>
 
                   <div className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-100 hover:border-ui-purple-primary/30 hover:-translate-y-1">
-                    <div className="inline-flex p-4 rounded-2xl gradient-vibrant text-white mb-6 group-hover:scale-105 transition-all duration-300 shadow-md">
-                      <Clock className="w-8 h-8" />
-                    </div>
-                    <h3 className="font-bold text-xl mb-3 text-gray-900 group-hover:text-ui-purple-primary transition-colors">
+                    <h3 className="font-bold text-xl mb-4 text-gray-900 group-hover:text-ui-purple-primary transition-colors">
                       Fully Flexible
                     </h3>
                     <p className="text-base text-gray-600 leading-relaxed">
@@ -126,10 +120,7 @@ export default function StudentLandingPage() {
                   </div>
 
                   <div className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-100 hover:border-ui-success/30 hover:-translate-y-1 md:col-span-2 lg:col-span-1">
-                    <div className="inline-flex p-4 rounded-2xl bg-gradient-to-br from-ui-success to-emerald-600 text-white mb-6 group-hover:scale-105 transition-all duration-300 shadow-md">
-                      <Users className="w-8 h-8" />
-                    </div>
-                    <h3 className="font-bold text-xl mb-3 text-gray-900 group-hover:text-ui-success transition-colors">
+                    <h3 className="font-bold text-xl mb-4 text-gray-900 group-hover:text-ui-success transition-colors">
                       Cultural Connection
                     </h3>
                     <p className="text-base text-gray-600 leading-relaxed">
@@ -145,7 +136,7 @@ export default function StudentLandingPage() {
               <h2 className="text-4xl md:text-5xl font-bold text-center text-white text-shadow-lg">How It Works</h2>
               <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-10">
                 <div className="text-center space-y-5 group hover-lift">
-                  <div className="w-24 h-24 gradient-ocean rounded-2xl flex items-center justify-center mx-auto text-4xl font-bold text-white shadow-premium group-hover:shadow-glow-blue group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
+                  <div className="w-24 h-24 gradient-ocean rounded-2xl flex items-center justify-center mx-auto text-4xl font-bold text-white shadow-premium group-hover:shadow-glow-blue group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 border border-black">
                     1
                   </div>
                   <h3 className="font-bold text-xl text-white group-hover:text-ui-blue-primary transition-colors">Sign In</h3>
@@ -155,7 +146,7 @@ export default function StudentLandingPage() {
                 </div>
 
                 <div className="text-center space-y-5 group hover-lift">
-                  <div className="w-24 h-24 gradient-vibrant rounded-2xl flex items-center justify-center mx-auto text-4xl font-bold text-white shadow-premium group-hover:shadow-glow-purple group-hover:scale-110 group-hover:-rotate-6 transition-all duration-300">
+                  <div className="w-24 h-24 gradient-vibrant rounded-2xl flex items-center justify-center mx-auto text-4xl font-bold text-white shadow-premium group-hover:shadow-glow-purple group-hover:scale-110 group-hover:-rotate-6 transition-all duration-300 border border-black">
                     2
                   </div>
                   <h3 className="font-bold text-xl text-white group-hover:text-ui-purple-primary transition-colors">Verify Status</h3>
@@ -165,7 +156,7 @@ export default function StudentLandingPage() {
                 </div>
 
                 <div className="text-center space-y-5 group hover-lift">
-                  <div className="w-24 h-24 bg-gradient-to-br from-ui-success to-ui-success rounded-2xl flex items-center justify-center mx-auto text-4xl font-bold text-white shadow-premium group-hover:shadow-soft group-hover:scale-110 group-hover:rotate-6 transition-all duration-300">
+                  <div className="w-24 h-24 gradient-blue-purple rounded-2xl flex items-center justify-center mx-auto text-4xl font-bold text-white shadow-premium group-hover:shadow-soft group-hover:scale-110 group-hover:rotate-6 transition-all duration-300 border border-black">
                     3
                   </div>
                   <h3 className="font-bold text-xl text-white group-hover:text-ui-success transition-colors">Create Profile</h3>
@@ -175,7 +166,7 @@ export default function StudentLandingPage() {
                 </div>
 
                 <div className="text-center space-y-5 group hover-lift">
-                  <div className="w-24 h-24 gradient-sunset rounded-2xl flex items-center justify-center mx-auto text-4xl font-bold text-white shadow-premium group-hover:shadow-soft group-hover:scale-110 group-hover:-rotate-6 transition-all duration-300">
+                  <div className="w-24 h-24 gradient-sunset rounded-2xl flex items-center justify-center mx-auto text-4xl font-bold text-white shadow-premium group-hover:shadow-soft group-hover:scale-110 group-hover:-rotate-6 transition-all duration-300 border border-black">
                     4
                   </div>
                   <h3 className="font-bold text-xl text-white group-hover:text-ui-purple-primary transition-colors">Get Requests</h3>
@@ -236,13 +227,15 @@ export default function StudentLandingPage() {
               <p className="text-xl md:text-2xl text-white/95 max-w-2xl mx-auto leading-relaxed font-medium text-shadow">
                 Join hundreds of students already earning flexible income by sharing their city with visitors.
               </p>
-              <PrimaryCTAButton
-                href="/student/signin"
-                showArrow
-                variant="purple"
-              >
-                Explore Now
-              </PrimaryCTAButton>
+              <Link href="/student/signin" className="inline-block mt-4">
+                <Button
+                  size="lg"
+                  className="text-lg px-12 py-8 h-auto gradient-vibrant hover:shadow-glow-purple shadow-premium text-white font-semibold group hover-lift-lg transition-all duration-300 focus-visible:ring-4 focus-visible:ring-white/50 focus-visible:ring-offset-4"
+                >
+                  Explore Now
+                  <span className="ml-2 group-hover:translate-x-2 transition-transform inline-block" aria-hidden="true">→</span>
+                </Button>
+              </Link>
             </div>
 
           </div>
