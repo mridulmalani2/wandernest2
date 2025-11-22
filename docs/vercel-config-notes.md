@@ -20,21 +20,26 @@ The `vercel.json` file configures how Vercel builds and deploys this Next.js 14 
 
 #### 1. Build Configuration
 
+**Build Command:** Uses the `vercel-build` script from `package.json`
+
 ```json
-"buildCommand": "prisma generate --schema=./src/prisma/schema.prisma && next build"
+// From package.json
+"vercel-build": "prisma generate --schema=./src/prisma/schema.prisma && prisma migrate deploy --schema=./src/prisma/schema.prisma && next build"
 ```
 
 **What it does:**
-- Generates the Prisma Client from the schema at `src/prisma/schema.prisma`
-- Builds the Next.js application for production
+1. Generates the Prisma Client from the schema at `src/prisma/schema.prisma`
+2. Deploys database migrations to production
+3. Builds the Next.js application for production
 
 **Why this matters:**
 - The Prisma schema is in a non-standard location (`src/prisma/` instead of `prisma/`)
 - The `--schema` flag is REQUIRED for Prisma to find the schema file
-- Prisma Client generation doesn't require `DATABASE_URL` - it only reads the schema file
-- Database migrations are NOT run during build (see "Database Migrations" section below)
+- Vercel auto-detects this as a Next.js project and uses the `vercel-build` script
+- Database migrations are automatically applied during deployment
+- No custom `buildCommand` in vercel.json means Vercel can properly detect the Next.js framework
 
-**Note:** This overrides the `vercel-build` script in `package.json`
+**Framework Detection:** Vercel now auto-detects this as a Next.js project (not "Other")
 
 ---
 
@@ -236,27 +241,38 @@ response.headers.set('X-DNS-Prefetch-Control', 'on')
 ```
 
 **Important:**
-- The `vercel-build` script is NOT used because `vercel.json` has a `buildCommand` that overrides it
-- If you remove `buildCommand` from `vercel.json`, Vercel would use the `vercel-build` script instead
-- The `vercel-build` script includes `prisma migrate deploy`, which the current `buildCommand` does NOT
+- The `vercel-build` script is USED by Vercel (no `buildCommand` override in vercel.json)
+- This script handles Prisma generation, migrations, and Next.js build in one go
+- The `postinstall` script ensures Prisma Client is available for local development
 
 ---
 
 ## 🗃️ Database Migrations
 
 **Current behavior:**
-- The `buildCommand` in `vercel.json` does NOT run database migrations
-- Migrations must be applied separately
+- Database migrations are automatically run during Vercel deployment
+- The `vercel-build` script includes `prisma migrate deploy`
+- Migrations run BEFORE the Next.js build starts
 
-**Why?**
-- Vercel builds run on multiple instances concurrently
-- Running migrations during build can cause race conditions
-- Best practice is to run migrations before deployment, not during
+**How it works:**
+1. Vercel installs dependencies
+2. Runs `vercel-build` script which:
+   - Generates Prisma Client
+   - Applies pending migrations to the production database
+   - Builds the Next.js app
+3. Deploys the built application
 
-**How to run migrations:**
+**Migration Safety:**
+- Prisma's `migrate deploy` is idempotent (safe to run multiple times)
+- Only unapplied migrations are executed
+- If migrations fail, the build fails and deployment is prevented
 
-### Option 1: Manually (Recommended for first deployment)
+**For schema changes:**
+1. Create migration locally: `npx prisma migrate dev --schema=./src/prisma/schema.prisma`
+2. Commit the migration files to git
+3. Push to deploy - Vercel will apply the migration automatically
 
+**Manual migration (if needed):**
 ```bash
 # Set DATABASE_URL to your production database
 export DATABASE_URL="postgresql://..."
@@ -264,24 +280,6 @@ export DATABASE_URL="postgresql://..."
 # Run migrations
 npx prisma migrate deploy --schema=./src/prisma/schema.prisma
 ```
-
-### Option 2: Use Vercel CLI (Before deploying)
-
-```bash
-# Set production env variables locally
-vercel env pull .env.production
-
-# Run migrations
-DATABASE_URL=$(cat .env.production | grep DATABASE_URL | cut -d '=' -f2-) \
-  npx prisma migrate deploy --schema=./src/prisma/schema.prisma
-
-# Then deploy
-vercel --prod
-```
-
-### Option 3: Add a post-deployment script
-
-You could create a separate API route or GitHub Action that runs migrations after successful deployment. This is more advanced and requires careful synchronization.
 
 ---
 
@@ -307,11 +305,11 @@ You could create a separate API route or GitHub Action that runs migrations afte
 - Or "Prisma Client has not been generated"
 
 **Cause:**
-- The `buildCommand` is missing the `--schema` flag
+- The build script is missing the `--schema` flag
 - Prisma is looking for schema in the wrong location
 
 **Solution:**
-- ✅ Already fixed - the buildCommand now includes `--schema=./src/prisma/schema.prisma`
+- ✅ Already fixed - the `vercel-build` script includes `--schema=./src/prisma/schema.prisma`
 
 ---
 
@@ -392,13 +390,15 @@ You could create a separate API route or GitHub Action that runs migrations afte
 
 ### Changes that Require Testing:
 
-⚠️ Modifying the `buildCommand` - test in a preview branch first
+⚠️ Modifying the `vercel-build` script in package.json - test in a preview branch first
+⚠️ Adding a custom `buildCommand` to vercel.json (not recommended - breaks framework detection)
 ⚠️ Changing security headers - verify with https://securityheaders.com
 ⚠️ Adding CORS headers - test cross-origin requests thoroughly
 
 ### Changes to Avoid:
 
-❌ Adding `comment` fields inside header objects (causes build errors)
+❌ Adding a custom `buildCommand` to vercel.json (prevents Next.js framework detection)
+❌ Adding `comment` fields inside header objects (causes schema validation errors)
 ❌ Removing required environment variables
 ❌ Setting `maxDuration` above your Vercel plan limits
 
@@ -439,5 +439,5 @@ Before deploying to production:
 ---
 
 **Last Updated:** November 22, 2025
-**Vercel Config Version:** Clean, production-ready (post-comment-removal)
+**Vercel Config Version:** Hardened (buildCommand removed, framework auto-detection enabled)
 
