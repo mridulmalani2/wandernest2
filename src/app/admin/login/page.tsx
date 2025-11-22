@@ -80,7 +80,7 @@ export default function AdminLogin() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-soft"
-                placeholder="admin@wandernest.com"
+                placeholder="admin@tourwiseco.com"
               />
             </div>
 

@@ -64,7 +64,7 @@ async function createPaymentOrder(req: NextRequest) {
         razorpayOrderId: order.id,
         email,
         phone: phone || null,
-        description: 'Discovery Fee - WanderNest',
+        description: 'Discovery Fee - TourWiseCo',
       },
     })
   );

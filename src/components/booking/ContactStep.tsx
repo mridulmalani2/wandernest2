@@ -172,7 +172,7 @@ export function ContactStep({ data, errors, updateData }: Props) {
           />
           <Label htmlFor="termsConsent" className="font-normal text-sm cursor-pointer leading-relaxed">
             I agree to the Terms of Service and Privacy Policy, and I understand that{' '}
-            <strong>WanderNest is a marketplace connector only</strong> and does not handle payments, guarantee service quality, or assume liability for guide interactions.
+            <strong>TourWiseCo is a marketplace connector only</strong> and does not handle payments, guarantee service quality, or assume liability for guide interactions.
             <span className="text-ui-error ml-1">*</span>
           </Label>
         </div>

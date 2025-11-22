@@ -76,7 +76,7 @@ export default function TouristLanding() {
             <div className="pt-8 animate-fade-in-up delay-400">
               <div className="text-center space-y-3 mb-12">
                 <h2 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-white text-shadow-lg">
-                  Why Choose WanderNest?
+                  Why Choose TourWiseCo?
                 </h2>
                 <p className="text-base md:text-lg text-white/90 text-shadow max-w-2xl mx-auto">
                   Authentic travel experiences with verified local student guides
@@ -387,7 +387,7 @@ export default function TouristLanding() {
                       {/* Main Text */}
                       <div className="space-y-4">
                         <p className="text-base text-amber-900/90 leading-relaxed font-medium bg-white/50 backdrop-blur-sm px-5 py-4 rounded-2xl border border-amber-200/50">
-                          <strong className="text-amber-950">WanderNest is a marketplace connector only.</strong> We facilitate connections between tourists and local student guides but do not:
+                          <strong className="text-amber-950">TourWiseCo is a marketplace connector only.</strong> We facilitate connections between tourists and local student guides but do not:
                         </p>
 
                         {/* List of Items */}

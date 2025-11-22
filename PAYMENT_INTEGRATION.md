@@ -62,7 +62,7 @@ model Payment {
 
   email             String
   phone             String?
-  description       String        @default("Discovery Fee - WanderNest")
+  description       String        @default("Discovery Fee - TourWiseCo")
 
   createdAt         DateTime      @default(now())
   updatedAt         DateTime      @updatedAt
@@ -318,7 +318,7 @@ if (verifyData.success) {
 
 For issues with:
 - **Razorpay integration**: [Razorpay Support](https://razorpay.com/support/)
-- **WanderNest platform**: Contact your development team
+- **TourWiseCo platform**: Contact your development team
 
 ## Additional Resources
 

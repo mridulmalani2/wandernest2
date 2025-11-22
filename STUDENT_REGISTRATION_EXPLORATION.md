@@ -1,8 +1,8 @@
-# WanderNest Student Registration Implementation - Codebase Exploration
+# TourWiseCo Student Registration Implementation - Codebase Exploration
 
 ## Executive Summary
 
-WanderNest is a Next.js 14 application that enables international students to become local tour guides. The student registration system is a multi-step onboarding wizard that collects personal information, verifies student status, gathers expertise, and sets availability schedules.
+TourWiseCo is a Next.js 14 application that enables international students to become local tour guides. The student registration system is a multi-step onboarding wizard that collects personal information, verifies student status, gathers expertise, and sets availability schedules.
 
 ---
 
@@ -114,7 +114,7 @@ StudentStatus Enum {
 ## 3. MODELS & SCHEMAS
 
 ### Student Registration Schema (Zod - API validation)
-**File**: `/home/user/wandernest/app/api/student/onboarding/route.ts`
+**File**: `/home/user/tourwiseco/app/api/student/onboarding/route.ts`
 
 ```typescript
 const onboardingSchema = z.object({
@@ -142,7 +142,7 @@ const onboardingSchema = z.object({
 ```
 
 ### OnboardingFormData Type (Client-side)
-**File**: `/home/user/wandernest/components/student/OnboardingWizard.tsx`
+**File**: `/home/user/tourwiseco/components/student/OnboardingWizard.tsx`
 
 ```typescript
 type OnboardingFormData = {
@@ -200,7 +200,7 @@ Allowed: `.edu`, `.edu.in`, `.ac.uk`, `.edu.au`, `.edu.sg`, `.ac.in`
 ## 4. FILE UPLOAD HANDLING
 
 ### Upload API Route
-**File**: `/home/user/wandernest/app/api/student/upload/route.ts`
+**File**: `/home/user/tourwiseco/app/api/student/upload/route.ts`
 
 #### Features:
 - **Allowed Formats**: JPG, PNG, WebP, PDF
@@ -227,7 +227,7 @@ Allowed: `.edu`, `.edu.in`, `.ac.uk`, `.edu.au`, `.edu.sg`, `.ac.in`
 
 ### Page Structure
 ```
-/home/user/wandernest/app/student/
+/home/user/tourwiseco/app/student/
 ├── onboarding/
 │   ├── page.tsx              # Main entry, session validation
 │   └── success/
@@ -240,7 +240,7 @@ Allowed: `.edu`, `.edu.in`, `.ac.uk`, `.edu.au`, `.edu.sg`, `.ac.in`
 ```
 
 ### Onboarding Components
-**File**: `/home/user/wandernest/components/student/`
+**File**: `/home/user/tourwiseco/components/student/`
 
 1. **OnboardingWizard.tsx** (Main container)
    - 5-step wizard with progress indicator
@@ -286,14 +286,14 @@ Allowed: `.edu`, `.edu.in`, `.ac.uk`, `.edu.au`, `.edu.sg`, `.ac.in`
    - Final confirmation statement
 
 ### Student Sign-in Page
-**File**: `/home/user/wandernest/app/student/signin/page.tsx`
+**File**: `/home/user/tourwiseco/app/student/signin/page.tsx`
 - Email input with institutional domain validation
 - 6-digit verification code entry
 - Verification attempt limiting (3 attempts max)
 - Redirect to onboarding or dashboard based on completion status
 
 ### Student Onboarding Success Page
-**File**: `/home/user/wandernest/app/student/onboarding/success/page.tsx`
+**File**: `/home/user/tourwiseco/app/student/onboarding/success/page.tsx`
 - Congratulations message
 - Timeline showing review process
 - Expected approval timeframe
@@ -636,7 +636,7 @@ Street Art, Cafes & Coffee, Wine & Bars, Sports, Fashion
 ## 13. DIRECTORY STRUCTURE
 
 ```
-/home/user/wandernest/
+/home/user/tourwiseco/
 ├── app/
 │   ├── student/
 │   │   ├── onboarding/

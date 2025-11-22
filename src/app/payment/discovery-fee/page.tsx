@@ -101,7 +101,7 @@ export default function DiscoveryFeePage() {
         key: orderData.keyId,
         amount: orderData.amount * 100,
         currency: orderData.currency,
-        name: 'WanderNest',
+        name: 'TourWiseCo',
         description: 'Discovery Fee - Access to Local Guides',
         order_id: orderData.orderId,
         handler: async function (response: { razorpay_order_id: string; razorpay_payment_id: string; razorpay_signature: string }) {
@@ -163,7 +163,7 @@ export default function DiscoveryFeePage() {
           <Link href="/" className="flex items-center space-x-2">
             <span className="text-2xl">🌍</span>
             <h1 className="text-2xl font-bold bg-gradient-to-r from-ui-blue-primary to-ui-purple-primary bg-clip-text text-transparent">
-              WanderNest
+              TourWiseCo
             </h1>
           </Link>
         </div>

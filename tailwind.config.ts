@@ -1,4 +1,4 @@
-// Design System: Modern cohesive styling for WanderNest
+// Design System: Modern cohesive styling for TourWiseCo
 import type { Config } from 'tailwindcss'
 
 const config: Config = {

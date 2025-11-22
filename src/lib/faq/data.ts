@@ -13,7 +13,7 @@ export const paymentFAQs: FAQ[] = [
   {
     question: "How does payment between tourists and students work?",
     answer:
-      "WanderNest is only a marketplace connector. Payments are agreed directly between you and the student guide. We do not handle or guarantee payments.",
+      "TourWiseCo is only a marketplace connector. Payments are agreed directly between you and the student guide. We do not handle or guarantee payments.",
   },
   {
     question: "Can I choose a guide from my home country?",
@@ -31,7 +31,7 @@ export const paymentFAQs: FAQ[] = [
       "You can cancel or reschedule directly with your guide based on the terms you both agree to. We recommend confirming details in writing.",
   },
   {
-    question: "Is WanderNest responsible for the quality of the tour?",
+    question: "Is TourWiseCo responsible for the quality of the tour?",
     answer:
       "We are not responsible for the quality of the service or safety during the tour. Please review guide profiles and communicate expectations clearly.",
   },

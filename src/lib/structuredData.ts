@@ -2,13 +2,13 @@
 // Helper function to get base URL from environment variables
 const getBaseUrl = () => {
   return process.env.NEXT_PUBLIC_BASE_URL ||
-         (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://wandernest.vercel.app');
+         (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://tourwiseco.vercel.app');
 };
 
 export const getWebsiteStructuredData = () => ({
   '@context': 'https://schema.org',
   '@type': 'WebSite',
-  name: 'WanderNest',
+  name: 'TourWiseCo',
   url: getBaseUrl(),
   description: 'Marketplace connecting tourists with local student guides for authentic travel experiences',
   potentialAction: {
@@ -21,7 +21,7 @@ export const getWebsiteStructuredData = () => ({
 export const getOrganizationStructuredData = () => ({
   '@context': 'https://schema.org',
   '@type': 'Organization',
-  name: 'WanderNest',
+  name: 'TourWiseCo',
   url: getBaseUrl(),
   logo: `${getBaseUrl()}/logo.png`,
   description: 'Marketplace platform connecting tourists with verified local student guides',

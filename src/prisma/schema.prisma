@@ -406,7 +406,7 @@ model Payment {
   // Metadata
   email             String
   phone             String?
-  description       String        @default("Discovery Fee - WanderNest")
+  description       String        @default("Discovery Fee - TourWiseCo")
 
   createdAt         DateTime      @default(now())
   updatedAt         DateTime      @updatedAt

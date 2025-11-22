@@ -1,6 +1,6 @@
 # Student Review System
 
-This document describes the student review system implementation for WanderNest.
+This document describes the student review system implementation for TourWiseCo.
 
 ## Overview
 

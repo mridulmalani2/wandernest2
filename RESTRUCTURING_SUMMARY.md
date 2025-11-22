@@ -1,4 +1,4 @@
-# WanderNest Codebase Restructuring Summary
+# TourWiseCo Codebase Restructuring Summary
 
 **Date:** November 19, 2025
 **Branch:** `main` (newly created)
@@ -15,7 +15,7 @@
 
 #### Implemented `src/` Directory Structure
 ```
-wandernest/
+tourwiseco/
 ├── src/
 │   ├── app/           # Next.js 13+ app directory
 │   ├── components/    # React components
@@ -265,4 +265,4 @@ With the new structure:
 
 ---
 
-**Summary**: The WanderNest codebase has been successfully restructured into a clean, maintainable, and standard Next.js project layout. All features from the previous 72+ branches are consolidated in the `main` branch. The project builds successfully and is ready for continued development and deployment.
+**Summary**: The TourWiseCo codebase has been successfully restructured into a clean, maintainable, and standard Next.js project layout. All features from the previous 72+ branches are consolidated in the `main` branch. The project builds successfully and is ready for continued development and deployment.

@@ -1,47 +1,47 @@
-# WanderNest Student Registration - Quick Reference Guide
+# TourWiseCo Student Registration - Quick Reference Guide
 
 ## Key File Locations
 
 ### Student Onboarding Components
-- **Main Wizard**: `/home/user/wandernest/components/student/OnboardingWizard.tsx`
-- **Step 1 - Basic Profile**: `/home/user/wandernest/components/student/BasicProfileStep.tsx`
-- **Step 2 - Verification**: `/home/user/wandernest/components/student/StudentVerificationStep.tsx`
-- **Step 3 - Cover Letter**: `/home/user/wandernest/components/student/CoverLetterStep.tsx`
-- **Step 4 - Availability**: `/home/user/wandernest/components/student/AvailabilityStep.tsx`
-- **Step 5 - Review**: `/home/user/wandernest/components/student/ReviewSubmitStep.tsx`
+- **Main Wizard**: `/home/user/tourwiseco/components/student/OnboardingWizard.tsx`
+- **Step 1 - Basic Profile**: `/home/user/tourwiseco/components/student/BasicProfileStep.tsx`
+- **Step 2 - Verification**: `/home/user/tourwiseco/components/student/StudentVerificationStep.tsx`
+- **Step 3 - Cover Letter**: `/home/user/tourwiseco/components/student/CoverLetterStep.tsx`
+- **Step 4 - Availability**: `/home/user/tourwiseco/components/student/AvailabilityStep.tsx`
+- **Step 5 - Review**: `/home/user/tourwiseco/components/student/ReviewSubmitStep.tsx`
 
 ### Student Pages
-- **Sign In**: `/home/user/wandernest/app/student/signin/page.tsx`
-- **Onboarding**: `/home/user/wandernest/app/student/onboarding/page.tsx`
-- **Onboarding Success**: `/home/user/wandernest/app/student/onboarding/success/page.tsx`
-- **Dashboard**: `/home/user/wandernest/app/student/dashboard/page.tsx`
+- **Sign In**: `/home/user/tourwiseco/app/student/signin/page.tsx`
+- **Onboarding**: `/home/user/tourwiseco/app/student/onboarding/page.tsx`
+- **Onboarding Success**: `/home/user/tourwiseco/app/student/onboarding/success/page.tsx`
+- **Dashboard**: `/home/user/tourwiseco/app/student/dashboard/page.tsx`
 
 ### API Routes
-- **Auth Initiate**: `/home/user/wandernest/app/api/student/auth/initiate/route.ts`
-- **Auth Verify**: `/home/user/wandernest/app/api/student/auth/verify/route.ts`
-- **Auth Session**: `/home/user/wandernest/app/api/student/auth/session/route.ts`
-- **File Upload**: `/home/user/wandernest/app/api/student/upload/route.ts`
-- **Onboarding Submit**: `/home/user/wandernest/app/api/student/onboarding/route.ts`
-- **Admin Pending**: `/home/user/wandernest/app/api/admin/students/pending/route.ts`
-- **Admin Approve/Reject**: `/home/user/wandernest/app/api/admin/students/approve/route.ts`
+- **Auth Initiate**: `/home/user/tourwiseco/app/api/student/auth/initiate/route.ts`
+- **Auth Verify**: `/home/user/tourwiseco/app/api/student/auth/verify/route.ts`
+- **Auth Session**: `/home/user/tourwiseco/app/api/student/auth/session/route.ts`
+- **File Upload**: `/home/user/tourwiseco/app/api/student/upload/route.ts`
+- **Onboarding Submit**: `/home/user/tourwiseco/app/api/student/onboarding/route.ts`
+- **Admin Pending**: `/home/user/tourwiseco/app/api/admin/students/pending/route.ts`
+- **Admin Approve/Reject**: `/home/user/tourwiseco/app/api/admin/students/approve/route.ts`
 
 ### Database & Models
-- **Prisma Schema**: `/home/user/wandernest/prisma/schema.prisma`
-- **Prisma Client**: `/home/user/wandernest/lib/prisma.ts`
+- **Prisma Schema**: `/home/user/tourwiseco/prisma/schema.prisma`
+- **Prisma Client**: `/home/user/tourwiseco/lib/prisma.ts`
 
 ### Authentication & Utilities
-- **Auth Utilities**: `/home/user/wandernest/lib/auth.ts`
-- **Email Service**: `/home/user/wandernest/lib/email.ts`
-- **Redis Cache**: `/home/user/wandernest/lib/redis.ts`
-- **Utilities**: `/home/user/wandernest/lib/utils.ts`
-- **Middleware**: `/home/user/wandernest/lib/middleware.ts`
+- **Auth Utilities**: `/home/user/tourwiseco/lib/auth.ts`
+- **Email Service**: `/home/user/tourwiseco/lib/email.ts`
+- **Redis Cache**: `/home/user/tourwiseco/lib/redis.ts`
+- **Utilities**: `/home/user/tourwiseco/lib/utils.ts`
+- **Middleware**: `/home/user/tourwiseco/lib/middleware.ts`
 
 ### Configuration
-- **Environment Variables**: `/home/user/wandernest/.env.example`
-- **Package Dependencies**: `/home/user/wandernest/package.json`
-- **Tailwind Config**: `/home/user/wandernest/tailwind.config.ts`
-- **TypeScript Config**: `/home/user/wandernest/tsconfig.json`
-- **Next.js Config**: `/home/user/wandernest/next.config.js`
+- **Environment Variables**: `/home/user/tourwiseco/.env.example`
+- **Package Dependencies**: `/home/user/tourwiseco/package.json`
+- **Tailwind Config**: `/home/user/tourwiseco/tailwind.config.ts`
+- **TypeScript Config**: `/home/user/tourwiseco/tsconfig.json`
+- **Next.js Config**: `/home/user/tourwiseco/next.config.js`
 
 ---
 
@@ -132,7 +132,7 @@ EMAIL_HOST=smtp.gmail.com
 EMAIL_PORT=587
 EMAIL_USER=your-email@gmail.com
 EMAIL_PASS=your-app-password
-EMAIL_FROM=noreply@wandernest.com
+EMAIL_FROM=noreply@tourwiseco.com
 MOCK_EMAIL=true
 
 # Authentication

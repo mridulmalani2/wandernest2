@@ -19,7 +19,7 @@ export default function AdminNav() {
         <div className="flex justify-between h-16">
           <div className="flex space-x-8">
             <div className="flex items-center">
-              <span className="text-xl font-bold text-gray-900">WanderNest Admin</span>
+              <span className="text-xl font-bold text-gray-900">TourWiseCo Admin</span>
             </div>
             <div className="hidden sm:flex sm:space-x-8">
               {navItems.map((item) => (

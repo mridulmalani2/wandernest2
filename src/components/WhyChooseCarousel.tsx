@@ -183,7 +183,7 @@ export default function WhyChooseCarousel() {
       {/* Section Title */}
       <div className="text-center space-y-2 px-4">
         <h2 className="text-3xl md:text-4xl font-serif font-bold text-white text-shadow-lg tracking-tight">
-          Why Choose WanderNest?
+          Why Choose TourWiseCo?
         </h2>
         <p className="text-base md:text-lg text-white/90 text-shadow max-w-2xl mx-auto">
           Experience travel differently with our verified student guides
@@ -198,7 +198,7 @@ export default function WhyChooseCarousel() {
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
           role="region"
-          aria-label="Why choose WanderNest carousel"
+          aria-label="Why choose TourWiseCo carousel"
           aria-live="polite"
         >
           {/* Main Image Background */}

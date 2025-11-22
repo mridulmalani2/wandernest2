@@ -52,7 +52,7 @@ export default function Navigation({ variant = 'default', showBackButton = false
               whileHover={{ opacity: 0.9 }}
               transition={{ duration: 0.2 }}
             >
-              WanderNest
+              TourWiseCo
             </motion.span>
           </Link>
 

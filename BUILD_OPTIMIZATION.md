@@ -1,7 +1,7 @@
 # Build Pipeline Optimization
 
 ## Overview
-This document explains the build pipeline optimizations implemented for WanderNest to ensure modern browsers receive ES6+ modules while legacy builds are only sent when necessary.
+This document explains the build pipeline optimizations implemented for TourWiseCo to ensure modern browsers receive ES6+ modules while legacy builds are only sent when necessary.
 
 ## Key Changes
 

@@ -35,7 +35,7 @@ export default function OnboardingSuccess() {
                 <Globe className="w-6 h-6" />
               </div>
               <h1 className="text-2xl font-bold bg-gradient-to-r from-[hsl(var(--ui-blue-accent))] to-[hsl(var(--ui-purple-accent))] bg-clip-text text-transparent">
-                WanderNest
+                TourWiseCo
               </h1>
             </Link>
           </div>
@@ -148,7 +148,7 @@ export default function OnboardingSuccess() {
 
           {/* Support */}
           <div className="text-sm text-gray-700 font-medium animate-fade-in delay-500">
-            <p>Have questions? Contact us at support@wandernest.com</p>
+            <p>Have questions? Contact us at support@tourwiseco.com</p>
           </div>
         </div>
       </main>
@@ -156,7 +156,7 @@ export default function OnboardingSuccess() {
         {/* Footer */}
         <footer className="border-t-2 glass-card border-white/40 animate-fade-in">
           <div className="container mx-auto px-4 py-8 text-center text-gray-700">
-            <p>&copy; {new Date().getFullYear()} WanderNest. All rights reserved.</p>
+            <p>&copy; {new Date().getFullYear()} TourWiseCo. All rights reserved.</p>
           </div>
         </footer>
       </div>

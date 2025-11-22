@@ -56,7 +56,7 @@ export default function BookingPage() {
               <div>
                 <h2 id="disclaimer-booking-heading" className="font-bold text-amber-900 mb-2 text-lg">Marketplace Notice</h2>
                 <p className="text-sm text-amber-900 leading-relaxed">
-                  <strong>WanderNest is a connection platform only.</strong> We do not handle payments, guarantee service quality, or assume liability. All services and payments are arranged directly between you and your chosen guide.
+                  <strong>TourWiseCo is a connection platform only.</strong> We do not handle payments, guarantee service quality, or assume liability. All services and payments are arranged directly between you and your chosen guide.
                 </p>
               </div>
             </div>

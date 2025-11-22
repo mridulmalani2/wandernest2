@@ -1,6 +1,6 @@
 # Security Documentation
 
-This document outlines the security measures implemented in WanderNest and best practices for maintaining security.
+This document outlines the security measures implemented in TourWiseCo and best practices for maintaining security.
 
 ## Table of Contents
 
@@ -371,7 +371,7 @@ await prisma.auditLog.create({
 
 ## Reporting Security Issues
 
-If you discover a security vulnerability, please email security@wandernest.com immediately. Do not open public issues for security vulnerabilities.
+If you discover a security vulnerability, please email security@tourwiseco.com immediately. Do not open public issues for security vulnerabilities.
 
 ## Additional Resources
 
