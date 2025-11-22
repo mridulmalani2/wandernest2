@@ -3,7 +3,7 @@ export const dynamic = 'force-dynamic'
 
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
-import { prisma, requireDatabase } from '@/lib/prisma'
+import { requireDatabase } from '@/lib/prisma'
 import { sendStudentRequestNotification } from '@/lib/email'
 import { withErrorHandler, withDatabaseRetry, AppError } from '@/lib/error-handler'
 

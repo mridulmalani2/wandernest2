@@ -6,8 +6,9 @@ import { acceptRequest } from '../accept-request'
 import { requireDatabase } from '@/lib/prisma'
 
 export async function POST(req: NextRequest) {
+  const prisma = requireDatabase()
   try {
-      const prisma = requireDatabase()
+    const db = requireDatabase()
 
     const body = await req.json()
     const { requestId, studentEmail } = body
@@ -27,7 +28,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Find student by email
-    const student = await prisma.student.findUnique({
+    const student = await db.student.findUnique({
       where: { email: studentEmail },
     })
 

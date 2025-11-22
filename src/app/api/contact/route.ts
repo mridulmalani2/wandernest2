@@ -245,6 +245,8 @@ async function sendContactNotification(data: {
  * Handle contact form submissions
  */
 async function handleContactSubmission(req: NextRequest) {
+  const db = requireDatabase()
+
   const body = await req.json()
 
   // Validate input
@@ -254,7 +256,7 @@ async function handleContactSubmission(req: NextRequest) {
 
   // Save to database
   const contactMessage = await withDatabaseRetry(async () =>
-    prisma.contactMessage.create({
+    db.contactMessage.create({
       data: {
         name: validatedData.name,
         email: validatedData.email,

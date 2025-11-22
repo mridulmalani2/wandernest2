@@ -7,6 +7,7 @@ import { verifyAdmin } from '@/lib/middleware'
 
 // Get all reports with optional filtering
 export async function GET(request: NextRequest) {
+  const prisma = requireDatabase()
   const authResult = await verifyAdmin(request)
   const prisma = requireDatabase()
 
@@ -19,6 +20,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
+    const db = requireDatabase()
 
     const { searchParams } = new URL(request.url)
     const status = searchParams.get('status')
@@ -32,7 +34,7 @@ export async function GET(request: NextRequest) {
     }
 
     const [reports, total] = await Promise.all([
-      prisma.report.findMany({
+      db.report.findMany({
         where,
         skip: (page - 1) * limit,
         take: limit,
@@ -51,7 +53,7 @@ export async function GET(request: NextRequest) {
           },
         },
       }),
-      prisma.report.count({ where }),
+      db.report.count({ where }),
     ])
 
     return NextResponse.json({
@@ -74,6 +76,7 @@ export async function GET(request: NextRequest) {
 
 // Update report status
 export async function PATCH(request: NextRequest) {
+  const prisma = requireDatabase()
   const authResult = await verifyAdmin(request)
   const prisma = requireDatabase()
 
@@ -86,6 +89,7 @@ export async function PATCH(request: NextRequest) {
   }
 
   try {
+    const db = requireDatabase()
 
     const { reportId, status } = await request.json()
 
@@ -103,7 +107,7 @@ export async function PATCH(request: NextRequest) {
       )
     }
 
-    const report = await prisma.report.update({
+    const report = await db.report.update({
       where: { id: reportId },
       data: { status },
       include: {

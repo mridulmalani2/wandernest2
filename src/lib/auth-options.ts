@@ -22,7 +22,7 @@ function isStudentEmail(email: string): boolean {
 }
 
 export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(prisma!) as any,
+  adapter: PrismaAdapter(requireDatabase()) as any,
   providers: [
     // Google OAuth for tourist authentication
     GoogleProvider({
@@ -207,7 +207,7 @@ export const authOptions: NextAuthOptions = {
           })
 
           if (dbUser) {
-            token.userType = dbUser.userType as "student" | "tourist" | undefined
+            token.userType = dbUser.userType as 'student' | 'tourist'
 
             // Check if student has completed onboarding
             if (dbUser.userType === 'student' && dbUser.email) {

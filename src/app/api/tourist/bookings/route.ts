@@ -12,6 +12,7 @@ import { withErrorHandler, withDatabaseRetry, AppError } from '@/lib/error-handl
  * Fetch all bookings for the authenticated tourist
  */
 async function getTouristBookings(request: NextRequest) {
+  const db = requireDatabase()
   // Get session from NextAuth
   const prisma = requireDatabase()
 
@@ -22,7 +23,7 @@ async function getTouristBookings(request: NextRequest) {
   }
 
   // Find tourist by email
-  const tourist = await prisma.tourist.findUnique({
+  const tourist = await db.tourist.findUnique({
     where: { email: session.user.email },
   });
 
@@ -36,7 +37,7 @@ async function getTouristBookings(request: NextRequest) {
 
   // Fetch all bookings for this tourist with retry logic
   const bookings = await withDatabaseRetry(async () =>
-    prisma.touristRequest.findMany({
+    db.touristRequest.findMany({
       where: {
         touristId: tourist.id,
       },

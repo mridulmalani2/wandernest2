@@ -9,6 +9,7 @@ async function rejectStudentRequest(
   req: NextRequest,
   { params }: { params: { requestId: string } }
 ) {
+  const db = requireDatabase();
   const { requestId } = params
 
   // Get token from cookie or header
@@ -24,7 +25,7 @@ async function rejectStudentRequest(
 
   // Find session
   const session = await withDatabaseRetry(async () =>
-    prisma.studentSession.findUnique({
+    db.studentSession.findUnique({
       where: { token },
     })
   )
@@ -37,7 +38,7 @@ async function rejectStudentRequest(
 
   // Get the RequestSelection for this student
   const selection = await withDatabaseRetry(async () =>
-    prisma.requestSelection.findFirst({
+    db.requestSelection.findFirst({
       where: {
         requestId,
         studentId,
@@ -55,7 +56,7 @@ async function rejectStudentRequest(
 
   // Update the selection to rejected
   const updatedSelection = await withDatabaseRetry(async () =>
-    prisma.requestSelection.update({
+    db.requestSelection.update({
       where: { id: selection.id },
       data: {
         status: 'rejected',

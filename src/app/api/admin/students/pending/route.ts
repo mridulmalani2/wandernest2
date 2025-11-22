@@ -7,6 +7,7 @@ import { verifyAdmin } from '@/lib/middleware'
 
 // Get pending student approvals
 export async function GET(request: NextRequest) {
+  const prisma = requireDatabase()
   const authResult = await verifyAdmin(request)
   const prisma = requireDatabase()
 
@@ -19,8 +20,9 @@ export async function GET(request: NextRequest) {
   }
 
   try {
+    const db = requireDatabase()
 
-    const students = await prisma.student.findMany({
+    const students = await db.student.findMany({
       where: {
         status: 'PENDING_APPROVAL',
       },

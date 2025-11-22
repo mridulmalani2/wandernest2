@@ -7,6 +7,7 @@ import { verifyTourist } from '@/lib/middleware'
 
 // Get tourist's past requests
 export async function GET(request: NextRequest) {
+  const db = requireDatabase()
   const authResult = await verifyTourist(request)
   const prisma = requireDatabase()
 
@@ -29,7 +30,7 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    const requests = await prisma.touristRequest.findMany({
+    const requests = await db.touristRequest.findMany({
       where: {
         email,
       },

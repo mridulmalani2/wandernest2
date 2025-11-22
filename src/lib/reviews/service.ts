@@ -14,8 +14,7 @@ const MAX_REVIEW_TEXT_LENGTH = 500
  * Creates a new review and updates student metrics
  */
 export async function createReview(input: CreateReviewInput) {
-  const prisma = requireDatabase()
-
+  const db = requireDatabase()
   // Validate rating
   if (input.rating < 1 || input.rating > 5) {
     throw new Error('Rating must be between 1 and 5')
@@ -34,7 +33,7 @@ export async function createReview(input: CreateReviewInput) {
   }
 
   // Check if review already exists for this request
-  const existingReview = await prisma.review.findUnique({
+  const existingReview = await db.review.findUnique({
     where: { requestId: input.requestId },
   })
 
@@ -43,7 +42,7 @@ export async function createReview(input: CreateReviewInput) {
   }
 
   // Create the review
-  const review = await prisma.review.create({
+  const review = await db.review.create({
     data: {
       requestId: input.requestId,
       studentId: input.studentId,
@@ -69,11 +68,13 @@ export async function createReview(input: CreateReviewInput) {
  * Updates student metrics based on all their reviews
  * Calculates average rating, completion rate, and reliability badge
  */
-export async function updateStudentMetrics(studentId: string) {
-  const prisma = requireDatabase()
-
+export async function updateStudentMetrics(
+  studentId: string,
+  newReview?: { rating: number; wouldRecommend: boolean; guideShowedUp: boolean }
+) {
+  const db = requireDatabase()
   // Get only necessary review fields for calculations (optimized)
-  const allReviews = await prisma.review.findMany({
+  const allReviews = await db.review.findMany({
     where: { studentId },
     select: {
       rating: true,
@@ -106,7 +107,7 @@ export async function updateStudentMetrics(studentId: string) {
   }
 
   // Update student record
-  await prisma.student.update({
+  await db.student.update({
     where: { id: studentId },
     data: {
       averageRating: newAverage,
@@ -128,11 +129,11 @@ export async function updateStudentMetrics(studentId: string) {
  * Get all reviews for a student (cached for 10 minutes)
  */
 export async function getStudentReviews(studentId: string) {
-  const prisma = requireDatabase()
+  const db = requireDatabase()
   return cache.cached(
     `student:${studentId}:reviews`,
     async () => {
-      return prisma.review.findMany({
+      return db.review.findMany({
         where: { studentId },
         include: {
           request: {
@@ -154,9 +155,8 @@ export async function getStudentReviews(studentId: string) {
  * Get a student's current metrics (cached for 30 minutes)
  */
 export async function getStudentMetrics(studentId: string): Promise<ReviewMetrics | null> {
-  const prisma = requireDatabase()
-
-  const student = await prisma.student.findUnique({
+  const db = requireDatabase()
+  const student = await db.student.findUnique({
     where: { id: studentId },
     select: {
       averageRating: true,

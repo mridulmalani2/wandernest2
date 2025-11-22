@@ -209,6 +209,17 @@ export async function POST(req: NextRequest) {
       )
     }
 
+    // Database is required for matching - return error if not available
+    if (!prisma) {
+      return NextResponse.json(
+        { success: false, error: 'Database not available - matching requires database access' },
+        { status: 503 }
+      )
+    }
+
+    // At this point, prisma is confirmed to be available
+    const db = prisma
+
     const criteria: MatchingCriteria = {
       city: touristRequest.city,
       preferredNationality: touristRequest.preferredNationality || undefined,
@@ -239,7 +250,7 @@ export async function POST(req: NextRequest) {
     let candidatePool: any[] = []
 
     if (criteria.preferredNationality) {
-      const nationalityMatches = await prisma.student.findMany({
+      const nationalityMatches = await db.student.findMany({
         where: {
           ...whereClause,
           nationality: criteria.preferredNationality,
@@ -277,7 +288,7 @@ export async function POST(req: NextRequest) {
 
     // If not enough nationality matches, try language matches
     if (candidatePool.length < 3 && criteria.preferredLanguages.length > 0) {
-      const languageMatches = await prisma.student.findMany({
+      const languageMatches = await db.student.findMany({
         where: {
           ...whereClause,
           languages: {
@@ -315,7 +326,7 @@ export async function POST(req: NextRequest) {
 
     // If still not enough, expand to all approved students in city
     if (candidatePool.length < 3) {
-      candidatePool = await prisma.student.findMany({
+      candidatePool = await db.student.findMany({
         where: whereClause,
         select: {
           id: true,

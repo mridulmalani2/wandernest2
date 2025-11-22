@@ -7,6 +7,7 @@ import { verifyAdmin } from '@/lib/middleware'
 
 // Bulk approve or reject students
 export async function POST(request: NextRequest) {
+  const prisma = requireDatabase()
   const authResult = await verifyAdmin(request)
   const prisma = requireDatabase()
 
@@ -19,6 +20,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
+    const db = requireDatabase()
 
     const { studentIds, action } = await request.json()
 
@@ -37,7 +39,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Update all students in bulk
-    const result = await prisma.student.updateMany({
+    const result = await db.student.updateMany({
       where: {
         id: { in: studentIds },
         status: 'PENDING_APPROVAL',

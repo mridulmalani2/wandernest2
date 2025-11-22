@@ -9,6 +9,8 @@ import { CACHE_TTL } from '@/lib/constants'
 import { withErrorHandler, AppError } from '@/lib/error-handler'
 
 async function getStudentDashboard(req: NextRequest) {
+  const db = requireDatabase()
+
   // Get student identifier from query parameters (email or ID)
   const { searchParams } = new URL(req.url)
   const studentEmail = searchParams.get('email')
@@ -18,10 +20,8 @@ async function getStudentDashboard(req: NextRequest) {
     throw new AppError(400, 'Student email or ID required', 'MISSING_IDENTIFIER')
   }
 
-  const prisma = requireDatabase()
-
-  // Get student basic info first
-  const student = await prisma.student.findFirst({
+    // Get student basic info first
+    const student = await db.student.findFirst({
       where: studentEmail ? { email: studentEmail } : { id: studentId! },
       select: {
         id: true,
@@ -47,7 +47,7 @@ async function getStudentDashboard(req: NextRequest) {
 
     // Fetch bookings by status in parallel (filter at database level)
     const [acceptedBookings, pendingRequests, reviews, availability] = await Promise.all([
-      prisma.requestSelection.findMany({
+      db.requestSelection.findMany({
         where: {
           studentId: student.id,
           status: 'accepted',
@@ -76,7 +76,7 @@ async function getStudentDashboard(req: NextRequest) {
           createdAt: 'desc',
         },
       }),
-      prisma.requestSelection.findMany({
+      db.requestSelection.findMany({
         where: {
           studentId: student.id,
           status: 'pending',
@@ -102,7 +102,7 @@ async function getStudentDashboard(req: NextRequest) {
           createdAt: 'desc',
         },
       }),
-      prisma.review.findMany({
+      db.review.findMany({
         where: {
           studentId: student.id,
         },
@@ -119,7 +119,7 @@ async function getStudentDashboard(req: NextRequest) {
           createdAt: 'desc',
         },
       }),
-      prisma.studentAvailability.findMany({
+      db.studentAvailability.findMany({
         where: {
           studentId: student.id,
         },

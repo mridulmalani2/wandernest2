@@ -9,8 +9,9 @@ import { requireDatabase } from '@/lib/prisma'
  * Save tourist's guide selections
  */
 export async function POST(request: NextRequest) {
+  const prisma = requireDatabase()
   try {
-      const prisma = requireDatabase()
+    const db = requireDatabase()
 
     const body = await request.json()
     const { requestId, selectedGuideIds } = body
@@ -23,7 +24,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify the request exists
-    const touristRequest = await prisma.touristRequest.findUnique({
+    const touristRequest = await db.touristRequest.findUnique({
       where: { id: requestId }
     })
 
@@ -35,14 +36,14 @@ export async function POST(request: NextRequest) {
     }
 
     // Delete existing selections
-    await prisma.requestSelection.deleteMany({
+    await db.requestSelection.deleteMany({
       where: { requestId }
     })
 
     // Create new selections
     const selections = await Promise.all(
       selectedGuideIds.map((studentId: string) =>
-        prisma.requestSelection.create({
+        db.requestSelection.create({
           data: {
             requestId,
             studentId,
@@ -53,7 +54,7 @@ export async function POST(request: NextRequest) {
     )
 
     // Update request status to MATCHED
-    await prisma.touristRequest.update({
+    await db.touristRequest.update({
       where: { id: requestId },
       data: { status: 'MATCHED' }
     })

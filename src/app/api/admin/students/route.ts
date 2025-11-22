@@ -8,6 +8,7 @@ import { StudentStatus } from '@prisma/client'
 
 // Get all students with optional filtering
 export async function GET(request: NextRequest) {
+  const prisma = requireDatabase()
   const authResult = await verifyAdmin(request)
   const prisma = requireDatabase()
 
@@ -20,6 +21,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
+    const db = requireDatabase()
 
     const { searchParams } = new URL(request.url)
     const status = searchParams.get('status')
@@ -27,10 +29,10 @@ export async function GET(request: NextRequest) {
     const page = parseInt(searchParams.get('page') || '1')
     const limit = parseInt(searchParams.get('limit') || '20')
 
-    const where: { status?: StudentStatus; city?: string } = {}
+    const where: any = {}
 
     if (status && ['PENDING_APPROVAL', 'APPROVED', 'SUSPENDED'].includes(status)) {
-      where.status = status as StudentStatus
+      where.status = status as 'PENDING_APPROVAL' | 'APPROVED' | 'SUSPENDED'
     }
 
     if (city) {
@@ -38,7 +40,7 @@ export async function GET(request: NextRequest) {
     }
 
     const [students, total] = await Promise.all([
-      prisma.student.findMany({
+      db.student.findMany({
         where,
         skip: (page - 1) * limit,
         take: limit,
@@ -62,7 +64,7 @@ export async function GET(request: NextRequest) {
           createdAt: true,
         },
       }),
-      prisma.student.count({ where }),
+      db.student.count({ where }),
     ])
 
     return NextResponse.json({
