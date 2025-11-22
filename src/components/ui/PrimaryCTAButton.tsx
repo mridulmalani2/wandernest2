@@ -45,13 +45,13 @@ export function PrimaryCTAButton({
 
   const buttonContent = (
     <motion.div
-      className="relative pointer-events-none"
+      className="relative"
       whileHover={disabled ? undefined : { scale: 1.03 }}
       whileTap={disabled ? undefined : { scale: 0.98 }}
     >
       {/* Glow effect */}
       <div
-        className={`absolute -inset-1 ${styles.glow} rounded-2xl opacity-25 blur-xl group-hover:opacity-40 transition-opacity duration-500 ${
+        className={`absolute -inset-1 ${styles.glow} rounded-2xl opacity-25 blur-xl group-hover:opacity-40 transition-opacity duration-500 pointer-events-none ${
           disabled ? 'opacity-10' : ''
         }`}
       />
@@ -64,7 +64,7 @@ export function PrimaryCTAButton({
       >
         {/* Shimmer effect */}
         {!disabled && (
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 pointer-events-none" />
         )}
 
         <div className={`relative flex items-center gap-3 ${className}`}>
@@ -92,9 +92,8 @@ export function PrimaryCTAButton({
     <button
       type={type}
       onClick={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
         if (!disabled && onClick) {
+          e.stopPropagation();
           onClick();
         }
       }}
