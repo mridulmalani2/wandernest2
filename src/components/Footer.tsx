@@ -1,5 +1,8 @@
+'use client'
+
 import Link from 'next/link'
 import { Globe } from 'lucide-react'
+import { useContactModal } from '@/components/ContactModal/ContactModalProvider'
 
 interface FooterProps {
   variant?: 'default' | 'minimal'
@@ -7,6 +10,7 @@ interface FooterProps {
 
 export default function Footer({ variant = 'default' }: FooterProps) {
   const currentYear = new Date().getFullYear()
+  const { openContactModal } = useContactModal()
 
   if (variant === 'minimal') {
     return (
@@ -110,6 +114,14 @@ export default function Footer({ variant = 'default' }: FooterProps) {
                   >
                     Dashboard
                   </Link>
+                </li>
+                <li>
+                  <button
+                    onClick={openContactModal}
+                    className="text-sm text-white/80 hover:text-white transition-colors duration-200 inline-block hover:translate-x-1 transform text-left"
+                  >
+                    Contact us
+                  </button>
                 </li>
               </ul>
             </div>

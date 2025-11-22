@@ -416,3 +416,20 @@ model Payment {
   @@index([status])
   @@index([email])
 }
+
+model ContactMessage {
+  id          String   @id @default(cuid())
+  name        String
+  email       String
+  phone       String?
+  message     String   @db.Text
+  fileUrl     String?  // URL to uploaded file (if any)
+  fileName    String?  // Original filename
+  status      String   @default("pending") // pending, read, replied
+
+  createdAt   DateTime @default(now())
+
+  @@index([email])
+  @@index([status])
+  @@index([createdAt])
+}

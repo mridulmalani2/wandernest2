@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { ChevronDown } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useContactModal } from '@/components/ContactModal/ContactModalProvider'
 
 interface FAQItem {
   question: string
@@ -30,6 +31,7 @@ const faqData: FAQItem[] = [
 
 export default function ModernFAQ() {
   const [openIndex, setOpenIndex] = useState<number | null>(null)
+  const { openContactModal } = useContactModal()
 
   const toggleFAQ = (index: number) => {
     setOpenIndex(openIndex === index ? null : index)
@@ -162,7 +164,14 @@ export default function ModernFAQ() {
         {/* Bottom Text */}
         <div className="mt-12 text-center">
           <p className="text-white/80 text-lg md:text-xl font-normal text-shadow">
-            Have more questions? We're here to help you get started.
+            Have more questions? We're here to help you get started.{' '}
+            <button
+              onClick={openContactModal}
+              className="text-white underline hover:text-white/90 transition-colors focus:outline-none focus:ring-2 focus:ring-white/60 focus:ring-offset-2 focus:ring-offset-transparent rounded"
+            >
+              Contact us
+            </button>
+            .
           </p>
         </div>
       </div>
