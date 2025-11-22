@@ -61,12 +61,6 @@ export default function StudentLandingPage() {
                 Choose your schedule, meet interesting people, and share your local knowledge.
               </p>
 
-              <div className="inline-block backdrop-blur-md bg-white/20 px-6 py-3 rounded-full border border-white/30">
-                <p className="text-white font-medium text-base">
-                  ✨ Currently available for students in Paris and London
-                </p>
-              </div>
-
               <div className="flex justify-center gap-4 pt-6 animate-fade-in-up delay-300">
                 <PrimaryCTAButton
                   href="/student/onboarding"
