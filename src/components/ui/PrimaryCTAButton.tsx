@@ -82,14 +82,23 @@ export function PrimaryCTAButton({
 
   if (href && !disabled) {
     return (
-      <Link href={href} className="group">
+      <Link href={href} className="group inline-block">
         {buttonContent}
       </Link>
     );
   }
 
   return (
-    <button type={type} onClick={onClick} disabled={disabled} className="group">
+    <button
+      type={type}
+      onClick={(e) => {
+        if (!disabled && onClick) {
+          onClick();
+        }
+      }}
+      disabled={disabled}
+      className="group inline-block cursor-pointer"
+    >
       {buttonContent}
     </button>
   );

@@ -334,14 +334,11 @@ export function OnboardingWizard({ session }: OnboardingWizardProps) {
   const handleSubmit = async () => {
     // Validate ALL steps before final submission
     let allValid = true;
-    const allErrors: Record<string, string> = {};
 
     for (let step = 1; step <= STEPS.length - 1; step++) {
       const stepValid = validateStep(step);
       if (!stepValid) {
         allValid = false;
-        // Collect errors from all steps
-        Object.assign(allErrors, errors);
       }
     }
 
