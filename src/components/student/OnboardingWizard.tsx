@@ -498,7 +498,7 @@ export function OnboardingWizard({ session }: OnboardingWizardProps) {
           <div className="max-w-4xl mx-auto mb-8 text-center animate-fade-in-up">
             <h1 className="text-4xl font-bold mb-4 text-white text-shadow-lg">Become a WanderNest Guide</h1>
             <p className="text-white text-lg text-shadow">
-              Complete your profile to start connecting with travelers from around the world
+              Complete your profile to start connecting with travelers visiting Paris and London
             </p>
           </div>
 

@@ -38,8 +38,8 @@ export default function Footer({ variant = 'default' }: FooterProps) {
                 </span>
               </Link>
               <p className="text-sm text-white/80 leading-relaxed max-w-md">
-                Connecting travelers with verified local student guides for authentic, personalized experiences.
-                Discover cities through the eyes of those who know them best.
+                Connecting travelers with verified local student guides in Paris and London for authentic, personalized experiences.
+                Discover these cities through the eyes of those who know them best.
               </p>
               <div className="pt-2">
                 <p className="text-xs text-white/60">

@@ -281,9 +281,16 @@ export default function TouristLanding() {
 
             {/* City Destination Cards - Enhanced Design */}
             <div className="space-y-8 pt-8 animate-fade-in-up delay-700">
-              <h2 className="text-4xl md:text-5xl font-bold text-center text-white text-shadow-lg">Choose Your Destination</h2>
+              <div className="text-center space-y-4">
+                <h2 className="text-4xl md:text-5xl font-bold text-white text-shadow-lg">Choose Your Destination</h2>
+                <div className="inline-block backdrop-blur-md bg-white/20 px-6 py-3 rounded-full border border-white/30">
+                  <p className="text-white font-medium text-lg">
+                    ✨ Currently available in Paris and London
+                  </p>
+                </div>
+              </div>
 
-              <div className="grid md:grid-cols-3 gap-8">
+              <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
                 {/* Paris Card */}
                 <Link href="/booking" className="group block">
                   <div className="relative h-96 rounded-3xl overflow-hidden shadow-premium hover:shadow-elevated transition-all duration-500 hover:-translate-y-2">
@@ -396,61 +403,6 @@ export default function TouristLanding() {
                   </div>
                 </Link>
 
-                {/* Rome Card */}
-                <Link href="/booking" className="group block">
-                  <div className="relative h-96 rounded-3xl overflow-hidden shadow-premium hover:shadow-elevated transition-all duration-500 hover:-translate-y-2">
-                    {/* Background Image */}
-                    <Image
-                      src="https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=600&q=80"
-                      alt="Beautiful Rome cityscape with historic architecture"
-                      fill
-                      quality={75}
-                      sizes="(max-width: 768px) 100vw, 33vw"
-                      className="object-cover group-hover:scale-110 transition-transform duration-700"
-                      loading="lazy"
-                    />
-
-                    {/* Gradient Overlays */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
-                    <div className="absolute inset-0 bg-gradient-to-br from-ui-success/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-
-                    {/* Content */}
-                    <div className="absolute inset-0 flex flex-col justify-end p-8">
-                      {/* City Badge */}
-                      <div className="mb-4 inline-flex items-center gap-2 self-start backdrop-blur-md bg-white/20 px-4 py-2 rounded-full border border-white/30 group-hover:bg-white/30 transition-colors">
-                        <MapPin className="w-4 h-4 text-white" />
-                        <span className="text-white text-sm font-medium">Italy</span>
-                      </div>
-
-                      {/* City Name */}
-                      <h3 className="text-4xl font-bold text-white mb-3 text-shadow-lg group-hover:text-ui-success transition-colors">
-                        Rome
-                      </h3>
-
-                      {/* Description */}
-                      <p className="text-white/90 text-sm mb-4 leading-relaxed backdrop-blur-sm bg-black/20 px-4 py-3 rounded-xl inline-block">
-                        Walk through ancient history and Italian charm
-                      </p>
-
-                      {/* Stats */}
-                      <div className="flex gap-6 text-white/80 text-sm">
-                        <div className="flex items-center gap-2">
-                          <Users className="w-4 h-4" />
-                          <span>38+ guides</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                          <span>4.7 rating</span>
-                        </div>
-                      </div>
-
-                      {/* Hover Arrow */}
-                      <div className="absolute top-6 right-6 w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 border border-white/30">
-                        <span className="text-white text-xl">→</span>
-                      </div>
-                    </div>
-                  </div>
-                </Link>
               </div>
             </div>
 

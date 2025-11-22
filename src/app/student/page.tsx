@@ -60,6 +60,12 @@ export default function StudentLandingPage() {
                 Choose your schedule, meet interesting people, and share your local knowledge.
               </p>
 
+              <div className="inline-block backdrop-blur-md bg-white/20 px-6 py-3 rounded-full border border-white/30">
+                <p className="text-white font-medium text-base">
+                  ✨ Currently available for students in Paris and London
+                </p>
+              </div>
+
               <div className="flex justify-center gap-4 pt-6 animate-fade-in-up delay-300">
                 <Link href="/student/onboarding">
                   <Button
@@ -199,7 +205,7 @@ export default function StudentLandingPage() {
                   <div className="text-white space-y-3">
                     <h3 className="text-2xl md:text-3xl font-bold text-shadow-lg">Build Your Network</h3>
                     <p className="text-base text-white/95 leading-relaxed text-shadow">
-                      Connect with travelers from around the world and expand your cultural horizons
+                      Connect with travelers visiting your city and expand your cultural horizons
                     </p>
                   </div>
                 </div>
