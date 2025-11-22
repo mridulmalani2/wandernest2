@@ -1,5 +1,5 @@
 import Image from 'next/image'
-import { ReactNode } from 'react'
+import { motion } from 'framer-motion'
 
 interface CTATileBaseProps {
   /**
@@ -36,13 +36,13 @@ interface CTATileBaseProps {
 
 /**
  * Shared base component for image-based CTA tiles
- * Implements the clean, modern design pattern from Experience India project
+ * Implements the clean, modern design pattern with premium interactions
  *
  * Features:
  * - Full-bleed background image
  * - Dark gradient overlay for readability
  * - Minimal default state with elegant headline
- * - Hover state reveals additional details with smooth transitions
+ * - Hover state reveals additional details with smooth Framer Motion transitions
  * - Fully clickable tile (entire surface is interactive)
  */
 export default function CTATileBase({
@@ -57,16 +57,21 @@ export default function CTATileBase({
   className = '',
 }: CTATileBaseProps) {
   return (
-    <div
+    <motion.div
       onClick={onClick}
       className={`
         group relative overflow-hidden rounded-3xl cursor-pointer
-        shadow-xl hover:shadow-2xl
-        transition-all duration-150 ease-out
-        hover:scale-[1.03]
+        shadow-xl
         ${className}
       `}
       style={{ minHeight: '400px' }}
+      whileHover={{ scale: 1.03 }}
+      whileTap={{ scale: 0.98 }}
+      transition={{
+        type: "spring",
+        stiffness: 300,
+        damping: 25
+      }}
     >
       {/* Full-bleed background image */}
       <div className="absolute inset-0">
@@ -82,51 +87,78 @@ export default function CTATileBase({
       </div>
 
       {/* Dark gradient overlay - strengthens on hover */}
-      <div
+      <motion.div
         className={`
           absolute inset-0 bg-gradient-to-br ${gradientFrom} ${gradientVia} ${gradientTo}
-          group-hover:from-black/60 group-hover:via-black/70 group-hover:to-black/80
-          transition-all duration-150 ease-out
         `}
+        initial={false}
+        whileHover={{
+          background: [
+            `linear-gradient(to bottom right, rgba(0,0,0,0.4), rgba(0,0,0,0.5), rgba(0,0,0,0.6))`,
+            `linear-gradient(to bottom right, rgba(0,0,0,0.6), rgba(0,0,0,0.7), rgba(0,0,0,0.8))`
+          ]
+        }}
+        transition={{ duration: 0.3 }}
       />
 
       {/* Content container */}
       <div className="relative z-10 h-full flex flex-col items-center justify-center p-10 text-center">
         {/* Headline - always visible, large elegant serif font */}
-        <h2
+        <motion.h2
           className="
-            text-5xl md:text-6xl font-serif font-bold text-white mb-4
-            transition-all duration-150 ease-out
-            group-hover:mb-6
+            text-5xl md:text-6xl font-serif font-bold text-white
+            transition-all duration-300
           "
+          initial={{ y: 0, marginBottom: '1rem' }}
+          whileHover={{ y: -8, marginBottom: '1.5rem' }}
+          transition={{
+            type: "spring",
+            stiffness: 300,
+            damping: 20
+          }}
         >
           {headline}
-        </h2>
+        </motion.h2>
 
         {/* Description text - fades in on hover */}
-        <p
+        <motion.p
           className="
             text-lg md:text-xl text-white/90 max-w-md leading-relaxed
-            opacity-0 group-hover:opacity-100
-            transform translate-y-2 group-hover:translate-y-0
-            transition-all duration-150 ease-out
           "
+          initial={{ opacity: 0, y: 10 }}
+          whileHover={{ opacity: 1, y: 0 }}
+          transition={{
+            duration: 0.3,
+            ease: [0.4, 0, 0.2, 1]
+          }}
         >
           {description}
-        </p>
+        </motion.p>
 
         {/* Arrow icon - appears on hover */}
-        <div
+        <motion.div
           className="
             mt-4 text-white text-2xl
-            opacity-0 group-hover:opacity-100
-            transform translate-y-2 group-hover:translate-y-0
-            transition-all duration-150 ease-out delay-75
           "
+          initial={{ opacity: 0, y: 10 }}
+          whileHover={{ opacity: 1, y: 0 }}
+          transition={{
+            duration: 0.3,
+            delay: 0.1,
+            ease: [0.4, 0, 0.2, 1]
+          }}
         >
           →
-        </div>
+        </motion.div>
       </div>
-    </div>
+
+      {/* Enhanced shadow on hover */}
+      <motion.div
+        className="absolute inset-0 pointer-events-none"
+        initial={{ boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)' }}
+        whileHover={{ boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)' }}
+        transition={{ duration: 0.3 }}
+      />
+    </motion.div>
   )
 }
