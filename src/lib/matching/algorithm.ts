@@ -1,4 +1,4 @@
-import { prisma } from '@/lib/prisma'
+import { requireDatabase } from '@/lib/prisma'
 import { TouristRequest, Student, StudentAvailability, Prisma } from '@prisma/client'
 import { cache } from '@/lib/cache'
 import { CACHE_TTL } from '@/lib/constants'
@@ -39,10 +39,11 @@ interface MatchingFilters {
  * Get all approved students in a city (cached for 15 minutes)
  */
 async function getApprovedStudentsByCity(city: string) {
+  const db = requireDatabase()
   return cache.cached(
     `students:approved:${city}`,
     async () => {
-      return prisma.student.findMany({
+      return db.student.findMany({
         where: {
           city,
           status: 'APPROVED',

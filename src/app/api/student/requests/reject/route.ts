@@ -2,10 +2,12 @@
 export const dynamic = 'force-dynamic'
 
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { requireDatabase } from '@/lib/prisma'
 
 export async function POST(req: NextRequest) {
   try {
+    const db = requireDatabase()
+
     const body = await req.json()
     const { requestId, studentEmail } = body
 
@@ -24,7 +26,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Find student by email
-    const student = await prisma.student.findUnique({
+    const student = await db.student.findUnique({
       where: { email: studentEmail },
     })
 
@@ -38,7 +40,7 @@ export async function POST(req: NextRequest) {
     const studentId = student.id
 
     // Get the RequestSelection for this student
-    const selection = await prisma.requestSelection.findFirst({
+    const selection = await db.requestSelection.findFirst({
       where: {
         requestId,
         studentId,
@@ -67,7 +69,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Update the RequestSelection status to rejected
-    await prisma.requestSelection.update({
+    await db.requestSelection.update({
       where: { id: selection.id },
       data: {
         status: 'rejected',

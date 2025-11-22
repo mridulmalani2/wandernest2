@@ -2,13 +2,14 @@
 export const dynamic = 'force-dynamic'
 
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
+import { requireDatabase } from '@/lib/prisma'
 import { generateVerificationCode } from '@/lib/utils'
 import { sendVerificationEmail } from '@/lib/email'
 
 // Send verification code to tourist email
 export async function POST(request: NextRequest) {
   try {
+    const db = requireDatabase()
     const { email } = await request.json()
 
     if (!email || !email.includes('@')) {
@@ -25,7 +26,7 @@ export async function POST(request: NextRequest) {
     const expiresAt = new Date(Date.now() + 60 * 60 * 1000) // 1 hour from now
 
     // Delete any existing unverified sessions for this email
-    await prisma.touristSession.deleteMany({
+    await db.touristSession.deleteMany({
       where: {
         email,
         isVerified: false,
@@ -33,7 +34,7 @@ export async function POST(request: NextRequest) {
     })
 
     // Create new session
-    await prisma.touristSession.create({
+    await db.touristSession.create({
       data: {
         email,
         verificationCode,
