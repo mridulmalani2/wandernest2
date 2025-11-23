@@ -171,6 +171,9 @@ function loadConfig(): AppConfig {
     )
   }
 
+  // Verification code expiry (in seconds)
+  const verificationCodeExpiry = parseInt(process.env.VERIFICATION_CODE_EXPIRY || '600', 10)
+
   return {
     database: {
       url: databaseUrl,
