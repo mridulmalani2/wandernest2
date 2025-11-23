@@ -171,8 +171,7 @@ function loadConfig(): AppConfig {
     )
   }
 
-  // Verification code expiry
-  // OPTIONAL: Time in seconds before verification codes expire (default: 600 = 10 minutes)
+  // Verification code expiry (in seconds)
   const verificationCodeExpiry = parseInt(process.env.VERIFICATION_CODE_EXPIRY || '600', 10)
 
   return {
