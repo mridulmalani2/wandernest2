@@ -1,5 +1,6 @@
 import { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
+import EmailProvider from "next-auth/providers/email";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma, requireDatabase } from "@/lib/prisma";
@@ -24,6 +25,18 @@ function isStudentEmail(email: string): boolean {
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(requireDatabase()) as any,
   providers: [
+    // Email provider for student authentication (magic link)
+    EmailProvider({
+      server: {
+        host: process.env.EMAIL_HOST || "",
+        port: parseInt(process.env.EMAIL_PORT || "587"),
+        auth: {
+          user: process.env.EMAIL_USER || "",
+          pass: process.env.EMAIL_PASS || "",
+        },
+      },
+      from: process.env.EMAIL_FROM || "TourWiseCo <noreply@tourwiseco.com>",
+    }),
     // Google OAuth for tourist authentication
     GoogleProvider({
       clientId: config.auth.google.clientId || "",
@@ -67,42 +80,40 @@ export const authOptions: NextAuthOptions = {
         })
 
         // Create or update role-specific record based on user type
-        if (account?.providerAccountId) {
-          if (isStudent) {
-            // Create or update Student record for academic emails
-            await prisma.student.upsert({
-              where: { email: user.email },
-              create: {
-                email: user.email,
-                name: user.name,
-                googleId: account.providerAccountId,
-                emailVerified: true,
-                profilePhotoUrl: user.image,
-              },
-              update: {
-                name: user.name,
-                googleId: account.providerAccountId,
-                emailVerified: true,
-                profilePhotoUrl: user.image,
-              },
-            })
-          } else {
-            // Create or update Tourist record for non-academic emails
-            await prisma.tourist.upsert({
-              where: { email: user.email },
-              create: {
-                email: user.email,
-                name: user.name,
-                image: user.image,
-                googleId: account.providerAccountId,
-              },
-              update: {
-                name: user.name,
-                image: user.image,
-                googleId: account.providerAccountId,
-              },
-            })
-          }
+        if (isStudent) {
+          // Create or update Student record for academic emails
+          await prisma.student.upsert({
+            where: { email: user.email },
+            create: {
+              email: user.email,
+              name: user.name,
+              googleId: account?.providerAccountId || null,
+              emailVerified: true,
+              profilePhotoUrl: user.image,
+            },
+            update: {
+              name: user.name,
+              googleId: account?.providerAccountId || undefined,
+              emailVerified: true,
+              profilePhotoUrl: user.image,
+            },
+          })
+        } else {
+          // Create or update Tourist record for non-academic emails
+          await prisma.tourist.upsert({
+            where: { email: user.email },
+            create: {
+              email: user.email,
+              name: user.name,
+              image: user.image,
+              googleId: account?.providerAccountId || null,
+            },
+            update: {
+              name: user.name,
+              image: user.image,
+              googleId: account?.providerAccountId || undefined,
+            },
+          })
         }
 
         return true
