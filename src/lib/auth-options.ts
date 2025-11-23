@@ -41,11 +41,32 @@ export const authOptions: NextAuthOptions = {
     GoogleProvider({
       clientId: config.auth.google.clientId || "",
       clientSecret: config.auth.google.clientSecret || "",
+      authorization: {
+        params: {
+          prompt: "consent",
+          access_type: "offline",
+          response_type: "code"
+        }
+      }
     }),
   ],
   pages: {
     signIn: "/tourist/signin",  // Default to tourist signin
     error: "/tourist/signin", // Error page
+  },
+  // Trust host for Vercel deployment (required for proper proxy handling)
+  trustHost: true,
+  // Cookie configuration for production security
+  cookies: {
+    sessionToken: {
+      name: `${process.env.NODE_ENV === 'production' ? '__Secure-' : ''}next-auth.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NODE_ENV === 'production',
+      },
+    },
   },
   callbacks: {
     async signIn({ user, account, profile }) {
@@ -247,5 +268,6 @@ export const authOptions: NextAuthOptions = {
   session: {
     strategy: "database",
   },
-  secret: config.auth.nextAuth.secret || undefined,
+  // NEXTAUTH_SECRET is required for production - config validation will throw error if missing
+  secret: config.auth.nextAuth.secret || process.env.NEXTAUTH_SECRET,
 };
