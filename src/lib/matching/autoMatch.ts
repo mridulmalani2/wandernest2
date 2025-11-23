@@ -84,15 +84,14 @@ export async function autoMatchAndInvite(
 
     console.log(`[autoMatchAndInvite] Updated request ${request.id} status to MATCHED`);
 
-    // Step 4: Send invitation emails to each candidate
-    let invitationsSent = 0;
-
-    for (const candidate of selectedCandidates) {
+    // Step 4: Send invitation emails to each candidate IN PARALLEL for performance
+    // This prevents timeout issues when sending to multiple students (up to 4 emails)
+    const emailPromises = selectedCandidates.map(async (candidate) => {
       const selectionId = selectionIds[candidate.id];
 
       if (!selectionId) {
         console.error(`[autoMatchAndInvite] No selectionId found for student ${candidate.id}, skipping email`);
-        continue;
+        return { success: false, error: 'No selection ID', candidateId: candidate.id };
       }
 
       try {
@@ -104,24 +103,30 @@ export async function autoMatchAndInvite(
         if (!student) {
           console.error(`[autoMatchAndInvite] Student ${candidate.id} not found, skipping email`);
           errors.push(`Student ${candidate.id} not found`);
-          continue;
+          return { success: false, error: 'Student not found', candidateId: candidate.id };
         }
 
         // Send invitation email with secure accept/decline links
         const emailResult = await sendStudentMatchInvitation(student, request, selectionId);
 
         if (emailResult.success) {
-          invitationsSent++;
           console.log(`[autoMatchAndInvite] Sent invitation to ${student.email} (selection ${selectionId})`);
+          return { success: true, candidateId: candidate.id, email: student.email };
         } else {
           console.error(`[autoMatchAndInvite] Failed to send email to ${student.email}:`, emailResult.error);
           errors.push(`Failed to send email to ${student.email}: ${emailResult.error}`);
+          return { success: false, error: emailResult.error, candidateId: candidate.id };
         }
       } catch (error) {
         console.error(`[autoMatchAndInvite] Error sending invitation to student ${candidate.id}:`, error);
         errors.push(`Error sending invitation to student ${candidate.id}`);
+        return { success: false, error: error instanceof Error ? error.message : 'Unknown error', candidateId: candidate.id };
       }
-    }
+    });
+
+    // Wait for all emails to complete (parallel execution)
+    const emailResults = await Promise.all(emailPromises);
+    const invitationsSent = emailResults.filter(r => r.success).length;
 
     console.log(`[autoMatchAndInvite] Completed: ${invitationsSent}/${selectedCandidates.length} invitations sent`);
 

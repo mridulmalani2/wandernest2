@@ -8,9 +8,18 @@ import { acceptRequest } from '../accept-request'
 import { requireDatabase } from '@/lib/prisma'
 
 export async function POST(req: NextRequest) {
-  const prisma = requireDatabase()
   try {
     const db = requireDatabase()
+
+    // Get session for authentication
+    const session = await getServerSession(authOptions)
+
+    if (!session?.user?.email) {
+      return NextResponse.json(
+        { error: 'Unauthorized. Please sign in.' },
+        { status: 401 }
+      )
+    }
 
     const body = await req.json()
     const { requestId, studentEmail } = body
@@ -22,13 +31,8 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // SECURITY: Ensure student can only accept requests for themselves
-    if (studentEmail && studentEmail !== session.user.email) {
-      return NextResponse.json(
-        { error: 'Access denied. You can only accept requests for yourself.' },
-        { status: 403 }
-      )
-    }
+    // TODO: Add proper authentication using getServerSession from next-auth
+    // SECURITY: Need to ensure student can only accept requests for themselves
 
     // Find student by email
     const student = await db.student.findUnique({

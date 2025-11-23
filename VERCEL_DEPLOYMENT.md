@@ -84,6 +84,8 @@ NODE_ENV="production"
    - Authorized redirect URIs: `https://your-app.vercel.app/api/auth/callback/google`
 5. Copy the Client ID and Client Secret
 
+**Important:** See [NextAuth Production Setup](docs/nextauth-production-setup.md) for detailed authentication configuration and security best practices.
+
 ### 6. Deploy to Vercel
 
 #### Method A: Vercel Dashboard (Easiest)

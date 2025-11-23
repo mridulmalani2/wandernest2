@@ -1,5 +1,6 @@
 import { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
+import EmailProvider from "next-auth/providers/email";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma, requireDatabase } from "@/lib/prisma";
@@ -21,18 +22,57 @@ function isStudentEmail(email: string): boolean {
   return STUDENT_EMAIL_DOMAINS.some(domain => lowerEmail.endsWith(domain));
 }
 
+// Build providers array conditionally based on configuration
+const providers = [];
+
+// Only add EmailProvider if email is properly configured
+// This prevents NextAuth from trying to use an unconfigured email service
+if (config.email.isConfigured) {
+  providers.push(
+    EmailProvider({
+      server: {
+        host: config.email.host!,
+        port: config.email.port,
+        auth: {
+          user: config.email.user!,
+          pass: config.email.pass!,
+        },
+      },
+      from: config.email.from,
+    })
+  );
+} else if (config.app.isDevelopment) {
+  console.log('⚠️  EmailProvider not configured - magic link authentication disabled');
+}
+
+// Always add GoogleProvider (required for authentication)
+providers.push(
+  GoogleProvider({
+    clientId: config.auth.google.clientId || "",
+    clientSecret: config.auth.google.clientSecret || "",
+  })
+);
+
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(requireDatabase()) as any,
-  providers: [
-    // Google OAuth for tourist authentication
-    GoogleProvider({
-      clientId: config.auth.google.clientId || "",
-      clientSecret: config.auth.google.clientSecret || "",
-    }),
-  ],
+  providers: providers,
   pages: {
     signIn: "/tourist/signin",  // Default to tourist signin
     error: "/tourist/signin", // Error page
+  },
+  // Trust host for Vercel deployment (required for proper proxy handling)
+  trustHost: true,
+  // Cookie configuration for production security
+  cookies: {
+    sessionToken: {
+      name: `${process.env.NODE_ENV === 'production' ? '__Secure-' : ''}next-auth.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NODE_ENV === 'production',
+      },
+    },
   },
   callbacks: {
     async signIn({ user, account, profile }) {
@@ -67,42 +107,40 @@ export const authOptions: NextAuthOptions = {
         })
 
         // Create or update role-specific record based on user type
-        if (account?.providerAccountId) {
-          if (isStudent) {
-            // Create or update Student record for academic emails
-            await prisma.student.upsert({
-              where: { email: user.email },
-              create: {
-                email: user.email,
-                name: user.name,
-                googleId: account.providerAccountId,
-                emailVerified: true,
-                profilePhotoUrl: user.image,
-              },
-              update: {
-                name: user.name,
-                googleId: account.providerAccountId,
-                emailVerified: true,
-                profilePhotoUrl: user.image,
-              },
-            })
-          } else {
-            // Create or update Tourist record for non-academic emails
-            await prisma.tourist.upsert({
-              where: { email: user.email },
-              create: {
-                email: user.email,
-                name: user.name,
-                image: user.image,
-                googleId: account.providerAccountId,
-              },
-              update: {
-                name: user.name,
-                image: user.image,
-                googleId: account.providerAccountId,
-              },
-            })
-          }
+        if (isStudent) {
+          // Create or update Student record for academic emails
+          await prisma.student.upsert({
+            where: { email: user.email },
+            create: {
+              email: user.email,
+              name: user.name,
+              googleId: account?.providerAccountId || null,
+              emailVerified: true,
+              profilePhotoUrl: user.image,
+            },
+            update: {
+              name: user.name,
+              googleId: account?.providerAccountId || undefined,
+              emailVerified: true,
+              profilePhotoUrl: user.image,
+            },
+          })
+        } else {
+          // Create or update Tourist record for non-academic emails
+          await prisma.tourist.upsert({
+            where: { email: user.email },
+            create: {
+              email: user.email,
+              name: user.name,
+              image: user.image,
+              googleId: account?.providerAccountId || null,
+            },
+            update: {
+              name: user.name,
+              image: user.image,
+              googleId: account?.providerAccountId || undefined,
+            },
+          })
         }
 
         return true
@@ -236,5 +274,6 @@ export const authOptions: NextAuthOptions = {
   session: {
     strategy: "database",
   },
-  secret: config.auth.nextAuth.secret || undefined,
+  // NEXTAUTH_SECRET is required for production - config validation will throw error if missing
+  secret: config.auth.nextAuth.secret || process.env.NEXTAUTH_SECRET,
 };

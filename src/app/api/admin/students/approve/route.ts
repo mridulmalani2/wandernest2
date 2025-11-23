@@ -1,18 +1,16 @@
 // Force dynamic rendering for Vercel
 export const dynamic = 'force-dynamic'
+// Explicitly use Node.js runtime (required for Prisma and API auth helpers)
+export const runtime = 'nodejs'
 
 import { NextRequest, NextResponse } from 'next/server'
 import { requireDatabase } from '@/lib/prisma'
-import { verifyAdmin } from '@/lib/middleware'
+import { verifyAdmin } from '@/lib/api-auth'
 import { withErrorHandler, withDatabaseRetry, AppError } from '@/lib/error-handler'
 
 // Approve or reject a student
 async function approveStudent(request: NextRequest) {
-  const db = requireDatabase()
-
   const authResult = await verifyAdmin(request)
-  const prisma = requireDatabase()
-
 
   if (!authResult.authorized) {
     throw new AppError(401, authResult.error || 'Unauthorized', 'AUTH_FAILED')
@@ -29,6 +27,7 @@ async function approveStudent(request: NextRequest) {
     throw new AppError(400, 'Invalid action. Must be "approve" or "reject"', 'INVALID_ACTION')
   }
 
+  const db = requireDatabase()
 
   // Find student with retry logic
   const student = await withDatabaseRetry(async () =>

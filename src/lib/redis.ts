@@ -8,7 +8,7 @@ const globalForRedis = globalThis as unknown as {
 }
 
 // Get or create Redis client singleton
-// Connection is established immediately and reused across invocations
+// Connection is lazy (deferred until first use) for better serverless performance
 function getRedisClient(): Redis | null {
   // Skip Redis if no URL is configured
   if (!process.env.REDIS_URL) {
@@ -20,29 +20,45 @@ function getRedisClient(): Redis | null {
     return globalForRedis.redis
   }
 
-  // Create new client
+  // Create new client with serverless-optimized settings
   try {
     const client = new Redis(process.env.REDIS_URL, {
+      // Serverless optimizations
+      lazyConnect: true, // Defer connection until first use (reduces cold start time)
       maxRetriesPerRequest: 3,
-      enableOfflineQueue: false,
+      enableOfflineQueue: false, // Fail fast instead of queuing commands
+
+      // Timeout settings for Vercel function limits
+      connectTimeout: 5000, // 5 seconds to establish connection
+      commandTimeout: 8000, // 8 seconds max for any command
+
+      // Retry strategy with exponential backoff
       retryStrategy: (times) => {
         if (times > 3) {
-          return null
+          return null // Give up after 3 retries
         }
-        return Math.min(times * 100, 3000)
+        return Math.min(times * 100, 3000) // Max 3 second delay
       },
-      lazyConnect: false, // Connect immediately on creation
+
+      // Keep connection alive but with reasonable limits
+      keepAlive: 30000, // 30 seconds
     })
 
     client.on('error', (err) => {
-      if (process.env.NODE_ENV === 'development') {
+      if (config.app.isDevelopment) {
         console.error('Redis connection error:', err.message)
       }
     })
 
     client.on('connect', () => {
-      if (process.env.NODE_ENV === 'development') {
-        console.log('Redis connected successfully')
+      if (config.app.isDevelopment) {
+        console.log('✅ Redis connected successfully')
+      }
+    })
+
+    client.on('close', () => {
+      if (config.app.isDevelopment) {
+        console.log('Redis connection closed')
       }
     })
 
@@ -51,7 +67,7 @@ function getRedisClient(): Redis | null {
 
     return client
   } catch (error) {
-    if (process.env.NODE_ENV === 'development') {
+    if (config.app.isDevelopment) {
       console.error('Failed to create Redis client:', error)
     }
     globalForRedis.redis = null
@@ -63,6 +79,78 @@ function getRedisClient(): Redis | null {
 export const redis = getRedisClient()
 
 /**
+ * Ensure Redis connection is established
+ * Handles lazy connection gracefully with timeout
+ */
+async function ensureRedisConnection(client: Redis): Promise<boolean> {
+  try {
+    // Check if already connected
+    if (client.status === 'ready') {
+      return true
+    }
+
+    // If lazy connection, connect now
+    if (client.status === 'wait') {
+      await client.connect()
+      return true
+    }
+
+    // If connecting, wait a bit
+    if (client.status === 'connecting') {
+      // Wait up to 3 seconds for connection
+      const timeout = new Promise<boolean>((resolve) =>
+        setTimeout(() => resolve(false), 3000)
+      )
+      const connected = new Promise<boolean>((resolve) => {
+        client.once('ready', () => resolve(true))
+        client.once('error', () => resolve(false))
+      })
+
+      return await Promise.race([connected, timeout])
+    }
+
+    return false
+  } catch (error) {
+    if (config.app.isDevelopment) {
+      console.warn('Failed to ensure Redis connection:', error)
+    }
+    return false
+  }
+}
+
+/**
+ * Execute Redis operation with automatic fallback on failure
+ * Ensures connection is established before operation
+ */
+async function withRedis<T>(
+  operation: (client: Redis) => Promise<T>,
+  fallback: () => Promise<T>
+): Promise<T> {
+  if (!redis) {
+    return fallback()
+  }
+
+  try {
+    // Ensure connection is ready
+    const connected = await ensureRedisConnection(redis)
+    if (!connected) {
+      if (config.app.isDevelopment) {
+        console.warn('Redis not connected, using fallback')
+      }
+      return fallback()
+    }
+
+    // Execute operation
+    return await operation(redis)
+  } catch (error) {
+    if (config.app.isDevelopment) {
+      console.warn('Redis operation failed, using fallback:', error)
+    }
+    return fallback()
+  }
+}
+
+/**
  * Verification code storage with automatic Redis/Database fallback
  *
  * Uses Redis if available for best performance, otherwise falls back to database
@@ -70,120 +158,110 @@ export const redis = getRedisClient()
  */
 
 export async function storeVerificationCode(email: string, code: string, data: any): Promise<void> {
-  // Try Redis first for best performance
-  if (redis) {
-    try {
+  await withRedis(
+    // Redis operation
+    async (client) => {
       const key = `verification:${email}`
-      await redis.setex(key, config.verification.codeExpiry, JSON.stringify({ code, data, attempts: 0 }))
-      return
-    } catch (error) {
-      if (config.app.isDevelopment) {
-        console.warn('Redis write failed, falling back to database:', error)
-      }
+      await client.setex(
+        key,
+        config.verification.codeExpiry,
+        JSON.stringify({ code, data, attempts: 0 })
+      )
+    },
+    // Database fallback
+    async () => {
+      if (!prisma) return
+
+      const expiresAt = new Date(Date.now() + config.verification.codeExpiry * 1000)
+
+      // Delete existing verification session for this email
+      await prisma.touristSession.deleteMany({
+        where: { email, isVerified: false },
+      })
+
+      // Create new verification session
+      await prisma.touristSession.create({
+        data: {
+          email,
+          verificationCode: code,
+          isVerified: false,
+          expiresAt,
+        },
+      })
     }
-  }
-
-  // Fallback to database using TouristSession model
-  if (prisma) {
-    const expiresAt = new Date(Date.now() + config.verification.codeExpiry * 1000)
-
-    // Delete existing verification session for this email
-    await prisma.touristSession.deleteMany({
-      where: { email, isVerified: false },
-    })
-
-    // Create new verification session
-    await prisma.touristSession.create({
-      data: {
-        email,
-        verificationCode: code,
-        isVerified: false,
-        expiresAt,
-      },
-    })
-  }
+  )
 }
 
 export async function getVerificationData(email: string): Promise<any | null> {
-  // Try Redis first
-  if (redis) {
-    try {
+  return await withRedis(
+    // Redis operation
+    async (client) => {
       const key = `verification:${email}`
-      const data = await redis.get(key)
+      const data = await client.get(key)
       return data ? JSON.parse(data) : null
-    } catch (error) {
-      if (config.app.isDevelopment) {
-        console.warn('Redis read failed, falling back to database:', error)
+    },
+    // Database fallback
+    async () => {
+      if (!prisma) return null
+
+      const session = await prisma.touristSession.findFirst({
+        where: {
+          email,
+          isVerified: false,
+          expiresAt: { gt: new Date() },
+        },
+        orderBy: { createdAt: 'desc' },
+      })
+
+      if (!session) return null
+
+      // Return in same format as Redis
+      return {
+        code: session.verificationCode,
+        data: null, // TouristSession doesn't store additional data
+        attempts: 0, // Not tracked in DB version
       }
     }
-  }
-
-  // Fallback to database
-  if (prisma) {
-    const session = await prisma.touristSession.findFirst({
-      where: {
-        email,
-        isVerified: false,
-        expiresAt: { gt: new Date() },
-      },
-      orderBy: { createdAt: 'desc' },
-    })
-
-    if (!session) return null
-
-    // Return in same format as Redis
-    return {
-      code: session.verificationCode,
-      data: null, // TouristSession doesn't store additional data
-      attempts: 0,  // Not tracked in DB version
-    }
-  }
-
-  return null
+  )
 }
 
 export async function deleteVerificationCode(email: string): Promise<void> {
-  // Try Redis first
-  if (redis) {
-    try {
+  await withRedis(
+    // Redis operation
+    async (client) => {
       const key = `verification:${email}`
-      await redis.del(key)
-    } catch (error) {
-      if (config.app.isDevelopment) {
-        console.warn('Redis delete failed, falling back to database:', error)
-      }
-    }
-  }
+      await client.del(key)
+    },
+    // Database fallback
+    async () => {
+      if (!prisma) return
 
-  // Fallback to database
-  if (prisma) {
-    await prisma.touristSession.deleteMany({
-      where: { email, isVerified: false },
-    })
-  }
+      await prisma.touristSession.deleteMany({
+        where: { email, isVerified: false },
+      })
+    }
+  )
 }
 
 export async function incrementVerificationAttempts(email: string): Promise<number> {
-  // Try Redis first
-  if (redis) {
-    try {
+  return await withRedis(
+    // Redis operation
+    async (client) => {
       const key = `verification:${email}`
-      const data = await redis.get(key)
+      const data = await client.get(key)
       if (!data) return 0
 
       const parsed = JSON.parse(data)
       parsed.attempts = (parsed.attempts || 0) + 1
-      await redis.setex(key, config.verification.codeExpiry, JSON.stringify(parsed))
+      await client.setex(key, config.verification.codeExpiry, JSON.stringify(parsed))
       return parsed.attempts
-    } catch (error) {
-      if (config.app.isDevelopment) {
-        console.warn('Redis increment failed:', error)
-      }
+    },
+    // Database fallback
+    async () => {
+      // Note: Attempts not tracked in DB version
+      // This is acceptable as the code expires after 10 minutes anyway
+      return 1
     }
-  }
-
-  // Database fallback: Note - attempts not tracked in DB version
-  // This is acceptable as the code expires after 10 minutes anyway
-  return 1
+  )
 }
 
