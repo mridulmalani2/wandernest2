@@ -132,14 +132,37 @@ function loadConfig(): AppConfig {
 
   if (!nextAuthSecret) {
     if (isProduction) {
-      configErrors.push('NEXTAUTH_SECRET is required in production')
+      configErrors.push(
+        'NEXTAUTH_SECRET is required in production - generate with: openssl rand -base64 32'
+      )
     } else {
-      configWarnings.push('NEXTAUTH_SECRET is not set')
+      configWarnings.push('NEXTAUTH_SECRET is not set - required for authentication')
+    }
+  } else {
+    // Validate NEXTAUTH_SECRET strength in production
+    if (isProduction && nextAuthSecret.length < 32) {
+      configErrors.push(
+        'NEXTAUTH_SECRET is too short - must be at least 32 characters for production security'
+      )
     }
   }
 
   if (!nextAuthUrl) {
-    configWarnings.push('NEXTAUTH_URL is not set - using default')
+    if (isProduction) {
+      configWarnings.push(
+        'NEXTAUTH_URL is not set - Vercel can auto-detect this, but explicit is recommended'
+      )
+    } else {
+      configWarnings.push('NEXTAUTH_URL is not set - using default')
+    }
+  } else {
+    // Validate NEXTAUTH_URL format
+    if (!nextAuthUrl.startsWith('http://') && !nextAuthUrl.startsWith('https://')) {
+      configErrors.push('NEXTAUTH_URL must start with http:// or https://')
+    }
+    if (isProduction && nextAuthUrl.startsWith('http://')) {
+      configErrors.push('NEXTAUTH_URL must use https:// in production (not http://)')
+    }
   }
 
   // JWT configuration (for admin auth)
