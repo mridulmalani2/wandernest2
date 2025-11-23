@@ -12,15 +12,14 @@ import { withErrorHandler, withDatabaseRetry, AppError } from '@/lib/error-handl
  * Fetch all bookings for the authenticated tourist
  */
 async function getTouristBookings(request: NextRequest) {
-  const db = requireDatabase()
   // Get session from NextAuth
-  const prisma = requireDatabase()
-
   const session = await getServerSession(authOptions);
 
   if (!session?.user?.email) {
     throw new AppError(401, 'Unauthorized. Please sign in to continue.');
   }
+
+  const db = requireDatabase()
 
   // Find tourist by email
   const tourist = await db.tourist.findUnique({
