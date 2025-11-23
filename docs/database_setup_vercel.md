@@ -99,6 +99,94 @@ npx prisma db execute --preview-feature --stdin <<< "SELECT 1"
 
 ---
 
+## Step 2.5: Serverless Database Optimization (Important!)
+
+### Connection Pooling for Vercel Functions
+
+Serverless functions like those on Vercel have unique database connection requirements:
+
+#### The Problem
+- Each serverless function invocation may create new database connections
+- PostgreSQL has limited connection slots (typically 100 for free tiers)
+- Too many concurrent requests can exhaust connections
+- Cold starts can create connection spikes
+
+#### The Solution: Connection Pooling
+
+**Vercel Postgres automatically provides a pooled connection URL:**
+
+1. **POSTGRES_URL** - Direct connection (use for migrations only)
+2. **POSTGRES_PRISMA_URL** - Pooled connection via PgBouncer (use this for app)
+
+**Required Configuration:**
+
+Set your `DATABASE_URL` to use the pooled connection:
+
+```bash
+# In Vercel Environment Variables
+DATABASE_URL="${POSTGRES_PRISMA_URL}"
+```
+
+This URL includes:
+- `?pgbouncer=true` - Routes through PgBouncer connection pooler
+- `&connection_limit=1` - Limits connections per function instance
+- `&pool_timeout=0` - Prevents waiting for available connections
+
+#### WanderNest Prisma Configuration
+
+Our Prisma client (in `src/lib/prisma.ts`) is already optimized for serverless:
+
+```typescript
+// ✅ Singleton pattern - reuses connection across requests
+const prismaClient = globalForPrisma.prisma ?? new PrismaClient({
+  log: config.app.isDevelopment ? ['error', 'warn'] : ['error'],
+  datasources: { db: { url: config.database.url! } },
+  errorFormat: config.app.isDevelopment ? 'pretty' : 'minimal',
+})
+
+// ✅ Global singleton prevents multiple client instances
+if (!globalForPrisma.prisma) {
+  globalForPrisma.prisma = prismaClient
+}
+```
+
+#### Best Practices
+
+1. **Always use the pooled URL** (`POSTGRES_PRISMA_URL`) for your application
+2. **Use direct URL** (`POSTGRES_URL`) only for:
+   - Running migrations (`prisma migrate deploy`)
+   - Database introspection (`prisma db pull`)
+   - Prisma Studio in development
+
+3. **Don't disconnect Prisma in serverless**:
+   ```typescript
+   // ❌ Don't do this in serverless functions:
+   await prisma.$disconnect()
+
+   // ✅ Let Vercel handle cleanup automatically
+   ```
+
+4. **Monitor connection usage**:
+   ```bash
+   vercel postgres connections wandernest-db
+   ```
+
+#### Troubleshooting Connection Issues
+
+If you see errors like:
+```
+Error: P1001 - Can't reach database server
+Error: remaining connection slots are reserved
+```
+
+**Check your configuration:**
+1. Verify `DATABASE_URL` uses the pooled connection string
+2. Check that `?pgbouncer=true` is in the URL
+3. Ensure you're not calling `$disconnect()` in API routes
+4. Monitor concurrent function invocations
+
+---
+
 ## Step 3: Run Database Migrations
 
 Migrations create all required tables in your PostgreSQL database.
@@ -401,10 +489,22 @@ If you see "Too many connections":
 ```
 
 **Solutions:**
-1. Prisma automatically handles connection pooling
-2. Reduce concurrent deployments
-3. Upgrade Vercel Postgres plan for more connections
-4. Use connection pooling URL (PgBouncer)
+1. Use the pooled connection string for serverless:
+   - Vercel Postgres provides `POSTGRES_PRISMA_URL` with `?pgbouncer=true`
+   - Set this as your `DATABASE_URL` for optimal serverless performance
+2. Prisma automatically handles connection pooling via the client singleton
+3. Reduce concurrent deployments
+4. Upgrade Vercel Postgres plan for more connections
+
+**Best Practice for Vercel:**
+```bash
+# Use the pooled connection URL from Vercel Postgres
+DATABASE_URL="${POSTGRES_PRISMA_URL}"
+```
+
+The pooled URL includes parameters like:
+- `?pgbouncer=true` - Enables connection pooling
+- `&connection_limit=1` - Limits connections per serverless function instance
 
 ---
 

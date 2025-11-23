@@ -14,6 +14,12 @@ const globalForPrisma = globalThis as unknown as {
  * - Optimized for Vercel serverless with connection pooling
  * - Supports demo mode when DATABASE_URL is not configured
  * - Tracks connection health and provides clear error messages
+ *
+ * Serverless Optimizations:
+ * - Uses global singleton to prevent creating multiple clients
+ * - Connection pooling enabled via DATABASE_URL connection string
+ * - Reduced log levels in production to minimize overhead
+ * - Lazy connection initialization (connects on first query)
  */
 
 let prismaClient: PrismaClient | null = null
@@ -30,6 +36,8 @@ if (config.database.isAvailable) {
           url: config.database.url!,
         },
       },
+      // Serverless-specific optimizations
+      errorFormat: config.app.isDevelopment ? 'pretty' : 'minimal',
     })
 
     // Ensure singleton pattern for connection reuse

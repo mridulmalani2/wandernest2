@@ -97,12 +97,12 @@ function calculateProfileCompleteness(data: Record<string, unknown>): number {
 }
 
 async function submitOnboarding(req: NextRequest) {
-  const db = requireDatabase();
   const body = await req.json();
 
   // Validate input
   const validatedData = onboardingSchema.parse(body);
-  const prisma = requireDatabase()
+
+  const db = requireDatabase();
 
 
   // Check if student already exists

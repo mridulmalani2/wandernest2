@@ -58,9 +58,15 @@ openssl rand -base64 32
 ```
 
 **Notes:**
-- `NEXTAUTH_SECRET` must be a random 32+ character string
-- `NEXTAUTH_URL` should match your production domain
-- In Vercel, `NEXTAUTH_URL` can be auto-detected, but explicit is better
+- `NEXTAUTH_SECRET` must be at least 32 characters for production (enforced by validation)
+- `NEXTAUTH_URL` should match your production domain (must use https:// in production)
+- In Vercel, `NEXTAUTH_URL` can be auto-detected, but explicit is strongly recommended
+- **Production Security Features:**
+  - Cookies use `__Secure-` prefix in production
+  - Secure cookies enabled (HTTPS only)
+  - httpOnly flag prevents XSS attacks
+  - SameSite=lax protects against CSRF
+  - trustHost enabled for Vercel proxy compatibility
 
 ---
 

@@ -1,5 +1,7 @@
 // Force dynamic rendering for Vercel
 export const dynamic = 'force-dynamic'
+// Explicitly use Node.js runtime (required for Prisma)
+export const runtime = 'nodejs'
 
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'

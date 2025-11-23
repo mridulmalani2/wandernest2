@@ -22,30 +22,57 @@ function isStudentEmail(email: string): boolean {
   return STUDENT_EMAIL_DOMAINS.some(domain => lowerEmail.endsWith(domain));
 }
 
-export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(requireDatabase()) as any,
-  providers: [
-    // Email provider for student authentication (magic link)
+// Build providers array conditionally based on configuration
+const providers = [];
+
+// Only add EmailProvider if email is properly configured
+// This prevents NextAuth from trying to use an unconfigured email service
+if (config.email.isConfigured) {
+  providers.push(
     EmailProvider({
       server: {
-        host: process.env.EMAIL_HOST || "",
-        port: parseInt(process.env.EMAIL_PORT || "587"),
+        host: config.email.host!,
+        port: config.email.port,
         auth: {
-          user: process.env.EMAIL_USER || "",
-          pass: process.env.EMAIL_PASS || "",
+          user: config.email.user!,
+          pass: config.email.pass!,
         },
       },
-      from: process.env.EMAIL_FROM || "TourWiseCo <noreply@tourwiseco.com>",
-    }),
-    // Google OAuth for tourist authentication
-    GoogleProvider({
-      clientId: config.auth.google.clientId || "",
-      clientSecret: config.auth.google.clientSecret || "",
-    }),
-  ],
+      from: config.email.from,
+    })
+  );
+} else if (config.app.isDevelopment) {
+  console.log('⚠️  EmailProvider not configured - magic link authentication disabled');
+}
+
+// Always add GoogleProvider (required for authentication)
+providers.push(
+  GoogleProvider({
+    clientId: config.auth.google.clientId || "",
+    clientSecret: config.auth.google.clientSecret || "",
+  })
+);
+
+export const authOptions: NextAuthOptions = {
+  adapter: PrismaAdapter(requireDatabase()) as any,
+  providers: providers,
   pages: {
     signIn: "/tourist/signin",  // Default to tourist signin
     error: "/tourist/signin", // Error page
+  },
+  // Trust host for Vercel deployment (required for proper proxy handling)
+  trustHost: true,
+  // Cookie configuration for production security
+  cookies: {
+    sessionToken: {
+      name: `${process.env.NODE_ENV === 'production' ? '__Secure-' : ''}next-auth.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NODE_ENV === 'production',
+      },
+    },
   },
   callbacks: {
     async signIn({ user, account, profile }) {
@@ -247,5 +274,6 @@ export const authOptions: NextAuthOptions = {
   session: {
     strategy: "database",
   },
-  secret: config.auth.nextAuth.secret || undefined,
+  // NEXTAUTH_SECRET is required for production - config validation will throw error if missing
+  secret: config.auth.nextAuth.secret || process.env.NEXTAUTH_SECRET,
 };

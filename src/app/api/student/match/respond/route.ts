@@ -92,7 +92,7 @@ export async function GET(req: NextRequest) {
     const selection = await db.requestSelection.findUnique({
       where: { id: selectionId },
       include: {
-        touristRequest: true,
+        request: true,
         student: true,
       },
     })
@@ -177,7 +177,7 @@ export async function GET(req: NextRequest) {
     }
 
     // Check if the tourist request has already been accepted by someone else
-    if (selection.touristRequest.status === 'ACCEPTED') {
+    if (selection.request.status === 'ACCEPTED') {
       return new NextResponse(
         `
         <!DOCTYPE html>
@@ -254,9 +254,9 @@ export async function GET(req: NextRequest) {
 
       // Send email to tourist with student contact details
       const touristEmailResult = await sendTouristAcceptanceNotification(
-        selection.touristRequest.email,
+        selection.request.email,
         selection.student,
-        selection.touristRequest
+        selection.request
       )
 
       if (!touristEmailResult.success) {
@@ -269,7 +269,7 @@ export async function GET(req: NextRequest) {
       // Send email to student with tourist contact details
       const studentEmailResult = await sendStudentConfirmation(
         selection.student,
-        selection.touristRequest
+        selection.request
       )
 
       if (!studentEmailResult.success) {
@@ -321,9 +321,9 @@ export async function GET(req: NextRequest) {
               <p><strong>Congratulations!</strong> You've successfully accepted this trip request.</p>
               <p>We've sent you an email with the tourist's contact details:</p>
               <ul style="text-align: left; display: inline-block;">
-                <li>Tourist email: <strong>${selection.touristRequest.email}</strong></li>
-                ${selection.touristRequest.phone ? `<li>Phone: <strong>${selection.touristRequest.phone}</strong></li>` : ''}
-                ${selection.touristRequest.whatsapp ? `<li>WhatsApp: <strong>${selection.touristRequest.whatsapp}</strong></li>` : ''}
+                <li>Tourist email: <strong>${selection.request.email}</strong></li>
+                ${selection.request.phone ? `<li>Phone: <strong>${selection.request.phone}</strong></li>` : ''}
+                ${selection.request.whatsapp ? `<li>WhatsApp: <strong>${selection.request.whatsapp}</strong></li>` : ''}
               </ul>
               <p><strong>Next steps:</strong></p>
               <ol style="text-align: left; display: inline-block;">

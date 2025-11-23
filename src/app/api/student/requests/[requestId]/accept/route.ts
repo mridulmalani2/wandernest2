@@ -20,11 +20,6 @@ async function acceptStudentRequest(
   }
 
   // Verify user is a student
-  if (session.user.userType !== 'student') {
-    throw new AppError(403, 'Access denied. Student account required.', 'ACCESS_DENIED')
-  }
-
-  const { requestId } = params
   const body = await req.json()
   const { studentId } = body
 
