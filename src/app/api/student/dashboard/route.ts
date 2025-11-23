@@ -20,120 +20,95 @@ async function getStudentDashboard(req: NextRequest) {
   // SECURITY: Need to ensure user can only access their own dashboard
   // For now, proceeding without session validation to unblock build
 
-    // Get student basic info first
-    const student = await db.student.findFirst({
-      where: studentEmail ? { email: studentEmail } : { id: studentId! },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        city: true,
-        institute: true,
-        averageRating: true,
-        tripsHosted: true,
-        status: true,
-        reliabilityBadge: true,
-        languages: true,
-        interests: true,
+  // Fetch bookings by status in parallel (filter at database level)
+  const [acceptedBookings, pendingRequests, reviews, availability] = await Promise.all([
+    db.requestSelection.findMany({
+      where: {
+        studentId: student.id,
+        status: 'accepted',
       },
-    })
-
-    if (!student) {
-      return NextResponse.json(
-        { error: 'Student not found' },
-        { status: 404 }
-      )
-    }
-
-    // Fetch bookings by status in parallel (filter at database level)
-    const [acceptedBookings, pendingRequests, reviews, availability] = await Promise.all([
-      db.requestSelection.findMany({
-        where: {
-          studentId: student.id,
-          status: 'accepted',
-        },
-        include: {
-          request: {
-            select: {
-              id: true,
-              city: true,
-              dates: true,
-              numberOfGuests: true,
-              groupType: true,
-              serviceType: true,
-              interests: true,
-              preferredTime: true,
-              tripNotes: true,
-              email: true,
-              phone: true,
-              whatsapp: true,
-              contactMethod: true,
-              status: true,
-            },
+      include: {
+        request: {
+          select: {
+            id: true,
+            city: true,
+            dates: true,
+            numberOfGuests: true,
+            groupType: true,
+            serviceType: true,
+            interests: true,
+            preferredTime: true,
+            tripNotes: true,
+            email: true,
+            phone: true,
+            whatsapp: true,
+            contactMethod: true,
+            status: true,
           },
         },
-        orderBy: {
-          createdAt: 'desc',
-        },
-      }),
-      db.requestSelection.findMany({
-        where: {
-          studentId: student.id,
-          status: 'pending',
-        },
-        include: {
-          request: {
-            select: {
-              id: true,
-              city: true,
-              dates: true,
-              numberOfGuests: true,
-              groupType: true,
-              serviceType: true,
-              interests: true,
-              preferredTime: true,
-              tripNotes: true,
-              budget: true,
-              expiresAt: true,
-            },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    }),
+    db.requestSelection.findMany({
+      where: {
+        studentId: student.id,
+        status: 'pending',
+      },
+      include: {
+        request: {
+          select: {
+            id: true,
+            city: true,
+            dates: true,
+            numberOfGuests: true,
+            groupType: true,
+            serviceType: true,
+            interests: true,
+            preferredTime: true,
+            tripNotes: true,
+            budget: true,
+            expiresAt: true,
           },
         },
-        orderBy: {
-          createdAt: 'desc',
-        },
-      }),
-      db.review.findMany({
-        where: {
-          studentId: student.id,
-        },
-        include: {
-          request: {
-            select: {
-              city: true,
-              dates: true,
-              serviceType: true,
-            },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    }),
+    db.review.findMany({
+      where: {
+        studentId: student.id,
+      },
+      include: {
+        request: {
+          select: {
+            city: true,
+            dates: true,
+            serviceType: true,
           },
         },
-        orderBy: {
-          createdAt: 'desc',
-        },
-      }),
-      db.studentAvailability.findMany({
-        where: {
-          studentId: student.id,
-        },
-        orderBy: {
-          dayOfWeek: 'asc',
-        },
-      }),
-    ])
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    }),
+    db.studentAvailability.findMany({
+      where: {
+        studentId: student.id,
+      },
+      orderBy: {
+        dayOfWeek: 'asc',
+      },
+    }),
+  ])
 
-    // Calculate stats
-    const totalEarnings = acceptedBookings.reduce(
-      (sum: number, booking: { pricePaid: number | null }) => sum + (booking.pricePaid || 0),
-      0
-    )
+  // Calculate stats
+  const totalEarnings = acceptedBookings.reduce(
+    (sum: number, booking: { pricePaid: number | null }) => sum + (booking.pricePaid || 0),
+    0
+  )
 
   return NextResponse.json({
     success: true,

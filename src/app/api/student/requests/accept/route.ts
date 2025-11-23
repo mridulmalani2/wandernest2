@@ -8,9 +8,18 @@ import { acceptRequest } from '../accept-request'
 import { requireDatabase } from '@/lib/prisma'
 
 export async function POST(req: NextRequest) {
-  const prisma = requireDatabase()
   try {
     const db = requireDatabase()
+
+    // Get session for authentication
+    const session = await getServerSession(authOptions)
+
+    if (!session?.user?.email) {
+      return NextResponse.json(
+        { error: 'Unauthorized. Please sign in.' },
+        { status: 401 }
+      )
+    }
 
     const body = await req.json()
     const { requestId, studentEmail } = body
