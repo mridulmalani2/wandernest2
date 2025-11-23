@@ -8,10 +8,7 @@ import { StudentStatus } from '@prisma/client'
 
 // Get all students with optional filtering
 export async function GET(request: NextRequest) {
-  const prisma = requireDatabase()
   const authResult = await verifyAdmin(request)
-  const prisma = requireDatabase()
-
 
   if (!authResult.authorized) {
     return NextResponse.json(
