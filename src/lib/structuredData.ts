@@ -1,8 +1,12 @@
 // Structured data for SEO - extracted for better tree-shaking
 // Helper function to get base URL from environment variables
+// Only uses NEXT_PUBLIC_ prefixed variables to be safe for client-side usage
 const getBaseUrl = () => {
-  return process.env.NEXT_PUBLIC_BASE_URL ||
-         (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://tourwiseco.vercel.app');
+  // In Next.js, only NEXT_PUBLIC_ prefixed env vars are available to client
+  // VERCEL_URL is server-only, so we can't use it in client components
+  return typeof window !== 'undefined'
+    ? window.location.origin
+    : (process.env.NEXT_PUBLIC_BASE_URL || 'https://tourwiseco.vercel.app');
 };
 
 export const getWebsiteStructuredData = () => ({

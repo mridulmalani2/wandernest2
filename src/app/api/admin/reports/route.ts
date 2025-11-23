@@ -7,10 +7,7 @@ import { verifyAdmin } from '@/lib/middleware'
 
 // Get all reports with optional filtering
 export async function GET(request: NextRequest) {
-  const prisma = requireDatabase()
   const authResult = await verifyAdmin(request)
-  const prisma = requireDatabase()
-
 
   if (!authResult.authorized) {
     return NextResponse.json(
@@ -18,6 +15,8 @@ export async function GET(request: NextRequest) {
       { status: 401 }
     )
   }
+
+  const prisma = requireDatabase()
 
   try {
     const db = requireDatabase()
@@ -76,10 +75,7 @@ export async function GET(request: NextRequest) {
 
 // Update report status
 export async function PATCH(request: NextRequest) {
-  const prisma = requireDatabase()
   const authResult = await verifyAdmin(request)
-  const prisma = requireDatabase()
-
 
   if (!authResult.authorized) {
     return NextResponse.json(
@@ -87,6 +83,8 @@ export async function PATCH(request: NextRequest) {
       { status: 401 }
     )
   }
+
+  const prisma = requireDatabase()
 
   try {
     const db = requireDatabase()

@@ -4,6 +4,7 @@ export const maxDuration = 10
 
 import { NextRequest, NextResponse } from 'next/server'
 import { requireDatabase } from '@/lib/prisma'
+import { withErrorHandler, AppError } from '@/lib/error-handler'
 
 // Helper function to calculate suggested price range
 function calculateSuggestedPrice(city: string, serviceType: string): { min: number; max: number } {
@@ -165,19 +166,17 @@ function extractTags(student: { coverLetter: string | null; bio: string | null }
   return Array.from(new Set(tags)).slice(0, 5) // Unique tags, max 5
 }
 
-export async function POST(req: NextRequest) {
+async function matchStudents(req: NextRequest) {
   try {
-      const prisma = requireDatabase()
-
     const body = await req.json()
     const { requestId } = body
 
-  if (!requestId) {
-    throw new AppError(400, 'Request ID is required', 'MISSING_REQUEST_ID')
-  }
+    if (!requestId) {
+      throw new AppError(400, 'Request ID is required', 'MISSING_REQUEST_ID')
+    }
 
-  // Ensure database is available
-  const prisma = requireDatabase()
+    // Ensure database is available
+    const prisma = requireDatabase()
 
   // Get the tourist request from database
   const touristRequest = await prisma.touristRequest.findUnique({
@@ -398,9 +397,16 @@ export async function POST(req: NextRequest) {
       suggestedPriceRange,
       requestId: touristRequest.id,
     })
+  } catch (error) {
+    console.error('Error in matchStudents:', error)
+    return NextResponse.json(
+      { error: 'Failed to match students' },
+      { status: 500 }
+    )
+  }
 }
 
-export const POST = withErrorHandler(matchStudents, 'POST /api/tourist/request/match')
+export const POST = withErrorHandler(matchStudents, 'POST /api/tourist/request/match');
 
 function maskName(fullName: string | null): string {
   if (!fullName) return 'Anonymous'

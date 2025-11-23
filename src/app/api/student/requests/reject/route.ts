@@ -20,11 +20,6 @@ export async function POST(req: NextRequest) {
     }
 
     // SECURITY: Ensure student can only reject requests for themselves
-    if (studentEmail && studentEmail !== session.user.email) {
-      return NextResponse.json(
-        { error: 'Access denied. You can only reject requests for yourself.' },
-        { status: 403 }
-      )
     }
 
     // Find student by email
