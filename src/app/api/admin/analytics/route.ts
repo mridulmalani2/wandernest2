@@ -1,18 +1,18 @@
 // Use ISR with 10-minute revalidation for analytics
 export const dynamic = 'force-dynamic'
 export const revalidate = 600 // 10 minutes
+// Explicitly use Node.js runtime (required for Prisma and API auth helpers)
+export const runtime = 'nodejs'
 
 import { NextRequest, NextResponse } from 'next/server'
 import { requireDatabase } from '@/lib/prisma'
-import { verifyAdmin } from '@/lib/middleware'
+import { verifyAdmin } from '@/lib/api-auth'
 import { cache } from '@/lib/cache'
 import { CACHE_TTL } from '@/lib/constants'
 
 // Get platform analytics
 export async function GET(request: NextRequest) {
   const authResult = await verifyAdmin(request)
-  const prisma = requireDatabase()
-
 
   if (!authResult.authorized) {
     return NextResponse.json(
@@ -20,8 +20,6 @@ export async function GET(request: NextRequest) {
       { status: 401 }
     )
   }
-
-  const prisma = requireDatabase()
 
   try {
     const prisma = requireDatabase()
