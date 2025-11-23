@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { requireDatabase } from '@/lib/prisma'
 import { z } from 'zod'
 import { withErrorHandler, withDatabaseRetry } from '@/lib/error-handler'
+import { config } from '@/lib/config'
 
 // Validation schema
 const contactSchema = z.object({
@@ -17,6 +18,9 @@ const contactSchema = z.object({
 
 /**
  * Send email notification for new contact form submission
+ *
+ * Uses centralized email config from @/lib/config
+ * If email is not configured, logs to console instead of sending (graceful degradation)
  */
 async function sendContactNotification(data: {
   name: string
@@ -29,11 +33,9 @@ async function sendContactNotification(data: {
   // Import email utilities
   const nodemailer = await import('nodemailer')
 
-  // Mock mode - only enabled in development OR when email is not configured
-  const MOCK_EMAIL_MODE = process.env.NODE_ENV !== 'production' || !process.env.EMAIL_HOST
-
-  if (MOCK_EMAIL_MODE) {
-    if (process.env.NODE_ENV === 'development') {
+  // Check if email is configured - if not, use mock mode
+  if (!config.email.isConfigured) {
+    if (config.app.isDevelopment) {
       console.log('\n===========================================')
       console.log('📧 MOCK EMAIL - Contact Form Submission')
       console.log('===========================================')
@@ -44,18 +46,25 @@ async function sendContactNotification(data: {
         console.log(`File: ${data.fileName} (${data.fileUrl})`)
       }
       console.log('===========================================\n')
+    } else {
+      // In production, just log that email would have been sent
+      console.log(`📧 Email not configured - would have sent contact form from ${data.email}`)
     }
     return
   }
 
+  // Email is configured - create transporter and send real emails
   const transporter = nodemailer.default.createTransport({
-    host: process.env.EMAIL_HOST,
-    port: parseInt(process.env.EMAIL_PORT || '587'),
+    host: config.email.host!,
+    port: config.email.port,
     secure: false,
     auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
+      user: config.email.user!,
+      pass: config.email.pass!,
     },
+    // Add timeouts to prevent hanging
+    connectionTimeout: 10000,
+    greetingTimeout: 10000,
   })
 
   const html = `
@@ -166,10 +175,10 @@ async function sendContactNotification(data: {
     </html>
   `
 
-  // Send to admin/support email
+  // Send to admin/support email (uses CONTACT_EMAIL from centralized config)
   await transporter.sendMail({
-    from: process.env.EMAIL_FROM,
-    to: process.env.CONTACT_EMAIL || process.env.EMAIL_FROM, // Fallback to EMAIL_FROM if CONTACT_EMAIL not set
+    from: config.email.from,
+    to: config.email.contactEmail,
     replyTo: data.email,
     subject: `📬 New Contact Form: ${data.name}`,
     html,
@@ -233,7 +242,7 @@ async function sendContactNotification(data: {
   `
 
   await transporter.sendMail({
-    from: process.env.EMAIL_FROM,
+    from: config.email.from,
     to: data.email,
     subject: '✅ We received your message - TourWiseCo',
     html: confirmationHtml,
