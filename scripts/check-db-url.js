@@ -1,3 +1,10 @@
+console.log('🚨 DATABASE_URL:', process.env.DATABASE_URL);
+const dbUrl = process.env.DATABASE_URL || '';
+const protocol = dbUrl.split(':')[0];
+console.log('🚨 Extracted protocol:', protocol);
+
+
+
 #!/usr/bin/env node
 /**
  * Safe diagnostic script to check DATABASE_URL before Prisma commands
