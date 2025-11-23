@@ -19,6 +19,8 @@ export async function GET(request: NextRequest) {
     )
   }
 
+  const prisma = requireDatabase()
+
   try {
     const db = requireDatabase()
 

@@ -18,6 +18,8 @@ export async function POST(request: NextRequest) {
     )
   }
 
+  const prisma = requireDatabase()
+
   try {
     const db = requireDatabase()
 

@@ -168,7 +168,7 @@ function extractTags(student: { coverLetter: string | null; bio: string | null }
   return Array.from(new Set(tags)).slice(0, 5) // Unique tags, max 5
 }
 
-export async function POST(req: NextRequest) {
+async function matchStudents(req: NextRequest) {
   try {
     const body = await req.json()
     const { requestId } = body

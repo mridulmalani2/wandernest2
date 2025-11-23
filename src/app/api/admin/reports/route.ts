@@ -18,6 +18,8 @@ export async function GET(request: NextRequest) {
     )
   }
 
+  const prisma = requireDatabase()
+
   try {
     const db = requireDatabase()
 
@@ -83,6 +85,8 @@ export async function PATCH(request: NextRequest) {
       { status: 401 }
     )
   }
+
+  const prisma = requireDatabase()
 
   try {
     const db = requireDatabase()
