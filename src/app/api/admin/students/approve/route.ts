@@ -8,10 +8,7 @@ import { withErrorHandler, withDatabaseRetry, AppError } from '@/lib/error-handl
 
 // Approve or reject a student
 async function approveStudent(request: NextRequest) {
-  const db = requireDatabase()
-
   const authResult = await verifyAdmin(request)
-  const prisma = requireDatabase()
 
 
   if (!authResult.authorized) {
@@ -29,6 +26,7 @@ async function approveStudent(request: NextRequest) {
     throw new AppError(400, 'Invalid action. Must be "approve" or "reject"', 'INVALID_ACTION')
   }
 
+  const db = requireDatabase()
 
   // Find student with retry logic
   const student = await withDatabaseRetry(async () =>

@@ -7,9 +7,7 @@ import { verifyTourist } from '@/lib/middleware'
 
 // Get tourist's past requests
 export async function GET(request: NextRequest) {
-  const db = requireDatabase()
   const authResult = await verifyTourist(request)
-  const prisma = requireDatabase()
 
 
   if (!authResult.authorized) {
@@ -19,8 +17,9 @@ export async function GET(request: NextRequest) {
     )
   }
 
-  try {
+  const db = requireDatabase()
 
+  try {
     const email = authResult.tourist?.email
 
     if (!email) {
