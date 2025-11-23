@@ -1,3 +1,17 @@
+/**
+ * API Route Authentication Helpers (Node.js Runtime ONLY)
+ *
+ * WARNING: These functions are NOT compatible with Edge Runtime!
+ * They use:
+ * - Prisma (requires Node.js runtime)
+ * - jsonwebtoken (requires Node.js crypto)
+ *
+ * DO NOT import these functions into Next.js middleware (/middleware.ts)
+ * Only use in API routes (app/api/*) which run in Node.js runtime
+ *
+ * For Edge-compatible authentication in middleware, use next-auth/jwt
+ */
+
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyToken } from './auth'
 import { requireDatabase } from './prisma'
@@ -13,7 +27,7 @@ export interface AuthenticatedRequest extends NextRequest {
   }
 }
 
-// Middleware to verify admin authentication
+// API route helper to verify admin authentication (Node.js runtime only)
 export async function verifyAdmin(request: NextRequest): Promise<{ authorized: boolean; admin?: { id: string; email: string; role: string; isActive: boolean }; error?: string }> {
   try {
     if (!prisma) {
@@ -51,7 +65,7 @@ export async function verifyAdmin(request: NextRequest): Promise<{ authorized: b
   }
 }
 
-// Middleware to verify tourist authentication
+// API route helper to verify tourist authentication (Node.js runtime only)
 export async function verifyTourist(request: NextRequest): Promise<{ authorized: boolean; tourist?: { email: string }; error?: string }> {
   try {
     if (!prisma) {
