@@ -11,7 +11,18 @@ interface Student {
   gender: string
   nationality: string
   institute: string
+  campus?: string
+  phoneNumber?: string
+  dateOfBirth?: string
+  // Legacy field
   idCardUrl?: string
+  // New verification document URLs from Vercel Blob storage
+  studentIdUrl?: string
+  studentIdExpiry?: string
+  governmentIdUrl?: string
+  governmentIdExpiry?: string
+  selfieUrl?: string
+  profilePhotoUrl?: string
   coverLetter: string
   languages: string[]
   interests: string[]
@@ -239,7 +250,16 @@ export default function ApprovalQueue({ students, onApprove, onReject, onBulkApp
                     <p><span className="font-medium">Gender:</span> {selectedStudent.gender}</p>
                     <p><span className="font-medium">Nationality:</span> {selectedStudent.nationality}</p>
                     <p><span className="font-medium">City:</span> {selectedStudent.city}</p>
+                    {selectedStudent.campus && (
+                      <p><span className="font-medium">Campus:</span> {selectedStudent.campus}</p>
+                    )}
                     <p><span className="font-medium">Institute:</span> {selectedStudent.institute}</p>
+                    {selectedStudent.phoneNumber && (
+                      <p><span className="font-medium">Phone:</span> {selectedStudent.phoneNumber}</p>
+                    )}
+                    {selectedStudent.dateOfBirth && (
+                      <p><span className="font-medium">Date of Birth:</span> {new Date(selectedStudent.dateOfBirth).toLocaleDateString()}</p>
+                    )}
                   </div>
                 </div>
 
@@ -266,22 +286,97 @@ export default function ApprovalQueue({ students, onApprove, onReject, onBulkApp
                 </div>
               </div>
 
-              {selectedStudent.idCardUrl && (
-                <div className="mb-6">
-                  <h3 className="text-sm font-medium text-gray-700 mb-2">Student ID Card</h3>
-                  <div className="border border-gray-200 rounded-lg overflow-hidden relative w-full" style={{ minHeight: '300px' }}>
-                    <Image
-                      src={selectedStudent.idCardUrl}
-                      alt="Student ID"
-                      width={800}
-                      height={600}
-                      className="w-full h-auto"
-                      sizes="(max-width: 768px) 100vw, 800px"
-                      quality={90}
-                    />
-                  </div>
+              {/* Verification Documents */}
+              <div className="mb-6">
+                <h3 className="text-sm font-medium text-gray-700 mb-3">Verification Documents</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Student ID Card */}
+                  {(selectedStudent.studentIdUrl || selectedStudent.idCardUrl) && (
+                    <div>
+                      <h4 className="text-xs font-medium text-gray-600 mb-2">
+                        Student ID Card
+                        {selectedStudent.studentIdExpiry && (
+                          <span className="ml-2 text-gray-500">
+                            (Expires: {new Date(selectedStudent.studentIdExpiry).toLocaleDateString()})
+                          </span>
+                        )}
+                      </h4>
+                      <div className="border border-gray-200 rounded-lg overflow-hidden relative" style={{ minHeight: '200px' }}>
+                        <Image
+                          src={selectedStudent.studentIdUrl || selectedStudent.idCardUrl || ''}
+                          alt="Student ID"
+                          width={400}
+                          height={300}
+                          className="w-full h-auto"
+                          sizes="(max-width: 768px) 100vw, 400px"
+                          quality={85}
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Government ID */}
+                  {selectedStudent.governmentIdUrl && (
+                    <div>
+                      <h4 className="text-xs font-medium text-gray-600 mb-2">
+                        Government ID
+                        {selectedStudent.governmentIdExpiry && (
+                          <span className="ml-2 text-gray-500">
+                            (Expires: {new Date(selectedStudent.governmentIdExpiry).toLocaleDateString()})
+                          </span>
+                        )}
+                      </h4>
+                      <div className="border border-gray-200 rounded-lg overflow-hidden relative" style={{ minHeight: '200px' }}>
+                        <Image
+                          src={selectedStudent.governmentIdUrl}
+                          alt="Government ID"
+                          width={400}
+                          height={300}
+                          className="w-full h-auto"
+                          sizes="(max-width: 768px) 100vw, 400px"
+                          quality={85}
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Selfie with ID */}
+                  {selectedStudent.selfieUrl && (
+                    <div>
+                      <h4 className="text-xs font-medium text-gray-600 mb-2">Verification Selfie</h4>
+                      <div className="border border-gray-200 rounded-lg overflow-hidden relative" style={{ minHeight: '200px' }}>
+                        <Image
+                          src={selectedStudent.selfieUrl}
+                          alt="Verification Selfie"
+                          width={400}
+                          height={300}
+                          className="w-full h-auto"
+                          sizes="(max-width: 768px) 100vw, 400px"
+                          quality={85}
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Profile Photo */}
+                  {selectedStudent.profilePhotoUrl && (
+                    <div>
+                      <h4 className="text-xs font-medium text-gray-600 mb-2">Profile Photo</h4>
+                      <div className="border border-gray-200 rounded-lg overflow-hidden relative" style={{ minHeight: '200px' }}>
+                        <Image
+                          src={selectedStudent.profilePhotoUrl}
+                          alt="Profile Photo"
+                          width={400}
+                          height={300}
+                          className="w-full h-auto"
+                          sizes="(max-width: 768px) 100vw, 400px"
+                          quality={85}
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
-              )}
+              </div>
 
               <div className="mb-6">
                 <h3 className="text-sm font-medium text-gray-700 mb-2">Cover Letter</h3>
