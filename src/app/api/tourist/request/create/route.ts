@@ -9,6 +9,7 @@ import { authOptions } from '@/lib/auth-options';
 import { requireDatabase } from '@/lib/prisma';
 import { sendBookingConfirmation } from '@/lib/email';
 import { withErrorHandler, withDatabaseRetry, AppError } from '@/lib/error-handler';
+import { autoMatchAndInvite } from '@/lib/matching/autoMatch';
 
 // Validation schema for authenticated booking request
 const createBookingSchema = z.object({
@@ -120,6 +121,24 @@ async function createTouristRequest(req: NextRequest) {
     if (!emailResult.success) {
       console.warn('⚠️  Failed to send booking confirmation email:', emailResult.error)
       // Continue anyway - email is not critical for the booking
+    }
+
+    // AUTOMATIC MATCHING: Find and invite candidate students
+    console.log(`[createTouristRequest] Triggering automatic matching for request ${touristRequest.id}`)
+    const matchResult = await autoMatchAndInvite(touristRequest)
+
+    if (matchResult.success) {
+      console.log(
+        `[createTouristRequest] Auto-match successful: ${matchResult.candidatesFound} candidates found, ` +
+        `${matchResult.invitationsSent} invitations sent`
+      )
+    } else {
+      console.warn(`[createTouristRequest] Auto-match failed:`, matchResult.errors)
+      // Continue anyway - matching is not critical for request creation
+    }
+
+    if (matchResult.errors.length > 0) {
+      console.warn(`[createTouristRequest] Auto-match warnings:`, matchResult.errors)
     }
   } else {
     // Database not available - use in-memory storage for demo
