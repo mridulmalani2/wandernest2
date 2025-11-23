@@ -10,6 +10,7 @@ import {
   deleteVerificationCode,
 } from '@/lib/redis'
 import { sendBookingConfirmation } from '@/lib/email'
+import { autoMatchAndInvite } from '@/lib/matching/autoMatch'
 
 // Validation schema for the verify request
 const verifySchema = z.object({
@@ -120,6 +121,24 @@ export async function POST(req: NextRequest) {
 
     // Send booking confirmation email
     await sendBookingConfirmation(validatedData.email, touristRequest.id)
+
+    // AUTOMATIC MATCHING: Find and invite candidate students
+    console.log(`[verifyTouristRequest] Triggering automatic matching for request ${touristRequest.id}`)
+    const matchResult = await autoMatchAndInvite(touristRequest)
+
+    if (matchResult.success) {
+      console.log(
+        `[verifyTouristRequest] Auto-match successful: ${matchResult.candidatesFound} candidates found, ` +
+        `${matchResult.invitationsSent} invitations sent`
+      )
+    } else {
+      console.warn(`[verifyTouristRequest] Auto-match failed:`, matchResult.errors)
+      // Continue anyway - matching is not critical for request creation
+    }
+
+    if (matchResult.errors.length > 0) {
+      console.warn(`[verifyTouristRequest] Auto-match warnings:`, matchResult.errors)
+    }
 
     return NextResponse.json(
       {

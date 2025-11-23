@@ -2,6 +2,7 @@ import 'server-only'
 import nodemailer from 'nodemailer'
 import type { Student, TouristRequest } from '@prisma/client'
 import { config } from '@/lib/config'
+import { generateMatchUrls } from '@/lib/auth/tokens'
 
 /**
  * Email system with comprehensive error handling
@@ -377,6 +378,197 @@ export async function sendStudentRequestNotification(
       html,
     },
     'Student Request Notification'
+  )
+}
+
+/**
+ * Send match invitation to student with secure accept/decline links
+ * Used by automatic matching service
+ */
+export async function sendStudentMatchInvitation(
+  student: Student,
+  touristRequest: TouristRequest,
+  selectionId: string
+): Promise<{ success: boolean; error?: string }> {
+  const dates = touristRequest.dates as { start: string; end?: string }
+  const startDate = new Date(dates.start).toLocaleDateString('en-US', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric'
+  })
+  const endDate = dates.end
+    ? new Date(dates.end).toLocaleDateString('en-US', {
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric'
+      })
+    : null
+
+  // Generate secure accept/decline URLs using signed tokens
+  const { acceptUrl, declineUrl } = generateMatchUrls(
+    getBaseUrl(),
+    touristRequest.id,
+    student.id,
+    selectionId
+  )
+
+  const html = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <style>
+          body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+          }
+          .header {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            border-radius: 10px 10px 0 0;
+          }
+          .content {
+            background: #f9fafb;
+            padding: 30px;
+            border: 1px solid #e5e7eb;
+            border-top: none;
+            border-radius: 0 0 10px 10px;
+          }
+          .detail-box {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+          }
+          .detail-row {
+            display: flex;
+            padding: 8px 0;
+            border-bottom: 1px solid #f3f4f6;
+          }
+          .detail-row:last-child {
+            border-bottom: none;
+          }
+          .detail-label {
+            font-weight: 600;
+            color: #6b7280;
+            width: 140px;
+          }
+          .detail-value {
+            color: #111827;
+            flex: 1;
+          }
+          .cta-button {
+            display: inline-block;
+            background: #3b82f6;
+            color: white;
+            padding: 14px 32px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            margin: 10px 5px;
+          }
+          .decline-button {
+            background: #6b7280;
+          }
+          .warning {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 12px;
+            margin: 20px 0;
+            border-radius: 4px;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <h1 style="margin: 0;">🎉 New Match Request</h1>
+          <p style="margin: 10px 0 0 0;">${touristRequest.serviceType === 'itinerary_help' ? 'Itinerary Consultation' : 'Guided Experience'} in ${touristRequest.city}</p>
+        </div>
+        <div class="content">
+          <h2>Hi ${student.name}!</h2>
+          <p>You've been automatically matched with a tourist based on your profile, location, and availability! Here are the details:</p>
+
+          <div class="detail-box">
+            <div class="detail-row">
+              <div class="detail-label">📍 City:</div>
+              <div class="detail-value">${touristRequest.city}</div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-label">📅 Dates:</div>
+              <div class="detail-value">${startDate}${endDate ? ` - ${endDate}` : ''}</div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-label">⏰ Preferred Time:</div>
+              <div class="detail-value">${touristRequest.preferredTime}</div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-label">👥 Guests:</div>
+              <div class="detail-value">${touristRequest.numberOfGuests} (${touristRequest.groupType})</div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-label">🎯 Service Type:</div>
+              <div class="detail-value">${touristRequest.serviceType === 'itinerary_help' ? 'Itinerary Help (Online)' : 'Guided Experience (In-Person)'}</div>
+            </div>
+            <div class="detail-row">
+              <div class="detail-label">💡 Interests:</div>
+              <div class="detail-value">${touristRequest.interests.join(', ')}</div>
+            </div>
+            ${touristRequest.tripNotes ? `
+            <div class="detail-row">
+              <div class="detail-label">📝 Notes:</div>
+              <div class="detail-value">${touristRequest.tripNotes}</div>
+            </div>
+            ` : ''}
+          </div>
+
+          <div class="warning">
+            <strong>⚡ Act Fast!</strong> This request was sent to multiple guides. The first one to accept gets the opportunity. If you're interested, click below to accept right away!
+          </div>
+
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${acceptUrl}" class="cta-button">✅ Accept This Request</a>
+            <br>
+            <a href="${declineUrl}" class="cta-button decline-button">❌ Decline (Let Others Respond)</a>
+          </div>
+
+          <h3>What Happens Next?</h3>
+          <ul>
+            <li><strong>If you accept:</strong> You'll immediately receive the tourist's contact details (email, phone, WhatsApp) and they'll receive yours</li>
+            <li><strong>First come, first served:</strong> Only the first guide to accept gets the match. Others will be notified it's no longer available</li>
+            <li><strong>Direct arrangement:</strong> TourWiseCo connects you - payment and meeting details are arranged directly with the tourist</li>
+            <li><strong>No payment platform (yet):</strong> Agree on payment method directly (cash, bank transfer, etc.)</li>
+          </ul>
+
+          <h3>Important Reminders:</h3>
+          <ul>
+            <li>✅ Maintain professional conduct and high service standards</li>
+            <li>✅ Respond promptly to tourist messages</li>
+            <li>✅ Confirm meeting details 24 hours before the trip</li>
+            <li>✅ No-shows hurt your reliability score and future matching</li>
+          </ul>
+
+          <p><small>This invitation link expires in 72 hours. Accept or decline using the buttons above.</small></p>
+
+          <p>Good luck!<br>The TourWiseCo Team</p>
+        </div>
+      </body>
+    </html>
+  `
+
+  return await sendEmail(
+    {
+      to: student.email,
+      subject: `🎉 New Match: ${touristRequest.serviceType === 'itinerary_help' ? 'Itinerary Help' : 'Guided Experience'} in ${touristRequest.city}`,
+      html,
+    },
+    'Student Match Invitation'
   )
 }
 
