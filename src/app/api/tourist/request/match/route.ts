@@ -1,10 +1,12 @@
 // Force dynamic rendering for Vercel
 export const dynamic = 'force-dynamic'
 export const maxDuration = 10
+// Explicitly use Node.js runtime (required for Prisma)
+export const runtime = 'nodejs'
 
 import { NextRequest, NextResponse } from 'next/server'
 import { requireDatabase } from '@/lib/prisma'
-import { withErrorHandler, AppError } from '@/lib/error-handler'
+import { AppError } from '@/lib/error-handler'
 
 // Helper function to calculate suggested price range
 function calculateSuggestedPrice(city: string, serviceType: string): { min: number; max: number } {
@@ -398,15 +400,19 @@ async function matchStudents(req: NextRequest) {
       requestId: touristRequest.id,
     })
   } catch (error) {
-    console.error('Error in matchStudents:', error)
+    if (error instanceof AppError) {
+      return NextResponse.json(
+        { success: false, error: error.message },
+        { status: error.statusCode }
+      )
+    }
+    console.error('Error matching students:', error)
     return NextResponse.json(
-      { error: 'Failed to match students' },
+      { success: false, error: 'Internal server error' },
       { status: 500 }
     )
   }
 }
-
-export const POST = withErrorHandler(matchStudents, 'POST /api/tourist/request/match');
 
 function maskName(fullName: string | null): string {
   if (!fullName) return 'Anonymous'

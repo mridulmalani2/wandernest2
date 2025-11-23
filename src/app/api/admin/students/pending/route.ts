@@ -1,9 +1,11 @@
 // Force dynamic rendering for Vercel
 export const dynamic = 'force-dynamic'
+// Explicitly use Node.js runtime (required for Prisma and API auth helpers)
+export const runtime = 'nodejs'
 
 import { NextRequest, NextResponse } from 'next/server'
 import { requireDatabase } from '@/lib/prisma'
-import { verifyAdmin } from '@/lib/middleware'
+import { verifyAdmin } from '@/lib/api-auth'
 
 // Get pending student approvals
 export async function GET(request: NextRequest) {

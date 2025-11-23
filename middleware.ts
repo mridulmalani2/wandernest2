@@ -2,6 +2,13 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { getToken } from 'next-auth/jwt'
 
+// Explicitly set Edge runtime for Vercel deployment
+// This middleware uses only Edge-compatible APIs:
+// - next-auth/jwt (Edge-compatible)
+// - Web APIs (cookies, headers, URL)
+// - No Node.js APIs, no Prisma, no filesystem access
+export const runtime = 'edge'
+
 export const config = {
   matcher: [
     '/admin/:path*',
