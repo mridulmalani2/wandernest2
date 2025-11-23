@@ -4,11 +4,10 @@
 import * as React from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
-// PERF: Lazy load framer-motion only when enableMotion is true
 import { motion, HTMLMotionProps } from 'framer-motion'
 
 const buttonVariants = cva(
-  'inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-semibold ring-offset-background transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 active:scale-95 hover:-translate-y-0.5 hover:scale-[1.02]',
+  'inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-semibold ring-offset-background transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 active:scale-95 hover:-translate-y-0.5',
   {
     variants: {
       variant: {
@@ -40,15 +39,14 @@ export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
   asChild?: boolean
-  enableMotion?: boolean // PERF: Changed to opt-in for better performance
+  disableMotion?: boolean
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, enableMotion = false, ...props }, ref) => {
+  ({ className, variant, size, disableMotion = false, ...props }, ref) => {
     const buttonClassName = cn(buttonVariants({ variant, size, className }))
 
-    // PERF: Use CSS transitions by default for better performance
-    if (!enableMotion) {
+    if (disableMotion) {
       return (
         <button
           className={buttonClassName}
@@ -58,7 +56,6 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       )
     }
 
-    // Only use Framer Motion when explicitly enabled
     const MotionButton = motion.button as any
 
     return (

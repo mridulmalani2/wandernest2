@@ -80,12 +80,6 @@
     text-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
   }
 
-  /* PERF: CSS-only parallax effect - no JavaScript scroll listener needed */
-  .parallax-bg {
-    will-change: transform;
-    transform: translateZ(0);
-  }
-
   /* Reduced motion support - accessibility critical */
   @media (prefers-reduced-motion: reduce) {
     *,
@@ -94,10 +88,6 @@
       animation-duration: 0.01ms !important;
       animation-iteration-count: 1 !important;
       transition-duration: 0.01ms !important;
-    }
-
-    .parallax-bg {
-      will-change: auto;
     }
   }
 }

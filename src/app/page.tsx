@@ -10,18 +10,32 @@ import StudentCTA from '@/components/cta/StudentCTA'
 import { getWebsiteStructuredData, getOrganizationStructuredData } from '@/lib/structuredData'
 import { PrimaryCTAButton } from '@/components/ui/PrimaryCTAButton'
 import dynamic from 'next/dynamic'
+import { useEffect, useState } from 'react'
 
-// PERF: Enable SSR for WhyChooseCarousel to improve LCP and hydration
+// Lazy load WhyChooseCarousel - only when component is in view
 const WhyChooseCarousel = dynamic(() => import('@/components/WhyChooseCarousel'), {
   loading: () => <div className="mt-14 lg:mt-20 h-[500px] animate-pulse bg-white/10 rounded-3xl" />,
-  ssr: true // Changed from false to enable server-side rendering
+  ssr: false
 })
 
 export default function MainLanding() {
   const structuredData = getWebsiteStructuredData()
   const organizationData = getOrganizationStructuredData()
+  const [scrollY, setScrollY] = useState(0)
 
-  // PERF: Removed scroll listener for parallax - now using CSS-only parallax effect
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrollY(window.scrollY)
+    }
+
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  // Simple parallax effect using inline style
+  const parallaxStyle = {
+    transform: `translateY(${Math.min(scrollY * 0.5, 150)}px)`
+  }
 
   return (
     <div className="min-h-screen flex flex-col relative overflow-hidden">
@@ -34,19 +48,19 @@ export default function MainLanding() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationData) }}
       />
 
-      {/* PERF: Optimized hero background - local image, CSS-only parallax, simplified overlays */}
-      <div className="absolute inset-0 parallax-bg">
+      {/* Parallax Background */}
+      <div className="absolute inset-0" style={parallaxStyle}>
         <Image
-          src="/images/backgrounds/paris-blur.jpg"
+          src="https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=1920&q=80"
           alt="Beautiful Paris cityscape with Eiffel Tower"
           fill
           priority
-          quality={75}
+          quality={80}
           sizes="100vw"
           className="object-cover"
         />
-        {/* PERF: Removed backdrop-blur to reduce GPU cost, simplified to single overlay */}
-        <div className="absolute inset-0 bg-gradient-to-br from-black/35 via-ui-blue-accent/20 to-ui-purple-primary/25" />
+        <div className="absolute inset-0 bg-black/30 backdrop-blur-[4px]" />
+        <div className="absolute inset-0 bg-gradient-to-br from-ui-blue-accent/15 via-ui-purple-accent/10 to-ui-purple-primary/15" />
       </div>
       <div className="absolute inset-0 pattern-dots opacity-20" />
 
@@ -99,16 +113,59 @@ export default function MainLanding() {
                 </div>
               </div>
 
-              {/* Right Column - PERF: Replaced heavy image collage with lightweight decorative elements */}
+              {/* Right Column - Floating Layered Image Collage */}
               <div className="relative h-[450px] md:h-[540px] lg:h-[630px]">
-                {/* Decorative gradient cards - pure CSS, no images */}
-                <div className="image-layer-1 absolute top-[10%] left-[5%] w-[65%] h-[45%] rounded-3xl overflow-hidden shadow-2xl bg-gradient-to-br from-ui-blue-accent/30 via-blue-500/25 to-blue-600/20 backdrop-blur-md border border-white/10" />
-                <div className="image-layer-2 absolute top-[35%] right-[10%] w-[60%] h-[40%] rounded-3xl overflow-hidden shadow-2xl bg-gradient-to-br from-ui-purple-accent/30 via-purple-500/25 to-purple-600/20 backdrop-blur-md border border-white/10" />
-                <div className="image-layer-3 absolute bottom-[8%] left-[15%] w-[55%] h-[38%] rounded-3xl overflow-hidden shadow-2xl bg-gradient-to-br from-pink-500/30 via-pink-600/25 to-purple-500/20 backdrop-blur-md border border-white/10" />
+                {/* Image 1 - Back layer */}
+                <div className="image-layer-1 absolute top-[10%] left-[5%] w-[65%] h-[45%] rounded-3xl overflow-hidden shadow-2xl">
+                  <div className="relative w-full h-full">
+                    <Image
+                      src="https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800&q=80"
+                      alt="Tourists exploring a European city together"
+                      fill
+                      loading="lazy"
+                      quality={85}
+                      sizes="(max-width: 768px) 80vw, 40vw"
+                      className="object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-transparent" />
+                  </div>
+                </div>
+
+                {/* Image 2 - Middle layer */}
+                <div className="image-layer-2 absolute top-[35%] right-[10%] w-[60%] h-[40%] rounded-3xl overflow-hidden shadow-2xl">
+                  <div className="relative w-full h-full">
+                    <Image
+                      src="https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=800&q=80"
+                      alt="London cityscape with iconic Tower Bridge at sunset"
+                      fill
+                      loading="lazy"
+                      quality={85}
+                      sizes="(max-width: 768px) 80vw, 40vw"
+                      className="object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-transparent" />
+                  </div>
+                </div>
+
+                {/* Image 3 - Front layer - Using different image to avoid duplicate */}
+                <div className="image-layer-3 absolute bottom-[8%] left-[15%] w-[55%] h-[38%] rounded-3xl overflow-hidden shadow-2xl">
+                  <div className="relative w-full h-full">
+                    <Image
+                      src="https://images.unsplash.com/photo-1499856871958-5b9627545d1a?w=800&q=80"
+                      alt="Beautiful European cafe street scene"
+                      fill
+                      loading="lazy"
+                      quality={85}
+                      sizes="(max-width: 768px) 80vw, 40vw"
+                      className="object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-br from-pink-500/10 to-transparent" />
+                  </div>
+                </div>
 
                 {/* Decorative floating elements */}
                 <div className="absolute top-[5%] right-[8%] w-20 h-20 bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded-full blur-2xl animate-float-slow" />
-                <div className="absolute bottom-[15%] right-[5%] w-16 h-16 bg-gradient-to-br from-purple-400/20 to-pink-400/20 rounded-full blur-2xl animate-float-slow" style={{ animationDelay: '1s' }} />
+                <div className="absolute bottom-[15%] right-[5%] w-16 h-16 bg-gradient-to-br from-purple-400/20 to-pink-400/20 rounded-full blur-2xl animate-float-slow delay-300" style={{ animationDelay: '1s' }} />
               </div>
             </div>
 
