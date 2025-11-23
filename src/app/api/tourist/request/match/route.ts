@@ -180,24 +180,18 @@ export async function POST(req: NextRequest) {
     // Ensure database is available
     const prisma = requireDatabase()
 
-  // Get the tourist request from database
-  const touristRequest = await prisma.touristRequest.findUnique({
-    where: { id: requestId },
-  });
+    // Ensure database is available
+    const prisma = requireDatabase()
 
-  if (!touristRequest) {
-    throw new AppError(404, 'Request not found', 'REQUEST_NOT_FOUND')
-  }
+    // Get the tourist request from database
+    const touristRequest = await prisma.touristRequest.findUnique({
+      where: { id: requestId },
+    });
 
-    // Database is required for matching - return error if not available
-    if (!prisma) {
-      return NextResponse.json(
-        { success: false, error: 'Database not available - matching requires database access' },
-        { status: 503 }
-      )
+    if (!touristRequest) {
+      throw new AppError(404, 'Request not found', 'REQUEST_NOT_FOUND')
     }
 
-    // At this point, prisma is confirmed to be available
     const db = prisma
 
     const criteria: MatchingCriteria = {

@@ -18,8 +18,9 @@ export async function GET(request: NextRequest) {
     )
   }
 
-  try {
+  const db = requireDatabase()
 
+  try {
     const email = authResult.tourist?.email
 
     if (!email) {

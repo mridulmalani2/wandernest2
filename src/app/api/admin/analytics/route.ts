@@ -22,7 +22,6 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const prisma = requireDatabase()
 
     // Use cache for expensive analytics queries
     const analyticsData = await cache.cached(

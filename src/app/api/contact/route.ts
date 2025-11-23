@@ -254,13 +254,12 @@ async function sendContactNotification(data: {
  * Handle contact form submissions
  */
 async function handleContactSubmission(req: NextRequest) {
-  const db = requireDatabase()
-
   const body = await req.json()
 
   // Validate input
   const validatedData = contactSchema.parse(body)
-  const prisma = requireDatabase()
+
+  const db = requireDatabase()
 
 
   // Save to database
