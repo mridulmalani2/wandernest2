@@ -23,6 +23,7 @@ export interface AppConfig {
     user: string | null
     pass: string | null
     from: string
+    contactEmail: string  // Where contact form submissions are sent
     isConfigured: boolean
   }
   auth: {
@@ -41,9 +42,7 @@ export interface AppConfig {
       isConfigured: boolean
     }
   }
-  payment: {
-    discoveryFee: number
-  }
+  // Payment configuration removed - no longer using discovery fee model
   app: {
     nodeEnv: string
     baseUrl: string | null
@@ -96,16 +95,18 @@ function loadConfig(): AppConfig {
   }
 
   // Email configuration
+  // OPTIONAL: If not set, app will use mock mode (logs emails instead of sending)
   const emailHost = process.env.EMAIL_HOST || null
   const emailPort = parseInt(process.env.EMAIL_PORT || '587', 10)
   const emailUser = process.env.EMAIL_USER || null
   const emailPass = process.env.EMAIL_PASS || null
   const emailFrom = process.env.EMAIL_FROM || 'TourWiseCo <noreply@tourwiseco.com>'
+  const contactEmail = process.env.CONTACT_EMAIL || emailFrom  // Where contact form submissions go
   const isEmailConfigured = !!(emailHost && emailUser && emailPass)
 
   if (!isEmailConfigured && isProduction) {
     configWarnings.push(
-      'Email is not configured (EMAIL_HOST, EMAIL_USER, EMAIL_PASS) - emails will not be sent'
+      'Email is not configured (EMAIL_HOST, EMAIL_USER, EMAIL_PASS) - emails will be logged but not sent'
     )
   }
 
@@ -142,15 +143,13 @@ function loadConfig(): AppConfig {
   }
 
   // JWT configuration (for admin auth)
+  // OPTIONAL: Only needed if using admin panel features
   const jwtSecret = process.env.JWT_SECRET || null
   const isJwtConfigured = !!jwtSecret
 
   if (!isJwtConfigured && isProduction) {
-    configWarnings.push('JWT_SECRET is not set - admin authentication will not work')
+    configWarnings.push('JWT_SECRET is not set - admin authentication features will not work')
   }
-
-  // Payment configuration
-  const discoveryFee = parseFloat(process.env.DISCOVERY_FEE_AMOUNT || '99.00')
 
   // App configuration
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXTAUTH_URL || null
@@ -161,7 +160,8 @@ function loadConfig(): AppConfig {
     )
   }
 
-  // Redis configuration (optional - used for caching and verification codes)
+  // Redis configuration
+  // OPTIONAL: If not set, verification codes will use database fallback (slower but functional)
   const redisUrl = process.env.REDIS_URL || null
   const isRedisConfigured = !!redisUrl
 
@@ -186,6 +186,7 @@ function loadConfig(): AppConfig {
       user: emailUser,
       pass: emailPass,
       from: emailFrom,
+      contactEmail: contactEmail,
       isConfigured: isEmailConfigured,
     },
     auth: {
@@ -203,9 +204,6 @@ function loadConfig(): AppConfig {
         secret: jwtSecret,
         isConfigured: isJwtConfigured,
       },
-    },
-    payment: {
-      discoveryFee,
     },
     app: {
       nodeEnv,
