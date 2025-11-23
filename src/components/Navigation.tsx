@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Menu, X, User, LogOut, LayoutDashboard, ChevronLeft } from 'lucide-react'
 import { useSession, signOut } from 'next-auth/react'
 import { useState, useEffect } from 'react'
-// PERF: Removed framer-motion import - using CSS transitions instead
+import { motion } from 'framer-motion'
 
 interface NavigationProps {
   variant?: 'default' | 'tourist' | 'student' | 'admin'
@@ -38,9 +38,14 @@ export default function Navigation({ variant = 'default', showBackButton = false
     }`}>
       <div className="container mx-auto px-4 py-3 md:py-3.5">
         <div className="flex justify-between items-center">
-          {/* Logo - PERF: Replaced Framer Motion with CSS transitions */}
+          {/* Logo */}
           <Link href="/" className="flex items-center space-x-2.5 group">
-            <div className="relative w-10 h-10 rounded-lg overflow-hidden bg-white/5 backdrop-blur-sm border border-white/20 transition-transform duration-200 hover:scale-105 active:scale-95">
+            <motion.div
+              className="relative w-10 h-10 rounded-lg overflow-hidden bg-white/5 backdrop-blur-sm border border-white/20"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              transition={{ type: "spring", stiffness: 400, damping: 20 }}
+            >
               <Image
                 src="/images/logo-large.png"
                 alt="WanderNest Logo"
@@ -49,10 +54,14 @@ export default function Navigation({ variant = 'default', showBackButton = false
                 sizes="40px"
                 priority
               />
-            </div>
-            <span className="text-xl md:text-2xl font-sans font-semibold text-white tracking-tight transition-opacity duration-200 hover:opacity-90">
+            </motion.div>
+            <motion.span
+              className="text-xl md:text-2xl font-sans font-semibold text-white tracking-tight"
+              whileHover={{ opacity: 0.9 }}
+              transition={{ duration: 0.2 }}
+            >
               TourWiseCo
-            </span>
+            </motion.span>
           </Link>
 
           {/* Desktop Navigation */}
