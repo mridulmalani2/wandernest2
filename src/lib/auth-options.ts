@@ -218,11 +218,15 @@ providers.push(
 );
 
 export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(requireDatabase()) as any,
+  // Use prisma instead of requireDatabase() to avoid build-time errors
+  // The adapter gracefully handles null prisma in demo mode
+  adapter: prisma ? (PrismaAdapter(prisma) as any) : undefined,
   providers: providers,
   pages: {
     signIn: "/tourist/signin",  // Default to tourist signin
-    error: "/tourist/signin", // Error page
+    // Note: We intentionally do NOT set an error page here.
+    // This allows NextAuth to append error info to the callbackUrl,
+    // which lets student and tourist signin pages handle their own errors.
   },
   // Cookie configuration for production security
   // Note: Vercel proxy handling is automatically configured via NEXTAUTH_URL environment variable
@@ -240,13 +244,17 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async signIn({ user, account, profile }) {
       try {
+        // Determine user type from email domain
+        const isStudent = user.email ? isStudentEmail(user.email) : false;
+
         // Log sign-in attempt for debugging
         if (config.app.isDevelopment) {
           console.log('🔐 Auth: Sign-in attempt', {
             provider: account?.provider,
             email: user.email,
             userId: user.id,
-            userType: user.email ? (isStudentEmail(user.email) ? 'student' : 'tourist') : 'unknown'
+            userType: isStudent ? 'student' : 'tourist',
+            accountId: account?.providerAccountId
           })
         }
 
@@ -262,9 +270,6 @@ export const authOptions: NextAuthOptions = {
           return false
         }
 
-        // Determine if this is a student or tourist based on email domain
-        const isStudent = isStudentEmail(user.email)
-
         // IMPORTANT: The PrismaAdapter automatically creates User + Account records
         // before this callback runs. We only update the userType field here.
         // The user.id will be set by the adapter.
@@ -277,12 +282,16 @@ export const authOptions: NextAuthOptions = {
               userType: isStudent ? "student" : "tourist",
             },
           })
+
+          if (config.app.isDevelopment) {
+            console.log('✅ Auth: Updated user record with userType:', isStudent ? 'student' : 'tourist')
+          }
         }
 
         // Create or update role-specific record based on user type
         if (isStudent) {
           // Create or update Student record for academic emails
-          await prisma.student.upsert({
+          const student = await prisma.student.upsert({
             where: { email: user.email },
             create: {
               email: user.email,
@@ -298,9 +307,18 @@ export const authOptions: NextAuthOptions = {
               profilePhotoUrl: user.image,
             },
           })
+
+          if (config.app.isDevelopment) {
+            console.log('✅ Auth: Student record created/updated:', {
+              studentId: student.id,
+              email: student.email,
+              status: student.status,
+              hasCompletedOnboarding: !!student.city
+            })
+          }
         } else {
           // Create or update Tourist record for non-academic emails
-          await prisma.tourist.upsert({
+          const tourist = await prisma.tourist.upsert({
             where: { email: user.email },
             create: {
               email: user.email,
@@ -314,6 +332,13 @@ export const authOptions: NextAuthOptions = {
               googleId: account?.providerAccountId || undefined,
             },
           })
+
+          if (config.app.isDevelopment) {
+            console.log('✅ Auth: Tourist record created/updated:', {
+              touristId: tourist.id,
+              email: tourist.email
+            })
+          }
         }
 
         if (config.app.isDevelopment) {
@@ -390,10 +415,27 @@ export const authOptions: NextAuthOptions = {
       }
     },
     async redirect({ url, baseUrl }) {
-      // Custom redirect based on user type
+      // Custom redirect based on user type and callback URL
+
       // If url is already specified and starts with baseUrl, use it
       if (url.startsWith(baseUrl)) {
         return url;
+      }
+
+      // If url starts with a slash, it's a relative path - combine with baseUrl
+      if (url.startsWith('/')) {
+        return `${baseUrl}${url}`;
+      }
+
+      // For external URLs, only allow if they start with baseUrl
+      try {
+        const urlObj = new URL(url);
+        const baseUrlObj = new URL(baseUrl);
+        if (urlObj.origin === baseUrlObj.origin) {
+          return url;
+        }
+      } catch (e) {
+        // Invalid URL, fall through to default
       }
 
       // Default redirect to baseUrl
