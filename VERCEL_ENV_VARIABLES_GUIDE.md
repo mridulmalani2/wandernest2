@@ -78,11 +78,11 @@ These variables are only needed when your application is running:
 
 ---
 
-### 🟡 OPTIONAL - Runtime (Recommended for Production)
+### 🔴 REQUIRED - Runtime (Email Configuration for Magic Link Authentication)
 
-#### Email Configuration (For notifications and magic links)
+#### Email Configuration (Required for Magic Link Sign-In)
 
-**When Not Set**: Application works but emails are logged instead of sent
+**CRITICAL**: These variables are **REQUIRED** for magic link authentication to work. Without them, students cannot sign in using email (only Google OAuth will work).
 
 - `EMAIL_HOST`: SMTP server (e.g., `smtp.gmail.com`)
 - `EMAIL_PORT`: SMTP port (default: `587`)
@@ -93,8 +93,20 @@ These variables are only needed when your application is running:
 
 **Email Provider Behavior**:
 - If email is not configured, NextAuth EmailProvider is NOT added to providers
-- This prevents errors from attempting to use unconfigured email service
-- Google OAuth remains available for authentication
+- Students will NOT be able to sign in via magic link (email-based authentication will fail)
+- Google OAuth will still work for authentication
+- Other email notifications (booking confirmations, match notifications) will be logged but not sent
+
+**For Gmail Setup**:
+1. Enable 2-factor authentication: https://myaccount.google.com/security
+2. Generate App Password: https://myaccount.google.com/apppasswords
+3. Use the 16-character app password as `EMAIL_PASS` (not your regular password)
+
+**For Other SMTP Providers** (SendGrid, Mailgun, AWS SES):
+- Use their SMTP host and credentials
+- Ensure the "from" address is verified with the provider
+
+### 🟡 OPTIONAL - Runtime (Recommended for Production)
 
 #### `REDIS_URL`
 - **Used for**: Caching, verification code storage

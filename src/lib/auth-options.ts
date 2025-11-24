@@ -39,10 +39,157 @@ if (config.email.isConfigured) {
         },
       },
       from: config.email.from,
+      async sendVerificationRequest({ identifier: email, url, provider }) {
+        const nodemailer = (await import('nodemailer')).default
+        const { host } = new URL(url)
+
+        const transport = nodemailer.createTransport({
+          host: config.email.host!,
+          port: config.email.port,
+          secure: false, // Use STARTTLS
+          auth: {
+            user: config.email.user!,
+            pass: config.email.pass!,
+          },
+          // Add timeouts to prevent hanging
+          connectionTimeout: 10000,
+          greetingTimeout: 10000,
+        })
+
+        const result = await transport.sendMail({
+          to: email,
+          from: provider.from,
+          subject: `Sign in to ${host}`,
+          text: text({ url, host }),
+          html: html({ url, host, email }),
+        })
+
+        const failed = result.rejected.concat(result.pending).filter(Boolean)
+        if (failed.length) {
+          throw new Error(`Email (${failed.join(', ')}) could not be sent`)
+        }
+
+        if (config.app.isDevelopment) {
+          console.log('✅ Magic link email sent to:', email)
+        }
+      },
     })
   );
 } else if (config.app.isDevelopment) {
   console.log('⚠️  EmailProvider not configured - magic link authentication disabled');
+}
+
+// Email HTML template
+function html({ url, host, email }: { url: string; host: string; email: string }) {
+  const escapedEmail = email.replace(/</g, '&lt;').replace(/>/g, '&gt;')
+  const escapedHost = host.replace(/</g, '&lt;').replace(/>/g, '&gt;')
+
+  return `
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        line-height: 1.6;
+        color: #333;
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f9fafb;
+      }
+      .container {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+      .header {
+        background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+        color: white;
+        padding: 40px 30px;
+        text-align: center;
+      }
+      .header h1 {
+        margin: 0;
+        font-size: 28px;
+        font-weight: 700;
+      }
+      .content {
+        padding: 40px 30px;
+      }
+      .button-container {
+        text-align: center;
+        margin: 30px 0;
+      }
+      .button {
+        display: inline-block;
+        background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+        color: white;
+        padding: 16px 40px;
+        text-decoration: none;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 16px;
+        box-shadow: 0 4px 6px rgba(139, 92, 246, 0.3);
+        transition: transform 0.2s;
+      }
+      .button:hover {
+        transform: translateY(-2px);
+      }
+      .footer {
+        padding: 30px;
+        text-align: center;
+        color: #6b7280;
+        font-size: 14px;
+        border-top: 1px solid #e5e7eb;
+      }
+      .link-text {
+        background: #f3f4f6;
+        padding: 15px;
+        border-radius: 8px;
+        margin: 20px 0;
+        word-break: break-all;
+        font-size: 12px;
+        color: #6b7280;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>🎓 Sign in to WanderNest</h1>
+      </div>
+      <div class="content">
+        <p>Hi there!</p>
+        <p>You requested a magic link to sign in to <strong>${escapedHost}</strong> using <strong>${escapedEmail}</strong>.</p>
+        <p>Click the button below to sign in:</p>
+
+        <div class="button-container">
+          <a href="${url}" class="button">Sign in to WanderNest</a>
+        </div>
+
+        <p>If the button doesn't work, you can copy and paste this link into your browser:</p>
+        <div class="link-text">${url}</div>
+
+        <p><strong>This link will expire in 24 hours</strong> and can only be used once.</p>
+
+        <p>If you didn't request this email, you can safely ignore it.</p>
+      </div>
+      <div class="footer">
+        <p>© ${new Date().getFullYear()} WanderNest. All rights reserved.</p>
+        <p>Connect students and travelers worldwide.</p>
+      </div>
+    </div>
+  </body>
+</html>
+`
+}
+
+// Email text template (fallback for email clients that don't support HTML)
+function text({ url, host }: { url: string; host: string }) {
+  return `Sign in to ${host}\n\n${url}\n\n`
 }
 
 // Always add GoogleProvider (required for authentication)
