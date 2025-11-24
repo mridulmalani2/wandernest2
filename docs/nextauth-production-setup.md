@@ -23,6 +23,8 @@ NextAuth automatically handles Vercel's proxy configuration through the `NEXTAUT
 
 **Impact:** Fixes callback URL mismatches and redirect issues without code changes
 
+**Note:** No code change needed - this is handled automatically when you set `NEXTAUTH_URL` in your Vercel environment variables.
+
 ### 2. Secure Cookie Configuration
 
 ```typescript

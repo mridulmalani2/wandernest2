@@ -83,8 +83,19 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async signIn({ user, account, profile }) {
       try {
+        // Log sign-in attempt for debugging
+        if (config.app.isDevelopment) {
+          console.log('🔐 Auth: Sign-in attempt', {
+            provider: account?.provider,
+            email: user.email,
+            userType: user.email ? (isStudentEmail(user.email) ? 'student' : 'tourist') : 'unknown'
+          })
+        }
+
         if (!user.email) {
           console.error('❌ Auth: Sign-in failed - no email provided')
+          console.error('   Provider:', account?.provider)
+          console.error('   Profile:', profile)
           return false
         }
 
