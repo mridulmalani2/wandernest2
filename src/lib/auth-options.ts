@@ -50,6 +50,22 @@ providers.push(
   GoogleProvider({
     clientId: config.auth.google.clientId || "",
     clientSecret: config.auth.google.clientSecret || "",
+    authorization: {
+      params: {
+        prompt: "consent",
+        access_type: "offline",
+        response_type: "code",
+        scope: "openid email profile",
+      }
+    },
+    profile(profile) {
+      return {
+        id: profile.sub,
+        name: profile.name,
+        email: profile.email,
+        image: profile.picture,
+      }
+    },
   })
 );
 
@@ -60,8 +76,8 @@ export const authOptions: NextAuthOptions = {
     signIn: "/tourist/signin",  // Default to tourist signin
     error: "/tourist/signin", // Error page
   },
-  // Trust host for Vercel deployment (required for proper proxy handling)
-  // Note: trustHost is configured via NEXTAUTH_URL environment variable
+  // Note: trustHost is enabled via NEXTAUTH_URL environment variable
+  // Vercel automatically handles proxy forwarding when NEXTAUTH_URL is set
   // Cookie configuration for production security
   cookies: {
     sessionToken: {
@@ -77,8 +93,19 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async signIn({ user, account, profile }) {
       try {
+        // Log sign-in attempt for debugging
+        if (config.app.isDevelopment) {
+          console.log('🔐 Auth: Sign-in attempt', {
+            provider: account?.provider,
+            email: user.email,
+            userType: user.email ? (isStudentEmail(user.email) ? 'student' : 'tourist') : 'unknown'
+          })
+        }
+
         if (!user.email) {
           console.error('❌ Auth: Sign-in failed - no email provided')
+          console.error('   Provider:', account?.provider)
+          console.error('   Profile:', profile)
           return false
         }
 

@@ -14,13 +14,14 @@ WanderNest uses NextAuth for authentication with:
 
 ### 1. Trust Host Configuration
 
-```typescript
-trustHost: true
-```
+**Environment Variable:** `NEXTAUTH_URL`
 
 **Purpose:** Required for Vercel deployment to properly handle proxy forwarding
 **Why:** Vercel uses proxies and load balancers; NextAuth needs to trust forwarded headers
+**How:** When `NEXTAUTH_URL` is set, NextAuth automatically trusts the host header
 **Impact:** Fixes callback URL mismatches and redirect issues
+
+**Note:** No code change needed - this is handled automatically when you set `NEXTAUTH_URL` in your Vercel environment variables.
 
 ### 2. Secure Cookie Configuration
 
@@ -94,7 +95,7 @@ export const dynamic = 'force-dynamic'
 | Variable | Validation | Example |
 |----------|------------|---------|
 | `NEXTAUTH_SECRET` | ≥32 chars | `openssl rand -base64 32` |
-| `NEXTAUTH_URL` | Must use https:// | `https://wandernest.vercel.app` |
+| `NEXTAUTH_URL` | Must use https:// | `https://wandernest2-umber.vercel.app` |
 | `GOOGLE_CLIENT_ID` | Required | `xxx.apps.googleusercontent.com` |
 | `GOOGLE_CLIENT_SECRET` | Required | `GOCSPX-xxx` |
 | `DATABASE_URL` | Valid PostgreSQL URL | `postgresql://...?sslmode=require` |
@@ -131,15 +132,22 @@ The app validates all auth variables on startup:
 Add your production domain:
 
 ```
-https://wandernest.vercel.app
+https://wandernest2-umber.vercel.app
 ```
 
 ### 3. Configure Redirect URIs
 
-Add the NextAuth callback endpoint:
+Add the NextAuth callback endpoint (MUST match exactly):
 
 ```
-https://wandernest.vercel.app/api/auth/callback/google
+https://wandernest2-umber.vercel.app/api/auth/callback/google
+```
+
+**For local development, also add:**
+
+```
+http://localhost:3000
+http://localhost:3000/api/auth/callback/google
 ```
 
 **Important:**
