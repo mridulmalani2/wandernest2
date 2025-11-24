@@ -54,18 +54,9 @@ providers.push(
       params: {
         prompt: "consent",
         access_type: "offline",
-        response_type: "code",
-        scope: "openid email profile",
+        response_type: "code"
       }
-    },
-    profile(profile) {
-      return {
-        id: profile.sub,
-        name: profile.name,
-        email: profile.email,
-        image: profile.picture,
-      }
-    },
+    }
   })
 );
 
@@ -76,9 +67,8 @@ export const authOptions: NextAuthOptions = {
     signIn: "/tourist/signin",  // Default to tourist signin
     error: "/tourist/signin", // Error page
   },
-  // Note: trustHost is enabled via NEXTAUTH_URL environment variable
-  // Vercel automatically handles proxy forwarding when NEXTAUTH_URL is set
   // Cookie configuration for production security
+  // Note: Vercel proxy handling is automatically configured via NEXTAUTH_URL environment variable
   cookies: {
     sessionToken: {
       name: `${process.env.NODE_ENV === 'production' ? '__Secure-' : ''}next-auth.session-token`,
