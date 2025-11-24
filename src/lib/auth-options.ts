@@ -244,16 +244,12 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async signIn({ user, account, profile }) {
       try {
-        // Determine user type from email domain
-        const isStudent = user.email ? isStudentEmail(user.email) : false;
-
         // Log sign-in attempt for debugging
         if (config.app.isDevelopment) {
           console.log('🔐 Auth: Sign-in attempt', {
             provider: account?.provider,
             email: user.email,
             userId: user.id,
-            userType: isStudent ? 'student' : 'tourist',
             accountId: account?.providerAccountId
           })
         }
@@ -274,75 +270,174 @@ export const authOptions: NextAuthOptions = {
         // before this callback runs. We only update the userType field here.
         // The user.id will be set by the adapter.
 
-        // Update the userType field on the User record (already created by adapter)
-        if (user.id) {
-          await prisma.user.update({
-            where: { id: user.id },
-            data: {
-              userType: isStudent ? "student" : "tourist",
-            },
-          })
+        // Determine user type based on existing records
+        // For returning users: check if Student or Tourist record exists
+        // For new users: create BOTH records to allow access to either dashboard
+        let userType: 'student' | 'tourist' = 'tourist';
+        let isNewUser = false;
+
+        try {
+          const [existingStudent, existingTourist] = await Promise.all([
+            prisma.student.findUnique({ where: { email: user.email }, select: { id: true } }),
+            prisma.tourist.findUnique({ where: { email: user.email }, select: { id: true } })
+          ]);
+
+          if (existingStudent && existingTourist) {
+            // User has both records - prefer student if they have .edu email, otherwise tourist
+            userType = isStudentEmail(user.email) ? 'student' : 'tourist';
+          } else if (existingStudent) {
+            // User already has a Student record - they're a student
+            userType = 'student';
+          } else if (existingTourist) {
+            // User already has a Tourist record - they're a tourist
+            userType = 'tourist';
+          } else {
+            // New user - will create both records to allow flexible access
+            isNewUser = true;
+            // Default to student if .edu email, otherwise tourist
+            userType = isStudentEmail(user.email) ? 'student' : 'tourist';
+          }
 
           if (config.app.isDevelopment) {
-            console.log('✅ Auth: Updated user record with userType:', isStudent ? 'student' : 'tourist')
+            console.log('🔍 Auth: User type determined:', {
+              userType,
+              isNewUser,
+              hasStudentRecord: !!existingStudent,
+              hasTouristRecord: !!existingTourist,
+              emailDomainCheck: isStudentEmail(user.email)
+            })
+          }
+        } catch (error) {
+          console.error('⚠️  Auth: Error checking existing records, defaulting to tourist:', error)
+          // On error, default to tourist (safer option)
+          userType = 'tourist';
+          isNewUser = true;
+        }
+
+        // Update the userType field on the User record (already created by adapter)
+        if (user.id) {
+          try {
+            await prisma.user.update({
+              where: { id: user.id },
+              data: { userType },
+            })
+
+            if (config.app.isDevelopment) {
+              console.log('✅ Auth: Updated user record with userType:', userType)
+            }
+          } catch (error) {
+            console.error('⚠️  Auth: Error updating user record:', error)
+            // Continue anyway - this is not critical for sign-in
           }
         }
 
-        // Create or update role-specific record based on user type
-        if (isStudent) {
-          // Create or update Student record for academic emails
-          const student = await prisma.student.upsert({
-            where: { email: user.email },
-            create: {
-              email: user.email,
-              name: user.name,
-              googleId: account?.providerAccountId || null,
-              emailVerified: true,
-              profilePhotoUrl: user.image,
-            },
-            update: {
-              name: user.name,
-              googleId: account?.providerAccountId || undefined,
-              emailVerified: true,
-              profilePhotoUrl: user.image,
-            },
-          })
+        // Create or update role-specific records
+        // For new users: create BOTH Student and Tourist records to allow flexible access
+        // For returning users: update their existing record(s)
+        try {
+          if (isNewUser) {
+            // New user - create BOTH Student and Tourist records
+            // This allows them to access either dashboard without AccessDenied errors
+            const [student, tourist] = await Promise.all([
+              prisma.student.upsert({
+                where: { email: user.email },
+                create: {
+                  email: user.email,
+                  name: user.name,
+                  googleId: account?.provider === 'google' ? account.providerAccountId : null,
+                  emailVerified: true,
+                  profilePhotoUrl: user.image,
+                },
+                update: {
+                  name: user.name || undefined,
+                  ...(account?.provider === 'google' && { googleId: account.providerAccountId }),
+                  emailVerified: true,
+                  profilePhotoUrl: user.image || undefined,
+                },
+              }),
+              prisma.tourist.upsert({
+                where: { email: user.email },
+                create: {
+                  email: user.email,
+                  name: user.name,
+                  image: user.image,
+                  googleId: account?.provider === 'google' ? account.providerAccountId : null,
+                },
+                update: {
+                  name: user.name || undefined,
+                  image: user.image || undefined,
+                  ...(account?.provider === 'google' && { googleId: account.providerAccountId }),
+                },
+              })
+            ]);
 
-          if (config.app.isDevelopment) {
-            console.log('✅ Auth: Student record created/updated:', {
-              studentId: student.id,
-              email: student.email,
-              status: student.status,
-              hasCompletedOnboarding: !!student.city
-            })
-          }
-        } else {
-          // Create or update Tourist record for non-academic emails
-          const tourist = await prisma.tourist.upsert({
-            where: { email: user.email },
-            create: {
-              email: user.email,
-              name: user.name,
-              image: user.image,
-              googleId: account?.providerAccountId || null,
-            },
-            update: {
-              name: user.name,
-              image: user.image,
-              googleId: account?.providerAccountId || undefined,
-            },
-          })
+            if (config.app.isDevelopment) {
+              console.log('✅ Auth: Created both Student and Tourist records for new user:', {
+                studentId: student.id,
+                touristId: tourist.id,
+                email: user.email,
+                defaultUserType: userType
+              })
+            }
+          } else {
+            // Returning user - update existing record(s)
+            // Update whichever records already exist
+            const updatePromises = [];
 
-          if (config.app.isDevelopment) {
-            console.log('✅ Auth: Tourist record created/updated:', {
-              touristId: tourist.id,
-              email: tourist.email
-            })
+            if (userType === 'student') {
+              updatePromises.push(
+                prisma.student.upsert({
+                  where: { email: user.email },
+                  create: {
+                    email: user.email,
+                    name: user.name,
+                    googleId: account?.provider === 'google' ? account.providerAccountId : null,
+                    emailVerified: true,
+                    profilePhotoUrl: user.image,
+                  },
+                  update: {
+                    name: user.name || undefined,
+                    ...(account?.provider === 'google' && { googleId: account.providerAccountId }),
+                    emailVerified: true,
+                    profilePhotoUrl: user.image || undefined,
+                  },
+                })
+              );
+            } else {
+              updatePromises.push(
+                prisma.tourist.upsert({
+                  where: { email: user.email },
+                  create: {
+                    email: user.email,
+                    name: user.name,
+                    image: user.image,
+                    googleId: account?.provider === 'google' ? account.providerAccountId : null,
+                  },
+                  update: {
+                    name: user.name || undefined,
+                    image: user.image || undefined,
+                    ...(account?.provider === 'google' && { googleId: account.providerAccountId }),
+                  },
+                })
+              );
+            }
+
+            await Promise.all(updatePromises);
+
+            if (config.app.isDevelopment) {
+              console.log('✅ Auth: Updated existing record for returning user:', {
+                email: user.email,
+                userType
+              })
+            }
           }
+        } catch (error) {
+          console.error('⚠️  Auth: Error creating/updating role-specific record:', error)
+          // Log but continue - we want to allow sign-in even if this fails
         }
 
         if (config.app.isDevelopment) {
-          console.log('✅ Auth: Sign-in successful for', user.email, 'as', isStudent ? 'student' : 'tourist')
+          console.log('✅ Auth: Sign-in successful for', user.email, 'as', userType)
         }
 
         return true
