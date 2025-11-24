@@ -43,10 +43,6 @@ if (config.email.isConfigured) {
         },
       },
       from: config.email.from,
-      // Allow automatic account linking when email matches
-      // This prevents OAuthAccountNotLinked errors when users sign in
-      // with different methods (email + OAuth) using the same email address
-      allowDangerousEmailAccountLinking: true,
       async sendVerificationRequest({ identifier: email, url, provider }) {
         const nodemailer = (await import('nodemailer')).default
         const { host } = new URL(url)
