@@ -66,7 +66,7 @@ openssl rand -base64 32
   - Secure cookies enabled (HTTPS only)
   - httpOnly flag prevents XSS attacks
   - SameSite=lax protects against CSRF
-  - trustHost enabled for Vercel proxy compatibility
+  - Vercel proxy compatibility via NEXTAUTH_URL
 
 ---
 

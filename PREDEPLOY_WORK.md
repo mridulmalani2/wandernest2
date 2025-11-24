@@ -102,7 +102,7 @@ These **MUST** be configured before deploying to production:
 - **Format**: `https://your-domain.com` (no trailing slash)
 - **Important**: Prefixed with `NEXT_PUBLIC_` so it's available on client-side
 - **Used for**: Email links, metadata, sitemap generation, structured data
-- **Example**: `https://wandernest.vercel.app`
+- **Example**: `https://wandernest2-umber.vercel.app`
 
 ---
 
