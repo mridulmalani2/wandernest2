@@ -12,15 +12,16 @@ WanderNest uses NextAuth for authentication with:
 
 ## Production Enhancements Implemented
 
-### 1. Trust Host Configuration
+### 1. Vercel Proxy Handling
 
-```typescript
-trustHost: true
-```
+NextAuth automatically handles Vercel's proxy configuration through the `NEXTAUTH_URL` environment variable. No additional code configuration is required.
 
-**Purpose:** Required for Vercel deployment to properly handle proxy forwarding
-**Why:** Vercel uses proxies and load balancers; NextAuth needs to trust forwarded headers
-**Impact:** Fixes callback URL mismatches and redirect issues
+**How it works:**
+- Vercel uses proxies and load balancers for deployments
+- NextAuth detects and trusts forwarded headers automatically
+- Setting `NEXTAUTH_URL` to your production domain ensures correct callback URL generation
+
+**Impact:** Fixes callback URL mismatches and redirect issues without code changes
 
 ### 2. Secure Cookie Configuration
 
@@ -211,7 +212,7 @@ const token = await getToken({
 | HTTP Only | `httpOnly: true` | XSS attacks |
 | SameSite | `sameSite: 'lax'` | CSRF attacks |
 | Database Sessions | Prisma adapter | Token replay attacks |
-| Trust Host | `trustHost: true` | Proxy misconfiguration |
+| Proxy Handling | `NEXTAUTH_URL` env var | Proxy misconfiguration |
 | Secret Validation | Length + format checks | Weak secrets |
 | HTTPS Enforcement | URL validation | Downgrade attacks |
 

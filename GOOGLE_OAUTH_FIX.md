@@ -12,17 +12,15 @@
 
 The following fixes have been applied to the codebase:
 
-1. **Added `trustHost: true`** to NextAuth configuration (src/lib/auth-options.ts:71)
-   - This ensures proper handling of Vercel proxy headers
-   - Required for correct redirect URI generation in production
-
-2. **Enhanced Google OAuth configuration** (src/lib/auth-options.ts:53-58)
+1. **Enhanced Google OAuth configuration** (src/lib/auth-options.ts:53-58)
    - Added `prompt: "consent"` - Forces consent screen for refresh tokens
    - Added `access_type: "offline"` - Enables refresh token generation
    - Added `response_type: "code"` - Uses authorization code flow (most secure)
 
-3. **Updated documentation** with correct production URLs
+2. **Updated documentation** with correct production URLs
    - docs/nextauth-production-setup.md now shows `wandernest2-umber.vercel.app`
+
+**Note:** Vercel proxy handling is automatically configured through the `NEXTAUTH_URL` environment variable - no additional configuration needed in code.
 
 ---
 
@@ -162,9 +160,9 @@ Ensure these are set in Vercel Dashboard → Settings → Environment Variables:
 ## ✅ Summary
 
 **Fixed in Code:**
-- ✅ Added `trustHost: true` for proper Vercel proxy handling
 - ✅ Enhanced Google OAuth with secure authorization parameters
 - ✅ Updated documentation with correct production URLs
+- ✅ Proper Vercel proxy handling via NEXTAUTH_URL environment variable
 
 **Required Manual Action:**
 - ⚠️ Add redirect URIs in Google Cloud Console (Steps above)
