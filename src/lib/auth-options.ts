@@ -209,7 +209,11 @@ providers.push(
         access_type: "offline",
         response_type: "code"
       }
-    }
+    },
+    // Allow automatic account linking when email matches
+    // This prevents OAuthAccountNotLinked errors when users sign in
+    // with different methods (email + OAuth) using the same email address
+    allowDangerousEmailAccountLinking: true
   })
 );
 
@@ -241,6 +245,7 @@ export const authOptions: NextAuthOptions = {
           console.log('🔐 Auth: Sign-in attempt', {
             provider: account?.provider,
             email: user.email,
+            userId: user.id,
             userType: user.email ? (isStudentEmail(user.email) ? 'student' : 'tourist') : 'unknown'
           })
         }
@@ -260,21 +265,19 @@ export const authOptions: NextAuthOptions = {
         // Determine if this is a student or tourist based on email domain
         const isStudent = isStudentEmail(user.email)
 
-        // Update or create the User record with userType
-        await prisma.user.upsert({
-          where: { email: user.email },
-          create: {
-            email: user.email,
-            name: user.name,
-            image: user.image,
-            userType: isStudent ? "student" : "tourist",
-          },
-          update: {
-            name: user.name,
-            image: user.image,
-            userType: isStudent ? "student" : "tourist",
-          },
-        })
+        // IMPORTANT: The PrismaAdapter automatically creates User + Account records
+        // before this callback runs. We only update the userType field here.
+        // The user.id will be set by the adapter.
+
+        // Update the userType field on the User record (already created by adapter)
+        if (user.id) {
+          await prisma.user.update({
+            where: { id: user.id },
+            data: {
+              userType: isStudent ? "student" : "tourist",
+            },
+          })
+        }
 
         // Create or update role-specific record based on user type
         if (isStudent) {
@@ -313,12 +316,17 @@ export const authOptions: NextAuthOptions = {
           })
         }
 
+        if (config.app.isDevelopment) {
+          console.log('✅ Auth: Sign-in successful for', user.email, 'as', isStudent ? 'student' : 'tourist')
+        }
+
         return true
       } catch (error) {
         console.error('❌ Auth: Sign-in callback failed:', error)
         console.error('   User email:', user.email)
         if (error instanceof Error) {
           console.error('   Error message:', error.message)
+          console.error('   Stack:', error.stack)
         }
         return false
       }
