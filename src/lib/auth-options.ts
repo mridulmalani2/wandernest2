@@ -37,6 +37,10 @@ if (config.email.isConfigured) {
           user: config.email.user!,
           pass: config.email.pass!,
         },
+        secure: config.email.port === 465, // true for 465 (SSL), false for other ports like 587 (STARTTLS)
+        tls: {
+          rejectUnauthorized: config.app.isProduction, // Enforce in production, allow self-signed in dev
+        },
       },
       from: config.email.from,
       async sendVerificationRequest({ identifier: email, url, provider }) {
@@ -75,8 +79,10 @@ if (config.email.isConfigured) {
       },
     })
   );
-} else if (config.app.isDevelopment) {
+  console.log('✅ EmailProvider configured - magic link authentication enabled');
+} else {
   console.log('⚠️  EmailProvider not configured - magic link authentication disabled');
+  console.log('   Set EMAIL_HOST, EMAIL_USER, EMAIL_PASS environment variables to enable');
 }
 
 // Email HTML template
@@ -197,6 +203,13 @@ providers.push(
   GoogleProvider({
     clientId: config.auth.google.clientId || "",
     clientSecret: config.auth.google.clientSecret || "",
+    authorization: {
+      params: {
+        prompt: "consent",
+        access_type: "offline",
+        response_type: "code"
+      }
+    }
   })
 );
 
@@ -207,9 +220,8 @@ export const authOptions: NextAuthOptions = {
     signIn: "/tourist/signin",  // Default to tourist signin
     error: "/tourist/signin", // Error page
   },
-  // Trust host for Vercel deployment (required for proper proxy handling)
-  // Note: trustHost is configured via NEXTAUTH_URL environment variable
   // Cookie configuration for production security
+  // Note: Vercel proxy handling is automatically configured via NEXTAUTH_URL environment variable
   cookies: {
     sessionToken: {
       name: `${process.env.NODE_ENV === 'production' ? '__Secure-' : ''}next-auth.session-token`,
@@ -224,8 +236,19 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async signIn({ user, account, profile }) {
       try {
+        // Log sign-in attempt for debugging
+        if (config.app.isDevelopment) {
+          console.log('🔐 Auth: Sign-in attempt', {
+            provider: account?.provider,
+            email: user.email,
+            userType: user.email ? (isStudentEmail(user.email) ? 'student' : 'tourist') : 'unknown'
+          })
+        }
+
         if (!user.email) {
           console.error('❌ Auth: Sign-in failed - no email provided')
+          console.error('   Provider:', account?.provider)
+          console.error('   Profile:', profile)
           return false
         }
 
