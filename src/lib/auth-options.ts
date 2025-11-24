@@ -37,12 +37,18 @@ if (config.email.isConfigured) {
           user: config.email.user!,
           pass: config.email.pass!,
         },
+        secure: config.email.port === 465, // true for 465 (SSL), false for other ports like 587 (STARTTLS)
+        tls: {
+          rejectUnauthorized: config.app.isProduction, // Enforce in production, allow self-signed in dev
+        },
       },
       from: config.email.from,
     })
   );
-} else if (config.app.isDevelopment) {
+  console.log('✅ EmailProvider configured - magic link authentication enabled');
+} else {
   console.log('⚠️  EmailProvider not configured - magic link authentication disabled');
+  console.log('   Set EMAIL_HOST, EMAIL_USER, EMAIL_PASS environment variables to enable');
 }
 
 // Always add GoogleProvider (required for authentication)
