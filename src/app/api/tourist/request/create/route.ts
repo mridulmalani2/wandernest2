@@ -11,6 +11,9 @@ import { sendBookingConfirmation } from '@/lib/email';
 import { withErrorHandler, withDatabaseRetry, AppError } from '@/lib/error-handler';
 import { autoMatchAndInvite } from '@/lib/matching/autoMatch';
 
+// In-memory storage for demo mode (when database is unavailable)
+const demoRequests = new Map<string, any>();
+
 // Validation schema for authenticated booking request
 const createBookingSchema = z.object({
   // Trip Details

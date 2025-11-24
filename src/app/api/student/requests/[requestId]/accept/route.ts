@@ -44,7 +44,7 @@ async function acceptStudentRequest(
 
   try {
     // Call the shared acceptRequest helper using the authenticated student ID
-    const result = await acceptRequest(requestId, authenticatedStudentId)
+    const result = await acceptRequest(params.requestId, authenticatedStudentId)
 
     return NextResponse.json({
       success: true,
