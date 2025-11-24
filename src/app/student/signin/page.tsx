@@ -22,6 +22,8 @@ function StudentSignInContent() {
   const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
+  const [emailProviderAvailable, setEmailProviderAvailable] = useState<boolean | null>(null);
+  const [providerCheckError, setProviderCheckError] = useState(false);
 
   useEffect(() => {
     // If already signed in as student, check onboarding status
@@ -34,9 +36,35 @@ function StudentSignInContent() {
     }
   }, [session, router]);
 
+  // Check if email provider is configured
+  useEffect(() => {
+    const checkEmailProvider = async () => {
+      try {
+        const response = await fetch('/api/auth/provider-status');
+        if (response.ok) {
+          const data = await response.json();
+          setEmailProviderAvailable(data.providers?.email ?? false);
+        } else {
+          setProviderCheckError(true);
+        }
+      } catch (error) {
+        console.error('Failed to check provider status:', error);
+        setProviderCheckError(true);
+      }
+    };
+
+    checkEmailProvider();
+  }, []);
+
   const handleEmailSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
+
+    // Check if email provider is available before attempting sign-in
+    if (emailProviderAvailable === false) {
+      alert('Email sign-in is not currently available. Please contact support or try again later.');
+      return;
+    }
 
     setIsSubmitting(true);
     try {
@@ -46,11 +74,18 @@ function StudentSignInContent() {
         redirect: false,
       });
 
-      if (result?.ok) {
+      if (result?.error) {
+        console.error('Sign-in error:', result.error);
+        alert(`Sign-in failed: ${result.error}. Please try again or contact support.`);
+      } else if (result?.ok) {
         setEmailSent(true);
+      } else {
+        console.error('Sign-in failed with unknown error');
+        alert('Sign-in failed. Please try again or contact support.');
       }
     } catch (error) {
       console.error('Sign-in error:', error);
+      alert('An unexpected error occurred. Please try again or contact support.');
     } finally {
       setIsSubmitting(false);
     }
@@ -123,6 +158,18 @@ function StudentSignInContent() {
               </div>
             )}
 
+            {/* Email Provider Not Configured Warning */}
+            {emailProviderAvailable === false && (
+              <div className="glass-card bg-ui-error/10 border-2 border-ui-error/30 rounded-2xl p-4 shadow-premium animate-scale-in">
+                <p className="text-sm text-ui-error font-semibold mb-2">
+                  ⚠️ Magic Link Sign-In Unavailable
+                </p>
+                <p className="text-sm text-gray-700">
+                  The email authentication service is not configured. Please contact the administrator to enable magic link sign-in, or use an alternative sign-in method if available.
+                </p>
+              </div>
+            )}
+
             {/* Sign In Card */}
             <div className="glass-card rounded-3xl border-2 border-white/40 p-8 shadow-premium space-y-6">
               {!emailSent ? (
@@ -151,11 +198,18 @@ function StudentSignInContent() {
 
                     <PrimaryCTAButton
                       type="submit"
-                      disabled={isSubmitting || !email}
+                      disabled={isSubmitting || !email || emailProviderAvailable === false || emailProviderAvailable === null}
                       variant="purple"
                       className="w-full justify-center"
                     >
-                      {isSubmitting ? (
+                      {emailProviderAvailable === null ? (
+                        <>
+                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                          <span>Checking availability...</span>
+                        </>
+                      ) : emailProviderAvailable === false ? (
+                        <span>Sign-In Unavailable</span>
+                      ) : isSubmitting ? (
                         <>
                           <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
                           <span>Sending magic link...</span>
