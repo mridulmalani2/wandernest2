@@ -20,6 +20,21 @@ async function getStudentDashboard(req: NextRequest) {
   // SECURITY: Need to ensure user can only access their own dashboard
   // For now, proceeding without session validation to unblock build
 
+  if (!studentEmail && !studentId) {
+    throw new AppError(400, 'Student email or ID is required', 'MISSING_IDENTIFIER')
+  }
+
+  // Fetch the student record
+  const student = await db.student.findFirst({
+    where: studentEmail
+      ? { email: studentEmail }
+      : { id: studentId as string },
+  })
+
+  if (!student) {
+    throw new AppError(404, 'Student not found', 'STUDENT_NOT_FOUND')
+  }
+
   // Fetch bookings by status in parallel (filter at database level)
   const [acceptedBookings, pendingRequests, reviews, availability] = await Promise.all([
     db.requestSelection.findMany({

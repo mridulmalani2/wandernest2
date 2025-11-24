@@ -180,9 +180,6 @@ async function matchStudents(req: NextRequest) {
     // Ensure database is available
     const prisma = requireDatabase()
 
-    // Ensure database is available
-    const prisma = requireDatabase()
-
     // Get the tourist request from database
     const touristRequest = await prisma.touristRequest.findUnique({
       where: { id: requestId },

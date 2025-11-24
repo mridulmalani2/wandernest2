@@ -30,10 +30,6 @@ export interface AuthenticatedRequest extends NextRequest {
 // API route helper to verify admin authentication (Node.js runtime only)
 export async function verifyAdmin(request: NextRequest): Promise<{ authorized: boolean; admin?: { id: string; email: string; role: string; isActive: boolean }; error?: string }> {
   try {
-    if (!prisma) {
-      return { authorized: false, error: 'Database not available' }
-    }
-
     const authHeader = request.headers.get('authorization')
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -68,10 +64,6 @@ export async function verifyAdmin(request: NextRequest): Promise<{ authorized: b
 // API route helper to verify tourist authentication (Node.js runtime only)
 export async function verifyTourist(request: NextRequest): Promise<{ authorized: boolean; tourist?: { email: string }; error?: string }> {
   try {
-    if (!prisma) {
-      return { authorized: false, error: 'Database not available' }
-    }
-
     const authHeader = request.headers.get('authorization')
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {

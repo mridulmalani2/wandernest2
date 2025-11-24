@@ -61,7 +61,7 @@ export const authOptions: NextAuthOptions = {
     error: "/tourist/signin", // Error page
   },
   // Trust host for Vercel deployment (required for proper proxy handling)
-  trustHost: true,
+  // Note: trustHost is configured via NEXTAUTH_URL environment variable
   // Cookie configuration for production security
   cookies: {
     sessionToken: {
