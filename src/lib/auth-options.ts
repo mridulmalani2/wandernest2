@@ -50,6 +50,13 @@ providers.push(
   GoogleProvider({
     clientId: config.auth.google.clientId || "",
     clientSecret: config.auth.google.clientSecret || "",
+    authorization: {
+      params: {
+        prompt: "consent",
+        access_type: "offline",
+        response_type: "code"
+      }
+    }
   })
 );
 
@@ -61,7 +68,7 @@ export const authOptions: NextAuthOptions = {
     error: "/tourist/signin", // Error page
   },
   // Trust host for Vercel deployment (required for proper proxy handling)
-  // Note: trustHost is configured via NEXTAUTH_URL environment variable
+  trustHost: true,
   // Cookie configuration for production security
   cookies: {
     sessionToken: {

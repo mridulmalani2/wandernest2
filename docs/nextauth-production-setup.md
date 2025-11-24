@@ -94,7 +94,7 @@ export const dynamic = 'force-dynamic'
 | Variable | Validation | Example |
 |----------|------------|---------|
 | `NEXTAUTH_SECRET` | ≥32 chars | `openssl rand -base64 32` |
-| `NEXTAUTH_URL` | Must use https:// | `https://wandernest.vercel.app` |
+| `NEXTAUTH_URL` | Must use https:// | `https://wandernest2-umber.vercel.app` |
 | `GOOGLE_CLIENT_ID` | Required | `xxx.apps.googleusercontent.com` |
 | `GOOGLE_CLIENT_SECRET` | Required | `GOCSPX-xxx` |
 | `DATABASE_URL` | Valid PostgreSQL URL | `postgresql://...?sslmode=require` |
@@ -131,22 +131,36 @@ The app validates all auth variables on startup:
 Add your production domain:
 
 ```
-https://wandernest.vercel.app
+https://wandernest2-umber.vercel.app
+```
+
+For localhost development, also add:
+
+```
+http://localhost:3000
 ```
 
 ### 3. Configure Redirect URIs
 
-Add the NextAuth callback endpoint:
+Add the NextAuth callback endpoints:
 
+**Production:**
 ```
-https://wandernest.vercel.app/api/auth/callback/google
+https://wandernest2-umber.vercel.app/api/auth/callback/google
+```
+
+**Localhost (for testing):**
+```
+http://localhost:3000/api/auth/callback/google
 ```
 
 **Important:**
-- Use your actual Vercel domain
-- Must include `/api/auth/callback/google` path
-- Must use `https://` (not `http://`)
+- Use your actual Vercel domain (wandernest2-umber.vercel.app)
+- Must include `/api/auth/callback/google` path exactly
+- Must use `https://` for production (not `http://`)
+- Must use `http://` for localhost development
 - No trailing slashes
+- Both URIs should be added to support development and production
 
 ### 4. Copy Credentials
 
