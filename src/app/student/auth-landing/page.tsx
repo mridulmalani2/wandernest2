@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import { Suspense, useEffect, useState } from 'react';
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
@@ -9,6 +10,25 @@ import { PrimaryCTAButton } from '@/components/ui/PrimaryCTAButton';
 
 export const dynamic = 'force-dynamic';
 
+export default function StudentAuthLandingPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-ui-blue-primary/20 to-ui-purple-accent/20 text-white">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 border-2 border-white/40 border-t-transparent rounded-full animate-spin" />
+            <span className="font-medium">Preparing your student experience…</span>
+          </div>
+        </div>
+      }
+    >
+      <StudentAuthLandingContent />
+    </Suspense>
+  );
+}
+
+function StudentAuthLandingContent() {
+export default function StudentAuthLanding() {
 function StudentAuthLandingContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
