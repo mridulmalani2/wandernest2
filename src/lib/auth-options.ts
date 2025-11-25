@@ -273,6 +273,8 @@ export const authOptions: NextAuthOptions = {
         // Determine user type based on existing records
         // For returning users: check if Student or Tourist record exists
         // For new users: create BOTH records to allow access to either dashboard
+        // The auth-landing pages (/student/auth-landing and /tourist/auth-landing) will
+        // correct the userType if needed based on which signin page the user came from
         let userType: 'student' | 'tourist' = 'tourist';
         let isNewUser = false;
 
@@ -284,6 +286,7 @@ export const authOptions: NextAuthOptions = {
 
           if (existingStudent && existingTourist) {
             // User has both records - prefer student if they have .edu email, otherwise tourist
+            // The auth-landing pages will correct this if the user signed in from the wrong page
             userType = isStudentEmail(user.email) ? 'student' : 'tourist';
           } else if (existingStudent) {
             // User already has a Student record - they're a student
@@ -295,6 +298,7 @@ export const authOptions: NextAuthOptions = {
             // New user - will create both records to allow flexible access
             isNewUser = true;
             // Default to student if .edu email, otherwise tourist
+            // The auth-landing pages will correct this if needed
             userType = isStudentEmail(user.email) ? 'student' : 'tourist';
           }
 
