@@ -135,6 +135,21 @@ async function resetDatabase() {
       log(`⚠️  Warning: ${tableCount} tables and ${enumCount} enums still exist`, colors.yellow);
     }
 
+    // Step 4: Terminate all other connections to allow clean migration
+    log('\n🔒 Terminating other database connections...', colors.blue);
+    try {
+      await client.query(`
+        SELECT pg_terminate_backend(pid)
+        FROM pg_stat_activity
+        WHERE datname = current_database()
+          AND pid <> pg_backend_pid()
+          AND usename = current_user;
+      `);
+      log('✅ Other connections terminated', colors.green);
+    } catch (terminateError) {
+      log('⚠️  Could not terminate other connections (this is usually OK)', colors.yellow);
+    }
+
     log('\n' + '='.repeat(60), colors.cyan);
     log('✅ DATABASE RESET COMPLETED SUCCESSFULLY', colors.green);
     log('='.repeat(60), colors.cyan);
@@ -154,7 +169,12 @@ async function resetDatabase() {
     process.exit(1);
   } finally {
     await client.end();
-    log('📡 Database connection closed\n', colors.blue);
+    log('📡 Database connection closed', colors.blue);
+
+    // Give the database a moment to fully release locks
+    log('⏱️  Waiting for locks to clear...', colors.blue);
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    log('✅ Ready for migration\n', colors.green);
   }
 }
 
