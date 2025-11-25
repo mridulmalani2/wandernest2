@@ -125,8 +125,10 @@ async function sendEmail(
 
 export async function sendBookingConfirmation(
   email: string,
-  requestId: string
+  requestId: string,
+  options?: { matchesFound?: number }
 ): Promise<{ success: boolean; error?: string }> {
+  const hasMatches = (options?.matchesFound ?? 0) > 0
   const html = `
     <!DOCTYPE html>
     <html lang="en">
@@ -177,7 +179,9 @@ export async function sendBookingConfirmation(
                 <tr>
                   <td style="padding: 48px 40px;">
                     <p style="margin: 0 0 24px 0; font-size: 16px; line-height: 1.6; color: #374151;">
-                      Great news! Your booking request has been successfully submitted and we're now connecting you with the perfect local student guides.
+                      ${hasMatches
+                        ? 'Great news! Your booking request has been successfully submitted and we\'ve found matching student guides who can help with your trip.'
+                        : 'Great news! Your booking request has been successfully submitted. We\'ve saved your preferences and will notify you when suitable student guides become available in your area.'}
                     </p>
 
                     <!-- Request ID Card -->
@@ -198,7 +202,9 @@ export async function sendBookingConfirmation(
                       What Happens Next?
                     </h3>
 
-                    <!-- Timeline Steps -->
+                    <!-- Timeline Steps - Dynamic based on match status -->
+                    ${hasMatches ? `
+                    <!-- When matches are found -->
                     <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
                       <tr>
                         <td style="padding: 16px; background: #f9fafb; border-radius: 10px; margin-bottom: 12px;">
@@ -208,8 +214,8 @@ export async function sendBookingConfirmation(
                                 <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 14px;">1</div>
                               </td>
                               <td style="padding-left: 12px; vertical-align: top;">
-                                <p style="margin: 0; font-size: 15px; font-weight: 600; color: #111827;">Local guides review your request</p>
-                                <p style="margin: 4px 0 0 0; font-size: 14px; color: #6b7280;">We're matching you with students who love your chosen destination</p>
+                                <p style="margin: 0; font-size: 15px; font-weight: 600; color: #111827;">Student guides are reviewing your request</p>
+                                <p style="margin: 4px 0 0 0; font-size: 14px; color: #6b7280;">We've notified ${options?.matchesFound} qualified guides about your trip</p>
                               </td>
                             </tr>
                           </table>
@@ -224,8 +230,8 @@ export async function sendBookingConfirmation(
                                 <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 14px;">2</div>
                               </td>
                               <td style="padding-left: 12px; vertical-align: top;">
-                                <p style="margin: 0; font-size: 15px; font-weight: 600; color: #111827;">Receive guide proposals</p>
-                                <p style="margin: 4px 0 0 0; font-size: 14px; color: #6b7280;">Interested guides will accept your request</p>
+                                <p style="margin: 0; font-size: 15px; font-weight: 600; color: #111827;">Receive acceptance notification</p>
+                                <p style="margin: 4px 0 0 0; font-size: 14px; color: #6b7280;">You'll get an email when a guide accepts (usually within 24 hours)</p>
                               </td>
                             </tr>
                           </table>
@@ -248,6 +254,58 @@ export async function sendBookingConfirmation(
                         </td>
                       </tr>
                     </table>
+                    ` : `
+                    <!-- When no matches are found yet -->
+                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                      <tr>
+                        <td style="padding: 16px; background: #f9fafb; border-radius: 10px; margin-bottom: 12px;">
+                          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                            <tr>
+                              <td width="40" style="vertical-align: top;">
+                                <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 14px;">1</div>
+                              </td>
+                              <td style="padding-left: 12px; vertical-align: top;">
+                                <p style="margin: 0; font-size: 15px; font-weight: 600; color: #111827;">Your request is saved</p>
+                                <p style="margin: 4px 0 0 0; font-size: 14px; color: #6b7280;">We're keeping your trip preferences on file and actively searching for guides</p>
+                              </td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                      <tr><td style="height: 12px;"></td></tr>
+                      <tr>
+                        <td style="padding: 16px; background: #f9fafb; border-radius: 10px;">
+                          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                            <tr>
+                              <td width="40" style="vertical-align: top;">
+                                <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 14px;">2</div>
+                              </td>
+                              <td style="padding-left: 12px; vertical-align: top;">
+                                <p style="margin: 0; font-size: 15px; font-weight: 600; color: #111827;">New guides join regularly</p>
+                                <p style="margin: 4px 0 0 0; font-size: 14px; color: #6b7280;">Student guides are constantly joining our platform in your destination city</p>
+                              </td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                      <tr><td style="height: 12px;"></td></tr>
+                      <tr>
+                        <td style="padding: 16px; background: #f9fafb; border-radius: 10px;">
+                          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                            <tr>
+                              <td width="40" style="vertical-align: top;">
+                                <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 14px;">3</div>
+                              </td>
+                              <td style="padding-left: 12px; vertical-align: top;">
+                                <p style="margin: 0; font-size: 15px; font-weight: 600; color: #111827;">We'll notify you instantly</p>
+                                <p style="margin: 4px 0 0 0; font-size: 14px; color: #6b7280;">You'll receive an email as soon as a matching guide becomes available</p>
+                              </td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                    </table>
+                    `}
 
                     <!-- Info Box -->
                     <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin: 32px 0; background: #fef3c7; border-left: 4px solid #f59e0b; border-radius: 8px;">

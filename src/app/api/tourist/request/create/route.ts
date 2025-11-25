@@ -119,14 +119,7 @@ async function createTouristRequest(req: NextRequest) {
       })
     );
 
-    // Send booking confirmation email (non-critical)
-    const emailResult = await sendBookingConfirmation(session.user.email, touristRequest.id)
-    if (!emailResult.success) {
-      console.warn('⚠️  Failed to send booking confirmation email:', emailResult.error)
-      // Continue anyway - email is not critical for the booking
-    }
-
-    // AUTOMATIC MATCHING: Find and invite candidate students
+    // AUTOMATIC MATCHING: Find and invite candidate students (do this BEFORE sending email)
     console.log(`[createTouristRequest] Triggering automatic matching for request ${touristRequest.id}`)
     const matchResult = await autoMatchAndInvite(touristRequest)
 
@@ -142,6 +135,17 @@ async function createTouristRequest(req: NextRequest) {
 
     if (matchResult.errors.length > 0) {
       console.warn(`[createTouristRequest] Auto-match warnings:`, matchResult.errors)
+    }
+
+    // Send booking confirmation email with match status (non-critical)
+    const emailResult = await sendBookingConfirmation(
+      session.user.email,
+      touristRequest.id,
+      { matchesFound: matchResult.candidatesFound }
+    )
+    if (!emailResult.success) {
+      console.warn('⚠️  Failed to send booking confirmation email:', emailResult.error)
+      // Continue anyway - email is not critical for the booking
     }
   } else {
     // Database not available - use in-memory storage for demo
