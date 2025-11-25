@@ -6,11 +6,12 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-  // Connection pooling for serverless is handled via the DATABASE_URL connection string
-  // For Vercel Postgres, use the POSTGRES_PRISMA_URL which includes ?pgbouncer=true
-  // Example: postgresql://user:pass@host:port/db?pgbouncer=true&connection_limit=1
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+  // DATABASE_URL: Pooled connection for application runtime (uses -pooler endpoint)
+  // DIRECT_URL: Direct connection for migrations (bypasses pooler to avoid lock timeouts)
+  // For Neon: DIRECT_URL should be the same as DATABASE_URL but without "-pooler" in hostname
 }
 
 // ============================================
