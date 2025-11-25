@@ -29,6 +29,7 @@ export default function StudentAuthLandingPage() {
 
 function StudentAuthLandingContent() {
 export default function StudentAuthLanding() {
+function StudentAuthLandingContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const intent = searchParams.get('intent');
@@ -144,3 +145,5 @@ export default function StudentAuthLanding() {
     </div>
   );
 }
+
+export default StudentAuthLandingContent;
