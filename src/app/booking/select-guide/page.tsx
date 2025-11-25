@@ -42,15 +42,19 @@ function SelectGuideContent() {
 
       const data = await response.json()
 
+      // Important: "No matches found" (empty array) is a SUCCESS state, not an error
+      // The backend returns { success: true, hasMatches: false, matches: [] } for this case
       if (data.success) {
-        setMatches(data.matches)
+        setMatches(data.matches || [])
         setSuggestedPrice(data.suggestedPriceRange)
       } else {
-        setError(data.error || 'Failed to find matching guides')
+        // Only set error for actual failures (database errors, network issues, etc.)
+        setError(data.error || 'Unable to process your request. Please try again.')
       }
     } catch (err) {
       console.error('Error fetching matches:', err)
-      setError('Failed to load matching guides')
+      // Network error or unexpected exception
+      setError('Unable to connect to the server. Please check your internet connection and try again.')
     } finally {
       setLoading(false)
     }

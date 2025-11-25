@@ -326,11 +326,14 @@ async function matchStudents(req: NextRequest) {
       })
     }
 
+    // Zero matches is a valid success state - booking was created successfully
     if (candidatePool.length === 0) {
+      console.log(`[matchStudents] No matches found for request ${requestId} in ${criteria.city}`)
       return NextResponse.json({
         success: true,
         matches: [],
-        message: 'No approved students found in this city',
+        hasMatches: false,
+        message: 'No matching guides found yet - request is saved and tourist will be notified when guides become available',
       })
     }
 
@@ -369,8 +372,11 @@ async function matchStudents(req: NextRequest) {
     // Calculate suggested price range based on city
     const suggestedPriceRange = calculateSuggestedPrice(criteria.city, criteria.serviceType)
 
+    console.log(`[matchStudents] Found ${topCandidates.length} matches for request ${requestId}`)
+
     return NextResponse.json({
       success: true,
+      hasMatches: true,
       matches: topCandidates.map((student) => ({
         studentId: student.id,
         maskedId: student.maskedId,

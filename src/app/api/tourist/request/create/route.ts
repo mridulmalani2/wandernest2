@@ -124,10 +124,17 @@ async function createTouristRequest(req: NextRequest) {
     const matchResult = await autoMatchAndInvite(touristRequest)
 
     if (matchResult.success) {
-      console.log(
-        `[createTouristRequest] Auto-match successful: ${matchResult.candidatesFound} candidates found, ` +
-        `${matchResult.invitationsSent} invitations sent`
-      )
+      if (matchResult.candidatesFound === 0) {
+        console.log(
+          `[createTouristRequest] Auto-match completed: No matching guides found yet. ` +
+          `Tourist will be notified when guides become available.`
+        )
+      } else {
+        console.log(
+          `[createTouristRequest] Auto-match successful: ${matchResult.candidatesFound} candidates found, ` +
+          `${matchResult.invitationsSent} invitations sent`
+        )
+      }
     } else {
       console.warn(`[createTouristRequest] Auto-match failed:`, matchResult.errors)
       // Continue anyway - matching is not critical for request creation
@@ -137,15 +144,23 @@ async function createTouristRequest(req: NextRequest) {
       console.warn(`[createTouristRequest] Auto-match warnings:`, matchResult.errors)
     }
 
-    // Send booking confirmation email with match status (non-critical)
+    // IMPORTANT: Always send booking confirmation email, regardless of match results
+    // Email template adapts based on whether matches were found (zero matches is a valid success state)
+    console.log(`[createTouristRequest] Sending booking confirmation email to ${session.user.email}`)
     const emailResult = await sendBookingConfirmation(
       session.user.email,
       touristRequest.id,
       { matchesFound: matchResult.candidatesFound }
     )
-    if (!emailResult.success) {
+
+    if (emailResult.success) {
+      console.log(
+        `[createTouristRequest] ✅ Booking confirmation email sent successfully ` +
+        `(${matchResult.candidatesFound} matches found)`
+      )
+    } else {
       console.warn('⚠️  Failed to send booking confirmation email:', emailResult.error)
-      // Continue anyway - email is not critical for the booking
+      // Continue anyway - email failure should not block booking creation
     }
   } else {
     // Database not available - use in-memory storage for demo
