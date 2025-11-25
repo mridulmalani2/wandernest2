@@ -66,7 +66,7 @@ export function PrimaryCTAButton({
 
       {/* Main button */}
       <div
-        className={`relative px-8 py-4 ${styles.gradient} rounded-2xl shadow-lg overflow-hidden ${
+        className={`relative px-6 py-3 sm:px-8 sm:py-4 ${styles.gradient} rounded-2xl shadow-lg overflow-hidden ${
           disabled ? 'opacity-50 cursor-not-allowed' : ''
         }`}
       >
@@ -75,7 +75,7 @@ export function PrimaryCTAButton({
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 pointer-events-none" />
         )}
 
-        <div className={`relative flex items-center gap-3 ${className}`}>
+        <div className={`relative flex items-center gap-2 sm:gap-3 ${className}`}>
           {Icon && <Icon className={`w-5 h-5 ${styles.iconColor}`} />}
           <span className={`text-base lg:text-lg font-medium ${styles.textColor}`}>{children}</span>
           {showArrow && (
@@ -90,7 +90,10 @@ export function PrimaryCTAButton({
 
   if (href && !disabled) {
     return (
-      <Link href={href} className="group inline-block">
+      <Link
+        href={href}
+        className="group inline-block focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-white/50 focus-visible:ring-offset-4 focus-visible:ring-offset-transparent rounded-2xl transition-all"
+      >
         {buttonContent}
       </Link>
     );
@@ -106,7 +109,7 @@ export function PrimaryCTAButton({
         }
       }}
       disabled={disabled}
-      className="group inline-block cursor-pointer"
+      className="group inline-block cursor-pointer focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-white/50 focus-visible:ring-offset-4 focus-visible:ring-offset-transparent rounded-2xl transition-all"
     >
       {buttonContent}
     </button>
