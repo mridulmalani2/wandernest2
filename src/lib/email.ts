@@ -1476,7 +1476,7 @@ export async function sendStudentConfirmation(
   return await sendEmail(
     {
       to: student.email,
-      subject: '🎉 You Got the Job! Here's Your Tourist's Contact Info',
+      subject: "🎉 You Got the Job! Here's Your Tourist's Contact Info",
       html,
     },
     'Student Confirmation'
