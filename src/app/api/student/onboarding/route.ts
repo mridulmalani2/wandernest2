@@ -13,7 +13,7 @@ const onboardingSchema = z.object({
 
   // Personal Details
   name: z.string().min(1),
-  dateOfBirth: z.string().transform(str => new Date(str)),
+  dateOfBirth: z.string().min(1).transform(str => new Date(str)),
   gender: z.enum(['male', 'female', 'prefer_not_to_say']),
   nationality: z.string().min(1),
   phoneNumber: z.string().min(1),
@@ -29,9 +29,9 @@ const onboardingSchema = z.object({
 
   // Identity Verification
   studentIdUrl: z.string().min(1),
-  studentIdExpiry: z.string().transform(str => new Date(str)),
+  studentIdExpiry: z.string().min(1).transform(str => new Date(str)),
   governmentIdUrl: z.string().min(1),
-  governmentIdExpiry: z.string().transform(str => new Date(str)),
+  governmentIdExpiry: z.string().min(1).transform(str => new Date(str)),
   selfieUrl: z.string().min(1),
   profilePhotoUrl: z.string().min(1),
   documentsOwnedConfirmation: z.boolean(),
@@ -48,14 +48,14 @@ const onboardingSchema = z.object({
   timezone: z.string().min(1),
   preferredDurations: z.array(z.string()).min(1),
   unavailabilityExceptions: z.array(z.object({
-    date: z.string().transform(str => new Date(str)),
+    date: z.string().min(1).transform(str => new Date(str)),
     reason: z.string().optional(),
   })).optional(),
   availability: z.array(
     z.object({
       dayOfWeek: z.number().min(0).max(6),
-      startTime: z.string(),
-      endTime: z.string(),
+      startTime: z.string().min(1),
+      endTime: z.string().min(1),
       note: z.string().optional(),
     })
   ).min(1),
@@ -83,7 +83,14 @@ function calculateProfileCompleteness(data: Record<string, unknown>): number {
   ];
 
   const arrayFields = ['languages', 'skills', 'interests', 'servicesOffered', 'preferredDurations'];
-  const booleanFields = ['documentsOwnedConfirmation', 'verificationConsent', 'termsAccepted', 'safetyGuidelinesAccepted', 'independentGuideAcknowledged'];
+  const booleanFields = [
+    'documentsOwnedConfirmation',
+    'verificationConsent',
+    'termsAccepted',
+    'safetyGuidelinesAccepted',
+    'independentGuideAcknowledged',
+    'onlineServicesAvailable',
+  ];
 
   let completed = 0;
   const total = requiredFields.length + arrayFields.length + booleanFields.length + 1; // +1 for availability

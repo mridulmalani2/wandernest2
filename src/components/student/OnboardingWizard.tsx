@@ -384,6 +384,20 @@ export function OnboardingWizard({ session }: OnboardingWizardProps) {
         }
       }
 
+      // Ensure all document URLs are ready before submission
+      const requiredUploads: Array<[keyof typeof uploadedUrls, string]> = [
+        ['student_id', 'Student ID'],
+        ['government_id', 'Government ID'],
+        ['selfie', 'Verification selfie'],
+        ['profile_photo', 'Profile photo'],
+      ];
+
+      const missingUploads = requiredUploads.filter(([key]) => !uploadedUrls[key]);
+      if (missingUploads.length > 0) {
+        const missingLabels = missingUploads.map(([, label]) => label).join(', ');
+        throw new Error(`Please re-upload the following files: ${missingLabels}.`);
+      }
+
       // Submit onboarding data with all fields
       const response = await fetch('/api/student/onboarding', {
         method: 'POST',

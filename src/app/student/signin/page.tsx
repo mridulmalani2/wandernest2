@@ -16,7 +16,7 @@ function StudentSignInContent() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get('callbackUrl') || '/student/onboarding';
+  const callbackUrl = searchParams.get('callbackUrl') || '/student/auth-landing?intent=student';
   const error = searchParams.get('error');
 
   const [email, setEmail] = useState('');
