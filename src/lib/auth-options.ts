@@ -43,25 +43,31 @@ if (config.email.isConfigured) {
       from: config.email.from,
       async sendVerificationRequest({ identifier: email, url, provider }) {
         // ========================================================================
-        // MAGIC LINK EMAIL SENDING
+        // STUDENT EMAIL DOMAIN VALIDATION
         // ========================================================================
-        // This function is called AFTER the signIn callback has validated the
-        // email domain. We can safely send the magic link at this point.
+        // Students can ONLY sign in with magic-link using verified educational
+        // email domains (e.g., .edu, .ac.uk, .edu.au, etc.).
         //
-        // Note: Domain validation is now done in the signIn callback for better
-        // error handling. This is a secondary safety check.
+        // This server-side check ensures domain validation even if client-side
+        // validation is bypassed. The list of valid domains is maintained in
+        // src/lib/email-validation.ts
         // ========================================================================
 
-        // Secondary validation check (primary check is in signIn callback)
-        if (!isStudentEmail(email)) {
-          console.error('❌ Auth: Attempted to send magic link to non-student email:', email);
+        // Check if this is a student sign-in flow by examining the callback URL
+        const magicLinkUrl = new URL(url);
+        const callbackUrl = magicLinkUrl.searchParams.get('callbackUrl') || '';
+        const isStudentFlow = callbackUrl.includes('/student/auth-landing') || callbackUrl.includes('intent=student');
+
+        // Validate email domain for student flows
+        if (isStudentFlow && !isStudentEmail(email)) {
+          console.error('❌ Auth: Student sign-in rejected - invalid email domain:', email);
           throw new Error(
-            `This email service is only available for educational institution email addresses. Please use your university email (e.g., .edu, .ac.uk, .edu.au).`
+            `Invalid email domain. Students must use a university or institutional email address (e.g., .edu, .ac.uk, .edu.au). The email "${email}" is not from a recognized educational institution.`
           );
         }
 
-        if (config.app.isDevelopment) {
-          console.log('📧 Auth: Sending magic link to validated student email:', email);
+        if (config.app.isDevelopment && isStudentFlow) {
+          console.log('🎓 Auth: Student email validation passed:', email);
         }
 
         const nodemailer = (await import('nodemailer')).default
@@ -298,26 +304,6 @@ export const authOptions: NextAuthOptions = {
           console.error('   Provider:', account?.provider)
           console.error('   Profile:', profile)
           return false
-        }
-
-        // ====================================================================
-        // EMAIL PROVIDER DOMAIN VALIDATION (MAGIC LINK)
-        // ====================================================================
-        // Students signing in via magic link must use educational email domains.
-        // This validation happens in the signIn callback (not sendVerificationRequest)
-        // to provide clear error messages and prevent sending emails to invalid domains.
-        // ====================================================================
-        if (account?.provider === 'email') {
-          if (!isStudentEmail(user.email)) {
-            console.error('❌ Auth: Magic link sign-in rejected - invalid email domain:', user.email)
-            // Return false to block sign-in
-            // NextAuth will redirect to the sign-in page with error=EmailSignin
-            return false
-          }
-
-          if (config.app.isDevelopment) {
-            console.log('✅ Auth: Magic link email domain validated:', user.email)
-          }
         }
 
         // ====================================================================
@@ -670,10 +656,7 @@ export const authOptions: NextAuthOptions = {
     },
   },
   session: {
-    // IMPORTANT: Must use "jwt" strategy for Edge middleware compatibility
-    // The middleware uses getToken() which requires JWT strategy to access custom claims
-    // like userType and hasCompletedOnboarding
-    strategy: "jwt",
+    strategy: "database",
   },
   // NEXTAUTH_SECRET is required for production - config validation will throw error if missing
   secret: config.auth.nextAuth.secret || process.env.NEXTAUTH_SECRET,
