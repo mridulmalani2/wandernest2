@@ -9,7 +9,7 @@ import { PrimaryCTAButton } from '@/components/ui/PrimaryCTAButton';
 
 export const dynamic = 'force-dynamic';
 
-export default function StudentAuthLanding() {
+function StudentAuthLandingContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const intent = searchParams.get('intent');
@@ -125,3 +125,5 @@ export default function StudentAuthLanding() {
     </div>
   );
 }
+
+export default StudentAuthLandingContent;
