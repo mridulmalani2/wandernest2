@@ -1,0 +1,109 @@
+/**
+ * Email Domain Validation for Student Authentication
+ *
+ * This module provides validation for institutional/educational email addresses
+ * used in the student authentication flow. Only emails from recognized
+ * educational institutions are allowed for student sign-up and login.
+ */
+
+// Valid student email domains - centralized configuration
+export const STUDENT_EMAIL_DOMAINS = [
+  '.edu',       // US educational institutions
+  '.edu.in',    // Indian educational institutions
+  '.ac.uk',     // UK academic institutions
+  '.edu.au',    // Australian educational institutions
+  '.edu.sg',    // Singapore educational institutions
+  '.ac.in',     // Indian academic institutions
+  '.edu.cn',    // Chinese educational institutions
+  '.ac.jp',     // Japanese academic institutions
+  '.edu.my',    // Malaysian educational institutions
+  '.edu.pk',    // Pakistani educational institutions
+  '.ac.nz',     // New Zealand academic institutions
+  '.edu.ph',    // Philippine educational institutions
+  '.ac.za',     // South African academic institutions
+  '.edu.br',    // Brazilian educational institutions
+  '.edu.mx',    // Mexican educational institutions
+  '.ac.th',     // Thai academic institutions
+  '.edu.vn',    // Vietnamese educational institutions
+  '.ac.kr',     // Korean academic institutions
+  '.edu.hk',    // Hong Kong educational institutions
+  '.edu.tw',    // Taiwan educational institutions
+  '.ac.ae',     // UAE academic institutions
+  '.edu.sa',    // Saudi Arabian educational institutions
+  '.ac.il',     // Israeli academic institutions
+  '.edu.tr',    // Turkish educational institutions
+  '.ac.fr',     // French academic institutions (some use this)
+  '.edu.fr',    // French educational institutions
+  '.ac.be',     // Belgian academic institutions
+  '.edu.ar',    // Argentine educational institutions
+  '.edu.co',    // Colombian educational institutions
+  '.edu.pe',    // Peruvian educational institutions
+  '.edu.cl',    // Chilean educational institutions
+  // Add more institution-specific domains as needed
+];
+
+/**
+ * Validates if an email address belongs to a recognized educational institution
+ *
+ * @param email - The email address to validate
+ * @returns true if the email domain is from a recognized educational institution
+ */
+export function isStudentEmail(email: string): boolean {
+  if (!email || typeof email !== 'string') {
+    return false;
+  }
+
+  const lowerEmail = email.toLowerCase().trim();
+
+  // Validate email format
+  if (!lowerEmail.includes('@') || lowerEmail.split('@').length !== 2) {
+    return false;
+  }
+
+  return STUDENT_EMAIL_DOMAINS.some(domain => lowerEmail.endsWith(domain));
+}
+
+/**
+ * Gets a user-friendly error message for invalid student email domains
+ *
+ * @param email - The email that failed validation
+ * @returns A user-friendly error message
+ */
+export function getStudentEmailErrorMessage(email?: string): string {
+  if (!email) {
+    return 'Please enter a valid university or institutional email address.';
+  }
+
+  return `The email "${email}" does not appear to be from a recognized educational institution. Please use your university email address (e.g., .edu, .ac.uk, .edu.au).`;
+}
+
+/**
+ * Validates email format (basic check)
+ *
+ * @param email - The email address to validate
+ * @returns true if the email format is valid
+ */
+export function isValidEmailFormat(email: string): boolean {
+  if (!email || typeof email !== 'string') {
+    return false;
+  }
+
+  // Basic email regex - checks for format like xxx@yyy.zzz
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email.trim());
+}
+
+/**
+ * Gets the domain from an email address
+ *
+ * @param email - The email address
+ * @returns The domain portion of the email (e.g., "university.edu")
+ */
+export function getEmailDomain(email: string): string {
+  if (!email || typeof email !== 'string') {
+    return '';
+  }
+
+  const parts = email.toLowerCase().trim().split('@');
+  return parts.length === 2 ? parts[1] : '';
+}

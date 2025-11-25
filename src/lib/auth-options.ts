@@ -5,22 +5,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma, requireDatabase } from "@/lib/prisma";
 import { config } from "@/lib/config";
-
-// Valid student email domains
-const STUDENT_EMAIL_DOMAINS = [
-  '.edu',
-  '.edu.in',
-  '.ac.uk',
-  '.edu.au',
-  '.edu.sg',
-  '.ac.in',
-  // Add more institution-specific domains as needed
-];
-
-function isStudentEmail(email: string): boolean {
-  const lowerEmail = email.toLowerCase();
-  return STUDENT_EMAIL_DOMAINS.some(domain => lowerEmail.endsWith(domain));
-}
+import { isStudentEmail, getStudentEmailErrorMessage } from "@/lib/email-validation";
 
 // Build providers array conditionally based on configuration
 const providers = [];
@@ -44,6 +29,23 @@ if (config.email.isConfigured) {
       },
       from: config.email.from,
       async sendVerificationRequest({ identifier: email, url, provider }) {
+        // Check if this is a student sign-in flow by examining the callback URL
+        const magicLinkUrl = new URL(url);
+        const callbackUrl = magicLinkUrl.searchParams.get('callbackUrl') || '';
+        const isStudentFlow = callbackUrl.includes('/student/auth-landing') || callbackUrl.includes('intent=student');
+
+        // Validate email domain for student flows
+        if (isStudentFlow && !isStudentEmail(email)) {
+          console.error('❌ Auth: Student sign-in rejected - invalid email domain:', email);
+          throw new Error(
+            `Invalid email domain. Students must use a university or institutional email address (e.g., .edu, .ac.uk, .edu.au). The email "${email}" is not from a recognized educational institution.`
+          );
+        }
+
+        if (config.app.isDevelopment && isStudentFlow) {
+          console.log('🎓 Auth: Student email validation passed:', email);
+        }
+
         const nodemailer = (await import('nodemailer')).default
         const { host } = new URL(url)
 
@@ -270,6 +272,17 @@ export const authOptions: NextAuthOptions = {
           console.error('   Provider:', account?.provider)
           console.error('   Profile:', profile)
           return false
+        }
+
+        // STUDENT AUTHENTICATION POLICY:
+        // Students can ONLY sign in using magic-link email authentication with edu domains
+        // Block Google OAuth for student emails (even if they have .edu domain)
+        if (account?.provider === 'google' && isStudentEmail(user.email)) {
+          console.error('❌ Auth: Google OAuth blocked for student email:', user.email);
+          console.error('   Students must use magic-link authentication with their university email');
+          // Return false to block the sign-in
+          // This will redirect to the sign-in page with an OAuthSignin error
+          return false;
         }
 
         if (!prisma) {
