@@ -24,6 +24,7 @@ function StudentSignInContent() {
   const [emailSent, setEmailSent] = useState(false);
   const [emailProviderAvailable, setEmailProviderAvailable] = useState<boolean | null>(null);
   const [providerCheckError, setProviderCheckError] = useState(false);
+  const [emailErrorMessage, setEmailErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     // If already signed in as student, check onboarding status
@@ -62,7 +63,9 @@ function StudentSignInContent() {
 
     // Check if email provider is available before attempting sign-in
     if (emailProviderAvailable === false) {
-      alert('Email sign-in is not currently available. Please contact support or try again later.');
+      setEmailErrorMessage(
+        'Magic link sign-in is temporarily unavailable. Please use Google sign-in or contact support.'
+      );
       return;
     }
 
@@ -76,12 +79,19 @@ function StudentSignInContent() {
 
       if (result?.error) {
         console.error('Sign-in error:', result.error);
-        alert(`Sign-in failed: ${result.error}. Please try again or contact support.`);
+        if (result.error === 'EmailSignin') {
+          setEmailErrorMessage(
+            'We could not send the magic link. This usually means the email service is not configured or temporarily unavailable. Please try Google sign-in or contact support.'
+          );
+          setEmailProviderAvailable(false);
+        } else {
+          setEmailErrorMessage('Sign-in failed. Please try again or contact support.');
+        }
       } else if (result?.ok) {
         setEmailSent(true);
       } else {
         console.error('Sign-in failed with unknown error');
-        alert('Sign-in failed. Please try again or contact support.');
+        setEmailErrorMessage('Sign-in failed. Please try again or contact support.');
       }
     } catch (error) {
       console.error('Sign-in error:', error);
@@ -136,10 +146,12 @@ function StudentSignInContent() {
             </div>
 
             {/* Error Message */}
-            {error && (
+            {(error || emailErrorMessage) && (
               <div className="glass-card bg-ui-error/10 border-2 border-ui-error/30 rounded-2xl p-4 shadow-premium animate-scale-in">
                 <p className="text-sm text-ui-error font-semibold">
-                  {error === 'OAuthSignin'
+                  {emailErrorMessage
+                    ? emailErrorMessage
+                    : error === 'OAuthSignin'
                     ? 'Error occurred while signing in with Google'
                     : error === 'OAuthCallback'
                     ? 'Error occurred during the authentication callback'
@@ -152,7 +164,7 @@ function StudentSignInContent() {
                     : error === 'OAuthAccountNotLinked'
                     ? 'This email is already associated with another account'
                     : error === 'EmailSignin'
-                    ? 'Check your email for the sign in link'
+                    ? 'We could not send the magic link. Please try Google sign-in or contact support.'
                     : error === 'CredentialsSignin'
                     ? 'Invalid credentials'
                     : error === 'SessionRequired'
