@@ -27,6 +27,7 @@ function StudentSignInContent() {
   const [providerCheckError, setProviderCheckError] = useState(false);
   const [emailErrorMessage, setEmailErrorMessage] = useState<string | null>(null);
   const [domainValidationError, setDomainValidationError] = useState<string | null>(null);
+  const [isCheckingProvider, setIsCheckingProvider] = useState(true);
 
   useEffect(() => {
     // If already signed in as student, check onboarding status
@@ -42,17 +43,32 @@ function StudentSignInContent() {
   // Check if email provider is configured
   useEffect(() => {
     const checkEmailProvider = async () => {
+      setIsCheckingProvider(true);
       try {
         const response = await fetch('/api/auth/provider-status');
         if (response.ok) {
           const data = await response.json();
-          setEmailProviderAvailable(data.providers?.email ?? false);
+          const isEmailAvailable = data.providers?.email ?? false;
+          setEmailProviderAvailable(isEmailAvailable);
+
+          if (!isEmailAvailable) {
+            console.warn('⚠️ Email provider is not configured - magic link sign-in unavailable');
+          } else {
+            console.log('✅ Email provider is configured and available');
+          }
         } else {
+          console.error('❌ Failed to check provider status - HTTP', response.status);
           setProviderCheckError(true);
+          // On error, optimistically assume email is available rather than blocking users
+          setEmailProviderAvailable(true);
         }
       } catch (error) {
-        console.error('Failed to check provider status:', error);
+        console.error('❌ Failed to check provider status:', error);
         setProviderCheckError(true);
+        // On error, optimistically assume email is available rather than blocking users
+        setEmailProviderAvailable(true);
+      } finally {
+        setIsCheckingProvider(false);
       }
     };
 
@@ -195,15 +211,20 @@ function StudentSignInContent() {
               </div>
             )}
 
-            {/* Email Provider Not Configured Warning */}
-            {emailProviderAvailable === false && (
+            {/* Email Provider Not Configured Warning - Only show if definitely unavailable */}
+            {emailProviderAvailable === false && !isCheckingProvider && (
               <div className="glass-card bg-ui-error/10 border-2 border-ui-error/30 rounded-2xl p-4 shadow-premium animate-scale-in">
-                <p className="text-sm text-ui-error font-semibold mb-2">
-                  ⚠️ Magic Link Sign-In Unavailable
-                </p>
-                <p className="text-sm text-gray-700">
-                  The email authentication service is not configured. Please contact the administrator to enable magic link sign-in, or use an alternative sign-in method if available.
-                </p>
+                <div className="flex items-start gap-3">
+                  <AlertCircle className="w-5 h-5 text-ui-error flex-shrink-0 mt-0.5" />
+                  <div className="flex-1">
+                    <p className="text-sm text-ui-error font-semibold mb-2">
+                      Magic Link Sign-In Unavailable
+                    </p>
+                    <p className="text-sm text-gray-700">
+                      The email authentication service is not configured. Please contact support or try again later.
+                    </p>
+                  </div>
+                </div>
               </div>
             )}
 
@@ -240,11 +261,11 @@ function StudentSignInContent() {
 
                     <PrimaryCTAButton
                       type="submit"
-                      disabled={isSubmitting || !email || emailProviderAvailable === false || emailProviderAvailable === null}
+                      disabled={isSubmitting || !email || (emailProviderAvailable === false && !isCheckingProvider)}
                       variant="purple"
                       className="w-full justify-center"
                     >
-                      {emailProviderAvailable === null ? (
+                      {isCheckingProvider ? (
                         <>
                           <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
                           <span>Checking availability...</span>
@@ -279,21 +300,31 @@ function StudentSignInContent() {
                 <div className="text-center py-4">
                   <div className="mb-4">
                     <div className="mx-auto w-16 h-16 bg-ui-success/20 rounded-full flex items-center justify-center">
-                      <Mail className="w-8 h-8 text-ui-success" />
+                      <CheckCircle2 className="w-8 h-8 text-ui-success" />
                     </div>
                   </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">Check your email!</h3>
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">Check your university inbox!</h3>
                   <p className="text-gray-600 mb-4">
-                    We've sent a magic link to <span className="font-semibold">{email}</span>
+                    We've sent a magic sign-in link to <span className="font-semibold">{email}</span>
                   </p>
-                  <p className="text-sm text-gray-500">
-                    Click the link in your email to sign in. You can close this page.
+                  <div className="bg-ui-blue-secondary/20 rounded-xl p-4 mb-4">
+                    <p className="text-sm text-gray-700">
+                      <strong>Next steps:</strong>
+                    </p>
+                    <ol className="text-sm text-gray-600 mt-2 space-y-1 text-left">
+                      <li>1. Open your university email inbox</li>
+                      <li>2. Click the secure sign-in link</li>
+                      <li>3. You'll be automatically signed in</li>
+                    </ol>
+                  </div>
+                  <p className="text-xs text-gray-500 mb-4">
+                    The link expires in 24 hours and can only be used once.
                   </p>
                   <button
                     onClick={() => setEmailSent(false)}
-                    className="mt-6 text-ui-purple-primary hover:underline text-sm font-medium"
+                    className="text-ui-purple-primary hover:underline text-sm font-medium"
                   >
-                    Try a different email
+                    Try a different email address
                   </button>
                 </div>
               )}
