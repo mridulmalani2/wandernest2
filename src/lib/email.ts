@@ -129,74 +129,155 @@ export async function sendBookingConfirmation(
 ): Promise<{ success: boolean; error?: string }> {
   const html = `
     <!DOCTYPE html>
-    <html>
+    <html lang="en">
       <head>
         <meta charset="utf-8">
-        <style>
-          body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 20px;
-          }
-          .header {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            color: white;
-            padding: 30px;
-            text-align: center;
-            border-radius: 10px 10px 0 0;
-          }
-          .content {
-            background: #f9fafb;
-            padding: 30px;
-            border: 1px solid #e5e7eb;
-            border-top: none;
-            border-radius: 0 0 10px 10px;
-          }
-          .success-icon {
-            font-size: 48px;
-            margin-bottom: 10px;
-          }
-          .request-id {
-            background: white;
-            border: 1px solid #d1d5db;
-            border-radius: 8px;
-            padding: 15px;
-            margin: 20px 0;
-            font-family: monospace;
-            text-align: center;
-          }
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Booking Confirmed</title>
+        <!--[if mso]>
+        <style type="text/css">
+          body, table, td {font-family: Arial, Helvetica, sans-serif !important;}
         </style>
+        <![endif]-->
       </head>
-      <body>
-        <div class="header">
-          <div class="success-icon">✅</div>
-          <h1 style="margin: 0;">Booking Request Confirmed!</h1>
-        </div>
-        <div class="content">
-          <h2>Your Request is Being Processed</h2>
-          <p>Great news! Your booking request has been successfully submitted.</p>
+      <body style="margin: 0; padding: 0; background-color: #f3f4f6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #f3f4f6;">
+          <tr>
+            <td align="center" style="padding: 40px 20px;">
+              <!-- Main Container -->
+              <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="max-width: 600px; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);">
 
-          <div class="request-id">
-            <strong>Request ID:</strong> ${requestId}
-          </div>
+                <!-- Brand Header -->
+                <tr>
+                  <td style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); padding: 32px 40px; text-align: center;">
+                    <h1 style="margin: 0; font-size: 28px; font-weight: 700; color: #ffffff; letter-spacing: -0.5px;">
+                      WanderNest
+                    </h1>
+                    <p style="margin: 8px 0 0 0; font-size: 14px; color: rgba(255, 255, 255, 0.9);">
+                      Connect with Local Student Guides
+                    </p>
+                  </td>
+                </tr>
 
-          <p>We're now matching you with the perfect local guide. You'll receive an email notification once guides start responding to your request.</p>
+                <!-- Hero Banner -->
+                <tr>
+                  <td style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 48px 40px; text-align: center;">
+                    <div style="font-size: 64px; line-height: 1; margin-bottom: 16px;">✅</div>
+                    <h2 style="margin: 0; font-size: 32px; font-weight: 700; color: #ffffff; line-height: 1.2;">
+                      Booking Confirmed!
+                    </h2>
+                    <p style="margin: 12px 0 0 0; font-size: 16px; color: rgba(255, 255, 255, 0.95);">
+                      Your journey begins here
+                    </p>
+                  </td>
+                </tr>
 
-          <h3>What's Next?</h3>
-          <ul>
-            <li>Local guides will review your request</li>
-            <li>You'll receive proposals from interested guides</li>
-            <li>Review their profiles and choose your favorite</li>
-            <li>Connect and plan your amazing trip!</li>
-          </ul>
+                <!-- Main Content -->
+                <tr>
+                  <td style="padding: 48px 40px;">
+                    <p style="margin: 0 0 24px 0; font-size: 16px; line-height: 1.6; color: #374151;">
+                      Great news! Your booking request has been successfully submitted and we're now connecting you with the perfect local student guides.
+                    </p>
 
-          <p>If you have any questions, feel free to reach out to our support team.</p>
+                    <!-- Request ID Card -->
+                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border-radius: 12px; margin: 32px 0; border: 2px solid #bae6fd;">
+                      <tr>
+                        <td style="padding: 24px; text-align: center;">
+                          <p style="margin: 0 0 8px 0; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: #0369a1;">
+                            Your Request ID
+                          </p>
+                          <p style="margin: 0; font-size: 24px; font-weight: 700; font-family: 'Courier New', monospace; color: #0c4a6e; letter-spacing: 2px;">
+                            ${requestId}
+                          </p>
+                        </td>
+                      </tr>
+                    </table>
 
-          <p>Happy travels,<br>The TourWiseCo Team</p>
-        </div>
+                    <h3 style="margin: 32px 0 16px 0; font-size: 20px; font-weight: 600; color: #111827;">
+                      What Happens Next?
+                    </h3>
+
+                    <!-- Timeline Steps -->
+                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                      <tr>
+                        <td style="padding: 16px; background: #f9fafb; border-radius: 10px; margin-bottom: 12px;">
+                          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                            <tr>
+                              <td width="40" style="vertical-align: top;">
+                                <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 14px;">1</div>
+                              </td>
+                              <td style="padding-left: 12px; vertical-align: top;">
+                                <p style="margin: 0; font-size: 15px; font-weight: 600; color: #111827;">Local guides review your request</p>
+                                <p style="margin: 4px 0 0 0; font-size: 14px; color: #6b7280;">We're matching you with students who love your chosen destination</p>
+                              </td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                      <tr><td style="height: 12px;"></td></tr>
+                      <tr>
+                        <td style="padding: 16px; background: #f9fafb; border-radius: 10px;">
+                          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                            <tr>
+                              <td width="40" style="vertical-align: top;">
+                                <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 14px;">2</div>
+                              </td>
+                              <td style="padding-left: 12px; vertical-align: top;">
+                                <p style="margin: 0; font-size: 15px; font-weight: 600; color: #111827;">Receive guide proposals</p>
+                                <p style="margin: 4px 0 0 0; font-size: 14px; color: #6b7280;">Interested guides will accept your request</p>
+                              </td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                      <tr><td style="height: 12px;"></td></tr>
+                      <tr>
+                        <td style="padding: 16px; background: #f9fafb; border-radius: 10px;">
+                          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                            <tr>
+                              <td width="40" style="vertical-align: top;">
+                                <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 14px;">3</div>
+                              </td>
+                              <td style="padding-left: 12px; vertical-align: top;">
+                                <p style="margin: 0; font-size: 15px; font-weight: 600; color: #111827;">Connect and plan your trip</p>
+                                <p style="margin: 4px 0 0 0; font-size: 14px; color: #6b7280;">Get their contact info and start planning your adventure!</p>
+                              </td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                    </table>
+
+                    <!-- Info Box -->
+                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin: 32px 0; background: #fef3c7; border-left: 4px solid #f59e0b; border-radius: 8px;">
+                      <tr>
+                        <td style="padding: 20px;">
+                          <p style="margin: 0; font-size: 14px; line-height: 1.5; color: #92400e;">
+                            <strong style="color: #78350f;">💡 Pro Tip:</strong> You'll receive an email as soon as a guide accepts your request. Keep an eye on your inbox!
+                          </p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+
+                <!-- Footer -->
+                <tr>
+                  <td style="background: #f9fafb; padding: 32px 40px; border-top: 1px solid #e5e7eb;">
+                    <p style="margin: 0 0 16px 0; font-size: 14px; color: #6b7280; text-align: center;">
+                      Questions? We're here to help!
+                    </p>
+                    <p style="margin: 0; font-size: 13px; color: #9ca3af; text-align: center; line-height: 1.6;">
+                      © ${new Date().getFullYear()} WanderNest · Connecting travelers with local student guides worldwide<br>
+                      <a href="${getBaseUrl()}" style="color: #6366f1; text-decoration: none;">Visit Dashboard</a>
+                    </p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
       </body>
     </html>
   `
@@ -204,7 +285,7 @@ export async function sendBookingConfirmation(
   return await sendEmail(
     {
       to: email,
-      subject: '✅ Booking Request Confirmed - TourWiseCo',
+      subject: '✅ Booking Confirmed – Your Adventure Awaits!',
       html,
     },
     'Booking Confirmation'
@@ -233,140 +314,230 @@ export async function sendStudentRequestNotification(
 
   const html = `
     <!DOCTYPE html>
-    <html>
+    <html lang="en">
       <head>
         <meta charset="utf-8">
-        <style>
-          body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 20px;
-          }
-          .header {
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-            color: white;
-            padding: 30px;
-            text-align: center;
-            border-radius: 10px 10px 0 0;
-          }
-          .content {
-            background: #f9fafb;
-            padding: 30px;
-            border: 1px solid #e5e7eb;
-            border-top: none;
-            border-radius: 0 0 10px 10px;
-          }
-          .detail-box {
-            background: white;
-            border: 1px solid #e5e7eb;
-            border-radius: 8px;
-            padding: 20px;
-            margin: 20px 0;
-          }
-          .detail-row {
-            display: flex;
-            padding: 8px 0;
-            border-bottom: 1px solid #f3f4f6;
-          }
-          .detail-row:last-child {
-            border-bottom: none;
-          }
-          .detail-label {
-            font-weight: 600;
-            color: #6b7280;
-            width: 140px;
-          }
-          .detail-value {
-            color: #111827;
-            flex: 1;
-          }
-          .cta-button {
-            display: inline-block;
-            background: #3b82f6;
-            color: white;
-            padding: 14px 32px;
-            text-decoration: none;
-            border-radius: 8px;
-            font-weight: 600;
-            margin: 10px 5px;
-          }
-          .decline-button {
-            background: #6b7280;
-          }
-          .warning {
-            background: #fef3c7;
-            border-left: 4px solid #f59e0b;
-            padding: 12px;
-            margin: 20px 0;
-            border-radius: 4px;
-          }
-        </style>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>New Direct Request</title>
       </head>
-      <body>
-        <div class="header">
-          <h1 style="margin: 0;">🎉 New Request for a ${touristRequest.serviceType === 'itinerary_help' ? 'Itinerary Consultation' : 'Guided Experience'}</h1>
-          <p style="margin: 10px 0 0 0;">In ${touristRequest.city}</p>
-        </div>
-        <div class="content">
-          <h2>Hi ${student.name}!</h2>
-          <p>Great news! A tourist has selected you as a potential guide for their trip. Here are the details:</p>
+      <body style="margin: 0; padding: 0; background-color: #f3f4f6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #f3f4f6;">
+          <tr>
+            <td align="center" style="padding: 40px 20px;">
+              <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="max-width: 600px; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);">
 
-          <div class="detail-box">
-            <div class="detail-row">
-              <div class="detail-label">📍 City:</div>
-              <div class="detail-value">${touristRequest.city}</div>
-            </div>
-            <div class="detail-row">
-              <div class="detail-label">📅 Dates:</div>
-              <div class="detail-value">${startDate}${endDate ? ` - ${endDate}` : ''}</div>
-            </div>
-            <div class="detail-row">
-              <div class="detail-label">⏰ Preferred Time:</div>
-              <div class="detail-value">${touristRequest.preferredTime}</div>
-            </div>
-            <div class="detail-row">
-              <div class="detail-label">👥 Guests:</div>
-              <div class="detail-value">${touristRequest.numberOfGuests} (${touristRequest.groupType})</div>
-            </div>
-            <div class="detail-row">
-              <div class="detail-label">🎯 Service Type:</div>
-              <div class="detail-value">${touristRequest.serviceType === 'itinerary_help' ? 'Itinerary Help (Online)' : 'Guided Experience (In-Person)'}</div>
-            </div>
-            <div class="detail-row">
-              <div class="detail-label">💡 Interests:</div>
-              <div class="detail-value">${touristRequest.interests.join(', ')}</div>
-            </div>
-            ${touristRequest.tripNotes ? `
-            <div class="detail-row">
-              <div class="detail-label">📝 Notes:</div>
-              <div class="detail-value">${touristRequest.tripNotes}</div>
-            </div>
-            ` : ''}
-          </div>
+                <!-- Brand Header -->
+                <tr>
+                  <td style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); padding: 32px 40px; text-align: center;">
+                    <h1 style="margin: 0; font-size: 28px; font-weight: 700; color: #ffffff; letter-spacing: -0.5px;">
+                      WanderNest
+                    </h1>
+                    <p style="margin: 8px 0 0 0; font-size: 14px; color: rgba(255, 255, 255, 0.9);">
+                      Student Guide Opportunities
+                    </p>
+                  </td>
+                </tr>
 
-          <div class="warning">
-            <strong>⚡ Act Fast!</strong> This request was sent to multiple guides. The first one to accept gets the opportunity. If you're interested, click below to accept right away!
-          </div>
+                <!-- Hero Banner -->
+                <tr>
+                  <td style="background: linear-gradient(135deg, #ec4899 0%, #db2777 100%); padding: 48px 40px; text-align: center;">
+                    <div style="font-size: 64px; line-height: 1; margin-bottom: 16px;">🌟</div>
+                    <h2 style="margin: 0; font-size: 32px; font-weight: 700; color: #ffffff; line-height: 1.2;">
+                      You've Been Requested!
+                    </h2>
+                    <p style="margin: 12px 0 0 0; font-size: 16px; color: rgba(255, 255, 255, 0.95);">
+                      A tourist specifically chose you for ${touristRequest.city}
+                    </p>
+                  </td>
+                </tr>
 
-          <div style="text-align: center; margin: 30px 0;">
-            <a href="${acceptUrl}" class="cta-button">Accept This Request</a>
-            <br>
-            <a href="${getBaseUrl()}/student/dashboard" class="cta-button decline-button">View in Dashboard</a>
-          </div>
+                <!-- Main Content -->
+                <tr>
+                  <td style="padding: 48px 40px;">
+                    <p style="margin: 0 0 8px 0; font-size: 18px; font-weight: 600; color: #111827;">
+                      Hi ${student.name}! 👋
+                    </p>
+                    <p style="margin: 0 0 24px 0; font-size: 16px; line-height: 1.6; color: #374151;">
+                      Great news! A tourist has <strong>selected you specifically</strong> as their guide. They found your profile and want you to show them around!
+                    </p>
 
-          <h3>Important Reminders:</h3>
-          <ul>
-            <li><strong>First come, first served:</strong> Whichever guide accepts first gets the job</li>
-            <li><strong>Direct arrangement:</strong> TourWiseCo is just a connector. Payment and exact meeting details are arranged directly with the tourist</li>
-            <li><strong>Contact details:</strong> You'll receive the tourist's contact information once you accept</li>
-            <li><strong>Professional conduct:</strong> Please maintain high standards of service and reliability</li>
-          </ul>
+                    <!-- Trip Details Card -->
+                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background: #f9fafb; border-radius: 12px; border: 1px solid #e5e7eb; margin: 24px 0;">
+                      <tr>
+                        <td style="padding: 24px;">
+                          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                            <tr>
+                              <td style="padding: 12px 0; border-bottom: 1px solid #e5e7eb;">
+                                <p style="margin: 0 0 4px 0; font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">
+                                  📍 Location
+                                </p>
+                                <p style="margin: 0; font-size: 16px; font-weight: 600; color: #111827;">
+                                  ${touristRequest.city}
+                                </p>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td style="padding: 12px 0; border-bottom: 1px solid #e5e7eb;">
+                                <p style="margin: 0 0 4px 0; font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">
+                                  📅 Dates
+                                </p>
+                                <p style="margin: 0; font-size: 16px; font-weight: 600; color: #111827;">
+                                  ${startDate}${endDate ? ` - ${endDate}` : ''}
+                                </p>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td style="padding: 12px 0; border-bottom: 1px solid #e5e7eb;">
+                                <p style="margin: 0 0 4px 0; font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">
+                                  ⏰ Preferred Time
+                                </p>
+                                <p style="margin: 0; font-size: 16px; font-weight: 600; color: #111827;">
+                                  ${touristRequest.preferredTime}
+                                </p>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td style="padding: 12px 0; border-bottom: 1px solid #e5e7eb;">
+                                <p style="margin: 0 0 4px 0; font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">
+                                  👥 Group Size
+                                </p>
+                                <p style="margin: 0; font-size: 16px; font-weight: 600; color: #111827;">
+                                  ${touristRequest.numberOfGuests} guests (${touristRequest.groupType})
+                                </p>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td style="padding: 12px 0; border-bottom: 1px solid #e5e7eb;">
+                                <p style="margin: 0 0 4px 0; font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">
+                                  🎯 Service Type
+                                </p>
+                                <p style="margin: 0; font-size: 16px; font-weight: 600; color: #111827;">
+                                  ${touristRequest.serviceType === 'itinerary_help' ? 'Itinerary Help (Online)' : 'Guided Experience (In-Person)'}
+                                </p>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td style="padding: 12px 0; ${touristRequest.tripNotes ? 'border-bottom: 1px solid #e5e7eb;' : ''}">
+                                <p style="margin: 0 0 4px 0; font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">
+                                  💡 Interests
+                                </p>
+                                <p style="margin: 0; font-size: 16px; font-weight: 600; color: #111827;">
+                                  ${touristRequest.interests.join(', ')}
+                                </p>
+                              </td>
+                            </tr>
+                            ${touristRequest.tripNotes ? `
+                            <tr>
+                              <td style="padding: 12px 0;">
+                                <p style="margin: 0 0 4px 0; font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">
+                                  📝 Special Notes
+                                </p>
+                                <p style="margin: 0; font-size: 15px; color: #374151; line-height: 1.5;">
+                                  ${touristRequest.tripNotes}
+                                </p>
+                              </td>
+                            </tr>
+                            ` : ''}
+                          </table>
+                        </td>
+                      </tr>
+                    </table>
 
-          <p>Good luck!<br>The TourWiseCo Team</p>
-        </div>
+                    <!-- Urgency Banner -->
+                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin: 32px 0; background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-left: 4px solid #f59e0b; border-radius: 8px;">
+                      <tr>
+                        <td style="padding: 20px;">
+                          <p style="margin: 0; font-size: 15px; line-height: 1.6; color: #92400e;">
+                            <strong style="color: #78350f;">⚡ Act Fast!</strong> This may also have been sent to other guides. First to accept wins!
+                          </p>
+                        </td>
+                      </tr>
+                    </table>
+
+                    <!-- CTA Buttons -->
+                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin: 40px 0;">
+                      <tr>
+                        <td align="center">
+                          <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+                            <tr>
+                              <td style="border-radius: 12px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);">
+                                <a href="${acceptUrl}" style="display: inline-block; padding: 18px 48px; font-size: 17px; font-weight: 700; color: #ffffff; text-decoration: none; border-radius: 12px;">
+                                  ✅ Accept This Request
+                                </a>
+                              </td>
+                            </tr>
+                            <tr><td style="height: 16px;"></td></tr>
+                            <tr>
+                              <td style="border-radius: 12px; background: #6b7280;">
+                                <a href="${getBaseUrl()}/student/dashboard" style="display: inline-block; padding: 14px 36px; font-size: 15px; font-weight: 600; color: #ffffff; text-decoration: none; border-radius: 12px;">
+                                  View in Dashboard
+                                </a>
+                              </td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                    </table>
+
+                    <!-- Important Reminders -->
+                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin: 32px 0; background: #f0f9ff; border-radius: 12px; border: 1px solid #bae6fd;">
+                      <tr>
+                        <td style="padding: 24px;">
+                          <h3 style="margin: 0 0 16px 0; font-size: 18px; font-weight: 700; color: #0c4a6e;">
+                            Important Reminders
+                          </h3>
+                          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                            <tr>
+                              <td style="padding: 8px 0;">
+                                <p style="margin: 0; font-size: 14px; line-height: 1.6; color: #0c4a6e;">
+                                  ✅ Once you accept, you'll receive the tourist's contact details
+                                </p>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td style="padding: 8px 0;">
+                                <p style="margin: 0; font-size: 14px; line-height: 1.6; color: #0c4a6e;">
+                                  ✅ First to accept wins (if multiple guides received this)
+                                </p>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td style="padding: 8px 0;">
+                                <p style="margin: 0; font-size: 14px; line-height: 1.6; color: #0c4a6e;">
+                                  ✅ Payment and meeting details are arranged directly with the tourist
+                                </p>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td style="padding: 8px 0;">
+                                <p style="margin: 0; font-size: 14px; line-height: 1.6; color: #0c4a6e;">
+                                  ✅ Maintain professional conduct and high service standards
+                                </p>
+                              </td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+
+                <!-- Footer -->
+                <tr>
+                  <td style="background: #f9fafb; padding: 32px 40px; border-top: 1px solid #e5e7eb;">
+                    <p style="margin: 0 0 8px 0; font-size: 14px; color: #6b7280; text-align: center;">
+                      Questions? We're here to help!
+                    </p>
+                    <p style="margin: 0; font-size: 13px; color: #9ca3af; text-align: center; line-height: 1.6;">
+                      © ${new Date().getFullYear()} WanderNest · Connecting travelers with local student guides worldwide
+                    </p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
       </body>
     </html>
   `
@@ -374,7 +545,7 @@ export async function sendStudentRequestNotification(
   return await sendEmail(
     {
       to: student.email,
-      subject: `🎉 New Request: ${touristRequest.serviceType === 'itinerary_help' ? 'Itinerary Help' : 'Guided Experience'} in ${touristRequest.city}`,
+      subject: `🌟 You've Been Requested as a Guide in ${touristRequest.city}!`,
       html,
     },
     'Student Request Notification'
@@ -414,150 +585,269 @@ export async function sendStudentMatchInvitation(
 
   const html = `
     <!DOCTYPE html>
-    <html>
+    <html lang="en">
       <head>
         <meta charset="utf-8">
-        <style>
-          body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 20px;
-          }
-          .header {
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-            color: white;
-            padding: 30px;
-            text-align: center;
-            border-radius: 10px 10px 0 0;
-          }
-          .content {
-            background: #f9fafb;
-            padding: 30px;
-            border: 1px solid #e5e7eb;
-            border-top: none;
-            border-radius: 0 0 10px 10px;
-          }
-          .detail-box {
-            background: white;
-            border: 1px solid #e5e7eb;
-            border-radius: 8px;
-            padding: 20px;
-            margin: 20px 0;
-          }
-          .detail-row {
-            display: flex;
-            padding: 8px 0;
-            border-bottom: 1px solid #f3f4f6;
-          }
-          .detail-row:last-child {
-            border-bottom: none;
-          }
-          .detail-label {
-            font-weight: 600;
-            color: #6b7280;
-            width: 140px;
-          }
-          .detail-value {
-            color: #111827;
-            flex: 1;
-          }
-          .cta-button {
-            display: inline-block;
-            background: #3b82f6;
-            color: white;
-            padding: 14px 32px;
-            text-decoration: none;
-            border-radius: 8px;
-            font-weight: 600;
-            margin: 10px 5px;
-          }
-          .decline-button {
-            background: #6b7280;
-          }
-          .warning {
-            background: #fef3c7;
-            border-left: 4px solid #f59e0b;
-            padding: 12px;
-            margin: 20px 0;
-            border-radius: 4px;
-          }
-        </style>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>New Match Opportunity</title>
       </head>
-      <body>
-        <div class="header">
-          <h1 style="margin: 0;">🎉 New Match Request</h1>
-          <p style="margin: 10px 0 0 0;">${touristRequest.serviceType === 'itinerary_help' ? 'Itinerary Consultation' : 'Guided Experience'} in ${touristRequest.city}</p>
-        </div>
-        <div class="content">
-          <h2>Hi ${student.name}!</h2>
-          <p>You've been automatically matched with a tourist based on your profile, location, and availability! Here are the details:</p>
+      <body style="margin: 0; padding: 0; background-color: #f3f4f6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #f3f4f6;">
+          <tr>
+            <td align="center" style="padding: 40px 20px;">
+              <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="max-width: 600px; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);">
 
-          <div class="detail-box">
-            <div class="detail-row">
-              <div class="detail-label">📍 City:</div>
-              <div class="detail-value">${touristRequest.city}</div>
-            </div>
-            <div class="detail-row">
-              <div class="detail-label">📅 Dates:</div>
-              <div class="detail-value">${startDate}${endDate ? ` - ${endDate}` : ''}</div>
-            </div>
-            <div class="detail-row">
-              <div class="detail-label">⏰ Preferred Time:</div>
-              <div class="detail-value">${touristRequest.preferredTime}</div>
-            </div>
-            <div class="detail-row">
-              <div class="detail-label">👥 Guests:</div>
-              <div class="detail-value">${touristRequest.numberOfGuests} (${touristRequest.groupType})</div>
-            </div>
-            <div class="detail-row">
-              <div class="detail-label">🎯 Service Type:</div>
-              <div class="detail-value">${touristRequest.serviceType === 'itinerary_help' ? 'Itinerary Help (Online)' : 'Guided Experience (In-Person)'}</div>
-            </div>
-            <div class="detail-row">
-              <div class="detail-label">💡 Interests:</div>
-              <div class="detail-value">${touristRequest.interests.join(', ')}</div>
-            </div>
-            ${touristRequest.tripNotes ? `
-            <div class="detail-row">
-              <div class="detail-label">📝 Notes:</div>
-              <div class="detail-value">${touristRequest.tripNotes}</div>
-            </div>
-            ` : ''}
-          </div>
+                <!-- Brand Header -->
+                <tr>
+                  <td style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); padding: 32px 40px; text-align: center;">
+                    <h1 style="margin: 0; font-size: 28px; font-weight: 700; color: #ffffff; letter-spacing: -0.5px;">
+                      WanderNest
+                    </h1>
+                    <p style="margin: 8px 0 0 0; font-size: 14px; color: rgba(255, 255, 255, 0.9);">
+                      Student Guide Opportunities
+                    </p>
+                  </td>
+                </tr>
 
-          <div class="warning">
-            <strong>⚡ Act Fast!</strong> This request was sent to multiple guides. The first one to accept gets the opportunity. If you're interested, click below to accept right away!
-          </div>
+                <!-- Hero Banner -->
+                <tr>
+                  <td style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); padding: 48px 40px; text-align: center;">
+                    <div style="font-size: 64px; line-height: 1; margin-bottom: 16px;">🎉</div>
+                    <h2 style="margin: 0; font-size: 32px; font-weight: 700; color: #ffffff; line-height: 1.2;">
+                      New Match Opportunity!
+                    </h2>
+                    <p style="margin: 12px 0 0 0; font-size: 16px; color: rgba(255, 255, 255, 0.95);">
+                      ${touristRequest.serviceType === 'itinerary_help' ? 'Itinerary Consultation' : 'Guided Experience'} in ${touristRequest.city}
+                    </p>
+                  </td>
+                </tr>
 
-          <div style="text-align: center; margin: 30px 0;">
-            <a href="${acceptUrl}" class="cta-button">✅ Accept This Request</a>
-            <br>
-            <a href="${declineUrl}" class="cta-button decline-button">❌ Decline (Let Others Respond)</a>
-          </div>
+                <!-- Main Content -->
+                <tr>
+                  <td style="padding: 48px 40px;">
+                    <p style="margin: 0 0 8px 0; font-size: 18px; font-weight: 600; color: #111827;">
+                      Hi ${student.name}! 👋
+                    </p>
+                    <p style="margin: 0 0 24px 0; font-size: 16px; line-height: 1.6; color: #374151;">
+                      You've been automatically matched with a tourist based on your profile, location, and availability! Review the details below:
+                    </p>
 
-          <h3>What Happens Next?</h3>
-          <ul>
-            <li><strong>If you accept:</strong> You'll immediately receive the tourist's contact details (email, phone, WhatsApp) and they'll receive yours</li>
-            <li><strong>First come, first served:</strong> Only the first guide to accept gets the match. Others will be notified it's no longer available</li>
-            <li><strong>Direct arrangement:</strong> TourWiseCo connects you - payment and meeting details are arranged directly with the tourist</li>
-            <li><strong>No payment platform (yet):</strong> Agree on payment method directly (cash, bank transfer, etc.)</li>
-          </ul>
+                    <!-- Trip Details Card -->
+                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background: #f9fafb; border-radius: 12px; border: 1px solid #e5e7eb; margin: 24px 0;">
+                      <tr>
+                        <td style="padding: 24px;">
+                          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                            <tr>
+                              <td style="padding: 12px 0; border-bottom: 1px solid #e5e7eb;">
+                                <p style="margin: 0 0 4px 0; font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">
+                                  📍 Location
+                                </p>
+                                <p style="margin: 0; font-size: 16px; font-weight: 600; color: #111827;">
+                                  ${touristRequest.city}
+                                </p>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td style="padding: 12px 0; border-bottom: 1px solid #e5e7eb;">
+                                <p style="margin: 0 0 4px 0; font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">
+                                  📅 Dates
+                                </p>
+                                <p style="margin: 0; font-size: 16px; font-weight: 600; color: #111827;">
+                                  ${startDate}${endDate ? ` - ${endDate}` : ''}
+                                </p>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td style="padding: 12px 0; border-bottom: 1px solid #e5e7eb;">
+                                <p style="margin: 0 0 4px 0; font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">
+                                  ⏰ Preferred Time
+                                </p>
+                                <p style="margin: 0; font-size: 16px; font-weight: 600; color: #111827;">
+                                  ${touristRequest.preferredTime}
+                                </p>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td style="padding: 12px 0; border-bottom: 1px solid #e5e7eb;">
+                                <p style="margin: 0 0 4px 0; font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">
+                                  👥 Group Size
+                                </p>
+                                <p style="margin: 0; font-size: 16px; font-weight: 600; color: #111827;">
+                                  ${touristRequest.numberOfGuests} guests (${touristRequest.groupType})
+                                </p>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td style="padding: 12px 0; border-bottom: 1px solid #e5e7eb;">
+                                <p style="margin: 0 0 4px 0; font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">
+                                  🎯 Service Type
+                                </p>
+                                <p style="margin: 0; font-size: 16px; font-weight: 600; color: #111827;">
+                                  ${touristRequest.serviceType === 'itinerary_help' ? 'Itinerary Help (Online)' : 'Guided Experience (In-Person)'}
+                                </p>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td style="padding: 12px 0; ${touristRequest.tripNotes ? 'border-bottom: 1px solid #e5e7eb;' : ''}">
+                                <p style="margin: 0 0 4px 0; font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">
+                                  💡 Interests
+                                </p>
+                                <p style="margin: 0; font-size: 16px; font-weight: 600; color: #111827;">
+                                  ${touristRequest.interests.join(', ')}
+                                </p>
+                              </td>
+                            </tr>
+                            ${touristRequest.tripNotes ? `
+                            <tr>
+                              <td style="padding: 12px 0;">
+                                <p style="margin: 0 0 4px 0; font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">
+                                  📝 Special Notes
+                                </p>
+                                <p style="margin: 0; font-size: 15px; color: #374151; line-height: 1.5;">
+                                  ${touristRequest.tripNotes}
+                                </p>
+                              </td>
+                            </tr>
+                            ` : ''}
+                          </table>
+                        </td>
+                      </tr>
+                    </table>
 
-          <h3>Important Reminders:</h3>
-          <ul>
-            <li>✅ Maintain professional conduct and high service standards</li>
-            <li>✅ Respond promptly to tourist messages</li>
-            <li>✅ Confirm meeting details 24 hours before the trip</li>
-            <li>✅ No-shows hurt your reliability score and future matching</li>
-          </ul>
+                    <!-- Urgency Banner -->
+                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin: 32px 0; background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-left: 4px solid #f59e0b; border-radius: 8px;">
+                      <tr>
+                        <td style="padding: 20px;">
+                          <p style="margin: 0; font-size: 15px; line-height: 1.6; color: #92400e;">
+                            <strong style="color: #78350f;">⚡ Act Fast!</strong> This request was sent to multiple guides. The first one to accept gets the opportunity!
+                          </p>
+                        </td>
+                      </tr>
+                    </table>
 
-          <p><small>This invitation link expires in 72 hours. Accept or decline using the buttons above.</small></p>
+                    <!-- CTA Buttons -->
+                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin: 40px 0;">
+                      <tr>
+                        <td align="center">
+                          <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+                            <tr>
+                              <td style="border-radius: 12px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);">
+                                <a href="${acceptUrl}" style="display: inline-block; padding: 18px 48px; font-size: 17px; font-weight: 700; color: #ffffff; text-decoration: none; border-radius: 12px;">
+                                  ✅ Accept This Request
+                                </a>
+                              </td>
+                            </tr>
+                            <tr><td style="height: 16px;"></td></tr>
+                            <tr>
+                              <td style="border-radius: 12px; background: #6b7280;">
+                                <a href="${declineUrl}" style="display: inline-block; padding: 14px 36px; font-size: 15px; font-weight: 600; color: #ffffff; text-decoration: none; border-radius: 12px;">
+                                  Decline (Let Others Respond)
+                                </a>
+                              </td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                    </table>
 
-          <p>Good luck!<br>The TourWiseCo Team</p>
-        </div>
+                    <!-- What Happens Next -->
+                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin: 32px 0; background: #f0f9ff; border-radius: 12px; border: 1px solid #bae6fd;">
+                      <tr>
+                        <td style="padding: 24px;">
+                          <h3 style="margin: 0 0 16px 0; font-size: 18px; font-weight: 700; color: #0c4a6e;">
+                            What Happens If You Accept?
+                          </h3>
+                          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                            <tr>
+                              <td style="padding: 8px 0;">
+                                <p style="margin: 0; font-size: 14px; line-height: 1.6; color: #0c4a6e;">
+                                  ✅ You'll instantly receive the tourist's contact details (email, phone, WhatsApp)
+                                </p>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td style="padding: 8px 0;">
+                                <p style="margin: 0; font-size: 14px; line-height: 1.6; color: #0c4a6e;">
+                                  ✅ The tourist will receive your contact information
+                                </p>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td style="padding: 8px 0;">
+                                <p style="margin: 0; font-size: 14px; line-height: 1.6; color: #0c4a6e;">
+                                  ✅ All other guides will be notified the spot is filled
+                                </p>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td style="padding: 8px 0;">
+                                <p style="margin: 0; font-size: 14px; line-height: 1.6; color: #0c4a6e;">
+                                  ✅ You arrange payment and final details directly with the tourist
+                                </p>
+                              </td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                    </table>
+
+                    <!-- Important Reminders -->
+                    <h3 style="margin: 32px 0 16px 0; font-size: 18px; font-weight: 700; color: #111827;">
+                      Important Reminders
+                    </h3>
+                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                      <tr>
+                        <td style="padding: 8px 0;">
+                          <p style="margin: 0; font-size: 15px; line-height: 1.6; color: #374151;">
+                            ✅ Maintain professional conduct and high service standards
+                          </p>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 8px 0;">
+                          <p style="margin: 0; font-size: 15px; line-height: 1.6; color: #374151;">
+                            ✅ Respond promptly to tourist messages
+                          </p>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 8px 0;">
+                          <p style="margin: 0; font-size: 15px; line-height: 1.6; color: #374151;">
+                            ✅ Confirm meeting details 24 hours before the trip
+                          </p>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 8px 0;">
+                          <p style="margin: 0; font-size: 15px; line-height: 1.6; color: #374151;">
+                            ✅ No-shows hurt your reliability score and future matching
+                          </p>
+                        </td>
+                      </tr>
+                    </table>
+
+                    <p style="margin: 32px 0 0 0; font-size: 13px; color: #9ca3af; font-style: italic;">
+                      This invitation link expires in 72 hours. Accept or decline using the buttons above.
+                    </p>
+                  </td>
+                </tr>
+
+                <!-- Footer -->
+                <tr>
+                  <td style="background: #f9fafb; padding: 32px 40px; border-top: 1px solid #e5e7eb;">
+                    <p style="margin: 0 0 8px 0; font-size: 14px; color: #6b7280; text-align: center;">
+                      Questions? We're here to help!
+                    </p>
+                    <p style="margin: 0; font-size: 13px; color: #9ca3af; text-align: center; line-height: 1.6;">
+                      © ${new Date().getFullYear()} WanderNest · Connecting travelers with local student guides worldwide
+                    </p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
       </body>
     </html>
   `
@@ -565,7 +855,7 @@ export async function sendStudentMatchInvitation(
   return await sendEmail(
     {
       to: student.email,
-      subject: `🎉 New Match: ${touristRequest.serviceType === 'itinerary_help' ? 'Itinerary Help' : 'Guided Experience'} in ${touristRequest.city}`,
+      subject: `🎉 New Match Opportunity in ${touristRequest.city}!`,
       html,
     },
     'Student Match Invitation'
@@ -586,99 +876,259 @@ export async function sendTouristAcceptanceNotification(
 
   const html = `
     <!DOCTYPE html>
-    <html>
+    <html lang="en">
       <head>
         <meta charset="utf-8">
-        <style>
-          body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 20px;
-          }
-          .header {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            color: white;
-            padding: 30px;
-            text-align: center;
-            border-radius: 10px 10px 0 0;
-          }
-          .content {
-            background: #f9fafb;
-            padding: 30px;
-            border: 1px solid #e5e7eb;
-            border-top: none;
-            border-radius: 0 0 10px 10px;
-          }
-          .student-card {
-            background: white;
-            border: 2px solid #10b981;
-            border-radius: 8px;
-            padding: 20px;
-            margin: 20px 0;
-          }
-          .contact-box {
-            background: #ecfdf5;
-            border: 1px solid #10b981;
-            border-radius: 8px;
-            padding: 15px;
-            margin: 15px 0;
-          }
-          .warning {
-            background: #fef3c7;
-            border-left: 4px solid #f59e0b;
-            padding: 12px;
-            margin: 20px 0;
-            border-radius: 4px;
-          }
-        </style>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Guide Accepted!</title>
       </head>
-      <body>
-        <div class="header">
-          <h1 style="margin: 0; font-size: 32px;">🎉 Your Student Guide Has Accepted!</h1>
-        </div>
-        <div class="content">
-          <h2>Great News!</h2>
-          <p>A student guide has accepted your request for ${touristRequest.city} on ${startDate}.</p>
+      <body style="margin: 0; padding: 0; background-color: #f3f4f6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #f3f4f6;">
+          <tr>
+            <td align="center" style="padding: 40px 20px;">
+              <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="max-width: 600px; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);">
 
-          <div class="student-card">
-            <h3 style="margin-top: 0; color: #10b981;">Your Guide:</h3>
-            <p><strong>Name:</strong> ${student.name}</p>
-            <p><strong>University:</strong> ${student.institute}</p>
-            <p><strong>Nationality:</strong> ${student.nationality}</p>
-            <p><strong>Languages:</strong> ${student.languages.join(', ')}</p>
-            ${student.averageRating ? `<p><strong>Rating:</strong> ${student.averageRating.toFixed(1)}/5 (${student.tripsHosted} trips hosted)</p>` : ''}
-          </div>
+                <!-- Brand Header -->
+                <tr>
+                  <td style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); padding: 32px 40px; text-align: center;">
+                    <h1 style="margin: 0; font-size: 28px; font-weight: 700; color: #ffffff; letter-spacing: -0.5px;">
+                      WanderNest
+                    </h1>
+                    <p style="margin: 8px 0 0 0; font-size: 14px; color: rgba(255, 255, 255, 0.9);">
+                      Your Travel Connection
+                    </p>
+                  </td>
+                </tr>
 
-          <div class="contact-box">
-            <h3 style="margin-top: 0;">Contact Information:</h3>
-            <p><strong>Email:</strong> ${student.email}</p>
-            ${(student as any).whatsapp ? `<p><strong>WhatsApp:</strong> ${(student as any).whatsapp}</p>` : ''}
-            ${(student as any).phone ? `<p><strong>Phone:</strong> ${(student as any).phone}</p>` : ''}
-          </div>
+                <!-- Hero Banner -->
+                <tr>
+                  <td style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 48px 40px; text-align: center;">
+                    <div style="font-size: 64px; line-height: 1; margin-bottom: 16px;">🎉</div>
+                    <h2 style="margin: 0; font-size: 32px; font-weight: 700; color: #ffffff; line-height: 1.2;">
+                      Your Guide Accepted!
+                    </h2>
+                    <p style="margin: 12px 0 0 0; font-size: 16px; color: rgba(255, 255, 255, 0.95);">
+                      Get ready for an amazing experience in ${touristRequest.city}
+                    </p>
+                  </td>
+                </tr>
 
-          <h3>Next Steps:</h3>
-          <ol>
-            <li><strong>Reach out within 24-48 hours</strong> to confirm the exact meeting point and time</li>
-            <li><strong>Agree on the final terms</strong> including the payment amount and method</li>
-            <li><strong>Confirm your meeting details</strong> at least 24 hours before your trip</li>
-            <li><strong>Enjoy your experience</strong> and don't forget to leave a review afterward!</li>
-          </ol>
+                <!-- Main Content -->
+                <tr>
+                  <td style="padding: 48px 40px;">
+                    <p style="margin: 0 0 24px 0; font-size: 16px; line-height: 1.6; color: #374151;">
+                      Excellent news! A local student guide has accepted your request for <strong>${touristRequest.city}</strong> on <strong>${startDate}</strong>. Your adventure is about to begin!
+                    </p>
 
-          <div class="warning">
-            <strong>⚠️ Important Reminders:</strong>
-            <ul style="margin: 10px 0;">
-              <li>TourWiseCo is a connector platform only. We are not involved in payment processing or service delivery</li>
-              <li>All payments and arrangements are made directly between you and the student guide</li>
-              <li>We recommend meeting in public places for your first interaction</li>
-              <li>Please report any issues or concerns to our support team</li>
-            </ul>
-          </div>
+                    <!-- Student Guide Card -->
+                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); border-radius: 12px; border: 2px solid #10b981; margin: 24px 0;">
+                      <tr>
+                        <td style="padding: 32px 24px;">
+                          <h3 style="margin: 0 0 20px 0; font-size: 20px; font-weight: 700; color: #065f46;">
+                            🎓 Your Local Guide
+                          </h3>
+                          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                            <tr>
+                              <td style="padding: 8px 0; border-bottom: 1px solid rgba(16, 185, 129, 0.2);">
+                                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                                  <tr>
+                                    <td style="width: 120px; font-size: 13px; font-weight: 600; color: #047857;">Name</td>
+                                    <td style="font-size: 15px; font-weight: 600; color: #064e3b;">${student.name}</td>
+                                  </tr>
+                                </table>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td style="padding: 8px 0; border-bottom: 1px solid rgba(16, 185, 129, 0.2);">
+                                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                                  <tr>
+                                    <td style="width: 120px; font-size: 13px; font-weight: 600; color: #047857;">University</td>
+                                    <td style="font-size: 15px; color: #065f46;">${student.institute}</td>
+                                  </tr>
+                                </table>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td style="padding: 8px 0; border-bottom: 1px solid rgba(16, 185, 129, 0.2);">
+                                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                                  <tr>
+                                    <td style="width: 120px; font-size: 13px; font-weight: 600; color: #047857;">Nationality</td>
+                                    <td style="font-size: 15px; color: #065f46;">${student.nationality}</td>
+                                  </tr>
+                                </table>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td style="padding: 8px 0; ${student.averageRating ? 'border-bottom: 1px solid rgba(16, 185, 129, 0.2);' : ''}">
+                                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                                  <tr>
+                                    <td style="width: 120px; font-size: 13px; font-weight: 600; color: #047857;">Languages</td>
+                                    <td style="font-size: 15px; color: #065f46;">${student.languages.join(', ')}</td>
+                                  </tr>
+                                </table>
+                              </td>
+                            </tr>
+                            ${student.averageRating ? `
+                            <tr>
+                              <td style="padding: 8px 0;">
+                                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                                  <tr>
+                                    <td style="width: 120px; font-size: 13px; font-weight: 600; color: #047857;">Rating</td>
+                                    <td style="font-size: 15px; color: #065f46;">⭐ ${student.averageRating.toFixed(1)}/5 (${student.tripsHosted} trips hosted)</td>
+                                  </tr>
+                                </table>
+                              </td>
+                            </tr>
+                            ` : ''}
+                          </table>
+                        </td>
+                      </tr>
+                    </table>
 
-          <p>Have a wonderful trip!<br>The TourWiseCo Team</p>
-        </div>
+                    <!-- Contact Information -->
+                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background: #f0f9ff; border-radius: 12px; border: 2px solid #3b82f6; margin: 24px 0;">
+                      <tr>
+                        <td style="padding: 24px;">
+                          <h3 style="margin: 0 0 16px 0; font-size: 18px; font-weight: 700; color: #1e40af;">
+                            📞 Contact Information
+                          </h3>
+                          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                            <tr>
+                              <td style="padding: 6px 0;">
+                                <p style="margin: 0; font-size: 15px; color: #1e3a8a;">
+                                  <strong style="display: inline-block; width: 100px;">Email:</strong> <a href="mailto:${student.email}" style="color: #2563eb; text-decoration: none;">${student.email}</a>
+                                </p>
+                              </td>
+                            </tr>
+                            ${(student as any).whatsapp ? `
+                            <tr>
+                              <td style="padding: 6px 0;">
+                                <p style="margin: 0; font-size: 15px; color: #1e3a8a;">
+                                  <strong style="display: inline-block; width: 100px;">WhatsApp:</strong> ${(student as any).whatsapp}
+                                </p>
+                              </td>
+                            </tr>
+                            ` : ''}
+                            ${(student as any).phone ? `
+                            <tr>
+                              <td style="padding: 6px 0;">
+                                <p style="margin: 0; font-size: 15px; color: #1e3a8a;">
+                                  <strong style="display: inline-block; width: 100px;">Phone:</strong> ${(student as any).phone}
+                                </p>
+                              </td>
+                            </tr>
+                            ` : ''}
+                          </table>
+                        </td>
+                      </tr>
+                    </table>
+
+                    <!-- Next Steps -->
+                    <h3 style="margin: 32px 0 16px 0; font-size: 20px; font-weight: 700; color: #111827;">
+                      What's Next?
+                    </h3>
+                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                      <tr>
+                        <td style="padding: 12px 0;">
+                          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                            <tr>
+                              <td width="32" style="vertical-align: top; padding-top: 2px;">
+                                <div style="width: 24px; height: 24px; background: #10b981; border-radius: 50%; color: white; text-align: center; line-height: 24px; font-weight: 700; font-size: 13px;">1</div>
+                              </td>
+                              <td style="padding-left: 12px;">
+                                <p style="margin: 0; font-size: 15px; line-height: 1.5; color: #374151;">
+                                  <strong>Reach out within 24-48 hours</strong> to confirm the exact meeting point and time
+                                </p>
+                              </td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 12px 0;">
+                          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                            <tr>
+                              <td width="32" style="vertical-align: top; padding-top: 2px;">
+                                <div style="width: 24px; height: 24px; background: #10b981; border-radius: 50%; color: white; text-align: center; line-height: 24px; font-weight: 700; font-size: 13px;">2</div>
+                              </td>
+                              <td style="padding-left: 12px;">
+                                <p style="margin: 0; font-size: 15px; line-height: 1.5; color: #374151;">
+                                  <strong>Agree on final terms</strong> including payment amount and method
+                                </p>
+                              </td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 12px 0;">
+                          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                            <tr>
+                              <td width="32" style="vertical-align: top; padding-top: 2px;">
+                                <div style="width: 24px; height: 24px; background: #10b981; border-radius: 50%; color: white; text-align: center; line-height: 24px; font-weight: 700; font-size: 13px;">3</div>
+                              </td>
+                              <td style="padding-left: 12px;">
+                                <p style="margin: 0; font-size: 15px; line-height: 1.5; color: #374151;">
+                                  <strong>Confirm your meeting</strong> at least 24 hours before your trip
+                                </p>
+                              </td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 12px 0;">
+                          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                            <tr>
+                              <td width="32" style="vertical-align: top; padding-top: 2px;">
+                                <div style="width: 24px; height: 24px; background: #10b981; border-radius: 50%; color: white; text-align: center; line-height: 24px; font-weight: 700; font-size: 13px;">4</div>
+                              </td>
+                              <td style="padding-left: 12px;">
+                                <p style="margin: 0; font-size: 15px; line-height: 1.5; color: #374151;">
+                                  <strong>Enjoy your experience</strong> and leave a review afterward!
+                                </p>
+                              </td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                    </table>
+
+                    <!-- Important Notice -->
+                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin: 32px 0; background: #fef3c7; border-left: 4px solid #f59e0b; border-radius: 8px;">
+                      <tr>
+                        <td style="padding: 20px;">
+                          <p style="margin: 0 0 12px 0; font-size: 15px; font-weight: 700; color: #78350f;">
+                            ⚠️ Important Reminders
+                          </p>
+                          <p style="margin: 0; font-size: 14px; line-height: 1.6; color: #92400e;">
+                            • WanderNest is a connector platform – we don't handle payments<br>
+                            • Arrange all payments directly with your guide<br>
+                            • Meet in public places for your first interaction<br>
+                            • Report any concerns to our support team
+                          </p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+
+                <!-- Footer -->
+                <tr>
+                  <td style="background: #f9fafb; padding: 32px 40px; border-top: 1px solid #e5e7eb;">
+                    <p style="margin: 0 0 8px 0; font-size: 14px; color: #6b7280; text-align: center;">
+                      Have a wonderful trip! 🌍
+                    </p>
+                    <p style="margin: 0; font-size: 13px; color: #9ca3af; text-align: center; line-height: 1.6;">
+                      © ${new Date().getFullYear()} WanderNest · Connecting travelers with local student guides worldwide
+                    </p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
       </body>
     </html>
   `
@@ -686,7 +1136,7 @@ export async function sendTouristAcceptanceNotification(
   return await sendEmail(
     {
       to: touristEmail,
-      subject: `🎉 Your student guide in ${touristRequest.city} has accepted!`,
+      subject: `🎉 Your Guide in ${touristRequest.city} Has Accepted!`,
       html,
     },
     'Tourist Acceptance Notification'
@@ -700,65 +1150,96 @@ export async function sendVerificationEmail(
 
   const html = `
     <!DOCTYPE html>
-    <html>
+    <html lang="en">
       <head>
         <meta charset="utf-8">
-        <style>
-          body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 20px;
-          }
-          .header {
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-            color: white;
-            padding: 30px;
-            text-align: center;
-            border-radius: 10px 10px 0 0;
-          }
-          .content {
-            background: #f9fafb;
-            padding: 30px;
-            border: 1px solid #e5e7eb;
-            border-top: none;
-            border-radius: 0 0 10px 10px;
-          }
-          .code-box {
-            background: white;
-            border: 2px solid #3b82f6;
-            border-radius: 8px;
-            padding: 20px;
-            margin: 20px 0;
-            text-align: center;
-          }
-          .code {
-            font-size: 32px;
-            font-weight: bold;
-            letter-spacing: 8px;
-            color: #3b82f6;
-            font-family: monospace;
-          }
-        </style>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Verification Code</title>
       </head>
-      <body>
-        <div class="header">
-          <h1 style="margin: 0;">Your Verification Code</h1>
-        </div>
-        <div class="content">
-          <p>Please use the following code to verify your email address:</p>
+      <body style="margin: 0; padding: 0; background-color: #f3f4f6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #f3f4f6;">
+          <tr>
+            <td align="center" style="padding: 40px 20px;">
+              <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="max-width: 600px; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);">
 
-          <div class="code-box">
-            <div class="code">${code}</div>
-          </div>
+                <!-- Brand Header -->
+                <tr>
+                  <td style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); padding: 32px 40px; text-align: center;">
+                    <h1 style="margin: 0; font-size: 28px; font-weight: 700; color: #ffffff; letter-spacing: -0.5px;">
+                      WanderNest
+                    </h1>
+                    <p style="margin: 8px 0 0 0; font-size: 14px; color: rgba(255, 255, 255, 0.9);">
+                      Connect with Local Student Guides
+                    </p>
+                  </td>
+                </tr>
 
-          <p>This code will expire in 10 minutes.</p>
-          <p>If you didn't request this code, please ignore this email.</p>
+                <!-- Hero Section -->
+                <tr>
+                  <td style="padding: 48px 40px 32px 40px; text-align: center;">
+                    <div style="font-size: 56px; line-height: 1; margin-bottom: 24px;">🔐</div>
+                    <h2 style="margin: 0 0 12px 0; font-size: 28px; font-weight: 700; color: #111827;">
+                      Verify Your Email
+                    </h2>
+                    <p style="margin: 0; font-size: 16px; color: #6b7280; line-height: 1.5;">
+                      Enter this code to continue with your booking
+                    </p>
+                  </td>
+                </tr>
 
-          <p>Best regards,<br>The TourWiseCo Team</p>
-        </div>
+                <!-- Verification Code -->
+                <tr>
+                  <td style="padding: 0 40px 48px 40px;">
+                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background: linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%); border-radius: 16px; border: 3px solid #6366f1; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);">
+                      <tr>
+                        <td style="padding: 40px 32px; text-align: center;">
+                          <p style="margin: 0 0 16px 0; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: #4f46e5;">
+                            Your Verification Code
+                          </p>
+                          <div style="font-size: 48px; font-weight: 800; letter-spacing: 12px; color: #4338ca; font-family: 'Courier New', Courier, monospace; margin: 0;">
+                            ${code}
+                          </div>
+                          <p style="margin: 20px 0 0 0; font-size: 14px; color: #6366f1; font-weight: 500;">
+                            Valid for 10 minutes
+                          </p>
+                        </td>
+                      </tr>
+                    </table>
+
+                    <!-- Security Tips -->
+                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin-top: 32px;">
+                      <tr>
+                        <td style="padding: 20px; background: #fef3c7; border-left: 4px solid #f59e0b; border-radius: 8px;">
+                          <p style="margin: 0 0 12px 0; font-size: 14px; font-weight: 600; color: #92400e;">
+                            🔒 Security Tips
+                          </p>
+                          <p style="margin: 0; font-size: 13px; line-height: 1.6; color: #92400e;">
+                            • Never share this code with anyone<br>
+                            • WanderNest will never ask for your code via phone or email<br>
+                            • If you didn't request this, please ignore this email
+                          </p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+
+                <!-- Footer -->
+                <tr>
+                  <td style="background: #f9fafb; padding: 32px 40px; border-top: 1px solid #e5e7eb;">
+                    <p style="margin: 0 0 8px 0; font-size: 14px; color: #6b7280; text-align: center;">
+                      Having trouble? Contact our support team
+                    </p>
+                    <p style="margin: 0; font-size: 13px; color: #9ca3af; text-align: center; line-height: 1.6;">
+                      © ${new Date().getFullYear()} WanderNest · Connecting travelers with local student guides worldwide
+                    </p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
       </body>
     </html>
   `
@@ -766,7 +1247,7 @@ export async function sendVerificationEmail(
   return await sendEmail(
     {
       to: email,
-      subject: 'Your TourWiseCo Verification Code',
+      subject: '🔐 Your WanderNest Verification Code',
       html,
     },
     'Verification Email'
@@ -786,79 +1267,208 @@ export async function sendStudentConfirmation(
 
   const html = `
     <!DOCTYPE html>
-    <html>
+    <html lang="en">
       <head>
         <meta charset="utf-8">
-        <style>
-          body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 20px;
-          }
-          .header {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            color: white;
-            padding: 30px;
-            text-align: center;
-            border-radius: 10px 10px 0 0;
-          }
-          .content {
-            background: #f9fafb;
-            padding: 30px;
-            border: 1px solid #e5e7eb;
-            border-top: none;
-            border-radius: 0 0 10px 10px;
-          }
-          .tourist-card {
-            background: white;
-            border: 2px solid #10b981;
-            border-radius: 8px;
-            padding: 20px;
-            margin: 20px 0;
-          }
-        </style>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Tourist Contact Details</title>
       </head>
-      <body>
-        <div class="header">
-          <h1 style="margin: 0;">✅ Congratulations!</h1>
-          <p style="margin: 10px 0 0 0;">You've Got the Opportunity</p>
-        </div>
-        <div class="content">
-          <h2>Hi ${student.name}!</h2>
-          <p>Great news! You've successfully accepted the request. Here are the tourist's contact details:</p>
+      <body style="margin: 0; padding: 0; background-color: #f3f4f6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
+        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #f3f4f6;">
+          <tr>
+            <td align="center" style="padding: 40px 20px;">
+              <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="max-width: 600px; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);">
 
-          <div class="tourist-card">
-            <h3 style="margin-top: 0; color: #10b981;">Tourist Information:</h3>
-            <p><strong>Email:</strong> ${touristRequest.email}</p>
-            ${touristRequest.phone ? `<p><strong>Phone:</strong> ${touristRequest.phone}</p>` : ''}
-            ${touristRequest.whatsapp ? `<p><strong>WhatsApp:</strong> ${touristRequest.whatsapp}</p>` : ''}
-            <p><strong>Preferred Contact Method:</strong> ${touristRequest.contactMethod}</p>
-            <p><strong>Trip Date:</strong> ${startDate}</p>
-            <p><strong>Number of Guests:</strong> ${touristRequest.numberOfGuests}</p>
-            <p><strong>Group Type:</strong> ${touristRequest.groupType}</p>
-          </div>
+                <!-- Brand Header -->
+                <tr>
+                  <td style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); padding: 32px 40px; text-align: center;">
+                    <h1 style="margin: 0; font-size: 28px; font-weight: 700; color: #ffffff; letter-spacing: -0.5px;">
+                      WanderNest
+                    </h1>
+                    <p style="margin: 8px 0 0 0; font-size: 14px; color: rgba(255, 255, 255, 0.9);">
+                      Student Guide Platform
+                    </p>
+                  </td>
+                </tr>
 
-          <h3>Next Steps:</h3>
-          <ol>
-            <li><strong>Reach out promptly</strong> - Contact the tourist within the next few hours using their preferred method</li>
-            <li><strong>Confirm details</strong> - Discuss and agree on:
-              <ul>
-                <li>Exact meeting point and time</li>
-                <li>Final price and payment method</li>
-                <li>Any special requests or accessibility needs</li>
-              </ul>
-            </li>
-            <li><strong>Prepare well</strong> - Plan an amazing experience for your guests</li>
-            <li><strong>Show up on time</strong> - Punctuality builds trust and leads to great reviews</li>
-          </ol>
+                <!-- Hero Banner -->
+                <tr>
+                  <td style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 48px 40px; text-align: center;">
+                    <div style="font-size: 64px; line-height: 1; margin-bottom: 16px;">🎉</div>
+                    <h2 style="margin: 0; font-size: 32px; font-weight: 700; color: #ffffff; line-height: 1.2;">
+                      Congratulations!
+                    </h2>
+                    <p style="margin: 12px 0 0 0; font-size: 16px; color: rgba(255, 255, 255, 0.95);">
+                      You've got the job – Time to connect!
+                    </p>
+                  </td>
+                </tr>
 
-          <p><strong>Remember:</strong> This is your opportunity to showcase ${touristRequest.city} and earn great reviews. Provide excellent service, be professional, and have fun!</p>
+                <!-- Main Content -->
+                <tr>
+                  <td style="padding: 48px 40px;">
+                    <p style="margin: 0 0 8px 0; font-size: 18px; font-weight: 600; color: #111827;">
+                      Hi ${student.name}! 🎓
+                    </p>
+                    <p style="margin: 0 0 24px 0; font-size: 16px; line-height: 1.6; color: #374151;">
+                      You've successfully accepted the request! Here are the tourist's contact details so you can coordinate your trip together.
+                    </p>
 
-          <p>Good luck!<br>The TourWiseCo Team</p>
-        </div>
+                    <!-- Tourist Info Card -->
+                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border-radius: 12px; border: 2px solid #3b82f6; margin: 24px 0;">
+                      <tr>
+                        <td style="padding: 32px 24px;">
+                          <h3 style="margin: 0 0 20px 0; font-size: 20px; font-weight: 700; color: #1e40af;">
+                            🧳 Tourist Information
+                          </h3>
+                          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                            <tr>
+                              <td style="padding: 8px 0; border-bottom: 1px solid rgba(59, 130, 246, 0.2);">
+                                <p style="margin: 0; font-size: 14px; font-weight: 600; color: #1e40af;">Contact Email</p>
+                                <p style="margin: 4px 0 0 0; font-size: 15px; color: #1e3a8a;">
+                                  <a href="mailto:${touristRequest.email}" style="color: #2563eb; text-decoration: none;">${touristRequest.email}</a>
+                                </p>
+                              </td>
+                            </tr>
+                            ${touristRequest.phone ? `
+                            <tr>
+                              <td style="padding: 8px 0; border-bottom: 1px solid rgba(59, 130, 246, 0.2);">
+                                <p style="margin: 0; font-size: 14px; font-weight: 600; color: #1e40af;">Phone Number</p>
+                                <p style="margin: 4px 0 0 0; font-size: 15px; color: #1e3a8a;">${touristRequest.phone}</p>
+                              </td>
+                            </tr>
+                            ` : ''}
+                            ${touristRequest.whatsapp ? `
+                            <tr>
+                              <td style="padding: 8px 0; border-bottom: 1px solid rgba(59, 130, 246, 0.2);">
+                                <p style="margin: 0; font-size: 14px; font-weight: 600; color: #1e40af;">WhatsApp</p>
+                                <p style="margin: 4px 0 0 0; font-size: 15px; color: #1e3a8a;">${touristRequest.whatsapp}</p>
+                              </td>
+                            </tr>
+                            ` : ''}
+                            <tr>
+                              <td style="padding: 8px 0; border-bottom: 1px solid rgba(59, 130, 246, 0.2);">
+                                <p style="margin: 0; font-size: 14px; font-weight: 600; color: #1e40af;">Preferred Contact</p>
+                                <p style="margin: 4px 0 0 0; font-size: 15px; color: #1e3a8a;">${touristRequest.contactMethod}</p>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td style="padding: 8px 0; border-bottom: 1px solid rgba(59, 130, 246, 0.2);">
+                                <p style="margin: 0; font-size: 14px; font-weight: 600; color: #1e40af;">Trip Date</p>
+                                <p style="margin: 4px 0 0 0; font-size: 15px; color: #1e3a8a;">${startDate}</p>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td style="padding: 8px 0;">
+                                <p style="margin: 0; font-size: 14px; font-weight: 600; color: #1e40af;">Group Details</p>
+                                <p style="margin: 4px 0 0 0; font-size: 15px; color: #1e3a8a;">${touristRequest.numberOfGuests} guests · ${touristRequest.groupType}</p>
+                              </td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                    </table>
+
+                    <!-- Action Steps -->
+                    <h3 style="margin: 32px 0 16px 0; font-size: 20px; font-weight: 700; color: #111827;">
+                      Next Steps to Success
+                    </h3>
+                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                      <tr>
+                        <td style="padding: 12px 0;">
+                          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                            <tr>
+                              <td width="32" style="vertical-align: top; padding-top: 2px;">
+                                <div style="width: 24px; height: 24px; background: #10b981; border-radius: 50%; color: white; text-align: center; line-height: 24px; font-weight: 700; font-size: 13px;">1</div>
+                              </td>
+                              <td style="padding-left: 12px;">
+                                <p style="margin: 0; font-size: 15px; line-height: 1.5; color: #374151;">
+                                  <strong>Reach out immediately</strong> – Contact them within a few hours using their preferred method
+                                </p>
+                              </td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 12px 0;">
+                          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                            <tr>
+                              <td width="32" style="vertical-align: top; padding-top: 2px;">
+                                <div style="width: 24px; height: 24px; background: #10b981; border-radius: 50%; color: white; text-align: center; line-height: 24px; font-weight: 700; font-size: 13px;">2</div>
+                              </td>
+                              <td style="padding-left: 12px;">
+                                <p style="margin: 0; font-size: 15px; line-height: 1.5; color: #374151;">
+                                  <strong>Confirm key details</strong> – Exact meeting point, time, final price, and payment method
+                                </p>
+                              </td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 12px 0;">
+                          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                            <tr>
+                              <td width="32" style="vertical-align: top; padding-top: 2px;">
+                                <div style="width: 24px; height: 24px; background: #10b981; border-radius: 50%; color: white; text-align: center; line-height: 24px; font-weight: 700; font-size: 13px;">3</div>
+                              </td>
+                              <td style="padding-left: 12px;">
+                                <p style="margin: 0; font-size: 15px; line-height: 1.5; color: #374151;">
+                                  <strong>Prepare an amazing experience</strong> – Plan activities, routes, and interesting spots
+                                </p>
+                              </td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 12px 0;">
+                          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                            <tr>
+                              <td width="32" style="vertical-align: top; padding-top: 2px;">
+                                <div style="width: 24px; height: 24px; background: #10b981; border-radius: 50%; color: white; text-align: center; line-height: 24px; font-weight: 700; font-size: 13px;">4</div>
+                              </td>
+                              <td style="padding-left: 12px;">
+                                <p style="margin: 0; font-size: 15px; line-height: 1.5; color: #374151;">
+                                  <strong>Show up on time and shine</strong> – Punctuality leads to great reviews and future opportunities!
+                                </p>
+                              </td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                    </table>
+
+                    <!-- Success Tip -->
+                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin: 32px 0; background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-left: 4px solid #f59e0b; border-radius: 8px;">
+                      <tr>
+                        <td style="padding: 20px;">
+                          <p style="margin: 0; font-size: 15px; line-height: 1.6; color: #92400e;">
+                            <strong style="color: #78350f;">💡 Pro Tip:</strong> This is your chance to showcase ${touristRequest.city} and build your reputation! Provide excellent service, be professional, and have fun. Great experiences lead to amazing reviews!
+                          </p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+
+                <!-- Footer -->
+                <tr>
+                  <td style="background: #f9fafb; padding: 32px 40px; border-top: 1px solid #e5e7eb;">
+                    <p style="margin: 0 0 8px 0; font-size: 14px; color: #6b7280; text-align: center;">
+                      Good luck – You've got this! 🌟
+                    </p>
+                    <p style="margin: 0; font-size: 13px; color: #9ca3af; text-align: center; line-height: 1.6;">
+                      © ${new Date().getFullYear()} WanderNest · Empowering student guides worldwide
+                    </p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
       </body>
     </html>
   `
@@ -866,7 +1476,7 @@ export async function sendStudentConfirmation(
   return await sendEmail(
     {
       to: student.email,
-      subject: '✅ You Got the Job! Tourist Contact Details',
+      subject: '🎉 You Got the Job! Here's Your Tourist's Contact Info',
       html,
     },
     'Student Confirmation'

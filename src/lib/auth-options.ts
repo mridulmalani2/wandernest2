@@ -92,102 +92,113 @@ function html({ url, host, email }: { url: string; host: string; email: string }
 
   return `
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8">
-    <style>
-      body {
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-        line-height: 1.6;
-        color: #333;
-        max-width: 600px;
-        margin: 0 auto;
-        padding: 20px;
-        background-color: #f9fafb;
-      }
-      .container {
-        background: white;
-        border-radius: 12px;
-        overflow: hidden;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      }
-      .header {
-        background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
-        color: white;
-        padding: 40px 30px;
-        text-align: center;
-      }
-      .header h1 {
-        margin: 0;
-        font-size: 28px;
-        font-weight: 700;
-      }
-      .content {
-        padding: 40px 30px;
-      }
-      .button-container {
-        text-align: center;
-        margin: 30px 0;
-      }
-      .button {
-        display: inline-block;
-        background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
-        color: white;
-        padding: 16px 40px;
-        text-decoration: none;
-        border-radius: 8px;
-        font-weight: 600;
-        font-size: 16px;
-        box-shadow: 0 4px 6px rgba(139, 92, 246, 0.3);
-        transition: transform 0.2s;
-      }
-      .button:hover {
-        transform: translateY(-2px);
-      }
-      .footer {
-        padding: 30px;
-        text-align: center;
-        color: #6b7280;
-        font-size: 14px;
-        border-top: 1px solid #e5e7eb;
-      }
-      .link-text {
-        background: #f3f4f6;
-        padding: 15px;
-        border-radius: 8px;
-        margin: 20px 0;
-        word-break: break-all;
-        font-size: 12px;
-        color: #6b7280;
-      }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Sign in to WanderNest</title>
   </head>
-  <body>
-    <div class="container">
-      <div class="header">
-        <h1>🎓 Sign in to WanderNest</h1>
-      </div>
-      <div class="content">
-        <p>Hi there!</p>
-        <p>You requested a magic link to sign in to <strong>${escapedHost}</strong> using <strong>${escapedEmail}</strong>.</p>
-        <p>Click the button below to sign in:</p>
+  <body style="margin: 0; padding: 0; background-color: #f3f4f6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #f3f4f6;">
+      <tr>
+        <td align="center" style="padding: 40px 20px;">
+          <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="max-width: 600px; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);">
 
-        <div class="button-container">
-          <a href="${url}" class="button">Sign in to WanderNest</a>
-        </div>
+            <!-- Brand Header -->
+            <tr>
+              <td style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); padding: 32px 40px; text-align: center;">
+                <h1 style="margin: 0; font-size: 28px; font-weight: 700; color: #ffffff; letter-spacing: -0.5px;">
+                  WanderNest
+                </h1>
+                <p style="margin: 8px 0 0 0; font-size: 14px; color: rgba(255, 255, 255, 0.9);">
+                  Connect with Local Student Guides
+                </p>
+              </td>
+            </tr>
 
-        <p>If the button doesn't work, you can copy and paste this link into your browser:</p>
-        <div class="link-text">${url}</div>
+            <!-- Hero Section -->
+            <tr>
+              <td style="padding: 48px 40px 32px 40px; text-align: center;">
+                <div style="font-size: 56px; line-height: 1; margin-bottom: 24px;">🔑</div>
+                <h2 style="margin: 0 0 12px 0; font-size: 28px; font-weight: 700; color: #111827;">
+                  Sign in to Your Account
+                </h2>
+                <p style="margin: 0; font-size: 16px; color: #6b7280; line-height: 1.5;">
+                  Click the button below to securely sign in
+                </p>
+              </td>
+            </tr>
 
-        <p><strong>This link will expire in 24 hours</strong> and can only be used once.</p>
+            <!-- Main Content -->
+            <tr>
+              <td style="padding: 0 40px 48px 40px;">
+                <p style="margin: 0 0 24px 0; font-size: 15px; line-height: 1.6; color: #374151;">
+                  You requested a magic link to sign in to <strong>${escapedHost}</strong> using <strong>${escapedEmail}</strong>.
+                </p>
 
-        <p>If you didn't request this email, you can safely ignore it.</p>
-      </div>
-      <div class="footer">
-        <p>© ${new Date().getFullYear()} WanderNest. All rights reserved.</p>
-        <p>Connect students and travelers worldwide.</p>
-      </div>
-    </div>
+                <!-- CTA Button -->
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin: 32px 0;">
+                  <tr>
+                    <td align="center">
+                      <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+                        <tr>
+                          <td style="border-radius: 12px; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);">
+                            <a href="${url}" style="display: inline-block; padding: 18px 48px; font-size: 17px; font-weight: 700; color: #ffffff; text-decoration: none; border-radius: 12px;">
+                              🔓 Sign in to WanderNest
+                            </a>
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+
+                <!-- Alternative Link -->
+                <p style="margin: 32px 0 16px 0; font-size: 14px; color: #6b7280; text-align: center;">
+                  If the button doesn't work, copy and paste this link:
+                </p>
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background: #f3f4f6; border-radius: 8px; padding: 16px; margin: 0 0 32px 0;">
+                  <tr>
+                    <td style="word-break: break-all; font-size: 13px; color: #6b7280; text-align: center; font-family: 'Courier New', monospace;">
+                      ${url}
+                    </td>
+                  </tr>
+                </table>
+
+                <!-- Security Info -->
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background: #fef3c7; border-left: 4px solid #f59e0b; border-radius: 8px; margin: 24px 0;">
+                  <tr>
+                    <td style="padding: 20px;">
+                      <p style="margin: 0 0 8px 0; font-size: 14px; font-weight: 600; color: #92400e;">
+                        🔒 Security Notice
+                      </p>
+                      <p style="margin: 0; font-size: 13px; line-height: 1.6; color: #92400e;">
+                        • This link expires in <strong>24 hours</strong> and can only be used once<br>
+                        • If you didn't request this, you can safely ignore this email<br>
+                        • Never share this link with anyone
+                      </p>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <!-- Footer -->
+            <tr>
+              <td style="background: #f9fafb; padding: 32px 40px; border-top: 1px solid #e5e7eb;">
+                <p style="margin: 0 0 8px 0; font-size: 14px; color: #6b7280; text-align: center;">
+                  Questions? We're here to help!
+                </p>
+                <p style="margin: 0; font-size: 13px; color: #9ca3af; text-align: center; line-height: 1.6;">
+                  © ${new Date().getFullYear()} WanderNest · Connecting travelers with local student guides worldwide
+                </p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
   </body>
 </html>
 `
