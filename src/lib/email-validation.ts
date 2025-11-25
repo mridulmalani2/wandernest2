@@ -4,9 +4,25 @@
  * This module provides validation for institutional/educational email addresses
  * used in the student authentication flow. Only emails from recognized
  * educational institutions are allowed for student sign-up and login.
+ *
+ * USAGE:
+ * - Import `isStudentEmail()` to validate email domains
+ * - Import `getStudentEmailErrorMessage()` for user-friendly error messages
+ * - Import `STUDENT_EMAIL_DOMAINS` to access the full list of valid domains
+ *
+ * TO ADD NEW DOMAINS:
+ * Simply add the domain suffix to the STUDENT_EMAIL_DOMAINS array below.
+ * Format: '.suffix' (e.g., '.edu', '.ac.uk', '.edu.au')
+ * The validation is case-insensitive and checks the end of the email domain.
  */
 
-// Valid student email domains - centralized configuration
+// ============================================================================
+// VALID STUDENT EMAIL DOMAINS - Centralized Configuration
+// ============================================================================
+// Add new educational domain suffixes here to allow students from additional
+// institutions to sign up. This list is used for both client-side and
+// server-side validation.
+// ============================================================================
 export const STUDENT_EMAIL_DOMAINS = [
   '.edu',       // US educational institutions
   '.edu.in',    // Indian educational institutions

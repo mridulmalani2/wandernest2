@@ -10,8 +10,21 @@ import { isStudentEmail, getStudentEmailErrorMessage } from "@/lib/email-validat
 // Build providers array conditionally based on configuration
 const providers = [];
 
-// Only add EmailProvider if email is properly configured
-// This prevents NextAuth from trying to use an unconfigured email service
+// ============================================================================
+// EMAIL PROVIDER CONFIGURATION (REQUIRED FOR STUDENT MAGIC-LINK SIGN-IN)
+// ============================================================================
+// Only add EmailProvider if email is properly configured with SMTP credentials.
+// This prevents NextAuth from trying to use an unconfigured email service.
+//
+// Required environment variables for magic-link to work:
+// - EMAIL_HOST (e.g., smtp.gmail.com)
+// - EMAIL_PORT (e.g., 587 for TLS, 465 for SSL)
+// - EMAIL_USER (SMTP username / email address)
+// - EMAIL_PASS (SMTP password / app password)
+// - EMAIL_FROM (sender address shown in emails)
+//
+// Without these, students will see a "Sign-In Unavailable" message on the student sign-in page.
+// ============================================================================
 if (config.email.isConfigured) {
   providers.push(
     EmailProvider({
@@ -29,6 +42,17 @@ if (config.email.isConfigured) {
       },
       from: config.email.from,
       async sendVerificationRequest({ identifier: email, url, provider }) {
+        // ========================================================================
+        // STUDENT EMAIL DOMAIN VALIDATION
+        // ========================================================================
+        // Students can ONLY sign in with magic-link using verified educational
+        // email domains (e.g., .edu, .ac.uk, .edu.au, etc.).
+        //
+        // This server-side check ensures domain validation even if client-side
+        // validation is bypassed. The list of valid domains is maintained in
+        // src/lib/email-validation.ts
+        // ========================================================================
+
         // Check if this is a student sign-in flow by examining the callback URL
         const magicLinkUrl = new URL(url);
         const callbackUrl = magicLinkUrl.searchParams.get('callbackUrl') || '';
@@ -274,9 +298,19 @@ export const authOptions: NextAuthOptions = {
           return false
         }
 
-        // STUDENT AUTHENTICATION POLICY:
-        // Students can ONLY sign in using magic-link email authentication with edu domains
-        // Block Google OAuth for student emails (even if they have .edu domain)
+        // ====================================================================
+        // STUDENT AUTHENTICATION POLICY
+        // ====================================================================
+        // Students can ONLY sign in using magic-link email authentication with
+        // verified educational email domains (.edu, .ac.uk, etc.).
+        //
+        // Google OAuth is explicitly BLOCKED for student emails to ensure:
+        // 1. Students use their institutional email for verification
+        // 2. Email ownership is verified through magic-link flow
+        // 3. Consistent authentication experience for all students
+        //
+        // Tourists can use Google OAuth freely with any email domain.
+        // ====================================================================
         if (account?.provider === 'google' && isStudentEmail(user.email)) {
           console.error('❌ Auth: Google OAuth blocked for student email:', user.email);
           console.error('   Students must use magic-link authentication with their university email');
