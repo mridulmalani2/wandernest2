@@ -420,3 +420,6 @@ function maskName(fullName: string | null): string {
   // Show first name + last initial
   return `${parts[0]} ${parts[parts.length - 1][0]}.`
 }
+
+// Export the POST handler (this was missing, causing 404 errors in production)
+export const POST = matchStudents
