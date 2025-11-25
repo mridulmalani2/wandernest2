@@ -4,7 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { LucideIcon } from 'lucide-react';
 
-export type CTAVariant = 'blue' | 'purple';
+export type CTAVariant = 'blue' | 'purple' | 'ghost';
 
 interface PrimaryCTAButtonProps {
   children: React.ReactNode;
@@ -18,14 +18,27 @@ interface PrimaryCTAButtonProps {
   type?: 'button' | 'submit' | 'reset';
 }
 
-const variantStyles: Record<CTAVariant, { gradient: string; glow: string }> = {
+const variantStyles: Record<
+  CTAVariant,
+  { gradient: string; glow: string; textColor: string; iconColor: string }
+> = {
   blue: {
     gradient: 'bg-gradient-to-r from-blue-300 via-blue-400 to-purple-400',
     glow: 'bg-gradient-to-r from-blue-300 via-blue-400 to-purple-400',
+    textColor: 'text-white',
+    iconColor: 'text-white',
   },
   purple: {
     gradient: 'bg-gradient-to-r from-purple-300 via-purple-400 to-pink-400',
     glow: 'bg-gradient-to-r from-purple-300 via-purple-400 to-pink-400',
+    textColor: 'text-white',
+    iconColor: 'text-white',
+  },
+  ghost: {
+    gradient: 'bg-white border border-slate-200',
+    glow: 'bg-slate-200',
+    textColor: 'text-slate-900',
+    iconColor: 'text-indigo-600',
   },
 };
 
@@ -63,10 +76,10 @@ export function PrimaryCTAButton({
         )}
 
         <div className={`relative flex items-center gap-3 ${className}`}>
-          {Icon && <Icon className="w-5 h-5 text-white" />}
-          <span className="text-base lg:text-lg font-medium text-white">{children}</span>
+          {Icon && <Icon className={`w-5 h-5 ${styles.iconColor}`} />}
+          <span className={`text-base lg:text-lg font-medium ${styles.textColor}`}>{children}</span>
           {showArrow && (
-            <span className="ml-auto text-white group-hover:translate-x-1 transition-transform duration-300">
+            <span className={`ml-auto ${styles.textColor} group-hover:translate-x-1 transition-transform duration-300`}>
               →
             </span>
           )}
