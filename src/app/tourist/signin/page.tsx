@@ -15,7 +15,7 @@ function TouristSignInContent() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const searchParams = useSearchParams()
-  const callbackUrl = searchParams.get('callbackUrl') || '/tourist/dashboard'
+  const callbackUrl = searchParams.get('callbackUrl') || '/tourist/auth-landing'
   const error = searchParams.get('error')
 
   useEffect(() => {

@@ -9,7 +9,7 @@ import { PrimaryCTAButton } from '@/components/ui/PrimaryCTAButton';
 
 export const dynamic = 'force-dynamic';
 
-function StudentAuthLandingContent() {
+function TouristAuthLandingContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { data: session, status, update } = useSession();
@@ -22,26 +22,21 @@ function StudentAuthLandingContent() {
 
       // No session - return to signin
       if (!session?.user) {
-        router.replace('/student/signin');
+        router.replace('/tourist/signin');
         return;
       }
 
-      // USER IS SIGNING IN FROM STUDENT FLOW - ALWAYS TREAT AS STUDENT
-      // Anyone landing on this page came from /student/signin and should be treated as a student
+      // USER IS SIGNING IN FROM TOURIST FLOW - ALWAYS TREAT AS TOURIST
+      // Anyone landing on this page came from /tourist/signin and should be treated as a tourist
 
-      // If already marked as student, proceed to onboarding
-      if (session.user.userType === 'student') {
-        // Check if onboarding is complete
-        if (session.user.hasCompletedOnboarding) {
-          router.replace('/student/dashboard');
-        } else {
-          router.replace('/student/onboarding');
-        }
+      // If already marked as tourist, proceed to dashboard
+      if (session.user.userType === 'tourist') {
+        router.replace('/tourist/dashboard');
         return;
       }
 
-      // User is not yet marked as student - convert them
-      // This handles the case where a tourist account exists but user is signing in as student
+      // User is not yet marked as tourist - convert them
+      // This handles the case where a student account exists but user is signing in as tourist
       setIsSwitching(true);
       setError(null);
 
@@ -51,22 +46,22 @@ function StudentAuthLandingContent() {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ userType: 'student' }),
+          body: JSON.stringify({ userType: 'tourist' }),
         });
 
         if (!response.ok) {
-          throw new Error('Failed to set user type to student');
+          throw new Error('Failed to set user type to tourist');
         }
 
         // Update the session with the new userType
         await update();
 
-        // Redirect to onboarding (student record was created by the API)
-        router.replace('/student/onboarding');
+        // Redirect to dashboard
+        router.replace('/tourist/dashboard');
       } catch (err) {
-        console.error('Failed to switch to student role:', err);
+        console.error('Failed to switch to tourist role:', err);
         setError(
-          'We could not route you to the student onboarding flow. Please try again or contact support.'
+          'We could not route you to the tourist dashboard. Please try again or contact support.'
         );
       } finally {
         setIsSwitching(false);
@@ -78,10 +73,10 @@ function StudentAuthLandingContent() {
 
   return (
     <div className="min-h-screen flex flex-col relative overflow-hidden">
-      <div className="absolute inset-0" role="img" aria-label="Students collaborating on campus">
+      <div className="absolute inset-0" role="img" aria-label="Beautiful travel destination">
         <Image
-          src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=1920&q=80"
-          alt="Students collaborating on campus"
+          src="https://images.unsplash.com/photo-1503220317375-aaad61436b1b?w=1920&q=80"
+          alt="Beautiful travel destination"
           fill
           priority
           quality={85}
@@ -89,18 +84,18 @@ function StudentAuthLandingContent() {
           className="object-cover"
         />
         <div className="absolute inset-0 bg-black/25 backdrop-blur-[4px]" />
-        <div className="absolute inset-0 bg-gradient-to-br from-ui-blue-primary/20 via-ui-purple-primary/15 to-ui-purple-accent/20" />
+        <div className="absolute inset-0 bg-gradient-to-br from-ui-blue-primary/20 via-ui-blue-accent/15 to-ui-purple-primary/20" />
       </div>
       <div className="absolute inset-0 pattern-dots opacity-10" />
 
       <div className="relative z-10 flex flex-col min-h-screen">
-        <Navigation variant="student" showBackButton backHref="/student" />
+        <Navigation variant="tourist" showBackButton backHref="/tourist" />
 
         <main className="flex-1 flex items-center justify-center px-4 py-16">
           <div className="glass-card rounded-3xl border-2 border-white/40 p-8 shadow-premium max-w-lg w-full text-center space-y-4">
-            <h1 className="text-2xl font-semibold text-white text-shadow">Preparing your student experience</h1>
+            <h1 className="text-2xl font-semibold text-white text-shadow">Preparing your travel experience</h1>
             <p className="text-white/90 text-sm leading-relaxed">
-              We&apos;re setting up your account for the student dashboard. This will only take a moment.
+              We&apos;re setting up your account for the tourist dashboard. This will only take a moment.
             </p>
 
             {isSwitching && (
@@ -115,7 +110,7 @@ function StudentAuthLandingContent() {
                 <p className="font-semibold mb-2">Something went wrong</p>
                 <p className="mb-4">{error}</p>
                 <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                  <PrimaryCTAButton href="/student/signin" variant="purple" className="w-full sm:w-auto">
+                  <PrimaryCTAButton href="/tourist/signin" variant="blue" className="w-full sm:w-auto">
                     Try signing in again
                   </PrimaryCTAButton>
                 </div>
@@ -128,21 +123,21 @@ function StudentAuthLandingContent() {
   );
 }
 
-export default function StudentAuthLanding() {
+export default function TouristAuthLanding() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-ui-blue-primary/10 via-ui-purple-primary/10 to-ui-purple-accent/10">
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-ui-blue-primary/10 via-ui-blue-accent/10 to-ui-purple-primary/10">
           <div className="glass-card rounded-3xl border-2 border-white/40 p-6 shadow-premium text-center text-white/90">
             <div className="flex items-center justify-center gap-3">
               <div className="h-8 w-8 border-2 border-white/40 border-t-transparent rounded-full animate-spin" />
-              <span>Preparing your student experience…</span>
+              <span>Preparing your travel experience…</span>
             </div>
           </div>
         </div>
       }
     >
-      <StudentAuthLandingContent />
+      <TouristAuthLandingContent />
     </Suspense>
   );
 }
