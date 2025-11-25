@@ -6,24 +6,30 @@
  * educational institutions are allowed for student sign-up and login.
  *
  * USAGE:
- * - Import `isStudentEmail()` to validate email domains
+ * - Import `isStudentEmail()` to validate email domains (client and server-side)
  * - Import `getStudentEmailErrorMessage()` for user-friendly error messages
  * - Import `STUDENT_EMAIL_DOMAINS` to access the full list of valid domains
  *
+ * CONFIGURATION:
+ * - Default domains are defined in STUDENT_EMAIL_DOMAINS below
+ * - Additional domains can be added via STUDENT_EMAIL_ALLOWED_DOMAINS env variable
+ *   (comma-separated list, e.g., ".university.edu,.college.ac.uk")
+ * - Individual email addresses can be allowlisted via STUDENT_EMAIL_ALLOWLIST
+ *   (comma-separated list, e.g., "john@example.com,jane@company.org")
+ *
  * TO ADD NEW DOMAINS:
- * Simply add the domain suffix to the STUDENT_EMAIL_DOMAINS array below.
- * Format: '.suffix' (e.g., '.edu', '.ac.uk', '.edu.au')
- * The validation is case-insensitive and checks the end of the email domain.
+ * 1. For permanent additions: Add to STUDENT_EMAIL_DOMAINS array below
+ * 2. For temporary/testing: Set STUDENT_EMAIL_ALLOWED_DOMAINS environment variable
+ * 3. For specific users: Set STUDENT_EMAIL_ALLOWLIST environment variable
  */
 
 // ============================================================================
 // VALID STUDENT EMAIL DOMAINS - Centralized Configuration
 // ============================================================================
-// Add new educational domain suffixes here to allow students from additional
-// institutions to sign up. This list is used for both client-side and
-// server-side validation.
+// This list covers major educational domain patterns worldwide.
+// Additional domains can be configured via environment variables.
 // ============================================================================
-export const STUDENT_EMAIL_DOMAINS = [
+const BASE_STUDENT_EMAIL_DOMAINS = [
   '.edu',       // US educational institutions
   '.edu.in',    // Indian educational institutions
   '.ac.uk',     // UK academic institutions
@@ -48,21 +54,50 @@ export const STUDENT_EMAIL_DOMAINS = [
   '.edu.sa',    // Saudi Arabian educational institutions
   '.ac.il',     // Israeli academic institutions
   '.edu.tr',    // Turkish educational institutions
-  '.ac.fr',     // French academic institutions (some use this)
+  '.ac.fr',     // French academic institutions
   '.edu.fr',    // French educational institutions
   '.ac.be',     // Belgian academic institutions
   '.edu.ar',    // Argentine educational institutions
   '.edu.co',    // Colombian educational institutions
   '.edu.pe',    // Peruvian educational institutions
   '.edu.cl',    // Chilean educational institutions
-  // Add more institution-specific domains as needed
+  '.edu.ca',    // Canadian educational institutions
+  '.ac.ca',     // Canadian academic institutions
+  '.edu.ng',    // Nigerian educational institutions
+  '.ac.ng',     // Nigerian academic institutions
+  '.edu.eg',    // Egyptian educational institutions
+  '.ac.eg',     // Egyptian academic institutions
+  '.edu.pk',    // Pakistani educational institutions
+  '.ac.id',     // Indonesian academic institutions
+  '.edu.bd',    // Bangladeshi educational institutions
 ];
+
+// Load additional domains from environment variable
+// Format: comma-separated list like ".university.edu,.college.ac.uk"
+const envDomains = (process.env.STUDENT_EMAIL_ALLOWED_DOMAINS || '')
+  .split(',')
+  .map(d => d.trim().toLowerCase())
+  .filter(d => d.startsWith('.') && d.length > 2);
+
+// Load email allowlist from environment variable
+// Format: comma-separated list like "john@example.com,jane@company.org"
+const emailAllowlist = (process.env.STUDENT_EMAIL_ALLOWLIST || '')
+  .split(',')
+  .map(e => e.trim().toLowerCase())
+  .filter(e => e.includes('@'));
+
+// Combine base domains with environment-configured domains
+export const STUDENT_EMAIL_DOMAINS = [...new Set([...BASE_STUDENT_EMAIL_DOMAINS, ...envDomains])];
 
 /**
  * Validates if an email address belongs to a recognized educational institution
  *
+ * Checks:
+ * 1. Email allowlist (STUDENT_EMAIL_ALLOWLIST env variable) - specific emails
+ * 2. Domain patterns (STUDENT_EMAIL_DOMAINS + STUDENT_EMAIL_ALLOWED_DOMAINS)
+ *
  * @param email - The email address to validate
- * @returns true if the email domain is from a recognized educational institution
+ * @returns true if the email is allowed for student authentication
  */
 export function isStudentEmail(email: string): boolean {
   if (!email || typeof email !== 'string') {
@@ -76,6 +111,12 @@ export function isStudentEmail(email: string): boolean {
     return false;
   }
 
+  // Check email allowlist first (for testing/special cases)
+  if (emailAllowlist.length > 0 && emailAllowlist.includes(lowerEmail)) {
+    return true;
+  }
+
+  // Check domain patterns
   return STUDENT_EMAIL_DOMAINS.some(domain => lowerEmail.endsWith(domain));
 }
 
@@ -83,14 +124,18 @@ export function isStudentEmail(email: string): boolean {
  * Gets a user-friendly error message for invalid student email domains
  *
  * @param email - The email that failed validation
- * @returns A user-friendly error message
+ * @returns A user-friendly error message with examples
  */
 export function getStudentEmailErrorMessage(email?: string): string {
   if (!email) {
     return 'Please enter a valid university or institutional email address.';
   }
 
-  return `The email "${email}" does not appear to be from a recognized educational institution. Please use your university email address (e.g., .edu, .ac.uk, .edu.au).`;
+  const domain = getEmailDomain(email);
+  const exampleDomains = ['.edu', '.ac.uk', '.edu.au', '.edu.in', '.ac.ca'];
+  const examples = exampleDomains.slice(0, 3).join(', ');
+
+  return `The email domain "${domain}" is not recognized as an educational institution. Please use your university email address (e.g., ${examples}). If you believe this is an error, contact support.`;
 }
 
 /**

@@ -114,10 +114,21 @@ function StudentSignInContent() {
       if (result?.error) {
         console.error('Sign-in error:', result.error);
         if (result.error === 'EmailSignin') {
-          setEmailErrorMessage(
-            'We could not send the magic link. This usually means the email service is not configured or temporarily unavailable. Please contact support.'
-          );
-          setEmailProviderAvailable(false);
+          // EmailSignin error can mean:
+          // 1. Email domain not allowed (from signIn callback validation)
+          // 2. Email service not configured
+          // 3. Email failed to send
+
+          // Check if domain is invalid (most common case)
+          if (!isStudentEmail(email)) {
+            setDomainValidationError(getStudentEmailErrorMessage(email));
+          } else {
+            // Email domain is valid, but sending failed (likely config issue)
+            setEmailErrorMessage(
+              'We could not send the magic link. This usually means the email service is not configured or temporarily unavailable. Please contact support.'
+            );
+            setEmailProviderAvailable(false);
+          }
         } else {
           setEmailErrorMessage('Sign-in failed. Please try again or contact support.');
         }
