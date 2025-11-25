@@ -76,10 +76,13 @@ if (config.email.isConfigured) {
         const transport = nodemailer.createTransport({
           host: config.email.host!,
           port: config.email.port,
-          secure: false, // Use STARTTLS
+          secure: config.email.port === 465, // true for 465 (SSL), false for other ports like 587 (STARTTLS)
           auth: {
             user: config.email.user!,
             pass: config.email.pass!,
+          },
+          tls: {
+            rejectUnauthorized: config.app.isProduction, // Enforce in production, allow self-signed in dev
           },
           // Add timeouts to prevent hanging
           connectionTimeout: 10000,
