@@ -86,21 +86,29 @@ if (config.email.isConfigured) {
           greetingTimeout: 10000,
         })
 
-        const result = await transport.sendMail({
-          to: email,
-          from: provider.from,
-          subject: `Sign in to ${host}`,
-          text: text({ url, host }),
-          html: html({ url, host, email }),
-        })
+        try {
+          const result = await transport.sendMail({
+            to: email,
+            from: provider.from,
+            subject: `Sign in to ${host}`,
+            text: text({ url, host }),
+            html: html({ url, host, email }),
+          })
 
-        const failed = result.rejected.concat(result.pending).filter(Boolean)
-        if (failed.length) {
-          throw new Error(`Email (${failed.join(', ')}) could not be sent`)
-        }
+          const failed = result.rejected.concat(result.pending).filter(Boolean)
+          if (failed.length) {
+            console.error('❌ Email failed to send:', failed.join(', '))
+            throw new Error(`Email (${failed.join(', ')}) could not be sent`)
+          }
 
-        if (config.app.isDevelopment) {
-          console.log('✅ Magic link email sent to:', email)
+          console.log('✅ Magic link email sent successfully to:', email)
+        } catch (error) {
+          console.error('❌ Error sending magic link email:', error)
+          if (error instanceof Error) {
+            console.error('   Error message:', error.message)
+            console.error('   Error stack:', error.stack)
+          }
+          throw error
         }
       },
     })
@@ -299,25 +307,15 @@ export const authOptions: NextAuthOptions = {
         }
 
         // ====================================================================
-        // STUDENT AUTHENTICATION POLICY
+        // AUTHENTICATION POLICY
         // ====================================================================
-        // Students can ONLY sign in using magic-link email authentication with
-        // verified educational email domains (.edu, .ac.uk, etc.).
+        // Users can sign in from either tourist or student pages.
+        // The auth-landing pages will route them to the correct dashboard based
+        // on where they signed in from, regardless of email domain.
         //
-        // Google OAuth is explicitly BLOCKED for student emails to ensure:
-        // 1. Students use their institutional email for verification
-        // 2. Email ownership is verified through magic-link flow
-        // 3. Consistent authentication experience for all students
-        //
-        // Tourists can use Google OAuth freely with any email domain.
+        // This allows users with .edu emails to access both tourist and student
+        // roles by signing in from the appropriate page.
         // ====================================================================
-        if (account?.provider === 'google' && isStudentEmail(user.email)) {
-          console.error('❌ Auth: Google OAuth blocked for student email:', user.email);
-          console.error('   Students must use magic-link authentication with their university email');
-          // Return false to block the sign-in
-          // This will redirect to the sign-in page with an OAuthSignin error
-          return false;
-        }
 
         if (!prisma) {
           console.error('❌ Auth: Database not available - cannot create user records')
@@ -535,32 +533,36 @@ export const authOptions: NextAuthOptions = {
 
           if (userType === "student") {
             // Check if student profile exists
-            const student = await prisma.student.findUnique({
-              where: { email: user.email || undefined },
-              select: {
-                id: true,
-                status: true,
-                name: true,
-                city: true,
-              },
-            })
+            if (user.email) {
+              const student = await prisma.student.findUnique({
+                where: { email: user.email },
+                select: {
+                  id: true,
+                  status: true,
+                  name: true,
+                  city: true,
+                },
+              })
 
-            // Add student info to session
-            session.user.studentId = student?.id
-            session.user.studentStatus = student?.status
-            session.user.hasCompletedOnboarding = !!student
+              // Add student info to session
+              session.user.studentId = student?.id
+              session.user.studentStatus = student?.status
+              session.user.hasCompletedOnboarding = !!student
+            }
           } else {
             // Check if tourist profile exists
-            const tourist = await prisma.tourist.findUnique({
-              where: { email: user.email || undefined },
-              select: {
-                id: true,
-                name: true,
-              },
-            })
+            if (user.email) {
+              const tourist = await prisma.tourist.findUnique({
+                where: { email: user.email },
+                select: {
+                  id: true,
+                  name: true,
+                },
+              })
 
-            // Add tourist info to session
-            session.user.touristId = tourist?.id
+              // Add tourist info to session
+              session.user.touristId = tourist?.id
+            }
           }
         }
         return session
@@ -626,15 +628,20 @@ export const authOptions: NextAuthOptions = {
 
             // Check if student has completed onboarding
             if (dbUser.userType === 'student' && dbUser.email) {
-              const student = await prisma.student.findUnique({
-                where: { email: dbUser.email },
-                select: {
-                  id: true,
-                  status: true,
-                  city: true,
-                },
-              })
-              token.hasCompletedOnboarding = !!student?.city // city is required field from onboarding
+              try {
+                const student = await prisma.student.findUnique({
+                  where: { email: dbUser.email },
+                  select: {
+                    id: true,
+                    status: true,
+                    city: true,
+                  },
+                })
+                token.hasCompletedOnboarding = !!student?.city // city is required field from onboarding
+              } catch (error) {
+                console.error('⚠️  Auth: Error fetching student onboarding status:', error)
+                token.hasCompletedOnboarding = false
+              }
             }
           }
         }
