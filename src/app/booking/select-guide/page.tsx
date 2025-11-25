@@ -19,11 +19,13 @@ function SelectGuideContent() {
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [errorType, setErrorType] = useState<'network' | 'server' | 'notfound' | null>(null)
   const [suggestedPrice, setSuggestedPrice] = useState<any>(null)
 
   useEffect(() => {
     if (!requestId) {
-      setError('No request ID provided')
+      setError('No request ID provided. Please start a new booking from the booking page.')
+      setErrorType('notfound')
       setLoading(false)
       return
     }
@@ -34,11 +36,43 @@ function SelectGuideContent() {
   const fetchMatches = async () => {
     try {
       setLoading(true)
+      setError(null)
+      setErrorType(null)
+
       const response = await fetch('/api/tourist/request/match', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ requestId }),
       })
+
+      // Check if response is OK before parsing JSON
+      if (!response.ok) {
+        // Handle HTTP errors (404, 500, etc.) - these are server-side issues, not network issues
+        let errorMessage = 'Unable to load your booking request.'
+        let errType: 'server' | 'notfound' = 'server'
+
+        try {
+          const data = await response.json()
+          errorMessage = data.error || errorMessage
+          if (response.status === 404) {
+            errType = 'notfound'
+            errorMessage = 'Booking request not found. It may have expired or been deleted.'
+          }
+        } catch {
+          // Failed to parse error response
+          if (response.status === 404) {
+            errType = 'notfound'
+            errorMessage = 'Booking request not found. It may have expired or been deleted.'
+          } else {
+            errorMessage = `Server error (${response.status}). Please try again later.`
+          }
+        }
+
+        setError(errorMessage)
+        setErrorType(errType)
+        setLoading(false)
+        return
+      }
 
       const data = await response.json()
 
@@ -47,14 +81,18 @@ function SelectGuideContent() {
       if (data.success) {
         setMatches(data.matches || [])
         setSuggestedPrice(data.suggestedPriceRange)
+        setError(null)
+        setErrorType(null)
       } else {
-        // Only set error for actual failures (database errors, network issues, etc.)
+        // Only set error for actual failures (database errors, etc.)
         setError(data.error || 'Unable to process your request. Please try again.')
+        setErrorType('server')
       }
     } catch (err) {
       console.error('Error fetching matches:', err)
-      // Network error or unexpected exception
-      setError('Unable to connect to the server. Please check your internet connection and try again.')
+      // True network error (fetch threw before getting a response)
+      setError('Unable to connect to the server. This might be a network issue - please check your connection and try again.')
+      setErrorType('network')
     } finally {
       setLoading(false)
     }
@@ -146,10 +184,38 @@ function SelectGuideContent() {
         <div className="absolute inset-0 pattern-dots opacity-10" />
 
         <div className="relative z-10 flex items-center justify-center min-h-screen p-4">
-          <Alert variant="destructive" className="max-w-md glass-card shadow-premium">
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
+          <div className="max-w-md w-full glass-card rounded-3xl p-8 shadow-premium border-2 border-ui-error/30 animate-fade-in">
+            <div className="text-center">
+              <div className="mx-auto w-16 h-16 bg-ui-error/20 rounded-full flex items-center justify-center mb-4">
+                <AlertCircle className="w-8 h-8 text-ui-error" />
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-3">
+                {errorType === 'notfound' ? 'Request Not Found' :
+                 errorType === 'network' ? 'Connection Issue' :
+                 'Something Went Wrong'}
+              </h2>
+              <p className="text-gray-700 mb-6">{error}</p>
+
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <Button
+                  variant="outline"
+                  onClick={() => router.push('/booking')}
+                  className="hover-lift shadow-soft"
+                >
+                  Back to Booking
+                </Button>
+                {errorType !== 'notfound' && (
+                  <PrimaryCTAButton
+                    onClick={fetchMatches}
+                    variant="blue"
+                    className="hover-lift"
+                  >
+                    Try Again
+                  </PrimaryCTAButton>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     )
