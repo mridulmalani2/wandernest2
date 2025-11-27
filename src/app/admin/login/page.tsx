@@ -23,12 +23,12 @@ export default function AdminLogin() {
         body: JSON.stringify({ email, password }),
       })
 
+      const data = await response.json()
+
       if (!response.ok) {
-        const data = await response.json()
         throw new Error(data.error || 'Login failed')
       }
 
-      const data = await response.json()
       localStorage.setItem('adminToken', data.token)
       localStorage.setItem('adminUser', JSON.stringify(data.admin))
 
@@ -72,15 +72,15 @@ export default function AdminLogin() {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Email Address
+                Email or Username
               </label>
               <input
-                type="email"
+                type="text"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-soft"
-                placeholder="admin@tourwiseco.com"
+                placeholder="admin@tourwiseco.com or username"
               />
             </div>
 

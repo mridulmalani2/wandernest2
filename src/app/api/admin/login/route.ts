@@ -9,10 +9,11 @@ import { withErrorHandler, withDatabaseRetry, AppError } from '@/lib/error-handl
 async function adminLogin(request: NextRequest) {
   const db = requireDatabase()
 
-  const { email, password } = await request.json()
+  const { email: identifier, password } = await request.json()
+  const normalizedIdentifier = identifier?.trim()
 
-  if (!email || !password) {
-    throw new AppError(400, 'Email and password are required', 'MISSING_CREDENTIALS')
+  if (!normalizedIdentifier || !password) {
+    throw new AppError(400, 'Username/email and password are required', 'MISSING_CREDENTIALS')
   }
 
   // Ensure database is available
@@ -20,8 +21,13 @@ async function adminLogin(request: NextRequest) {
 
   // Find admin by email
   const admin = await withDatabaseRetry(async () =>
-    db.admin.findUnique({
-      where: { email },
+    db.admin.findFirst({
+      where: {
+        OR: [
+          { email: { equals: normalizedIdentifier, mode: 'insensitive' } },
+          { name: { equals: normalizedIdentifier, mode: 'insensitive' } },
+        ],
+      },
     })
   )
 
@@ -39,7 +45,7 @@ async function adminLogin(request: NextRequest) {
   // Generate JWT token
   const token = generateToken({ adminId: admin.id, email: admin.email, role: admin.role }, '8h')
 
-  return NextResponse.json({
+  const response = NextResponse.json({
     token,
     admin: {
       id: admin.id,
@@ -48,6 +54,16 @@ async function adminLogin(request: NextRequest) {
       role: admin.role,
     },
   })
+
+  response.cookies.set('admin-token', token, {
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production',
+    path: '/admin',
+    maxAge: 60 * 60 * 8, // 8 hours
+  })
+
+  return response
 }
 
 export const POST = withErrorHandler(adminLogin, 'POST /api/admin/login')
