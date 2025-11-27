@@ -68,6 +68,7 @@ React Error Boundaries are implemented at the application root to catch and disp
   - Optional: set `ADMIN_DASHBOARD_HOST` to force all `/admin` traffic onto an admin-only subdomain (for example, `admin.example.com`). Requests to the wrong host are redirected before any admin UI is rendered.
 
 **Default admin bootstrap:** Run `node scripts/create-admin-user.js` after pointing `NEON_DATABASE_URL` (or `DATABASE_URL`) at your Neon/Postgres instance to upsert the `mridulmalani` / `travelbuddy16` super admin. Override with `ADMIN_EMAIL`, `ADMIN_PASSWORD`, and `ADMIN_NAME` env vars when needed.
+**Default admin bootstrap:** Run `node scripts/create-admin-user.js` (after configuring `DATABASE_URL`) to upsert the `mridulmalani` / `travelbuddy16` super admin. Override with `ADMIN_EMAIL`, `ADMIN_PASSWORD`, and `ADMIN_NAME` env vars when needed.
 
 ### API Route Protection
 

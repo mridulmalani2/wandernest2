@@ -17,6 +17,11 @@ const prisma = new PrismaClient()
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'mridulmalani'
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'travelbuddy16'
 const ADMIN_NAME = process.env.ADMIN_NAME || 'mridulmalani'
+const prisma = new PrismaClient()
+
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'mridulmalani'
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'travelbuddy16'
+const ADMIN_NAME = process.env.ADMIN_NAME || 'Mridul Malani'
 
 async function main() {
   const passwordHash = bcrypt.hashSync(ADMIN_PASSWORD, 10)
