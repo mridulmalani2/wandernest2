@@ -39,7 +39,7 @@ async function adminLogin(request: NextRequest) {
   // Generate JWT token
   const token = generateToken({ adminId: admin.id, email: admin.email, role: admin.role }, '8h')
 
-  return NextResponse.json({
+  const response = NextResponse.json({
     token,
     admin: {
       id: admin.id,
@@ -48,6 +48,16 @@ async function adminLogin(request: NextRequest) {
       role: admin.role,
     },
   })
+
+  response.cookies.set('admin-token', token, {
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production',
+    path: '/admin',
+    maxAge: 60 * 60 * 8, // 8 hours
+  })
+
+  return response
 }
 
 export const POST = withErrorHandler(adminLogin, 'POST /api/admin/login')
