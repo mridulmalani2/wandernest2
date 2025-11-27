@@ -396,6 +396,14 @@ tourwiseco/
 - `GET /api/admin/analytics` - Get platform analytics
 - `GET /api/admin/reports` - Get user reports
 
+**Provision an admin account (default: `mridulmalani` / `travelbuddy16`):**
+1. Ensure `DATABASE_URL` is configured and reachable.
+2. Run `node scripts/create-admin-user.js` to upsert the default admin:
+   - Email/username: `mridulmalani`
+   - Password: `travelbuddy16`
+   - Name: `Mridul Malani`
+3. To override the defaults, set `ADMIN_EMAIL`, `ADMIN_PASSWORD`, and `ADMIN_NAME` env vars when running the script.
+
 ### 5. Review System
 
 **Key Pages:**

@@ -9,10 +9,11 @@ import { withErrorHandler, withDatabaseRetry, AppError } from '@/lib/error-handl
 async function adminLogin(request: NextRequest) {
   const db = requireDatabase()
 
-  const { email, password } = await request.json()
+  const { email: identifier, password } = await request.json()
+  const normalizedIdentifier = identifier?.trim()
 
-  if (!email || !password) {
-    throw new AppError(400, 'Email and password are required', 'MISSING_CREDENTIALS')
+  if (!normalizedIdentifier || !password) {
+    throw new AppError(400, 'Username/email and password are required', 'MISSING_CREDENTIALS')
   }
 
   // Ensure database is available
@@ -20,8 +21,13 @@ async function adminLogin(request: NextRequest) {
 
   // Find admin by email
   const admin = await withDatabaseRetry(async () =>
-    db.admin.findUnique({
-      where: { email },
+    db.admin.findFirst({
+      where: {
+        OR: [
+          { email: { equals: normalizedIdentifier, mode: 'insensitive' } },
+          { name: { equals: normalizedIdentifier, mode: 'insensitive' } },
+        ],
+      },
     })
   )
 
