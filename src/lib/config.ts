@@ -77,7 +77,13 @@ function loadConfig(): AppConfig {
   const isDevelopment = nodeEnv === 'development'
 
   // Database configuration
-  const databaseUrl = process.env.DATABASE_URL || null
+  // Prefer Neon-specific database URL when provided so the admin dashboard and seeding
+  // script operate against the same connection. Normalize into DATABASE_URL for Prisma.
+  const databaseUrl = process.env.DATABASE_URL || process.env.NEON_DATABASE_URL || null
+
+  if (!process.env.DATABASE_URL && process.env.NEON_DATABASE_URL) {
+    process.env.DATABASE_URL = process.env.NEON_DATABASE_URL
+  }
   const isDummyDatabase = databaseUrl?.includes('dummy') ?? false
   const isDatabaseAvailable = !!(databaseUrl && !isDummyDatabase)
 
