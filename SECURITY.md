@@ -65,6 +65,7 @@ React Error Boundaries are implemented at the application root to catch and disp
   - `/admin/*` - Requires admin-token cookie
   - `/student/dashboard/*` - Requires student-token cookie
   - `/tourist/dashboard/*` - Requires tourist-token cookie
+  - Optional: set `ADMIN_DASHBOARD_HOST` to force all `/admin` traffic onto an admin-only subdomain (for example, `admin.example.com`). Requests to the wrong host are redirected before any admin UI is rendered.
 
 ### API Route Protection
 
