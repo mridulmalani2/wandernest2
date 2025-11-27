@@ -46,6 +46,7 @@ async function adminLogin(request: NextRequest) {
 
   // Find admin by email
   let admin = await withDatabaseRetry(async () =>
+  const admin = await withDatabaseRetry(async () =>
     db.admin.findFirst({
       where: {
         OR: [
