@@ -20,6 +20,16 @@ export const config = {
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
+  const host = request.headers.get('host')
+  const adminHost = process.env.ADMIN_DASHBOARD_HOST
+
+  // Force admin routes to live on the dedicated admin host when configured
+  if (adminHost && pathname.startsWith('/admin') && host && host !== adminHost) {
+    const adminUrl = new URL(request.url)
+    adminUrl.hostname = adminHost
+
+    return NextResponse.redirect(adminUrl)
+  }
 
   // Admin routes - check for admin token (separate from NextAuth)
   if (pathname.startsWith('/admin') && !pathname.startsWith('/admin/login')) {

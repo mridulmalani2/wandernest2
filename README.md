@@ -627,6 +627,13 @@ TourWiseCo uses a **dual authentication system**:
 - `hashPassword(password)` - Hash password
 - `verifyPassword(password, hash)` - Verify password
 
+#### Accessing the Admin Dashboard
+
+1. Set the `ADMIN_DASHBOARD_HOST` environment variable to the admin-only subdomain you want to use (for example, `admin.example.com`). The middleware will redirect any `/admin` traffic hitting another host onto this subdomain before the page renders.
+2. Point your DNS (and TLS if applicable) at that subdomain so it resolves to your deployment.
+3. Visit `https://<ADMIN_DASHBOARD_HOST>/admin/login` and sign in with an active admin account. On success the login API issues an `admin-token` httpOnly cookie scoped to `/admin`, so browser navigation to dashboard pages passes the middleware check.
+4. After signing in, you can move between dashboard routes such as `/admin/approvals`, `/admin/students`, or `/admin/analytics` without re-authenticating while the cookie remains valid (8 hours by default).
+
 ### Protected Route Pattern
 
 **Server Component:**
