@@ -61,8 +61,9 @@ if (config.email.isConfigured) {
         // Validate email domain for student flows
         if (isStudentFlow && !isStudentEmail(email)) {
           console.error('❌ Auth: Student sign-in rejected - invalid email domain:', email);
+          const domain = email.split('@')[1] || '';
           throw new Error(
-            `Invalid email domain. Students must use a university or institutional email address (e.g., .edu, .ac.uk, .edu.au). The email "${email}" is not from a recognized educational institution.`
+            `Invalid email domain. The domain "${domain}" is not approved for student sign-in. TourWiseCo currently partners with specific universities (HEC Paris, Ashoka University, and select .edu institutions). If you believe your university should be added, please contact support.`
           );
         }
 
@@ -327,6 +328,24 @@ export const authOptions: NextAuthOptions = {
           console.error('   Provider:', account?.provider)
           console.error('   Profile:', profile)
           return false
+        }
+
+        // ====================================================================
+        // BLOCK STUDENTS FROM USING GOOGLE OAUTH
+        // ====================================================================
+        // Students MUST use magic link authentication (Email provider) ONLY.
+        // If a user with a student email domain tries to sign in with Google,
+        // reject the sign-in and direct them to use the student sign-in page.
+        // ====================================================================
+        if (account?.provider === 'google' && isStudentEmail(user.email)) {
+          console.error('❌ Auth: Student attempted Google OAuth sign-in:', user.email)
+          console.error('   Students must use magic link authentication at /student/signin')
+
+          // Reject the sign-in
+          // Note: NextAuth will redirect to the error page with error=Callback
+          // The tourist signin page will show a helpful message directing students
+          // to the student signin page
+          throw new Error('STUDENT_MUST_USE_MAGIC_LINK: Students must sign in using the magic link sent to their university email. Please visit /student/signin to request a sign-in link.')
         }
 
         // ====================================================================

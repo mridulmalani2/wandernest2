@@ -150,7 +150,7 @@ function StudentSignInContent() {
                 </span>
               </h2>
               <p className="text-white mt-2 text-shadow">
-                Use your university email (.edu, .ac.uk, etc.)
+                Use your approved university email (HEC, Ashoka, etc.)
               </p>
             </div>
 
@@ -210,13 +210,13 @@ function StudentSignInContent() {
                             if (domainValidationError) setDomainValidationError(null);
                             if (emailErrorMessage) setEmailErrorMessage(null);
                           }}
-                          placeholder="your.email@university.edu"
+                          placeholder="student@hec.edu or student@ashoka.edu.in"
                           className="pl-12"
                           disabled={isSubmitting}
                         />
                       </div>
                       <p className="text-xs text-gray-500 mt-1">
-                        We'll send a secure sign-in link to your email
+                        Only approved university domains allowed • We'll send a secure sign-in link
                       </p>
                     </div>
 
@@ -294,13 +294,18 @@ function StudentSignInContent() {
               <div className="flex items-start space-x-3">
                 <div className="text-2xl">🎓</div>
                 <div>
-                  <h3 className="font-bold text-ui-purple-accent mb-2">What happens next?</h3>
+                  <h3 className="font-bold text-ui-purple-accent mb-2">Approved Universities</h3>
+                  <p className="text-sm text-ui-purple-accent/80 mb-2">
+                    TourWiseCo partners with specific universities:
+                  </p>
                   <ul className="list-disc list-inside text-sm text-ui-purple-accent/80 space-y-1">
-                    <li>Complete your profile and verification</li>
-                    <li>Set your availability and preferences</li>
-                    <li>Start receiving booking requests</li>
-                    <li>Earn money by guiding travelers</li>
+                    <li>HEC Paris (hec.edu, hec.fr)</li>
+                    <li>Ashoka University (ashoka.edu.in)</li>
+                    <li>Select .edu institutions (Stanford, MIT, Harvard, etc.)</li>
                   </ul>
+                  <p className="text-xs text-ui-purple-accent/60 mt-3">
+                    University not listed? Contact support to request approval.
+                  </p>
                 </div>
               </div>
             </div>
