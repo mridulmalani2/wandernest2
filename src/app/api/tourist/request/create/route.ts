@@ -10,6 +10,7 @@ import { requireDatabase } from '@/lib/prisma';
 import { sendBookingConfirmation } from '@/lib/email';
 import { withErrorHandler, withDatabaseRetry, AppError } from '@/lib/error-handler';
 import { autoMatchAndInvite } from '@/lib/matching/autoMatch';
+import { config } from '@/lib/config';
 
 // In-memory storage for demo mode (when database is unavailable)
 const demoRequests = new Map<string, any>();
@@ -79,6 +80,10 @@ async function createTouristRequest(req: NextRequest) {
   expiresAt.setDate(expiresAt.getDate() + 7); // Expires in 7 days
 
   let touristRequest: any;
+  let emailResult: { success: boolean; error?: string; messageId?: string } = {
+    success: false,
+    error: 'Email not sent'
+  };
 
   if (db) {
     // Database is available - use Prisma
@@ -147,7 +152,7 @@ async function createTouristRequest(req: NextRequest) {
     // IMPORTANT: Always send booking confirmation email, regardless of match results
     // Email template adapts based on whether matches were found (zero matches is a valid success state)
     console.log(`[createTouristRequest] Sending booking confirmation email to ${session.user.email}`)
-    const emailResult = await sendBookingConfirmation(
+    emailResult = await sendBookingConfirmation(
       session.user.email,
       touristRequest.id,
       { matchesFound: matchResult.candidatesFound }
@@ -156,10 +161,14 @@ async function createTouristRequest(req: NextRequest) {
     if (emailResult.success) {
       console.log(
         `[createTouristRequest] ✅ Booking confirmation email sent successfully ` +
-        `(${matchResult.candidatesFound} matches found)`
+        `(${matchResult.candidatesFound} matches found)` +
+        (emailResult.messageId ? ` - Message ID: ${emailResult.messageId}` : '')
       )
     } else {
-      console.warn('⚠️  Failed to send booking confirmation email:', emailResult.error)
+      console.error('❌ CRITICAL: Failed to send booking confirmation email')
+      console.error(`   Recipient: ${session.user.email}`)
+      console.error(`   Error: ${emailResult.error}`)
+      console.error(`   ⚠️  User will NOT receive confirmation email!`)
       // Continue anyway - email failure should not block booking creation
     }
   } else {
@@ -214,6 +223,15 @@ async function createTouristRequest(req: NextRequest) {
       message: 'Booking request created successfully',
       requestId: touristRequest.id,
       request: touristRequest,
+      // Include email delivery status for diagnostics
+      emailDelivery: config.database.isAvailable ? {
+        sent: emailResult.success,
+        error: emailResult.error,
+        messageId: emailResult.messageId,
+      } : {
+        sent: false,
+        error: 'Email not sent in demo mode'
+      }
     },
     { status: 201 }
   );
