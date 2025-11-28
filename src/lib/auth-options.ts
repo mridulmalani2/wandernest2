@@ -90,6 +90,12 @@ if (config.email.isConfigured) {
         })
 
         try {
+          console.log('📧 Attempting to send magic link email...')
+          console.log('   To:', email)
+          console.log('   From:', provider.from)
+          console.log('   SMTP Host:', config.email.host)
+          console.log('   SMTP Port:', config.email.port)
+
           const result = await transport.sendMail({
             to: email,
             from: provider.from,
@@ -101,16 +107,30 @@ if (config.email.isConfigured) {
           const failed = result.rejected.concat(result.pending).filter(Boolean)
           if (failed.length) {
             console.error('❌ Email failed to send:', failed.join(', '))
+            console.error('   SMTP Response:', JSON.stringify(result, null, 2))
             throw new Error(`Email (${failed.join(', ')}) could not be sent`)
           }
 
           console.log('✅ Magic link email sent successfully to:', email)
+          console.log('   Message ID:', result.messageId)
         } catch (error) {
           console.error('❌ Error sending magic link email:', error)
           if (error instanceof Error) {
             console.error('   Error message:', error.message)
+            console.error('   Error name:', error.name)
+            if ('code' in error) {
+              console.error('   Error code:', (error as any).code)
+            }
+            if ('command' in error) {
+              console.error('   SMTP command:', (error as any).command)
+            }
             console.error('   Error stack:', error.stack)
           }
+          console.error('   Email config check:')
+          console.error('     - EMAIL_HOST set:', !!config.email.host)
+          console.error('     - EMAIL_USER set:', !!config.email.user)
+          console.error('     - EMAIL_PASS set:', !!config.email.pass)
+          console.error('     - isConfigured:', config.email.isConfigured)
           throw error
         }
       },

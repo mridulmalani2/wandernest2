@@ -99,12 +99,13 @@ function StudentSignInContent() {
       });
 
       if (result?.error) {
+        console.error('Sign-in error:', result.error);
         if (result.error === 'EmailSignin') {
           setEmailErrorMessage(
-            'Could not send magic link. Please contact support.'
+            'Could not send magic link. The email service may not be configured correctly. Please contact support or try signing in with Google if you have a university Google account.'
           );
         } else {
-          setEmailErrorMessage('Sign-in failed. Please try again or contact support.');
+          setEmailErrorMessage(`Sign-in failed: ${result.error}. Please try again or contact support.`);
         }
       } else if (result?.ok) {
         setEmailSent(true);
