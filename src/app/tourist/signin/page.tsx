@@ -78,12 +78,12 @@ function TouristSignInContent() {
                     ? 'Error occurred while signing in with Google'
                     : error === 'OAuthCallback'
                     ? 'Error occurred during the authentication callback'
+                    : error === 'Callback'
+                    ? 'Authentication error - possible student email detected'
                     : error === 'OAuthCreateAccount'
                     ? 'Could not create account with the provided information'
                     : error === 'EmailCreateAccount'
                     ? 'Could not create account with the provided email'
-                    : error === 'Callback'
-                    ? 'Error in the authentication callback'
                     : error === 'OAuthAccountNotLinked'
                     ? 'This email is already associated with another account'
                     : error === 'EmailSignin'
@@ -94,14 +94,21 @@ function TouristSignInContent() {
                     ? 'Please sign in to access this page'
                     : 'An error occurred during authentication'}
                 </p>
-                {(error === 'OAuthSignin' || error === 'OAuthCallback') && (
-                  <p className="text-xs text-ui-error/80">
-                    If you have a university email (.edu, .ac.uk, etc.), please{' '}
-                    <Link href="/student/signin" className="underline font-semibold">
-                      sign in as a student
-                    </Link>{' '}
-                    using the magic link instead.
-                  </p>
+                {(error === 'OAuthSignin' || error === 'OAuthCallback' || error === 'Callback') && (
+                  <div className="mt-3 p-3 bg-ui-purple-primary/10 border border-ui-purple-primary/30 rounded-lg">
+                    <p className="text-sm text-gray-700 font-semibold mb-1">
+                      🎓 Are you a student guide?
+                    </p>
+                    <p className="text-xs text-gray-600 mb-2">
+                      Students from approved universities (HEC Paris, Ashoka University, etc.) must use magic link authentication instead of Google sign-in.
+                    </p>
+                    <Link
+                      href="/student/signin"
+                      className="inline-block text-xs bg-ui-purple-primary text-white px-4 py-2 rounded-lg font-semibold hover:bg-ui-purple-accent transition-colors"
+                    >
+                      Sign in as Student →
+                    </Link>
+                  </div>
                 )}
               </div>
             </div>

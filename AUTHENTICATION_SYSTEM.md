@@ -9,7 +9,7 @@ The authentication system has been completely overhauled to provide a **simple, 
 ### ✅ 1. Immutable Email-Based Role Assignment
 
 **How it works:**
-- **Educational emails (.edu, .ac.uk, .edu.au, etc.) → Student** (permanent)
+- **Approved university emails (hec.edu, hec.fr, ashoka.edu.in, select .edu) → Student** (permanent)
 - **All other emails → Tourist** (permanent)
 
 **Why immutable?**
@@ -17,20 +17,25 @@ The authentication system has been completely overhauled to provide a **simple, 
 - Ensures data integrity
 - Simplifies the user experience
 - Matches real-world use cases (students use university emails, tourists use personal emails)
+- Partnership-based model allows controlled expansion
 
-### ✅ 2. Simple Authentication Methods
+### ✅ 2. Strict Separation of Authentication Methods
 
-**Students use:**
-- **Magic Link ONLY**: Sent to university email (.edu, .ac.uk, etc.)
-- Works with ALL university email systems (Google, Microsoft, custom)
+**Students MUST use:**
+- **Magic Link ONLY**: Sent to approved university email
+- Works with ALL email systems (Google, Microsoft Outlook, custom)
+- **Google OAuth is BLOCKED** for student email domains
 
-**Tourists use:**
+**Tourists MUST use:**
 - **Google OAuth ONLY**: For personal emails (Gmail, etc.)
+- **No magic link option** for tourist accounts
 
 **Benefits:**
-- One clear sign-in method per user type
-- Magic-link supports ALL university email providers
-- No confusion between multiple auth options
+- Clear separation between user types
+- One authentication method per role eliminates confusion
+- Magic-link supports all university email providers (not just Google)
+- Google OAuth is fast and familiar for tourists
+- Security: Students verified through institutional email
 - Works across all devices
 
 ### ✅ 3. Persistent Profiles
@@ -171,16 +176,18 @@ if (userType === 'student') {
 ### 2. Sign-In Pages
 
 **Student Sign-In** (`src/app/student/signin/page.tsx`):
-- **Primary**: Google OAuth button (for Google-based university emails)
-- **Alternative**: Magic link form (for non-Google university emails like HEC)
-- Email domain validation (.edu, .ac.uk, etc.) enforced for magic link
-- Divider: "Or use magic link"
-- Redirects to `/student/auth-landing`
-- **Note**: This dual-auth approach supports ALL university email systems
+- **ONLY METHOD**: Magic link email form
+- Validates email against approved university domains (hec.edu, hec.fr, ashoka.edu.in, etc.)
+- Shows clear error if domain not approved
+- Sends secure sign-in link to email
+- Redirects to `/student/auth-landing` after clicking email link
+- **Google OAuth is BLOCKED** - students attempting to use Google will see an error
 
 **Tourist Sign-In** (`src/app/tourist/signin/page.tsx`):
-- Google OAuth button (sufficient for personal emails)
+- **ONLY METHOD**: Google OAuth button
+- Fast, secure authentication for personal emails
 - Redirects to `/tourist/auth-landing`
+- If student email detected on Google OAuth, shows error with link to student sign-in
 
 ### 3. Auth Landing Pages
 
@@ -269,15 +276,21 @@ useEffect(() => {
 ### New Student Flow
 
 1. **Student visits** `/student/signin`
-2. **Clicks** "Continue with Google"
-3. **Signs in** with university Google account (e.g., `john@stanford.edu`)
-4. **System detects** `.edu` domain → assigns `userType: 'student'`
-5. **Creates** `Student` record in database
-6. **Redirects** to `/student/auth-landing`
-7. **Landing page checks** `userType === 'student'` ✅
-8. **Redirects** to `/student/onboarding` (city required)
-9. **Student completes** onboarding
-10. **Redirects** to `/student/dashboard`
+2. **Enters** university email (e.g., `john@hec.edu`)
+3. **Clicks** "Send Magic Link"
+4. **System validates** domain → checks if `hec.edu` in approved list
+5. **Sends** secure sign-in link to email
+6. **Student opens** email and clicks link
+7. **System creates** `Student` record and assigns `userType: 'student'`
+8. **Redirects** to `/student/auth-landing`
+9. **Landing page checks** `userType === 'student'` ✅
+10. **Redirects** to `/student/onboarding` (city required)
+11. **Student completes** onboarding
+12. **Redirects** to `/student/dashboard`
+
+**Alternative (Blocked) Flow:**
+- If student tries to use Google OAuth → **Rejected** with error message
+- Error directs them to `/student/signin` to use magic link instead
 
 ### New Tourist Flow
 
@@ -314,33 +327,46 @@ useEffect(() => {
 
 ## Email Domain Validation
 
-### Supported Educational Domains
+### Approved University Domains (EXACT MATCH)
 
 Located in `src/lib/email-validation.ts`:
 
+**IMPORTANT:** This uses EXACT domain matching, NOT suffix matching.
+
 ```typescript
-STUDENT_EMAIL_DOMAINS = [
-  // US & International
-  '.edu', '.edu.au', '.edu.sg', '.edu.cn', '.edu.my',
+ALLOWED_STUDENT_DOMAINS = [
+  // Specific partner universities
+  'hec.edu',           // HEC Paris (US domain)
+  'hec.fr',            // HEC Paris (France domain)
+  'ashoka.edu.in',     // Ashoka University, India
 
-  // UK & Commonwealth
-  '.ac.uk', '.ac.nz', '.ac.za', '.ac.jp', '.ac.kr', '.ac.in',
-
-  // Europe
-  '.edu.es', '.edu.it', '.edu.de', '.edu.fr',
-
-  // And many more...
+  // Select .edu institutions
+  'stanford.edu',      // Stanford University
+  'mit.edu',           // MIT
+  'harvard.edu',       // Harvard University
+  'berkeley.edu',      // UC Berkeley
+  // ... and more specific universities
 ]
 ```
 
 **Validation Function:**
 ```typescript
 function isStudentEmail(email: string): boolean {
-  return STUDENT_EMAIL_DOMAINS.some(domain =>
-    email.toLowerCase().endsWith(domain)
-  )
+  const domain = email.toLowerCase().split('@')[1];
+  return ALLOWED_STUDENT_DOMAINS.includes(domain);
 }
 ```
+
+**Adding New Universities:**
+1. Add exact domain to `ALLOWED_STUDENT_DOMAINS` array
+2. Format: `'university.edu'` or `'university.edu.country'`
+3. Must be exact match (subdomains like `student.hec.edu` won't match `hec.edu`)
+
+**Examples:**
+- ✅ `john@hec.edu` → Approved
+- ✅ `jane@ashoka.edu.in` → Approved
+- ❌ `bob@random.edu` → Rejected (not in list)
+- ❌ `alice@student.hec.edu` → Rejected (subdomain doesn't match)
 
 ---
 
@@ -352,7 +378,8 @@ function isStudentEmail(email: string): boolean {
 |------------|------------|
 | Users could be both Student AND Tourist | Users are ONLY Student OR Tourist |
 | Role could be switched via auth-landing | Role is immutable (email-based) |
-| Magic-link for students, OAuth for tourists | Google OAuth for BOTH |
+| Broad domain validation (.edu, .ac.uk, etc.) | Exact domain allow-list (hec.edu, ashoka.edu.in) |
+| Students could use Google OAuth | Students BLOCKED from Google OAuth |
 | `/api/auth/set-user-type` endpoint | Endpoint removed (not needed) |
 | Complex role-switching logic | Simple email domain check |
 | Email not pre-filled in booking forms | Email auto-filled and locked |
@@ -366,7 +393,10 @@ function isStudentEmail(email: string): boolean {
 - ✏️ `/src/lib/auth-options.ts` - Immutable role assignment
 - ✏️ `/src/app/student/auth-landing/page.tsx` - No role switching
 - ✏️ `/src/app/tourist/auth-landing/page.tsx` - No role switching
-- ✏️ `/src/app/student/signin/page.tsx` - **Dual auth: Google OAuth AND magic-link**
+- ✏️ `/src/app/student/signin/page.tsx` - **Magic-link ONLY (Google OAuth blocked)**
+- ✏️ `/src/lib/email-validation.ts` - **Exact domain matching with approved university list**
+- ✏️ `/src/lib/auth-options.ts` - **Blocks Google OAuth for student emails**
+- ✏️ `/src/app/tourist/signin/page.tsx` - **Better error handling for student OAuth attempts**
 - ✏️ `/src/components/booking/BookingForm.tsx` - Email pre-fill from session
 - ✏️ `/src/components/booking/ContactStep.tsx` - Read-only email when authenticated
 
@@ -380,14 +410,33 @@ function isStudentEmail(email: string): boolean {
 
 ## Testing the New System
 
-### Test Case 1: Student Sign-Up
+### Test Case 1: Student Sign-Up (Approved Domain)
 
 1. Visit `/student/signin`
-2. Sign in with a `.edu` Google account
-3. Verify redirect to `/student/onboarding`
-4. Complete onboarding
-5. Verify redirect to `/student/dashboard`
-6. Try accessing `/tourist/dashboard` → should redirect to `/student/signin`
+2. Enter approved university email (e.g., `test@hec.edu`)
+3. Click "Send Magic Link"
+4. Check email inbox for magic link
+5. Click magic link in email
+6. Verify redirect to `/student/onboarding`
+7. Complete onboarding
+8. Verify redirect to `/student/dashboard`
+9. Try accessing `/tourist/dashboard` → should redirect to `/student/signin`
+
+### Test Case 1b: Student Sign-Up (Rejected Domain)
+
+1. Visit `/student/signin`
+2. Enter non-approved email (e.g., `test@random.edu`)
+3. Click "Send Magic Link"
+4. Verify error message about unapproved domain
+5. Verify no email sent
+
+### Test Case 1c: Student Tries Google OAuth (Blocked)
+
+1. Visit `/tourist/signin`
+2. Click "Continue with Google"
+3. Sign in with approved student email (e.g., `test@hec.edu`)
+4. Verify sign-in is REJECTED
+5. Verify error message directing to `/student/signin`
 
 ### Test Case 2: Tourist Sign-Up
 
@@ -586,5 +635,5 @@ This architecture is production-ready and scales with the platform's growth.
 ---
 
 **Last Updated:** 2025-11-28
-**Version:** 2.0.0
+**Version:** 3.0.0 - Strict Student Magic-Link + Domain Allow-List
 **Author:** Claude Code Assistant
