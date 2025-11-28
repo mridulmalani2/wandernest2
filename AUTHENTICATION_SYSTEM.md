@@ -18,19 +18,19 @@ The authentication system has been completely overhauled to provide a **simple, 
 - Simplifies the user experience
 - Matches real-world use cases (students use university emails, tourists use personal emails)
 
-### ✅ 2. Flexible Authentication Options
+### ✅ 2. Simple Authentication Methods
 
-**Students have TWO sign-in methods:**
-- **Google OAuth**: For university emails hosted on Google Workspace (e.g., Gmail-based .edu)
-- **Magic Link**: For non-Google university emails (e.g., HEC, custom email systems)
+**Students use:**
+- **Magic Link ONLY**: Sent to university email (.edu, .ac.uk, etc.)
+- Works with ALL university email systems (Google, Microsoft, custom)
 
 **Tourists use:**
-- **Google OAuth**: For personal emails (Gmail, etc.)
+- **Google OAuth ONLY**: For personal emails (Gmail, etc.)
 
 **Benefits:**
-- Supports ALL university email systems (Google and non-Google)
-- Magic-link ensures students with custom email systems can sign in
-- Faster sign-in with Google OAuth when available
+- One clear sign-in method per user type
+- Magic-link supports ALL university email providers
+- No confusion between multiple auth options
 - Works across all devices
 
 ### ✅ 3. Persistent Profiles
