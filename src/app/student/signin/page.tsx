@@ -8,23 +8,22 @@ import { Suspense, useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import Navigation from '@/components/Navigation';
-import { Button } from '@/components/ui/button';
 import { CheckCircle2, Mail, AlertCircle } from 'lucide-react';
 import { PrimaryCTAButton } from '@/components/ui/PrimaryCTAButton';
+import { Input } from '@/components/ui/input';
 import { isStudentEmail, isValidEmailFormat, getStudentEmailErrorMessage } from '@/lib/email-validation';
 
 function StudentSignInContent() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get('callbackUrl') || '/student/auth-landing?intent=student';
+  const callbackUrl = searchParams.get('callbackUrl') || '/student/auth-landing';
   const error = searchParams.get('error');
 
   const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [emailSent, setEmailSent] = useState(false);
   const [emailProviderAvailable, setEmailProviderAvailable] = useState<boolean | null>(null);
-  const [providerCheckError, setProviderCheckError] = useState(false);
   const [emailErrorMessage, setEmailErrorMessage] = useState<string | null>(null);
   const [domainValidationError, setDomainValidationError] = useState<string | null>(null);
   const [isCheckingProvider, setIsCheckingProvider] = useState(true);
@@ -50,22 +49,10 @@ function StudentSignInContent() {
           const data = await response.json();
           const isEmailAvailable = data.providers?.email ?? false;
           setEmailProviderAvailable(isEmailAvailable);
-
-          if (!isEmailAvailable) {
-            console.warn('⚠️ Email provider is not configured - magic link sign-in unavailable');
-          } else {
-            console.log('✅ Email provider is configured and available');
-          }
         } else {
-          console.error('❌ Failed to check provider status - HTTP', response.status);
-          setProviderCheckError(true);
-          // On error, optimistically assume email is available rather than blocking users
           setEmailProviderAvailable(true);
         }
       } catch (error) {
-        console.error('❌ Failed to check provider status:', error);
-        setProviderCheckError(true);
-        // On error, optimistically assume email is available rather than blocking users
         setEmailProviderAvailable(true);
       } finally {
         setIsCheckingProvider(false);
@@ -95,7 +82,7 @@ function StudentSignInContent() {
       return;
     }
 
-    // Check if email provider is available before attempting sign-in
+    // Check if email provider is available
     if (emailProviderAvailable === false) {
       setEmailErrorMessage(
         'Magic link sign-in is temporarily unavailable. Please contact support.'
@@ -112,23 +99,17 @@ function StudentSignInContent() {
       });
 
       if (result?.error) {
-        console.error('Sign-in error:', result.error);
         if (result.error === 'EmailSignin') {
           setEmailErrorMessage(
-            'We could not send the magic link. This usually means the email service is not configured or temporarily unavailable. Please contact support.'
+            'Could not send magic link. Please contact support.'
           );
-          setEmailProviderAvailable(false);
         } else {
           setEmailErrorMessage('Sign-in failed. Please try again or contact support.');
         }
       } else if (result?.ok) {
         setEmailSent(true);
-      } else {
-        console.error('Sign-in failed with unknown error');
-        setEmailErrorMessage('Sign-in failed. Please try again or contact support.');
       }
     } catch (error) {
-      console.error('Sign-in error:', error);
       setEmailErrorMessage('An unexpected error occurred. Please try again or contact support.');
     } finally {
       setIsSubmitting(false);
@@ -148,16 +129,13 @@ function StudentSignInContent() {
           sizes="100vw"
           className="object-cover"
         />
-        {/* Dark overlay for text contrast */}
         <div className="absolute inset-0 bg-black/25 backdrop-blur-[4px]" />
-        {/* Gradient overlay for visual depth */}
         <div className="absolute inset-0 bg-gradient-to-br from-ui-blue-primary/20 via-ui-purple-primary/15 to-ui-purple-accent/20" />
       </div>
       <div className="absolute inset-0 pattern-grid opacity-15" />
 
       {/* Content */}
       <div className="relative z-10 flex flex-col min-h-screen">
-        {/* Header */}
         <Navigation variant="student" showBackButton backHref="/student" />
 
         {/* Main Content */}
@@ -171,7 +149,7 @@ function StudentSignInContent() {
                 </span>
               </h2>
               <p className="text-white mt-2 text-shadow">
-                Sign in with your university email
+                Use your university email (.edu, .ac.uk, etc.)
               </p>
             </div>
 
@@ -182,36 +160,16 @@ function StudentSignInContent() {
                   <AlertCircle className="w-5 h-5 text-ui-error flex-shrink-0 mt-0.5" />
                   <div className="flex-1">
                     <p className="text-sm text-ui-error font-semibold">
-                      {domainValidationError
-                        ? domainValidationError
-                        : emailErrorMessage
-                        ? emailErrorMessage
-                        : error === 'OAuthSignin'
-                        ? 'Students must use magic-link authentication with their university email. Google sign-in is not available for student accounts.'
-                        : error === 'OAuthCallback'
-                        ? 'Error occurred during the authentication callback'
-                        : error === 'OAuthCreateAccount'
-                        ? 'Could not create account with the provided information'
-                        : error === 'EmailCreateAccount'
-                        ? 'Could not create account with the provided email'
-                        : error === 'Callback'
-                        ? 'Error in the authentication callback'
-                        : error === 'OAuthAccountNotLinked'
-                        ? 'This email is already associated with another account'
-                        : error === 'EmailSignin'
-                        ? 'We could not send the magic link. Please contact support.'
-                        : error === 'CredentialsSignin'
-                        ? 'Invalid credentials'
-                        : error === 'SessionRequired'
-                        ? 'Please sign in to access this page'
-                        : 'An error occurred during authentication'}
+                      {domainValidationError || emailErrorMessage ||
+                        (error === 'EmailSignin' ? 'Check your email for the sign in link' :
+                         'An error occurred during authentication')}
                     </p>
                   </div>
                 </div>
               </div>
             )}
 
-            {/* Email Provider Not Configured Warning - Only show if definitely unavailable */}
+            {/* Email Provider Not Configured Warning */}
             {emailProviderAvailable === false && !isCheckingProvider && (
               <div className="glass-card bg-ui-error/10 border-2 border-ui-error/30 rounded-2xl p-4 shadow-premium animate-scale-in">
                 <div className="flex items-start gap-3">
@@ -221,7 +179,7 @@ function StudentSignInContent() {
                       Magic Link Sign-In Unavailable
                     </p>
                     <p className="text-sm text-gray-700">
-                      The email authentication service is not configured. Please contact support or try again later.
+                      The email authentication service is not configured. Please contact support.
                     </p>
                   </div>
                 </div>
@@ -235,28 +193,30 @@ function StudentSignInContent() {
                   <form onSubmit={handleEmailSignIn} className="space-y-4">
                     <div>
                       <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                        Email Address
+                        University Email Address
                       </label>
                       <div className="relative">
                         <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                           <Mail className="h-5 w-5 text-gray-400" />
                         </div>
-                        <input
+                        <Input
                           id="email"
                           type="email"
                           required
                           value={email}
                           onChange={(e) => {
                             setEmail(e.target.value);
-                            // Clear validation errors when user starts typing
                             if (domainValidationError) setDomainValidationError(null);
                             if (emailErrorMessage) setEmailErrorMessage(null);
                           }}
                           placeholder="your.email@university.edu"
-                          className="block w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-ui-purple-primary focus:border-transparent transition-all"
+                          className="pl-12"
                           disabled={isSubmitting}
                         />
                       </div>
+                      <p className="text-xs text-gray-500 mt-1">
+                        We'll send a secure sign-in link to your email
+                      </p>
                     </div>
 
                     <PrimaryCTAButton
@@ -303,14 +263,12 @@ function StudentSignInContent() {
                       <CheckCircle2 className="w-8 h-8 text-ui-success" />
                     </div>
                   </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">Check your university inbox!</h3>
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">Check your inbox!</h3>
                   <p className="text-gray-600 mb-4">
                     We've sent a magic sign-in link to <span className="font-semibold">{email}</span>
                   </p>
                   <div className="bg-ui-blue-secondary/20 rounded-xl p-4 mb-4">
-                    <p className="text-sm text-gray-700">
-                      <strong>Next steps:</strong>
-                    </p>
+                    <p className="text-sm text-gray-700"><strong>Next steps:</strong></p>
                     <ol className="text-sm text-gray-600 mt-2 space-y-1 text-left">
                       <li>1. Open your university email inbox</li>
                       <li>2. Click the secure sign-in link</li>
@@ -331,27 +289,18 @@ function StudentSignInContent() {
             </div>
 
             {/* Info Box */}
-            <div className="glass-card rounded-3xl border-2 border-white/40 p-8 shadow-premium space-y-6">
-              <div className="space-y-3">
-                <h3 className="font-bold text-base">What happens next?</h3>
-                <ul className="text-sm text-gray-600 space-y-3">
-                  <li className="flex items-start space-x-3">
-                    <CheckCircle2 className="w-5 h-5 text-ui-blue-primary flex-shrink-0 mt-0.5" />
-                    <span>Complete your profile and verification</span>
-                  </li>
-                  <li className="flex items-start space-x-3">
-                    <CheckCircle2 className="w-5 h-5 text-ui-purple-primary flex-shrink-0 mt-0.5" />
-                    <span>Set your availability and preferences</span>
-                  </li>
-                  <li className="flex items-start space-x-3">
-                    <CheckCircle2 className="w-5 h-5 text-ui-success flex-shrink-0 mt-0.5" />
-                    <span>Start receiving booking requests</span>
-                  </li>
-                  <li className="flex items-start space-x-3">
-                    <CheckCircle2 className="w-5 h-5 text-ui-purple-accent flex-shrink-0 mt-0.5" />
-                    <span>Earn money by guiding travelers</span>
-                  </li>
-                </ul>
+            <div className="glass-frosted bg-ui-purple-primary/10 border-2 border-ui-purple-primary/30 rounded-2xl p-6 shadow-soft hover-lift">
+              <div className="flex items-start space-x-3">
+                <div className="text-2xl">🎓</div>
+                <div>
+                  <h3 className="font-bold text-ui-purple-accent mb-2">What happens next?</h3>
+                  <ul className="list-disc list-inside text-sm text-ui-purple-accent/80 space-y-1">
+                    <li>Complete your profile and verification</li>
+                    <li>Set your availability and preferences</li>
+                    <li>Start receiving booking requests</li>
+                    <li>Earn money by guiding travelers</li>
+                  </ul>
+                </div>
               </div>
             </div>
 
@@ -361,7 +310,7 @@ function StudentSignInContent() {
                 Looking to book a guide?{' '}
                 <Link
                   href="/tourist/signin"
-                  className="text-ui-purple-primary hover:underline font-medium"
+                  className="text-ui-blue-primary hover:underline font-medium"
                 >
                   Sign in as Tourist
                 </Link>

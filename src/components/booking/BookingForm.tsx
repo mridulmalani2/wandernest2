@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { useSession } from 'next-auth/react'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { TripDetailsStep } from './TripDetailsStep'
@@ -46,6 +47,7 @@ const STEPS = [
 
 export function BookingForm() {
   const router = useRouter()
+  const { data: session } = useSession()
   const [currentStep, setCurrentStep] = useState(1)
   const [completedSteps, setCompletedSteps] = useState<number[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -63,12 +65,12 @@ export function BookingForm() {
   })
   const [errors, setErrors] = useState<Record<string, string>>({})
 
-  // // Pre-fill email from session
-  // useEffect(() => {
-  //   if (session?.user?.email) {
-  //     setFormData((prev) => ({ ...prev, email: session.user.email! }))
-  //   }
-  // }, [session])
+  // Pre-fill email from session
+  useEffect(() => {
+    if (session?.user?.email) {
+      setFormData((prev) => ({ ...prev, email: session.user.email! }))
+    }
+  }, [session])
 
   const updateFormData = (data: Partial<BookingFormData>) => {
     setFormData((prev) => ({ ...prev, ...data }))
@@ -256,6 +258,7 @@ export function BookingForm() {
             data={formData}
             errors={errors}
             updateData={updateFormData}
+            isEmailFromSession={!!session?.user?.email}
           />
         )}
 

@@ -12,8 +12,7 @@ export const dynamic = 'force-dynamic';
 function TouristAuthLandingContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { data: session, status, update } = useSession();
-  const [isSwitching, setIsSwitching] = useState(false);
+  const { data: session, status } = useSession();
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -26,50 +25,23 @@ function TouristAuthLandingContent() {
         return;
       }
 
-      // USER IS SIGNING IN FROM TOURIST FLOW - ALWAYS TREAT AS TOURIST
-      // Anyone landing on this page came from /tourist/signin and should be treated as a tourist
-
-      // If already marked as tourist, proceed to dashboard
+      // USER ROLE IS DETERMINED BY EMAIL DOMAIN (IMMUTABLE)
+      // Check if user is actually a tourist based on their email
       if (session.user.userType === 'tourist') {
+        // User is a tourist - proceed to dashboard
         router.replace('/tourist/dashboard');
         return;
       }
 
-      // User is not yet marked as tourist - convert them
-      // This handles the case where a student account exists but user is signing in as tourist
-      setIsSwitching(true);
-      setError(null);
-
-      try {
-        const response = await fetch('/api/auth/set-user-type', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ userType: 'tourist' }),
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to set user type to tourist');
-        }
-
-        // Update the session with the new userType
-        await update();
-
-        // Redirect to dashboard
-        router.replace('/tourist/dashboard');
-      } catch (err) {
-        console.error('Failed to switch to tourist role:', err);
-        setError(
-          'We could not route you to the tourist dashboard. Please try again or contact support.'
-        );
-      } finally {
-        setIsSwitching(false);
-      }
+      // User is NOT a tourist (they're a student) - show error
+      // This happens when someone with a .edu email tries to access tourist features
+      setError(
+        'You are registered as a student with a university email address. Please use the student portal to access your account, or sign in with a non-educational email to create a tourist account.'
+      );
     };
 
     routeUser();
-  }, [router, session, status, update]);
+  }, [router, session, status]);
 
   return (
     <div className="min-h-screen flex flex-col relative overflow-hidden">
@@ -93,25 +65,24 @@ function TouristAuthLandingContent() {
 
         <main className="flex-1 flex items-center justify-center px-4 py-16">
           <div className="glass-card rounded-3xl border-2 border-white/40 p-8 shadow-premium max-w-lg w-full text-center space-y-4">
-            <h1 className="text-2xl font-semibold text-white text-shadow">Preparing your travel experience</h1>
-            <p className="text-white/90 text-sm leading-relaxed">
-              We&apos;re setting up your account for the tourist dashboard. This will only take a moment.
-            </p>
-
-            {isSwitching && (
-              <div className="flex items-center justify-center gap-3 text-white/90">
-                <div className="h-10 w-10 border-2 border-white/40 border-t-transparent rounded-full animate-spin" />
-                <span className="font-medium">Just a moment…</span>
-              </div>
-            )}
-
-            {error && (
-              <div className="bg-ui-error/10 border border-ui-error/40 text-ui-error rounded-2xl p-3 text-sm">
-                <p className="font-semibold mb-2">Something went wrong</p>
+            {!error ? (
+              <>
+                <h1 className="text-2xl font-semibold text-white text-shadow">Preparing your travel experience</h1>
+                <p className="text-white/90 text-sm leading-relaxed">
+                  We&apos;re setting up your account for the tourist dashboard. This will only take a moment.
+                </p>
+                <div className="flex items-center justify-center gap-3 text-white/90 pt-4">
+                  <div className="h-10 w-10 border-2 border-white/40 border-t-transparent rounded-full animate-spin" />
+                  <span className="font-medium">Just a moment…</span>
+                </div>
+              </>
+            ) : (
+              <div className="bg-ui-error/10 border border-ui-error/40 text-ui-error rounded-2xl p-4 text-sm">
+                <p className="font-semibold mb-2 text-lg">Access Denied</p>
                 <p className="mb-4">{error}</p>
                 <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                  <PrimaryCTAButton href="/tourist/signin" variant="blue" className="w-full sm:w-auto">
-                    Try signing in again
+                  <PrimaryCTAButton href="/student/signin" variant="purple" className="w-full sm:w-auto">
+                    Continue as Student
                   </PrimaryCTAButton>
                 </div>
               </div>

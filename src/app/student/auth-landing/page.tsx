@@ -12,8 +12,7 @@ export const dynamic = 'force-dynamic';
 function StudentAuthLandingContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { data: session, status, update } = useSession();
-  const [isSwitching, setIsSwitching] = useState(false);
+  const { data: session, status } = useSession();
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -26,12 +25,10 @@ function StudentAuthLandingContent() {
         return;
       }
 
-      // USER IS SIGNING IN FROM STUDENT FLOW - ALWAYS TREAT AS STUDENT
-      // Anyone landing on this page came from /student/signin and should be treated as a student
-
-      // If already marked as student, proceed to onboarding
+      // USER ROLE IS DETERMINED BY EMAIL DOMAIN (IMMUTABLE)
+      // Check if user is actually a student based on their email
       if (session.user.userType === 'student') {
-        // Check if onboarding is complete
+        // User is a student - proceed to appropriate destination
         if (session.user.hasCompletedOnboarding) {
           router.replace('/student/dashboard');
         } else {
@@ -40,41 +37,15 @@ function StudentAuthLandingContent() {
         return;
       }
 
-      // User is not yet marked as student - convert them
-      // This handles the case where a tourist account exists but user is signing in as student
-      setIsSwitching(true);
-      setError(null);
-
-      try {
-        const response = await fetch('/api/auth/set-user-type', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ userType: 'student' }),
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to set user type to student');
-        }
-
-        // Update the session with the new userType
-        await update();
-
-        // Redirect to onboarding (student record was created by the API)
-        router.replace('/student/onboarding');
-      } catch (err) {
-        console.error('Failed to switch to student role:', err);
-        setError(
-          'We could not route you to the student onboarding flow. Please try again or contact support.'
-        );
-      } finally {
-        setIsSwitching(false);
-      }
+      // User is NOT a student (they're a tourist) - show error
+      // This happens when someone with a non-.edu email tries to access student features
+      setError(
+        'Student access requires a university or institutional email address (e.g., .edu, .ac.uk). Your account is registered as a tourist. Please use your student email to create a student account.'
+      );
     };
 
     routeUser();
-  }, [router, session, status, update]);
+  }, [router, session, status]);
 
   return (
     <div className="min-h-screen flex flex-col relative overflow-hidden">
@@ -98,25 +69,24 @@ function StudentAuthLandingContent() {
 
         <main className="flex-1 flex items-center justify-center px-4 py-16">
           <div className="glass-card rounded-3xl border-2 border-white/40 p-8 shadow-premium max-w-lg w-full text-center space-y-4">
-            <h1 className="text-2xl font-semibold text-white text-shadow">Preparing your student experience</h1>
-            <p className="text-white/90 text-sm leading-relaxed">
-              We&apos;re setting up your account for the student dashboard. This will only take a moment.
-            </p>
-
-            {isSwitching && (
-              <div className="flex items-center justify-center gap-3 text-white/90">
-                <div className="h-10 w-10 border-2 border-white/40 border-t-transparent rounded-full animate-spin" />
-                <span className="font-medium">Just a moment…</span>
-              </div>
-            )}
-
-            {error && (
-              <div className="bg-ui-error/10 border border-ui-error/40 text-ui-error rounded-2xl p-3 text-sm">
-                <p className="font-semibold mb-2">Something went wrong</p>
+            {!error ? (
+              <>
+                <h1 className="text-2xl font-semibold text-white text-shadow">Preparing your student experience</h1>
+                <p className="text-white/90 text-sm leading-relaxed">
+                  We&apos;re setting up your account for the student dashboard. This will only take a moment.
+                </p>
+                <div className="flex items-center justify-center gap-3 text-white/90 pt-4">
+                  <div className="h-10 w-10 border-2 border-white/40 border-t-transparent rounded-full animate-spin" />
+                  <span className="font-medium">Just a moment…</span>
+                </div>
+              </>
+            ) : (
+              <div className="bg-ui-error/10 border border-ui-error/40 text-ui-error rounded-2xl p-4 text-sm">
+                <p className="font-semibold mb-2 text-lg">Access Denied</p>
                 <p className="mb-4">{error}</p>
                 <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                  <PrimaryCTAButton href="/student/signin" variant="purple" className="w-full sm:w-auto">
-                    Try signing in again
+                  <PrimaryCTAButton href="/tourist/signin" variant="blue" className="w-full sm:w-auto">
+                    Continue as Tourist
                   </PrimaryCTAButton>
                 </div>
               </div>
