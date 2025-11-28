@@ -12,9 +12,10 @@ type Props = {
   data: BookingFormData
   errors: Record<string, string>
   updateData: (data: Partial<BookingFormData>) => void
+  isEmailFromSession?: boolean
 }
 
-export function ContactStep({ data, errors, updateData }: Props) {
+export function ContactStep({ data, errors, updateData, isEmailFromSession = false }: Props) {
   const [useWhatsApp, setUseWhatsApp] = useState(false)
 
   const handleWhatsAppToggle = (checked: boolean) => {
@@ -52,11 +53,19 @@ export function ContactStep({ data, errors, updateData }: Props) {
           value={data.email}
           onChange={(e) => updateData({ email: e.target.value })}
           className={errors.email ? 'border-ui-error' : ''}
+          readOnly={isEmailFromSession}
+          disabled={isEmailFromSession}
         />
         {errors.email && <p className="text-sm text-ui-error">{errors.email}</p>}
-        <p className="text-xs text-gray-500">
-          We'll send a verification code to this email
-        </p>
+        {isEmailFromSession ? (
+          <p className="text-xs text-ui-success flex items-center gap-1">
+            <span>✓</span> Email linked to your account
+          </p>
+        ) : (
+          <p className="text-xs text-gray-500">
+            We'll send a verification code to this email
+          </p>
+        )}
       </div>
 
       {/* Phone Number with Country Code */}
