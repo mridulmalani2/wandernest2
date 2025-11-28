@@ -38,7 +38,7 @@ if (config.email.isConfigured) {
     transporter = nodemailer.createTransport({
       host: config.email.host!,
       port: config.email.port,
-      secure: config.email.port === 465, // Use SSL for port 465, TLS for others
+      secure: false, // Use TLS
       auth: {
         user: config.email.user!,
         pass: config.email.pass!,
@@ -46,30 +46,27 @@ if (config.email.isConfigured) {
       // Add timeout to prevent hanging
       connectionTimeout: 10000, // 10 seconds
       greetingTimeout: 10000,
-      // Enable debug for better error messages
-      debug: config.app.isDevelopment,
-      logger: config.app.isDevelopment,
     })
 
-    console.log('✅ Email transporter initialized')
-    console.log(`   SMTP Host: ${config.email.host}`)
-    console.log(`   SMTP Port: ${config.email.port}`)
-    console.log(`   SMTP User: ${config.email.user}`)
-    console.log(`   Secure: ${config.email.port === 465}`)
+    if (config.app.isDevelopment) {
+      console.log('✅ Email transporter initialized')
+    }
   } catch (error) {
     console.error('❌ Failed to initialize email transporter:', error)
     transporter = null
   }
 } else {
-  console.warn('⚠️  WARNING: Email not configured - emails will only be logged')
-  console.warn('   Missing variables:')
-  if (!config.email.host) console.warn('   - EMAIL_HOST')
-  if (!config.email.user) console.warn('   - EMAIL_USER')
-  if (!config.email.pass) console.warn('   - EMAIL_PASS')
+  if (config.app.isDevelopment) {
+    console.log('⚠️  Email not configured - using mock mode')
+  } else if (config.app.isProduction) {
+    console.warn(
+      '⚠️  WARNING: Email not configured in production - emails will not be sent'
+    )
+  }
 }
 
 /**
- * Send email with comprehensive error handling and retry logic
+ * Send email with comprehensive error handling
  * Never throws - always returns success/failure status
  */
 async function sendEmail(
@@ -79,99 +76,50 @@ async function sendEmail(
     html: string
   },
   context: string
-): Promise<{ success: boolean; error?: string; messageId?: string }> {
+): Promise<{ success: boolean; error?: string }> {
   // Mock mode - log instead of sending
   if (!transporter) {
-    console.warn('\n===========================================')
-    console.warn(`📧 MOCK EMAIL MODE - ${context}`)
-    console.warn('===========================================')
-    console.warn(`To: ${options.to}`)
-    console.warn(`Subject: ${options.subject}`)
-    console.warn('⚠️  EMAIL NOT SENT - Configure EMAIL_HOST, EMAIL_USER, EMAIL_PASS')
-    console.warn('===========================================\n')
+    if (config.app.isDevelopment) {
+      console.log('\n===========================================')
+      console.log(`📧 MOCK EMAIL - ${context}`)
+      console.log('===========================================')
+      console.log(`To: ${options.to}`)
+      console.log(`Subject: ${options.subject}`)
+      console.log('===========================================\n')
+    }
+    return { success: true } // Mock sends always "succeed"
+  }
+
+  // Production mode - actually send
+  try {
+    await transporter.sendMail({
+      from: config.email.from,
+      to: options.to,
+      subject: options.subject,
+      html: options.html,
+    })
+
+    if (config.app.isDevelopment) {
+      console.log(`✅ Email sent: ${context} to ${options.to}`)
+    }
+
+    return { success: true }
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+
+    console.error(`❌ Failed to send email: ${context}`)
+    console.error(`   To: ${options.to}`)
+    console.error(`   Error: ${errorMessage}`)
+
+    // Log full error in development
+    if (config.app.isDevelopment) {
+      console.error('   Full error:', error)
+    }
+
     return {
       success: false,
-      error: 'Email not configured - check Vercel environment variables'
+      error: errorMessage,
     }
-  }
-
-  // Retry logic for transient failures
-  const maxRetries = 3
-  let lastError: Error | null = null
-
-  for (let attempt = 1; attempt <= maxRetries; attempt++) {
-    try {
-      console.log(`📧 Sending email (attempt ${attempt}/${maxRetries}): ${context}`)
-      console.log(`   To: ${options.to}`)
-      console.log(`   Subject: ${options.subject}`)
-      console.log(`   From: ${config.email.from}`)
-
-      const result = await transporter.sendMail({
-        from: config.email.from,
-        to: options.to,
-        subject: options.subject,
-        html: options.html,
-      })
-
-      console.log(`✅ Email sent successfully: ${context}`)
-      console.log(`   Message ID: ${result.messageId}`)
-      console.log(`   Accepted: ${result.accepted?.join(', ') || 'N/A'}`)
-      console.log(`   Rejected: ${result.rejected?.length ? result.rejected.join(', ') : 'None'}`)
-
-      // Check if email was rejected
-      if (result.rejected && result.rejected.length > 0) {
-        throw new Error(`Email rejected by server: ${result.rejected.join(', ')}`)
-      }
-
-      return {
-        success: true,
-        messageId: result.messageId
-      }
-    } catch (error) {
-      lastError = error instanceof Error ? error : new Error('Unknown error')
-
-      console.error(`❌ Failed to send email (attempt ${attempt}/${maxRetries}): ${context}`)
-      console.error(`   To: ${options.to}`)
-      console.error(`   Error: ${lastError.message}`)
-
-      // Log additional error details
-      if ('code' in lastError) {
-        console.error(`   Error Code: ${(lastError as any).code}`)
-      }
-      if ('command' in lastError) {
-        console.error(`   SMTP Command: ${(lastError as any).command}`)
-      }
-      if ('response' in lastError) {
-        console.error(`   SMTP Response: ${(lastError as any).response}`)
-      }
-
-      // Log full error object for debugging
-      console.error('   Full error:', lastError)
-
-      // Don't retry on authentication errors
-      const errorCode = (lastError as any).code
-      if (errorCode === 'EAUTH' || errorCode === 'ESOCKET' || lastError.message.includes('authentication')) {
-        console.error('   ⚠️  Authentication error - not retrying')
-        break
-      }
-
-      // Wait before retrying (exponential backoff)
-      if (attempt < maxRetries) {
-        const delay = Math.pow(2, attempt) * 1000 // 2s, 4s, 8s
-        console.log(`   Retrying in ${delay / 1000}s...`)
-        await new Promise(resolve => setTimeout(resolve, delay))
-      }
-    }
-  }
-
-  const errorMessage = lastError?.message || 'Unknown error'
-  console.error(`❌ FINAL FAILURE: Could not send email after ${maxRetries} attempts`)
-  console.error(`   Context: ${context}`)
-  console.error(`   Final error: ${errorMessage}`)
-
-  return {
-    success: false,
-    error: errorMessage,
   }
 }
 
@@ -179,7 +127,7 @@ export async function sendBookingConfirmation(
   email: string,
   requestId: string,
   options?: { matchesFound?: number }
-): Promise<{ success: boolean; error?: string; messageId?: string }> {
+): Promise<{ success: boolean; error?: string }> {
   const hasMatches = (options?.matchesFound ?? 0) > 0
   const html = `
     <!DOCTYPE html>
