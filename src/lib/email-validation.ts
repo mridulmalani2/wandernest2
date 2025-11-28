@@ -2,62 +2,67 @@
  * Email Domain Validation for Student Authentication
  *
  * This module provides validation for institutional/educational email addresses
- * used in the student authentication flow. Only emails from APPROVED
+ * used in the student authentication flow. Only emails from recognized
  * educational institutions are allowed for student sign-up and login.
  *
  * USAGE:
  * - Import `isStudentEmail()` to validate email domains
  * - Import `getStudentEmailErrorMessage()` for user-friendly error messages
- * - Import `ALLOWED_STUDENT_DOMAINS` to access the full list of valid domains
+ * - Import `STUDENT_EMAIL_DOMAINS` to access the full list of valid domains
  *
  * TO ADD NEW DOMAINS:
- * Simply add the exact domain to the ALLOWED_STUDENT_DOMAINS array below.
- * Format: 'exact.domain' (e.g., 'hec.edu', 'ashoka.edu.in')
- * The validation is case-insensitive and matches the EXACT domain after @.
+ * Simply add the domain suffix to the STUDENT_EMAIL_DOMAINS array below.
+ * Format: '.suffix' (e.g., '.edu', '.ac.uk', '.edu.au')
+ * The validation is case-insensitive and checks the end of the email domain.
  */
 
 // ============================================================================
-// ALLOWED STUDENT EMAIL DOMAINS - Centralized Configuration
+// VALID STUDENT EMAIL DOMAINS - Centralized Configuration
 // ============================================================================
-// IMPORTANT: This is an EXACT domain match (not suffix matching).
-// Only emails from these specific domains are allowed for student authentication.
-//
-// Examples:
-// - john@hec.edu ✅ (matches 'hec.edu')
-// - jane@ashoka.edu.in ✅ (matches 'ashoka.edu.in')
-// - bob@stanford.edu ❌ (not in the list)
-// - alice@student.hec.edu ❌ (subdomain not allowed - must be exact match)
-//
-// To add a new university, add the exact domain (everything after @) to this list.
+// Add new educational domain suffixes here to allow students from additional
+// institutions to sign up. This list is used for both client-side and
+// server-side validation.
 // ============================================================================
-export const ALLOWED_STUDENT_DOMAINS = [
-  // Specific partner universities
-  'hec.edu',           // HEC Paris (US domain)
-  'hec.fr',            // HEC Paris (France domain)
-  'ashoka.edu.in',     // Ashoka University, India
-
-  // Generic .edu domains for easy extension
-  // Add specific universities below as partnerships are established
-  'stanford.edu',      // Example: Stanford University
-  'mit.edu',           // Example: MIT
-  'berkeley.edu',      // Example: UC Berkeley
-  'harvard.edu',       // Example: Harvard University
-  'yale.edu',          // Example: Yale University
-  'princeton.edu',     // Example: Princeton University
-  'columbia.edu',      // Example: Columbia University
-  'cornell.edu',       // Example: Cornell University
-  'upenn.edu',         // Example: University of Pennsylvania
-  'duke.edu',          // Example: Duke University
-
-  // Add more specific university domains here as needed
-  // Format: 'university.edu' or 'university.edu.country'
+export const STUDENT_EMAIL_DOMAINS = [
+  '.edu',       // US educational institutions
+  '.edu.in',    // Indian educational institutions
+  '.ac.uk',     // UK academic institutions
+  '.edu.au',    // Australian educational institutions
+  '.edu.sg',    // Singapore educational institutions
+  '.ac.in',     // Indian academic institutions
+  '.edu.cn',    // Chinese educational institutions
+  '.ac.jp',     // Japanese academic institutions
+  '.edu.my',    // Malaysian educational institutions
+  '.edu.pk',    // Pakistani educational institutions
+  '.ac.nz',     // New Zealand academic institutions
+  '.edu.ph',    // Philippine educational institutions
+  '.ac.za',     // South African academic institutions
+  '.edu.br',    // Brazilian educational institutions
+  '.edu.mx',    // Mexican educational institutions
+  '.ac.th',     // Thai academic institutions
+  '.edu.vn',    // Vietnamese educational institutions
+  '.ac.kr',     // Korean academic institutions
+  '.edu.hk',    // Hong Kong educational institutions
+  '.edu.tw',    // Taiwan educational institutions
+  '.ac.ae',     // UAE academic institutions
+  '.edu.sa',    // Saudi Arabian educational institutions
+  '.ac.il',     // Israeli academic institutions
+  '.edu.tr',    // Turkish educational institutions
+  '.ac.fr',     // French academic institutions (some use this)
+  '.edu.fr',    // French educational institutions
+  '.ac.be',     // Belgian academic institutions
+  '.edu.ar',    // Argentine educational institutions
+  '.edu.co',    // Colombian educational institutions
+  '.edu.pe',    // Peruvian educational institutions
+  '.edu.cl',    // Chilean educational institutions
+  // Add more institution-specific domains as needed
 ];
 
 /**
- * Validates if an email address belongs to an approved educational institution
+ * Validates if an email address belongs to a recognized educational institution
  *
  * @param email - The email address to validate
- * @returns true if the email domain is from an approved educational institution
+ * @returns true if the email domain is from a recognized educational institution
  */
 export function isStudentEmail(email: string): boolean {
   if (!email || typeof email !== 'string') {
@@ -71,11 +76,7 @@ export function isStudentEmail(email: string): boolean {
     return false;
   }
 
-  // Extract domain (everything after @)
-  const domain = lowerEmail.split('@')[1];
-
-  // Check if the domain is in the allowed list (exact match)
-  return ALLOWED_STUDENT_DOMAINS.includes(domain);
+  return STUDENT_EMAIL_DOMAINS.some(domain => lowerEmail.endsWith(domain));
 }
 
 /**
@@ -86,12 +87,10 @@ export function isStudentEmail(email: string): boolean {
  */
 export function getStudentEmailErrorMessage(email?: string): string {
   if (!email) {
-    return 'Please enter your university email address from an approved institution.';
+    return 'Please enter a valid university or institutional email address.';
   }
 
-  const domain = email.includes('@') ? email.split('@')[1] : '';
-
-  return `The email domain "${domain}" is not currently approved for student sign-in. TourWiseCo currently partners with specific universities (HEC Paris, Ashoka University, and select .edu institutions). If you believe your university should be added, please contact support.`;
+  return `The email "${email}" does not appear to be from a recognized educational institution. Please use your university email address (e.g., .edu, .ac.uk, .edu.au).`;
 }
 
 /**
