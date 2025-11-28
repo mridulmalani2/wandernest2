@@ -122,6 +122,34 @@ async function sendEmail(
     }
   }
 }
+export async function sendStudentOtpEmail(toEmail: string, otp: string) {
+  const html = `
+    <div style="font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 480px; margin: 0 auto;">
+      <h2 style="text-align:center;">Your sign-in code</h2>
+      <p style="text-align:center; font-size: 28px; font-weight: bold; letter-spacing: 6px; margin: 24px 0;">
+        ${otp}
+      </p>
+      <p style="text-align:center; color:#555;">
+        This code will expire in <strong>10 minutes</strong>.<br/>
+        If you didn’t request this, you can safely ignore this email.
+      </p>
+    </div>
+  `
+
+  // Reuse the existing helper, which already handles:
+  // - transporter null check
+  // - from address
+  // - logging and errors
+  return await sendEmail(
+    {
+      to: toEmail,
+      subject: 'Your TourWiseCo sign-in code',
+      html,
+    },
+    'Student OTP Email'
+  )
+}
+
 
 export async function sendBookingConfirmation(
   email: string,
