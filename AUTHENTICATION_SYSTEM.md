@@ -18,17 +18,20 @@ The authentication system has been completely overhauled to provide a **simple, 
 - Simplifies the user experience
 - Matches real-world use cases (students use university emails, tourists use personal emails)
 
-### ✅ 2. Unified Google OAuth
+### ✅ 2. Flexible Authentication Options
 
-**Both Students and Tourists use Google OAuth for sign-in:**
-- Students: Sign in at `/student/signin` with university Google account
-- Tourists: Sign in at `/tourist/signin` with personal Google account
+**Students have TWO sign-in methods:**
+- **Google OAuth**: For university emails hosted on Google Workspace (e.g., Gmail-based .edu)
+- **Magic Link**: For non-Google university emails (e.g., HEC, custom email systems)
+
+**Tourists use:**
+- **Google OAuth**: For personal emails (Gmail, etc.)
 
 **Benefits:**
-- No complex magic-link email system
-- Faster sign-in experience
+- Supports ALL university email systems (Google and non-Google)
+- Magic-link ensures students with custom email systems can sign in
+- Faster sign-in with Google OAuth when available
 - Works across all devices
-- Familiar OAuth flow
 
 ### ✅ 3. Persistent Profiles
 
@@ -168,12 +171,15 @@ if (userType === 'student') {
 ### 2. Sign-In Pages
 
 **Student Sign-In** (`src/app/student/signin/page.tsx`):
-- Google OAuth button
-- Reminder to use university email
+- **Primary**: Google OAuth button (for Google-based university emails)
+- **Alternative**: Magic link form (for non-Google university emails like HEC)
+- Email domain validation (.edu, .ac.uk, etc.) enforced for magic link
+- Divider: "Or use magic link"
 - Redirects to `/student/auth-landing`
+- **Note**: This dual-auth approach supports ALL university email systems
 
 **Tourist Sign-In** (`src/app/tourist/signin/page.tsx`):
-- Google OAuth button
+- Google OAuth button (sufficient for personal emails)
 - Redirects to `/tourist/auth-landing`
 
 ### 3. Auth Landing Pages
@@ -360,7 +366,7 @@ function isStudentEmail(email: string): boolean {
 - ✏️ `/src/lib/auth-options.ts` - Immutable role assignment
 - ✏️ `/src/app/student/auth-landing/page.tsx` - No role switching
 - ✏️ `/src/app/tourist/auth-landing/page.tsx` - No role switching
-- ✏️ `/src/app/student/signin/page.tsx` - Google OAuth instead of magic-link
+- ✏️ `/src/app/student/signin/page.tsx` - **Dual auth: Google OAuth AND magic-link**
 - ✏️ `/src/components/booking/BookingForm.tsx` - Email pre-fill from session
 - ✏️ `/src/components/booking/ContactStep.tsx` - Read-only email when authenticated
 
