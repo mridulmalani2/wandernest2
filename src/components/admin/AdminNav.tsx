@@ -13,6 +13,10 @@ export default function AdminNav() {
   // block the login Set-Cookie response, and the httpOnly cookie isn't
   // readable from JS, so we mirror the token from localStorage into a
   // same-site cookie on each route render with an explicit max-age.
+  // Keep the http-only admin cookie in sync so navigating between admin routes
+  // doesn't accidentally drop the session. Some browsers may block the
+  // Set-Cookie response, so we mirror the token from localStorage into a
+  // same-site cookie when needed.
   useEffect(() => {
     const token = localStorage.getItem('adminToken')
 
@@ -21,6 +25,12 @@ export default function AdminNav() {
     const secureFlag = window.location.protocol === 'https:' ? '; Secure' : ''
     document.cookie = `admin-token=${token}; path=/; SameSite=Lax; Max-Age=${60 * 60 * 8}${secureFlag}`
   }, [pathname])
+    const hasCookie = document.cookie.split('; ').some((entry) => entry.startsWith('admin-token='))
+
+    if (!hasCookie) {
+      document.cookie = `admin-token=${token}; path=/; SameSite=Lax`
+    }
+  }, [])
 
   const navItems = [
     { href: '/admin', label: 'Dashboard', icon: '🏠' },
