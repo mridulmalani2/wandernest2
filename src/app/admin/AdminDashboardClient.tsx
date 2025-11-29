@@ -26,54 +26,6 @@ interface DashboardSnapshot {
   upcomingBookings: UpcomingBooking[]
 }
 
-const mockDashboard: DashboardSnapshot = {
-  totalBookings: 184,
-  totalStudents: 96,
-  approvedBookings: 132,
-  pendingApprovals: 12,
-  upcomingBookings: [
-    {
-      id: 'BK-2408',
-      travelerName: 'Aisha Rahman',
-      city: 'Barcelona, Spain',
-      date: '2024-11-02',
-      service: 'City Orientation',
-      assignment: { studentName: 'Diego M.', status: 'Assigned' },
-      approval: 'Approved',
-      notes: 'Prefers evening slot',
-    },
-    {
-      id: 'BK-2409',
-      travelerName: 'Hiro Tanaka',
-      city: 'Kyoto, Japan',
-      date: '2024-11-04',
-      service: 'Cultural Immersion',
-      assignment: { status: 'Unassigned' },
-      approval: 'Pending',
-      notes: 'Requires Japanese-speaking student',
-    },
-    {
-      id: 'BK-2410',
-      travelerName: 'Sofia Almeida',
-      city: 'Lisbon, Portugal',
-      date: '2024-11-06',
-      service: 'Food Tour',
-      assignment: { studentName: 'João P.', status: 'Assigned' },
-      approval: 'Needs Attention',
-      notes: 'Awaiting student confirmation',
-    },
-    {
-      id: 'BK-2411',
-      travelerName: 'Marcus Lee',
-      city: 'Singapore',
-      date: '2024-11-08',
-      service: 'Airport Pickup',
-      assignment: { status: 'Unassigned' },
-      approval: 'Pending',
-    },
-  ],
-}
-
 const statusColors: Record<UpcomingBooking['approval'], string> = {
   Approved: 'bg-green-50 text-green-700 border-green-200',
   Pending: 'bg-amber-50 text-amber-700 border-amber-200',
@@ -82,13 +34,31 @@ const statusColors: Record<UpcomingBooking['approval'], string> = {
 
 export default function AdminDashboardClient() {
   const [data, setData] = useState<DashboardSnapshot | null>(null)
+  const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // In a real app this would fetch from /api/admin/dashboard
-    // Using mock data to keep the dashboard functional without backend setup
-    setData(mockDashboard)
-    setLoading(false)
+    const loadDashboard = async () => {
+      try {
+        const response = await fetch('/api/admin/dashboard', {
+          credentials: 'include',
+        })
+
+        if (!response.ok) {
+          throw new Error('Failed to load dashboard data')
+        }
+
+        const payload = (await response.json()) as DashboardSnapshot
+        setData(payload)
+      } catch (err) {
+        console.error('Failed to fetch dashboard data', err)
+        setError('Unable to load dashboard data. Please try again later.')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadDashboard()
   }, [])
 
   const totals = useMemo(
@@ -101,12 +71,23 @@ export default function AdminDashboardClient() {
     [data]
   )
 
-  if (loading || !data) {
+  if (loading || (!data && !error)) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
           <p className="mt-4 text-gray-600">Loading dashboard...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error || !data) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="bg-white border border-red-200 text-red-700 px-6 py-4 rounded-lg shadow-sm max-w-lg text-center space-y-3">
+          <h2 className="text-xl font-semibold">Dashboard unavailable</h2>
+          <p className="text-sm text-red-600">{error}</p>
         </div>
       </div>
     )
