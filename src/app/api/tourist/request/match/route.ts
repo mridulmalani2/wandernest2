@@ -35,7 +35,6 @@ interface MatchingCriteria {
   city: string
   preferredNationality?: string
   preferredLanguages: string[]
-  preferredGender?: string
   serviceType: string
   interests: string[]
   dates: { start: string; end?: string }
@@ -195,7 +194,6 @@ async function matchStudents(req: NextRequest) {
       city: touristRequest.city,
       preferredNationality: touristRequest.preferredNationality || undefined,
       preferredLanguages: touristRequest.preferredLanguages,
-      preferredGender: touristRequest.preferredGender || undefined,
       serviceType: touristRequest.serviceType,
       interests: touristRequest.interests,
       dates: touristRequest.dates as { start: string; end?: string },
@@ -210,11 +208,6 @@ async function matchStudents(req: NextRequest) {
       availability: {
         some: {},
       },
-    }
-
-    // Apply gender preference filter at DB level
-    if (criteria.preferredGender && criteria.preferredGender !== 'no_preference') {
-      whereClause.gender = criteria.preferredGender
     }
 
     // Try to fetch students matching nationality first

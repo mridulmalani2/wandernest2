@@ -29,7 +29,6 @@ const createBookingSchema = z.object({
   // Preferences
   preferredNationality: z.string().optional(),
   preferredLanguages: z.array(z.string()).min(1, 'At least one language required'),
-  preferredGender: z.enum(['male', 'female', 'no_preference']).optional(),
   serviceType: z.enum(['itinerary_help', 'guided_experience']),
   interests: z.array(z.string()).min(1, 'At least one interest required'),
   budget: z.number().positive().optional(),
@@ -100,7 +99,6 @@ async function createTouristRequest(req: NextRequest) {
           // Preferences
           preferredNationality: validatedData.preferredNationality,
           preferredLanguages: validatedData.preferredLanguages,
-          preferredGender: validatedData.preferredGender,
           serviceType: validatedData.serviceType,
           interests: validatedData.interests,
           budget: validatedData.budget,
@@ -154,7 +152,6 @@ async function createTouristRequest(req: NextRequest) {
       // Preferences
       preferredNationality: validatedData.preferredNationality,
       preferredLanguages: validatedData.preferredLanguages,
-      preferredGender: validatedData.preferredGender,
       serviceType: validatedData.serviceType,
       interests: validatedData.interests,
       budget: validatedData.budget,

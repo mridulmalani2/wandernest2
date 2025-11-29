@@ -32,7 +32,6 @@ interface MatchingFilters {
   languages?: {
     hasSome: string[]
   }
-  gender?: string
 }
 
 /**
@@ -76,10 +75,6 @@ export async function findMatches(request: TouristRequest): Promise<StudentWithS
     candidates = candidates.filter((s: any) =>
       request.preferredLanguages!.some(lang => s.languages.includes(lang))
     )
-  }
-
-  if (request.preferredGender && request.preferredGender !== 'no_preference') {
-    candidates = candidates.filter((s: any) => s.gender === request.preferredGender)
   }
 
   // Score each candidate
