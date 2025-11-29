@@ -209,7 +209,7 @@ export async function sendBookingConfirmation(
                     <p style="margin: 0 0 24px 0; font-size: 16px; line-height: 1.6; color: #374151;">
                       ${hasMatches
                         ? 'Great news! Your booking request has been successfully submitted and we\'ve found matching student guides who can help with your trip.'
-                        : 'Great news! Your booking request has been successfully created. While we don\'t have immediate matches yet, your request is saved and we\'re actively working to find the perfect student guide for you.'}
+                        : 'Great news! Your booking request has been successfully created. Our admin team will now review your request and match you with the perfect student guide for your trip.'}
                     </p>
 
                     <!-- Request ID Card -->
@@ -283,7 +283,7 @@ export async function sendBookingConfirmation(
                       </tr>
                     </table>
                     ` : `
-                    <!-- When no matches are found yet - reassuring timeline -->
+                    <!-- Admin-led matching flow - new approach -->
                     <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
                       <tr>
                         <td style="padding: 16px; background: #f9fafb; border-radius: 10px; margin-bottom: 12px;">
@@ -293,8 +293,8 @@ export async function sendBookingConfirmation(
                                 <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 14px;">1</div>
                               </td>
                               <td style="padding-left: 12px; vertical-align: top;">
-                                <p style="margin: 0; font-size: 15px; font-weight: 600; color: #111827;">Your request is secured</p>
-                                <p style="margin: 4px 0 0 0; font-size: 14px; color: #6b7280;">We've saved all your trip details and preferences. Your booking request is active in our system.</p>
+                                <p style="margin: 0; font-size: 15px; font-weight: 600; color: #111827;">Admin team reviews your request</p>
+                                <p style="margin: 4px 0 0 0; font-size: 14px; color: #6b7280;">Our team will carefully review your trip details, preferences, and requirements to ensure the best match.</p>
                               </td>
                             </tr>
                           </table>
@@ -309,8 +309,8 @@ export async function sendBookingConfirmation(
                                 <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 14px;">2</div>
                               </td>
                               <td style="padding-left: 12px; vertical-align: top;">
-                                <p style="margin: 0; font-size: 15px; font-weight: 600; color: #111827;">We're actively searching</p>
-                                <p style="margin: 4px 0 0 0; font-size: 14px; color: #6b7280;">Student guides are continuously joining our platform. We'll match you with the perfect guide as soon as one becomes available.</p>
+                                <p style="margin: 0; font-size: 15px; font-weight: 600; color: #111827;">We match you with qualified guides</p>
+                                <p style="margin: 4px 0 0 0; font-size: 14px; color: #6b7280;">Based on your preferences, we'll connect you with student guides who are the perfect fit for your trip.</p>
                               </td>
                             </tr>
                           </table>
@@ -325,8 +325,8 @@ export async function sendBookingConfirmation(
                                 <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 14px;">3</div>
                               </td>
                               <td style="padding-left: 12px; vertical-align: top;">
-                                <p style="margin: 0; font-size: 15px; font-weight: 600; color: #111827;">Instant notification when matched</p>
-                                <p style="margin: 4px 0 0 0; font-size: 14px; color: #6b7280;">You'll receive an email immediately when a suitable guide accepts your request. Check your inbox regularly!</p>
+                                <p style="margin: 0; font-size: 15px; font-weight: 600; color: #111827;">Receive guide details via email</p>
+                                <p style="margin: 4px 0 0 0; font-size: 14px; color: #6b7280;">You'll get an email with your matched guide's information and next steps. Then you can connect and start planning!</p>
                               </td>
                             </tr>
                           </table>
@@ -342,7 +342,7 @@ export async function sendBookingConfirmation(
                           <p style="margin: 0; font-size: 14px; line-height: 1.5; color: #92400e;">
                             <strong style="color: #78350f;">💡 Pro Tip:</strong> ${hasMatches
                               ? 'You\'ll receive an email as soon as a guide accepts your request. Keep an eye on your inbox!'
-                              : 'Your request remains active for 7 days. We\'ll notify you immediately when a matching guide becomes available. Check your email regularly!'}
+                              : 'Our admin team typically reviews and matches requests within 24-48 hours. You\'ll receive an email with your guide\'s details once the matching is complete. Keep an eye on your inbox!'}
                           </p>
                         </td>
                       </tr>

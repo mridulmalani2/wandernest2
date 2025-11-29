@@ -51,6 +51,8 @@ export function BookingForm() {
   const [currentStep, setCurrentStep] = useState(1)
   const [completedSteps, setCompletedSteps] = useState<number[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [bookingSuccess, setBookingSuccess] = useState(false)
+  const [requestId, setRequestId] = useState<string | null>(null)
   const [formData, setFormData] = useState<BookingFormData>({
     city: '',
     dates: { start: '' },
@@ -201,8 +203,11 @@ export function BookingForm() {
       const data = await response.json()
 
       if (response.ok && data.success && data.requestId) {
-        // Redirect to matching page
-        router.push(`/booking/select-guide?requestId=${data.requestId}`)
+        // Show success message instead of redirecting to student selection
+        // Admin will handle matching and notify tourist by email
+        setRequestId(data.requestId)
+        setBookingSuccess(true)
+        window.scrollTo({ top: 0, behavior: 'smooth' })
       } else if (response.status === 401) {
         setErrors({
           submit: 'You must be signed in to create a booking request. Please refresh the page and sign in.',
@@ -220,6 +225,107 @@ export function BookingForm() {
     } finally {
       setIsSubmitting(false)
     }
+  }
+
+  // Show success message if booking was created successfully
+  if (bookingSuccess && requestId) {
+    return (
+      <div className="relative w-full max-w-3xl mx-auto p-4 md:p-6">
+        <div className="glass-card rounded-3xl border-2 border-ui-success/40 shadow-premium p-8 md:p-12 text-center animate-fade-in">
+          {/* Success Icon */}
+          <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-br from-ui-success to-ui-success/80 flex items-center justify-center shadow-lg">
+            <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path>
+            </svg>
+          </div>
+
+          {/* Success Heading */}
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            Booking Request Created!
+          </h2>
+
+          {/* Main Success Message */}
+          <p className="text-lg text-gray-700 mb-6 leading-relaxed">
+            Your booking request has been created successfully. Our team will now match you with the best student guides and follow up with you by email.
+          </p>
+
+          {/* Request ID Card */}
+          <div className="max-w-md mx-auto mb-8 p-6 bg-gradient-to-br from-ui-blue-primary/10 to-ui-purple-primary/10 border-2 border-ui-blue-accent/30 rounded-2xl">
+            <p className="text-sm font-semibold text-ui-blue-primary uppercase tracking-wide mb-2">
+              Your Request ID
+            </p>
+            <p className="text-2xl font-bold font-mono text-gray-900 break-all">
+              {requestId}
+            </p>
+          </div>
+
+          {/* What Happens Next */}
+          <div className="text-left max-w-md mx-auto mb-8 p-6 glass-frosted rounded-2xl border border-white/40">
+            <h3 className="text-lg font-bold text-gray-900 mb-4">What happens next?</h3>
+            <div className="space-y-3 text-sm text-gray-700">
+              <div className="flex items-start gap-3">
+                <div className="flex-shrink-0 w-6 h-6 rounded-full bg-ui-blue-primary text-white flex items-center justify-center text-xs font-bold">1</div>
+                <p>Our admin team reviews your booking request and trip details</p>
+              </div>
+              <div className="flex items-start gap-3">
+                <div className="flex-shrink-0 w-6 h-6 rounded-full bg-ui-blue-primary text-white flex items-center justify-center text-xs font-bold">2</div>
+                <p>We match you with qualified student guides who best fit your preferences</p>
+              </div>
+              <div className="flex items-start gap-3">
+                <div className="flex-shrink-0 w-6 h-6 rounded-full bg-ui-blue-primary text-white flex items-center justify-center text-xs font-bold">3</div>
+                <p>You'll receive an email with details about your assigned guide(s)</p>
+              </div>
+              <div className="flex items-start gap-3">
+                <div className="flex-shrink-0 w-6 h-6 rounded-full bg-ui-blue-primary text-white flex items-center justify-center text-xs font-bold">4</div>
+                <p>Connect with your guide and plan your perfect trip!</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Check Email Notice */}
+          <div className="p-4 bg-gradient-to-br from-ui-purple-primary/10 to-ui-purple-accent/10 border-2 border-ui-purple-accent/30 rounded-xl mb-6">
+            <p className="text-sm text-gray-700">
+              <span className="font-semibold">📧 Check your email!</span> We've sent a confirmation to <span className="font-mono text-ui-purple-primary">{formData.email}</span> with all your booking details.
+            </p>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setBookingSuccess(false)
+                setRequestId(null)
+                setCurrentStep(1)
+                setCompletedSteps([])
+                setFormData({
+                  city: '',
+                  dates: { start: '' },
+                  preferredTime: '',
+                  numberOfGuests: 1,
+                  groupType: '',
+                  preferredLanguages: [],
+                  serviceType: '',
+                  interests: [],
+                  email: session?.user?.email || '',
+                  contactMethod: 'email',
+                })
+              }}
+              className="hover-lift shadow-soft"
+            >
+              Create Another Booking
+            </Button>
+            <PrimaryCTAButton
+              onClick={() => router.push('/')}
+              variant="blue"
+              className="hover-lift"
+            >
+              Return to Home
+            </PrimaryCTAButton>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return (
