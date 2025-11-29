@@ -7,9 +7,8 @@ import { z } from 'zod';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { requireDatabase } from '@/lib/prisma';
-import { sendBookingConfirmation } from '@/lib/email';
+import { sendBookingConfirmation } from '@/lib/transactional-email';
 import { withErrorHandler, withDatabaseRetry, AppError } from '@/lib/error-handler';
-import { autoMatchAndInvite } from '@/lib/matching/autoMatch';
 
 // In-memory storage for demo mode (when database is unavailable)
 const demoRequests = new Map<string, any>();
@@ -119,45 +118,17 @@ async function createTouristRequest(req: NextRequest) {
       })
     );
 
-    // AUTOMATIC MATCHING: Find and invite candidate students (do this BEFORE sending email)
-    console.log(`[createTouristRequest] Triggering automatic matching for request ${touristRequest.id}`)
-    const matchResult = await autoMatchAndInvite(touristRequest)
-
-    if (matchResult.success) {
-      if (matchResult.candidatesFound === 0) {
-        console.log(
-          `[createTouristRequest] Auto-match completed: No matching guides found yet. ` +
-          `Tourist will be notified when guides become available.`
-        )
-      } else {
-        console.log(
-          `[createTouristRequest] Auto-match successful: ${matchResult.candidatesFound} candidates found, ` +
-          `${matchResult.invitationsSent} invitations sent`
-        )
-      }
-    } else {
-      console.warn(`[createTouristRequest] Auto-match failed:`, matchResult.errors)
-      // Continue anyway - matching is not critical for request creation
-    }
-
-    if (matchResult.errors.length > 0) {
-      console.warn(`[createTouristRequest] Auto-match warnings:`, matchResult.errors)
-    }
-
-    // IMPORTANT: Always send booking confirmation email, regardless of match results
-    // Email template adapts based on whether matches were found (zero matches is a valid success state)
+    // Send booking confirmation email to tourist
+    // Matching will be handled separately via admin dashboard
     console.log(`[createTouristRequest] Sending booking confirmation email to ${session.user.email}`)
     const emailResult = await sendBookingConfirmation(
       session.user.email,
       touristRequest.id,
-      { matchesFound: matchResult.candidatesFound }
+      { matchesFound: 0 } // No automatic matching - admin will handle matching later
     )
 
     if (emailResult.success) {
-      console.log(
-        `[createTouristRequest] ✅ Booking confirmation email sent successfully ` +
-        `(${matchResult.candidatesFound} matches found)`
-      )
+      console.log(`[createTouristRequest] ✅ Booking confirmation email sent successfully`)
     } else {
       console.warn('⚠️  Failed to send booking confirmation email:', emailResult.error)
       // Continue anyway - email failure should not block booking creation
