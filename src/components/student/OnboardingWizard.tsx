@@ -331,21 +331,144 @@ export function OnboardingWizard({ session }: OnboardingWizardProps) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const getStepErrors = (step: number): Record<string, string> => {
+    const stepErrors: Record<string, string> = {};
+
+    // Step 1: Basic Profile
+    if (step === 1) {
+      if (!formData.name.trim()) stepErrors.name = 'Name is required';
+      if (!formData.dateOfBirth) stepErrors.dateOfBirth = 'Date of birth is required';
+      if (!formData.gender) stepErrors.gender = 'Gender selection is required';
+      if (!formData.nationality.trim()) stepErrors.nationality = 'Nationality is required';
+      if (!formData.phoneNumber.trim()) stepErrors.phoneNumber = 'Phone number is required';
+      if (!formData.city) stepErrors.city = 'City selection is required';
+      if (!formData.campus) stepErrors.campus = 'Campus selection is required';
+      if (!formData.institute.trim()) stepErrors.institute = 'University name is required';
+      if (!formData.programDegree.trim()) stepErrors.programDegree = 'Program/Degree is required';
+      if (!formData.yearOfStudy) stepErrors.yearOfStudy = 'Year of study is required';
+      if (!formData.expectedGraduation.trim()) stepErrors.expectedGraduation = 'Expected graduation is required';
+      if (formData.languages.length === 0) stepErrors.languages = 'At least one language is required';
+    }
+
+    // Step 2: Identity Verification
+    if (step === 2) {
+      if (!formData.studentIdFile && !formData.studentIdPreview) {
+        stepErrors.studentIdFile = 'Student ID card upload is required';
+      }
+      if (!formData.studentIdExpiry) {
+        stepErrors.studentIdExpiry = 'Student ID expiry date is required';
+      }
+      if (!formData.governmentIdFile && !formData.governmentIdPreview) {
+        stepErrors.governmentIdFile = 'Government ID upload is required';
+      }
+      if (!formData.governmentIdExpiry) {
+        stepErrors.governmentIdExpiry = 'Government ID expiry date is required';
+      }
+      if (!formData.selfieFile && !formData.selfiePreview) {
+        stepErrors.selfieFile = 'Selfie upload is required';
+      }
+      if (!formData.profilePhotoFile && !formData.profilePhotoPreview) {
+        stepErrors.profilePhotoFile = 'Profile photo upload is required';
+      }
+      if (!formData.documentsOwnedConfirmation) {
+        stepErrors.documentsOwnedConfirmation = 'You must confirm document ownership';
+      }
+      if (!formData.verificationConsent) {
+        stepErrors.verificationConsent = 'You must consent to verification';
+      }
+    }
+
+    // Step 3: Profile Information
+    if (step === 3) {
+      if (!formData.bio.trim()) {
+        stepErrors.bio = 'Bio is required';
+      } else if (formData.bio.trim().length < 50) {
+        stepErrors.bio = 'Bio must be at least 50 characters';
+      }
+      if (formData.skills.length === 0) {
+        stepErrors.skills = 'At least one skill is required';
+      }
+      if (!formData.coverLetter.trim()) {
+        stepErrors.coverLetter = 'Cover letter is required';
+      } else if (formData.coverLetter.trim().length < 200) {
+        stepErrors.coverLetter = 'Cover letter must be at least 200 characters';
+      }
+      if (formData.interests.length === 0) {
+        stepErrors.interests = 'At least one interest is required';
+      }
+    }
+
+    // Step 4: Availability
+    if (step === 4) {
+      if (formData.availability.length === 0) {
+        stepErrors.availability = 'At least one availability slot is required';
+      } else {
+        const hasValidSlot = formData.availability.some((slot) => {
+          const start = slot.startTime.split(':').map(Number);
+          const end = slot.endTime.split(':').map(Number);
+          const duration = (end[0] * 60 + end[1]) - (start[0] * 60 + start[1]);
+          return duration >= 180;
+        });
+        if (!hasValidSlot) {
+          stepErrors.availability = 'At least one slot must be 3+ hours';
+        }
+      }
+      if (!formData.timezone) stepErrors.timezone = 'Timezone is required';
+      if (formData.preferredDurations.length === 0) {
+        stepErrors.preferredDurations = 'At least one preferred duration is required';
+      }
+    }
+
+    // Step 5: Service Preferences
+    if (step === 5) {
+      if (formData.servicesOffered.length === 0) {
+        stepErrors.servicesOffered = 'At least one service must be selected';
+      }
+      if (!formData.hourlyRate || parseFloat(formData.hourlyRate) <= 0) {
+        stepErrors.hourlyRate = 'Valid hourly rate is required';
+      }
+    }
+
+    // Step 6: Safety & Compliance
+    if (step === 6) {
+      if (!formData.termsAccepted) {
+        stepErrors.termsAccepted = 'You must accept the Terms & Conditions';
+      }
+      if (!formData.independentGuideAcknowledged) {
+        stepErrors.independentGuideAcknowledged = 'You must acknowledge independent guide status';
+      }
+      if (!formData.safetyGuidelinesAccepted) {
+        stepErrors.safetyGuidelinesAccepted = 'You must accept safety guidelines';
+      }
+    }
+
+    return stepErrors;
+  };
+
   const handleSubmit = async () => {
     // Validate ALL steps before final submission
     let allValid = true;
+    const incompleteSteps: Array<{ id: number; name: string; errors: string[] }> = [];
 
     for (let step = 1; step <= STEPS.length - 1; step++) {
-      const stepValid = validateStep(step);
-      if (!stepValid) {
+      const stepErrors = getStepErrors(step);
+      if (Object.keys(stepErrors).length > 0) {
         allValid = false;
+        const stepInfo = STEPS.find(s => s.id === step);
+        incompleteSteps.push({
+          id: step,
+          name: stepInfo?.name || `Step ${step}`,
+          errors: Object.values(stepErrors),
+        });
       }
     }
 
     if (!allValid) {
       setErrors({
-        submit: 'Please complete all required fields in all sections before submitting. Click on any step above to review and complete missing information.',
+        submit: 'Please complete all required fields in all sections before submitting.',
+        incompleteSteps: JSON.stringify(incompleteSteps),
       });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
 
@@ -615,8 +738,66 @@ export function OnboardingWizard({ session }: OnboardingWizardProps) {
 
                 {/* Submit Error */}
                 {errors.submit && (
-                  <div className="mt-4 p-4 glass-frosted bg-gradient-to-br from-[hsl(var(--ui-error))]/10 to-[hsl(var(--ui-error))]/20 border-2 border-[hsl(var(--ui-error))] rounded-2xl text-[hsl(var(--ui-error))] text-sm shadow-soft">
-                    {errors.submit}
+                  <div className="mt-4 space-y-3">
+                    <div className="p-4 glass-frosted bg-gradient-to-br from-[hsl(var(--ui-error))]/10 to-[hsl(var(--ui-error))]/20 border-2 border-[hsl(var(--ui-error))] rounded-2xl text-[hsl(var(--ui-error))] text-sm shadow-soft">
+                      {errors.submit}
+                    </div>
+
+                    {/* Missing Steps Popup */}
+                    {errors.incompleteSteps && (() => {
+                      try {
+                        const incompleteSteps = JSON.parse(errors.incompleteSteps) as Array<{
+                          id: number;
+                          name: string;
+                          errors: string[];
+                        }>;
+
+                        return incompleteSteps.length > 0 ? (
+                          <div className="p-4 glass-frosted bg-gradient-to-br from-[hsl(var(--ui-error))]/5 to-[hsl(var(--ui-error))]/10 border border-[hsl(var(--ui-error))]/50 rounded-2xl shadow-soft animate-fade-in-up">
+                            <h3 className="font-semibold text-[hsl(var(--ui-error))] mb-3 flex items-center gap-2">
+                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                              </svg>
+                              Missing Steps ({incompleteSteps.length})
+                            </h3>
+                            <div className="space-y-2">
+                              {incompleteSteps.map((step) => (
+                                <div
+                                  key={step.id}
+                                  className="p-3 bg-white/10 rounded-lg cursor-pointer hover:bg-white/20 transition-colors"
+                                  onClick={() => handleStepClick(step.id)}
+                                >
+                                  <div className="flex items-start justify-between gap-2">
+                                    <div className="flex-1">
+                                      <div className="font-medium text-[hsl(var(--ui-error))]">
+                                        Step {step.id}: {step.name}
+                                      </div>
+                                      <div className="text-xs text-[hsl(var(--ui-error))]/80 mt-1">
+                                        {step.errors.length} issue{step.errors.length > 1 ? 's' : ''} found
+                                      </div>
+                                    </div>
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleStepClick(step.id);
+                                      }}
+                                      className="text-xs px-3 py-1 bg-[hsl(var(--ui-error))]/20 hover:bg-[hsl(var(--ui-error))]/30 text-[hsl(var(--ui-error))] rounded-lg transition-colors font-medium"
+                                    >
+                                      Fix Now
+                                    </button>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                            <p className="text-xs text-[hsl(var(--ui-error))]/70 mt-3 italic">
+                              Click on any step above to navigate and complete the missing fields
+                            </p>
+                          </div>
+                        ) : null;
+                      } catch {
+                        return null;
+                      }
+                    })()}
                   </div>
                 )}
               </div>
