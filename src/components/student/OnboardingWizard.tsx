@@ -374,12 +374,16 @@ export function OnboardingWizard({ session }: OnboardingWizardProps) {
           });
 
           if (!uploadResponse.ok) {
-            throw new Error(`Failed to upload ${type.replace('_', ' ')}`);
+            const errorData = await uploadResponse.json().catch(() => ({}));
+            const errorMessage = errorData.error || `Failed to upload ${type.replace('_', ' ')}`;
+            console.error(`Upload error for ${type}:`, errorData);
+            throw new Error(errorMessage);
           }
 
           const uploadData = await uploadResponse.json();
           uploadedUrls[type] = uploadData.url;
         } else if (preview) {
+          // If preview exists but no file, it might be from a previous upload
           uploadedUrls[type] = preview;
         }
       }
