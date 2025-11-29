@@ -14,24 +14,40 @@ function SelectGuideContent() {
   const router = useRouter()
   const requestId = searchParams.get('requestId')
 
+  // DISABLED: This flow is no longer used for tourists
+  // The admin team now handles all student matching and follow-up
+  // Tourists are redirected to the success page after booking creation
+
   const [matches, setMatches] = useState<StudentMatch[]>([])
   const [selectedStudents, setSelectedStudents] = useState<string[]>([])
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false) // Set to false to show disabled message
   const [submitting, setSubmitting] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [errorType, setErrorType] = useState<'network' | 'server' | 'notfound' | null>(null)
+  const [error, setError] = useState<string | null>('This page is no longer available. After creating your booking request, our team will review it and match you with the best student guides. You will receive an email with further details. You will be redirected shortly...')
+  const [errorType, setErrorType] = useState<'network' | 'server' | 'notfound' | null>('notfound')
   const [suggestedPrice, setSuggestedPrice] = useState<any>(null)
 
   useEffect(() => {
-    if (!requestId) {
-      setError('No request ID provided. Please start a new booking from the booking page.')
-      setErrorType('notfound')
-      setLoading(false)
-      return
+    // DISABLED: Redirect tourists to success page if they somehow land here
+    // This page is now only used by admin dashboard for reference
+    if (requestId) {
+      // Give them time to read the message before redirect
+      const timer = setTimeout(() => {
+        router.push(`/booking/success?id=${requestId}`)
+      }, 5000)
+      return () => clearTimeout(timer)
     }
+  }, [requestId, router])
 
-    fetchMatches()
-  }, [requestId])
+  // OLD CODE - Commented out
+  // useEffect(() => {
+  //   if (!requestId) {
+  //     setError('No request ID provided. Please start a new booking from the booking page.')
+  //     setErrorType('notfound')
+  //     setLoading(false)
+  //     return
+  //   }
+  //   fetchMatches()
+  // }, [requestId])
 
   const fetchMatches = async () => {
     try {
@@ -190,7 +206,8 @@ function SelectGuideContent() {
                 <AlertCircle className="w-8 h-8 text-ui-error" />
               </div>
               <h2 className="text-2xl font-bold text-gray-900 mb-3">
-                {errorType === 'notfound' ? 'Request Not Found' :
+                {errorType === 'notfound' && !requestId ? 'Request Not Found' :
+                 errorType === 'notfound' && requestId ? 'Page No Longer Available' :
                  errorType === 'network' ? 'Connection Issue' :
                  'Something Went Wrong'}
               </h2>

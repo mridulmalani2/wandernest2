@@ -201,8 +201,8 @@ export function BookingForm() {
       const data = await response.json()
 
       if (response.ok && data.success && data.requestId) {
-        // Redirect to matching page
-        router.push(`/booking/select-guide?requestId=${data.requestId}`)
+        // Redirect to success page (admin team will handle matching)
+        router.push(`/booking/success?id=${data.requestId}`)
       } else if (response.status === 401) {
         setErrors({
           submit: 'You must be signed in to create a booking request. Please refresh the page and sign in.',
