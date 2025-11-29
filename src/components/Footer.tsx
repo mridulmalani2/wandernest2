@@ -127,8 +127,25 @@ export default function Footer({ variant = 'default' }: FooterProps) {
             </div>
           </div>
 
-          {/* Bottom Bar - Legal Disclaimer */}
-          <div className="mt-12 pt-8 border-t border-white/10">
+          {/* Bottom Bar - Legal Links and Disclaimer */}
+          <div className="mt-12 pt-8 border-t border-white/10 space-y-4">
+            {/* Legal Links */}
+            <div className="flex flex-wrap justify-center gap-6 text-sm">
+              <Link
+                href="/terms"
+                className="text-white/70 hover:text-white transition-colors duration-200 underline decoration-white/30 hover:decoration-white underline-offset-4"
+              >
+                Terms of Service
+              </Link>
+              <Link
+                href="/privacy"
+                className="text-white/70 hover:text-white transition-colors duration-200 underline decoration-white/30 hover:decoration-white underline-offset-4"
+              >
+                Privacy Policy
+              </Link>
+            </div>
+
+            {/* Legal Disclaimer */}
             <div className="bg-white/5 backdrop-blur-sm rounded-lg p-4 border border-white/10">
               <p className="text-xs text-white/70 leading-relaxed text-center">
                 <strong className="text-white/90">Important Notice:</strong> TourWiseCo is a marketplace connector only.
