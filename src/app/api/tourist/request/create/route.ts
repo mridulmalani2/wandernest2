@@ -9,8 +9,7 @@ import { authOptions } from '@/lib/auth-options';
 import { requireDatabase } from '@/lib/prisma';
 import { sendBookingConfirmation } from '@/lib/email';
 import { withErrorHandler, withDatabaseRetry, AppError } from '@/lib/error-handler';
-// DISABLED: Automatic matching now handled by admin dashboard
-// import { autoMatchAndInvite } from '@/lib/matching/autoMatch';
+import { autoMatchAndInvite } from '@/lib/matching/autoMatch';
 
 // In-memory storage for demo mode (when database is unavailable)
 const demoRequests = new Map<string, any>();
@@ -120,29 +119,44 @@ async function createTouristRequest(req: NextRequest) {
       })
     );
 
-    // DISABLED: Automatic matching is now handled by admin dashboard
-    // The admin team will manually review booking requests, match tourists with students,
-    // and send notifications. This ensures quality control and personalized matching.
-    //
-    // OLD FLOW (COMMENTED OUT):
-    // console.log(`[createTouristRequest] Triggering automatic matching for request ${touristRequest.id}`)
-    // const matchResult = await autoMatchAndInvite(touristRequest)
-    // if (matchResult.success) { ... }
+    // AUTOMATIC MATCHING: Find and invite candidate students (do this BEFORE sending email)
+    console.log(`[createTouristRequest] Triggering automatic matching for request ${touristRequest.id}`)
+    const matchResult = await autoMatchAndInvite(touristRequest)
 
-    // NEW FLOW: Send booking confirmation email directly
-    // Admin team will handle matching and follow-up emails
+    if (matchResult.success) {
+      if (matchResult.candidatesFound === 0) {
+        console.log(
+          `[createTouristRequest] Auto-match completed: No matching guides found yet. ` +
+          `Tourist will be notified when guides become available.`
+        )
+      } else {
+        console.log(
+          `[createTouristRequest] Auto-match successful: ${matchResult.candidatesFound} candidates found, ` +
+          `${matchResult.invitationsSent} invitations sent`
+        )
+      }
+    } else {
+      console.warn(`[createTouristRequest] Auto-match failed:`, matchResult.errors)
+      // Continue anyway - matching is not critical for request creation
+    }
+
+    if (matchResult.errors.length > 0) {
+      console.warn(`[createTouristRequest] Auto-match warnings:`, matchResult.errors)
+    }
+
+    // IMPORTANT: Always send booking confirmation email, regardless of match results
+    // Email template adapts based on whether matches were found (zero matches is a valid success state)
     console.log(`[createTouristRequest] Sending booking confirmation email to ${session.user.email}`)
-    console.log(`[createTouristRequest] Admin team will review and match request ${touristRequest.id}`)
     const emailResult = await sendBookingConfirmation(
       session.user.email,
       touristRequest.id,
-      { matchesFound: 0 } // Always 0 since admin handles matching
+      { matchesFound: matchResult.candidatesFound }
     )
 
     if (emailResult.success) {
       console.log(
         `[createTouristRequest] ✅ Booking confirmation email sent successfully ` +
-        `(Admin team will handle matching)`
+        `(${matchResult.candidatesFound} matches found)`
       )
     } else {
       console.warn('⚠️  Failed to send booking confirmation email:', emailResult.error)
