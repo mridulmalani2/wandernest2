@@ -3,9 +3,26 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
+import { useEffect } from 'react'
 
 export default function AdminNav() {
   const pathname = usePathname()
+
+  // Keep the http-only admin cookie in sync so navigating between admin routes
+  // doesn't accidentally drop the session. Some browsers may block the
+  // Set-Cookie response, so we mirror the token from localStorage into a
+  // same-site cookie when needed.
+  useEffect(() => {
+    const token = localStorage.getItem('adminToken')
+
+    if (!token) return
+
+    const hasCookie = document.cookie.split('; ').some((entry) => entry.startsWith('admin-token='))
+
+    if (!hasCookie) {
+      document.cookie = `admin-token=${token}; path=/; SameSite=Lax`
+    }
+  }, [])
 
   const navItems = [
     { href: '/admin', label: 'Dashboard', icon: '🏠' },
@@ -45,6 +62,7 @@ export default function AdminNav() {
               onClick={() => {
                 localStorage.removeItem('adminToken')
                 localStorage.removeItem('adminUser')
+                document.cookie = 'admin-token=; path=/; Max-Age=0; SameSite=Lax'
                 window.location.href = '/admin/login'
               }}
               className="text-gray-500 hover:text-gray-700 text-sm font-medium"
