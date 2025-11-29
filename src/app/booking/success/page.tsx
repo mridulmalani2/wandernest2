@@ -55,11 +55,10 @@ export default function SuccessPage({
           {/* Success Message */}
           <div className="space-y-2">
             <h1 className="text-3xl md:text-4xl font-bold text-gray-900">
-              Booking Request Confirmed!
+              Booking Request Created!
             </h1>
             <p className="text-lg text-gray-600">
-              Your email has been verified and your request has been submitted
-              successfully.
+              Your booking request has been successfully created. Our team will review it and match you with the best student guides.
             </p>
           </div>
 
@@ -105,19 +104,19 @@ export default function SuccessPage({
               <ul className="space-y-3 text-ui-blue-primary">
                 <li className="flex items-start">
                   <span className="mr-2">📧</span>
-                  <span>We've sent a confirmation email to your inbox</span>
+                  <span>We've sent a confirmation email to your inbox with all the details</span>
                 </li>
                 <li className="flex items-start">
-                  <span className="mr-2">🔍</span>
-                  <span>Local student guides will review your request</span>
+                  <span className="mr-2">👥</span>
+                  <span>Our team will review your request and match you with qualified student guides</span>
                 </li>
                 <li className="flex items-start">
-                  <span className="mr-2">💌</span>
-                  <span>You'll receive proposals from interested guides</span>
+                  <span className="mr-2">✉️</span>
+                  <span>You'll receive a follow-up email with matched guide options (typically within 24-48 hours)</span>
                 </li>
                 <li className="flex items-start">
                   <span className="mr-2">✨</span>
-                  <span>Choose your favorite and start planning your adventure!</span>
+                  <span>Connect with your guide and start planning your amazing adventure!</span>
                 </li>
               </ul>
             </div>
