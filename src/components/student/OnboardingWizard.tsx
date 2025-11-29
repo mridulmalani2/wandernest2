@@ -506,16 +506,19 @@ export function OnboardingWizard({ session }: OnboardingWizardProps) {
         <Navigation variant="student" />
 
         {/* Main Content */}
-        <main className="container mx-auto px-4 py-12 flex-1">
-          <div className="max-w-4xl mx-auto mb-8 text-center animate-fade-in-up">
-            <h1 className="text-4xl font-bold mb-4 text-white text-shadow-lg">Become a TourWiseCo Guide</h1>
-            <p className="text-white text-lg text-shadow">
-              Complete your profile to start connecting with travelers visiting Paris and London
+        <main className="container mx-auto px-4 py-8 sm:py-12 lg:py-16 flex-1">
+          <div className="max-w-5xl mx-auto mb-10 sm:mb-12 text-center animate-fade-in-up">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 sm:mb-6 text-white text-shadow-lg leading-tight">
+              Become a TourWiseCo Guide
+            </h1>
+            <p className="text-white text-base sm:text-lg lg:text-xl text-shadow max-w-3xl mx-auto leading-relaxed">
+              Join our community of student guides and start earning by sharing your city with travelers.
+              Complete your profile in just a few steps.
             </p>
           </div>
 
           {/* Step Indicator */}
-          <div className="max-w-4xl mx-auto mb-8">
+          <div className="max-w-5xl mx-auto mb-8 sm:mb-10">
             <FormProgressHeader
               steps={STEPS}
               currentStep={currentStep}
@@ -525,10 +528,11 @@ export function OnboardingWizard({ session }: OnboardingWizardProps) {
           </div>
 
           {/* Form Steps */}
-          <div className="relative max-w-4xl mx-auto animate-fade-in-up delay-200">
-            <div className="relative glass-card rounded-3xl border-2 border-white/40 shadow-premium p-8 hover-lift">
+          <div className="relative max-w-5xl mx-auto animate-fade-in-up delay-200">
+            <div className="relative glass-card rounded-3xl border-2 border-white/40 shadow-premium p-6 sm:p-10 lg:p-12 hover-lift transition-all duration-300">
               <div className="relative z-10">
-            {/* Step Content */}
+            {/* Step Content with fade transition */}
+            <div className="min-h-[600px] transition-opacity duration-300">
             {currentStep === 1 && (
               <BasicProfileStep
                 formData={formData}
@@ -579,17 +583,18 @@ export function OnboardingWizard({ session }: OnboardingWizardProps) {
                 errors={errors}
               />
             )}
+            </div>
 
                 {/* Navigation Buttons */}
-                <div className="mt-8 flex justify-between">
+                <div className="mt-10 pt-8 border-t border-white/20 flex flex-col sm:flex-row justify-between gap-4">
                   <Button
                     type="button"
                     variant="outline"
                     onClick={handleBack}
                     disabled={currentStep === 1 || isSubmitting}
-                    className="hover-lift shadow-soft"
+                    className="hover-lift shadow-soft bg-white/80 hover:bg-white text-gray-700 border-2 border-gray-200 hover:border-gray-300 px-8 py-6 text-base font-semibold rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed order-2 sm:order-1"
                   >
-                    Back
+                    ← Back
                   </Button>
 
                   {currentStep < STEPS.length ? (
@@ -598,8 +603,9 @@ export function OnboardingWizard({ session }: OnboardingWizardProps) {
                       onClick={handleNext}
                       disabled={isSubmitting}
                       variant="blue"
+                      className="px-8 py-6 text-base font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 order-1 sm:order-2"
                     >
-                      Next
+                      Continue →
                     </PrimaryCTAButton>
                   ) : (
                     <PrimaryCTAButton
@@ -607,16 +613,37 @@ export function OnboardingWizard({ session }: OnboardingWizardProps) {
                       onClick={handleSubmit}
                       disabled={isSubmitting}
                       variant="blue"
+                      className="px-8 py-6 text-base font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 order-1 sm:order-2"
                     >
-                      {isSubmitting ? 'Submitting for Review...' : 'Submit for Review'}
+                      {isSubmitting ? (
+                        <span className="flex items-center gap-2">
+                          <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                          </svg>
+                          Submitting...
+                        </span>
+                      ) : (
+                        '✓ Submit for Review'
+                      )}
                     </PrimaryCTAButton>
                   )}
                 </div>
 
                 {/* Submit Error */}
                 {errors.submit && (
-                  <div className="mt-4 p-4 glass-frosted bg-gradient-to-br from-[hsl(var(--ui-error))]/10 to-[hsl(var(--ui-error))]/20 border-2 border-[hsl(var(--ui-error))] rounded-2xl text-[hsl(var(--ui-error))] text-sm shadow-soft">
-                    {errors.submit}
+                  <div className="mt-6 p-5 glass-frosted bg-gradient-to-br from-red-50 to-red-100 border-2 border-red-300 rounded-2xl shadow-lg animate-shake">
+                    <div className="flex items-start gap-3">
+                      <div className="flex-shrink-0">
+                        <svg className="w-6 h-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="text-red-800 font-semibold mb-1">Please review your application</h4>
+                        <p className="text-red-700 text-sm leading-relaxed">{errors.submit}</p>
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>
