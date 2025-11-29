@@ -181,7 +181,6 @@ export function ServicePreferencesStep({ formData, updateFormData, errors }: Ser
           <li>Average student guide rate: €12-20 per hour</li>
           <li>Consider your experience, language skills, and local knowledge</li>
           <li>You can adjust your rate later in your dashboard</li>
-          <li>Platform takes a 15% service fee to cover operational costs</li>
         </ul>
       </div>
 
@@ -194,7 +193,7 @@ export function ServicePreferencesStep({ formData, updateFormData, errors }: Ser
               id="onlineServicesAvailable"
               checked={formData.onlineServicesAvailable}
               onCheckedChange={(checked) =>
-                updateFormData({ onlineServicesAvailable: checked as boolean })
+                updateFormData({ onlineServicesAvailable: checked === true })
               }
               className="mt-1 h-5 w-5"
             />

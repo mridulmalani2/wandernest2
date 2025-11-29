@@ -532,32 +532,23 @@ export function StudentVerificationStep({ formData, updateFormData, errors }: St
       </div>
 
       {/* Consent Checkboxes */}
-      <div className="space-y-5">
-        <div className={`border-2 rounded-2xl p-5 sm:p-6 transition-all ${
-          errors.documentsOwnedConfirmation
-            ? 'border-red-300 bg-red-50'
-            : formData.documentsOwnedConfirmation
-            ? 'border-green-300 bg-green-50'
-            : 'border-gray-200 hover:border-gray-300'
-        }`}>
-          <div className="flex items-start gap-4">
-            <Checkbox
-              id="documentsOwnedConfirmation"
-              checked={formData.documentsOwnedConfirmation}
-              onCheckedChange={(checked) =>
-                updateFormData({ documentsOwnedConfirmation: checked as boolean })
-              }
-              className="mt-1 h-5 w-5"
-            />
-            <div className="flex-1">
-              <Label
-                htmlFor="documentsOwnedConfirmation"
-                className="text-base font-medium cursor-pointer leading-relaxed text-gray-900"
-              >
-                I confirm these documents are mine and the information is accurate.{' '}
-                <span className="text-red-500">*</span>
-              </Label>
-            </div>
+      <div className="space-y-4">
+        <div className="flex items-start space-x-3 p-4 border rounded-lg">
+          <Checkbox
+            id="documentsOwnedConfirmation"
+            checked={formData.documentsOwnedConfirmation}
+            onCheckedChange={(checked) =>
+              updateFormData({ documentsOwnedConfirmation: checked === true })
+            }
+          />
+          <div className="flex-1">
+            <Label
+              htmlFor="documentsOwnedConfirmation"
+              className="text-sm font-normal cursor-pointer leading-relaxed"
+            >
+              I confirm these documents are mine and the information is accurate.{' '}
+              <span className="text-[hsl(var(--ui-error))]">*</span>
+            </Label>
           </div>
           {errors.documentsOwnedConfirmation && (
             <p className="text-sm text-red-600 mt-3 ml-9 flex items-center gap-1">
@@ -569,31 +560,22 @@ export function StudentVerificationStep({ formData, updateFormData, errors }: St
           )}
         </div>
 
-        <div className={`border-2 rounded-2xl p-5 sm:p-6 transition-all ${
-          errors.verificationConsent
-            ? 'border-red-300 bg-red-50'
-            : formData.verificationConsent
-            ? 'border-green-300 bg-green-50'
-            : 'border-gray-200 hover:border-gray-300'
-        }`}>
-          <div className="flex items-start gap-4">
-            <Checkbox
-              id="verificationConsent"
-              checked={formData.verificationConsent}
-              onCheckedChange={(checked) =>
-                updateFormData({ verificationConsent: checked as boolean })
-              }
-              className="mt-1 h-5 w-5"
-            />
-            <div className="flex-1">
-              <Label
-                htmlFor="verificationConsent"
-                className="text-base font-medium cursor-pointer leading-relaxed text-gray-900"
-              >
-                I consent to verification of these documents by TourWiseCo and understand that false information may result in account suspension.{' '}
-                <span className="text-red-500">*</span>
-              </Label>
-            </div>
+        <div className="flex items-start space-x-3 p-4 border rounded-lg">
+          <Checkbox
+            id="verificationConsent"
+            checked={formData.verificationConsent}
+            onCheckedChange={(checked) =>
+              updateFormData({ verificationConsent: checked === true })
+            }
+          />
+          <div className="flex-1">
+            <Label
+              htmlFor="verificationConsent"
+              className="text-sm font-normal cursor-pointer leading-relaxed"
+            >
+              I consent to verification of these documents by TourWiseCo and understand that false information may result in account suspension.{' '}
+              <span className="text-[hsl(var(--ui-error))]">*</span>
+            </Label>
           </div>
           {errors.verificationConsent && (
             <p className="text-sm text-red-600 mt-3 ml-9 flex items-center gap-1">
