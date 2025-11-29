@@ -447,7 +447,7 @@ export function StudentVerificationStep({ formData, updateFormData, errors }: St
             id="documentsOwnedConfirmation"
             checked={formData.documentsOwnedConfirmation}
             onCheckedChange={(checked) =>
-              updateFormData({ documentsOwnedConfirmation: checked as boolean })
+              updateFormData({ documentsOwnedConfirmation: checked === true })
             }
           />
           <div className="flex-1">
@@ -469,7 +469,7 @@ export function StudentVerificationStep({ formData, updateFormData, errors }: St
             id="verificationConsent"
             checked={formData.verificationConsent}
             onCheckedChange={(checked) =>
-              updateFormData({ verificationConsent: checked as boolean })
+              updateFormData({ verificationConsent: checked === true })
             }
           />
           <div className="flex-1">

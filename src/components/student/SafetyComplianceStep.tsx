@@ -40,7 +40,7 @@ export function SafetyComplianceStep({ formData, updateFormData, errors }: Safet
               id="termsAccepted"
               checked={formData.termsAccepted}
               onCheckedChange={(checked) =>
-                updateFormData({ termsAccepted: checked as boolean })
+                updateFormData({ termsAccepted: checked === true })
               }
             />
             <div className="flex-1">
@@ -84,7 +84,7 @@ export function SafetyComplianceStep({ formData, updateFormData, errors }: Safet
               id="independentGuideAcknowledged"
               checked={formData.independentGuideAcknowledged}
               onCheckedChange={(checked) =>
-                updateFormData({ independentGuideAcknowledged: checked as boolean })
+                updateFormData({ independentGuideAcknowledged: checked === true })
               }
             />
             <div className="flex-1">
@@ -112,7 +112,7 @@ export function SafetyComplianceStep({ formData, updateFormData, errors }: Safet
               id="safetyGuidelinesAccepted"
               checked={formData.safetyGuidelinesAccepted}
               onCheckedChange={(checked) =>
-                updateFormData({ safetyGuidelinesAccepted: checked as boolean })
+                updateFormData({ safetyGuidelinesAccepted: checked === true })
               }
             />
             <div className="flex-1">
