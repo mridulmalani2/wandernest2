@@ -92,34 +92,6 @@ export function PreferencesStep({ data, errors, updateData }: Props) {
         )}
       </div>
 
-      {/* Gender Preference */}
-      <div className="space-y-2">
-        <Label>Gender Preference (Optional)</Label>
-        <RadioGroup
-          value={data.preferredGender || 'no_preference'}
-          onValueChange={(value: string) => updateData({ preferredGender: value as 'male' | 'female' | 'no_preference' })}
-        >
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="no_preference" id="no_preference" />
-            <Label htmlFor="no_preference" className="font-normal cursor-pointer">
-              No Preference
-            </Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="male" id="male" />
-            <Label htmlFor="male" className="font-normal cursor-pointer">
-              Male
-            </Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="female" id="female" />
-            <Label htmlFor="female" className="font-normal cursor-pointer">
-              Female
-            </Label>
-          </div>
-        </RadioGroup>
-      </div>
-
       {/* Service Type */}
       <div className="space-y-2">
         <Label>
