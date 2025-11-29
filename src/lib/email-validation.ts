@@ -48,14 +48,37 @@ export const STUDENT_EMAIL_DOMAINS = [
   '.edu.sa',    // Saudi Arabian educational institutions
   '.ac.il',     // Israeli academic institutions
   '.edu.tr',    // Turkish educational institutions
-  '.ac.fr',     // French academic institutions (some use this)
+  '.ac.fr',     // French academic institutions
   '.edu.fr',    // French educational institutions
   '.ac.be',     // Belgian academic institutions
   '.edu.ar',    // Argentine educational institutions
   '.edu.co',    // Colombian educational institutions
   '.edu.pe',    // Peruvian educational institutions
   '.edu.cl',    // Chilean educational institutions
-  // Add more institution-specific domains as needed
+  '.ac.gr',     // Greek academic institutions
+  '.edu.it',    // Italian educational institutions
+  '.ac.es',     // Spanish academic institutions
+  '.edu.es',    // Spanish educational institutions
+  '.ac.pt',     // Portuguese academic institutions
+  '.edu.pt',    // Portuguese educational institutions
+  '.ac.id',     // Indonesian academic institutions
+  '.ac.at',     // Austrian academic institutions
+  '.edu.eg',    // Egyptian educational institutions
+  '.edu.ng',    // Nigerian educational institutions
+  '.edu.pl',    // Polish educational institutions
+  '.edu.ru',    // Russian educational institutions
+  '.sch.uk',    // UK schools
+  '.school',    // .school TLD
+  '.university', // .university TLD
+];
+
+// Additional regex patterns for more flexible matching
+const STUDENT_EMAIL_PATTERNS = [
+  /\.edu\.[a-z]{2}$/,                // International .edu (e.g., .edu.au, .edu.mx)
+  /\.ac\.[a-z]{2}$/,                 // Academic domains (e.g., .ac.uk, .ac.jp)
+  /\.edu\.[a-z]{2}\.[a-z]{2}$/,     // Some countries use this format
+  /\.sch\.[a-z]{2}$/,                // Schools (e.g., .sch.uk)
+  /\.student\./,                     // Contains 'student' subdomain
 ];
 
 /**
@@ -65,8 +88,6 @@ export const STUDENT_EMAIL_DOMAINS = [
  * @returns true if the email domain is from a recognized educational institution
  */
 export function isStudentEmail(email: string): boolean {
-
-  return true;
   if (process.env.NODE_ENV === 'development') {
     return true; // allow any email in dev
   }
@@ -82,7 +103,17 @@ export function isStudentEmail(email: string): boolean {
     return false;
   }
 
-  return STUDENT_EMAIL_DOMAINS.some(domain => lowerEmail.endsWith(domain));
+  const domain = lowerEmail.split('@')[1];
+
+  // Check against exact domain matches
+  const hasExactMatch = STUDENT_EMAIL_DOMAINS.some(suffix => domain.endsWith(suffix));
+  if (hasExactMatch) {
+    return true;
+  }
+
+  // Check against regex patterns
+  const hasPatternMatch = STUDENT_EMAIL_PATTERNS.some(pattern => pattern.test(domain));
+  return hasPatternMatch;
 }
 
 /**
