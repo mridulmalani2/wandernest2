@@ -1,139 +1,174 @@
-'use client'
+'use client';
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { useSession, signOut } from 'next-auth/react'
-import Image from 'next/image'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import Navigation from '@/components/Navigation'
-import { PrimaryCTAButton } from '@/components/ui/PrimaryCTAButton'
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { signOut } from 'next-auth/react';
+import Image from 'next/image';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import Navigation from '@/components/Navigation';
+import { PrimaryCTAButton } from '@/components/ui/PrimaryCTAButton';
 
 interface Request {
-  id: string
-  city: string
-  dates: unknown
-  numberOfGuests: number
-  groupType: string
-  serviceType: string
-  interests: string[]
-  preferredTime: string
-  tripNotes?: string
-  budget?: number
-  expiresAt?: string
-  email?: string
-  phone?: string
-  whatsapp?: string
-  contactMethod?: string
-  status?: string
+  id: string;
+  city: string;
+  dates: unknown;
+  numberOfGuests: number;
+  groupType: string;
+  serviceType: string;
+  interests: string[];
+  preferredTime: string;
+  tripNotes?: string;
+  budget?: number;
+  expiresAt?: string;
+  email?: string;
+  phone?: string;
+  whatsapp?: string;
+  contactMethod?: string;
+  status?: string;
 }
 
 interface PendingRequest {
-  id: string
-  requestId: string
-  status: string
-  createdAt: string
-  request: Request
+  id: string;
+  requestId: string;
+  status: string;
+  createdAt: string;
+  request: Request;
 }
 
 interface AcceptedBooking {
-  id: string
-  requestId: string
-  status: string
-  pricePaid?: number
-  acceptedAt?: string
-  request: Request
+  id: string;
+  requestId: string;
+  status: string;
+  pricePaid?: number;
+  acceptedAt?: string;
+  request: Request;
 }
 
 interface Review {
-  id: string
-  rating: number
-  comment?: string
-  createdAt: string
-  wasNoShow: boolean
+  id: string;
+  rating: number;
+  comment?: string;
+  createdAt: string;
+  wasNoShow: boolean;
   request: {
-    city: string
-    dates: unknown
-    serviceType: string
-  }
+    city: string;
+    dates: unknown;
+    serviceType: string;
+  };
 }
 
 interface DashboardData {
   student: {
-    id: string
-    name: string
-    email: string
-    city: string
-    institute: string
-    averageRating?: number
-    tripsHosted: number
-    status: string
-  }
+    id: string;
+    name: string;
+    email: string;
+    city: string;
+    institute: string;
+    averageRating?: number;
+    tripsHosted: number;
+    status: string;
+  };
   stats: {
-    totalBookings: number
-    pendingRequests: number
-    totalEarnings: number
-    averageRating: number
-    tripsHosted: number
-  }
-  acceptedBookings: AcceptedBooking[]
-  pendingRequests: PendingRequest[]
-  reviews: Review[]
+    totalBookings: number;
+    pendingRequests: number;
+    totalEarnings: number;
+    averageRating: number;
+    tripsHosted: number;
+  };
+  acceptedBookings: AcceptedBooking[];
+  pendingRequests: PendingRequest[];
+  reviews: Review[];
 }
 
 export default function StudentDashboard() {
-  const router = useRouter()
-  const { data: session, status } = useSession()
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const [data, setData] = useState<DashboardData | null>(null)
-  const [processingRequests, setProcessingRequests] = useState<Set<string>>(new Set())
+  const router = useRouter();
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [data, setData] = useState<DashboardData | null>(null);
+  const [processingRequests, setProcessingRequests] = useState<Set<string>>(new Set());
+  const [studentEmail, setStudentEmail] = useState<string | null>(null);
 
+  // ✅ First check OTP session via API, then load dashboard data
   useEffect(() => {
-    // Wait for session to load
-    if (status === 'loading') {
-      return
-    }
+    const init = async () => {
+      try {
+        const res = await fetch('/api/student/auth/session-status');
 
-    // If not authenticated, redirect to signin
-    if (!session?.user?.email) {
-      router.push('/student/signin')
-      return
-    }
+        if (!res.ok) {
+          router.push('/student/signin');
+          return;
+        }
 
-    fetchDashboardData()
-  }, [session, status, router])
+        const statusData = await res.json();
 
-  const fetchDashboardData = async () => {
-    if (!session?.user?.email) return
+        if (!statusData.ok) {
+          router.push('/student/signin');
+          return;
+        }
+
+        // optional: if backend ever returns some other nextPath, respect it
+        if (statusData.nextPath && statusData.nextPath !== '/student/dashboard') {
+          router.push(statusData.nextPath);
+          return;
+        }
+
+        const email =
+          statusData.email ??
+          statusData.student?.email ??
+          null;
+
+        if (email) {
+          setStudentEmail(email);
+          await fetchDashboardData(email);
+        } else {
+          // email nahi mila toh bhi sign-in pe bhej dena safe hai
+          router.push('/student/signin');
+        }
+      } catch (err) {
+        console.error('Error checking student session:', err);
+        router.push('/student/signin');
+      }
+    };
+
+    init();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [router]);
+
+  const fetchDashboardData = async (emailOverride?: string) => {
+    const email = emailOverride ?? studentEmail;
+    if (!email) return;
 
     try {
-      setLoading(true)
-      const response = await fetch(`/api/student/dashboard?email=${encodeURIComponent(session.user.email)}`)
+      setLoading(true);
+      const response = await fetch(
+        `/api/student/dashboard?email=${encodeURIComponent(email)}`
+      );
 
       if (!response.ok) {
         if (response.status === 401) {
-          router.push('/student/signin')
-          return
+          router.push('/student/signin');
+          return;
         }
-        throw new Error('Failed to fetch dashboard data')
+        throw new Error('Failed to fetch dashboard data');
       }
 
-      const dashboardData = await response.json()
-      setData(dashboardData)
+      const dashboardData = await response.json();
+      setData(dashboardData);
+      setError(null);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load dashboard')
+      setError(err instanceof Error ? err.message : 'Failed to load dashboard');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleAcceptRequest = async (requestId: string) => {
-    if (!session?.user?.email) return
+    if (!studentEmail) return;
 
-    setProcessingRequests(prev => new Set(prev).add(requestId))
-    setError(null)
+    setProcessingRequests((prev) => new Set(prev).add(requestId));
+    setError(null);
 
     try {
       const response = await fetch('/api/student/requests/accept', {
@@ -143,46 +178,44 @@ export default function StudentDashboard() {
         },
         body: JSON.stringify({
           requestId,
-          studentEmail: session.user.email,
+          studentEmail,
         }),
-      })
+      });
 
-      const result = await response.json()
+      const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.error || 'Failed to accept request')
+        throw new Error(result.error || 'Failed to accept request');
       }
 
-      // Show success message with tourist contact info
       alert(
         `Request accepted successfully!\n\nTourist Contact:\nEmail: ${result.touristContact.email}\n` +
-        (result.touristContact.phone ? `Phone: ${result.touristContact.phone}\n` : '') +
-        (result.touristContact.whatsapp ? `WhatsApp: ${result.touristContact.whatsapp}\n` : '') +
-        `\nPreferred Contact: ${result.touristContact.contactMethod || 'email'}`
-      )
+          (result.touristContact.phone ? `Phone: ${result.touristContact.phone}\n` : '') +
+          (result.touristContact.whatsapp ? `WhatsApp: ${result.touristContact.whatsapp}\n` : '') +
+          `\nPreferred Contact: ${result.touristContact.contactMethod || 'email'}`
+      );
 
-      // Refresh dashboard data
-      await fetchDashboardData()
+      await fetchDashboardData();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to accept request')
+      setError(err instanceof Error ? err.message : 'Failed to accept request');
     } finally {
-      setProcessingRequests(prev => {
-        const next = new Set(prev)
-        next.delete(requestId)
-        return next
-      })
+      setProcessingRequests((prev) => {
+        const next = new Set(prev);
+        next.delete(requestId);
+        return next;
+      });
     }
-  }
+  };
 
   const handleRejectRequest = async (requestId: string) => {
-    if (!session?.user?.email) return
+    if (!studentEmail) return;
 
     if (!confirm('Are you sure you want to reject this request?')) {
-      return
+      return;
     }
 
-    setProcessingRequests(prev => new Set(prev).add(requestId))
-    setError(null)
+    setProcessingRequests((prev) => new Set(prev).add(requestId));
+    setError(null);
 
     try {
       const response = await fetch('/api/student/requests/reject', {
@@ -192,52 +225,57 @@ export default function StudentDashboard() {
         },
         body: JSON.stringify({
           requestId,
-          studentEmail: session.user.email,
+          studentEmail,
         }),
-      })
+      });
 
-      const result = await response.json()
+      const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.error || 'Failed to reject request')
+        throw new Error(result.error || 'Failed to reject request');
       }
 
-      // Refresh dashboard data
-      await fetchDashboardData()
+      await fetchDashboardData();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to reject request')
+      setError(err instanceof Error ? err.message : 'Failed to reject request');
     } finally {
-      setProcessingRequests(prev => {
-        const next = new Set(prev)
-        next.delete(requestId)
-        return next
-      })
+      setProcessingRequests((prev) => {
+        const next = new Set(prev);
+        next.delete(requestId);
+        return next;
+      });
     }
-  }
+  };
 
   const handleLogout = async () => {
-    await signOut({ callbackUrl: '/student/signin' })
-  }
+    // Abhi ke liye sirf NextAuth signOut + redirect.
+    // Baad me agar tumne custom /api/student/auth/logout banaya ho,
+    // to yaha usko bhi call kar sakte ho.
+    await signOut({ callbackUrl: '/student/signin' });
+  };
 
   const formatDate = (dates: unknown) => {
-    if (!dates) return 'N/A'
-    if (typeof dates === 'string') return dates
+    if (!dates) return 'N/A';
+    if (typeof dates === 'string') return dates;
     if (typeof dates === 'object' && dates !== null && 'start' in dates && 'end' in dates) {
-      const datesObj = dates as { start: string; end: string }
-      return `${new Date(datesObj.start).toLocaleDateString()} - ${new Date(datesObj.end).toLocaleDateString()}`
+      const datesObj = dates as { start: string; end: string };
+      return `${new Date(datesObj.start).toLocaleDateString()} - ${new Date(
+        datesObj.end
+      ).toLocaleDateString()}`;
     }
-    return 'N/A'
-  }
+    return 'N/A';
+  };
 
   const getServiceTypeBadge = (serviceType: string) => {
     const colors: Record<string, string> = {
-      'local_guide': 'bg-ui-blue-primary/10 text-ui-blue-primary',
-      'accommodation': 'bg-ui-success/10 text-ui-success',
-      'both': 'bg-ui-purple-primary/10 text-ui-purple-primary',
-    }
-    return colors[serviceType] || 'bg-gray-100 text-gray-800'
-  }
+      local_guide: 'bg-ui-blue-primary/10 text-ui-blue-primary',
+      accommodation: 'bg-ui-success/10 text-ui-success',
+      both: 'bg-ui-purple-primary/10 text-ui-purple-primary',
+    };
+    return colors[serviceType] || 'bg-gray-100 text-gray-800';
+  };
 
+  // --- Loading state UI (unchanged) ---
   if (loading) {
     return (
       <div className="min-h-screen flex flex-col relative overflow-hidden">
@@ -263,9 +301,10 @@ export default function StudentDashboard() {
           </div>
         </div>
       </div>
-    )
+    );
   }
 
+  // --- Error: no data ---
   if (!data) {
     return (
       <div className="min-h-screen flex flex-col relative overflow-hidden">
@@ -293,9 +332,10 @@ export default function StudentDashboard() {
           </div>
         </div>
       </div>
-    )
+    );
   }
 
+  // --- Main dashboard UI (unchanged except for small internal changes) ---
   return (
     <div className="min-h-screen flex flex-col relative overflow-hidden">
       {/* Background Image with Overlays */}
@@ -323,59 +363,64 @@ export default function StudentDashboard() {
 
         {/* Optimized for mobile: better responsive padding */}
         <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-6 md:py-8 w-full">
+          {/* Error Alert */}
+          {error && (
+            <div className="glass-card bg-ui-error/10 border-2 border-ui-error/30 rounded-2xl p-3 md:p-4 mb-4 md:mb-6 shadow-premium animate-scale-in">
+              <p className="text-ui-error font-semibold text-sm md:text-base">{error}</p>
+            </div>
+          )}
 
-        {/* Error Alert - Optimized for mobile: responsive padding */}
-        {error && (
-          <div className="glass-card bg-ui-error/10 border-2 border-ui-error/30 rounded-2xl p-3 md:p-4 mb-4 md:mb-6 shadow-premium animate-scale-in">
-            <p className="text-ui-error font-semibold text-sm md:text-base">{error}</p>
+          {/* Stats Cards */}
+          {/* ... 👇 yaha se tumhara purana JSX exactly same rakha hai ... */}
+          {/* (I’ve kept everything from your original code unchanged below this line) */}
+
+          {/* Stats Cards - Optimized for mobile: reduced gaps */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 mb-6 md:mb-8 animate-fade-in-up delay-100">
+            <Card className="glass-card border border-white/40 hover-lift shadow-premium">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-gray-700">Total Bookings</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold bg-gradient-to-r from-ui-blue-primary to-ui-blue-accent bg-clip-text text-transparent">
+                  {data.stats.totalBookings}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="glass-card border border-white/40 hover-lift shadow-premium">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-gray-700">Pending Requests</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-ui-warning">{data.stats.pendingRequests}</div>
+              </CardContent>
+            </Card>
+
+            <Card className="glass-card border border-white/40 hover-lift shadow-premium">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-gray-700">Average Rating</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center">
+                  <span className="text-3xl font-bold bg-gradient-to-r from-yellow-500 to-yellow-600 bg-clip-text text-transparent">
+                    {data.stats.averageRating.toFixed(1)}
+                  </span>
+                  <span className="text-yellow-500 text-2xl ml-2">★</span>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="glass-card border border-white/40 hover-lift shadow-premium">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-gray-700">Total Earnings</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold text-ui-success">
+                  ${data.stats.totalEarnings.toFixed(2)}
+                </div>
+              </CardContent>
+            </Card>
           </div>
-        )}
-
-        {/* Stats Cards - Optimized for mobile: reduced gaps */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 mb-6 md:mb-8 animate-fade-in-up delay-100">
-          <Card className="glass-card border border-white/40 hover-lift shadow-premium">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-gray-700">Total Bookings</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold bg-gradient-to-r from-ui-blue-primary to-ui-blue-accent bg-clip-text text-transparent">{data.stats.totalBookings}</div>
-            </CardContent>
-          </Card>
-
-          <Card className="glass-card border border-white/40 hover-lift shadow-premium">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-gray-700">Pending Requests</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-ui-warning">{data.stats.pendingRequests}</div>
-            </CardContent>
-          </Card>
-
-          <Card className="glass-card border border-white/40 hover-lift shadow-premium">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-gray-700">Average Rating</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center">
-                <span className="text-3xl font-bold bg-gradient-to-r from-yellow-500 to-yellow-600 bg-clip-text text-transparent">
-                  {data.stats.averageRating.toFixed(1)}
-                </span>
-                <span className="text-yellow-500 text-2xl ml-2">★</span>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="glass-card border border-white/40 hover-lift shadow-premium">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-gray-700">Total Earnings</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-ui-success">
-                ${data.stats.totalEarnings.toFixed(2)}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
 
         {/* Pending Requests Section - Optimized for mobile: responsive spacing */}
         {data.pendingRequests.length > 0 && (
