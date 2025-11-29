@@ -9,21 +9,6 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Loader2, AlertCircle, Info } from 'lucide-react'
 import { PrimaryCTAButton } from '@/components/ui/PrimaryCTAButton'
 
-/**
- * FEATURE FLAG: Student Selection UI
- *
- * This feature has been DISABLED per business requirements.
- * Tourist-facing student selection has been replaced with admin-led matching.
- *
- * When ENABLE_STUDENT_SELECTION = false:
- * - Tourists cannot select guides from the UI
- * - Admin dashboard handles all matching manually
- * - Tourists see success message after booking creation
- *
- * To re-enable this feature in the future, set this to true.
- */
-const ENABLE_STUDENT_SELECTION = false
-
 function SelectGuideContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
@@ -36,65 +21,6 @@ function SelectGuideContent() {
   const [error, setError] = useState<string | null>(null)
   const [errorType, setErrorType] = useState<'network' | 'server' | 'notfound' | null>(null)
   const [suggestedPrice, setSuggestedPrice] = useState<any>(null)
-
-  // Feature flag: Show disabled message if student selection is turned off
-  if (!ENABLE_STUDENT_SELECTION) {
-    return (
-      <div className="min-h-screen flex flex-col relative overflow-hidden">
-        <div className="absolute inset-0">
-          <Image
-            src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=1920&q=80"
-            alt="Students working together"
-            fill
-            quality={85}
-            sizes="100vw"
-            className="object-cover"
-          />
-          <div className="absolute inset-0 bg-black/20 backdrop-blur-[4px]" />
-          <div className="absolute inset-0 bg-gradient-to-br from-ui-blue-primary/15 via-ui-purple-primary/10 to-ui-purple-accent/15" />
-        </div>
-        <div className="absolute inset-0 pattern-dots opacity-10" />
-
-        <div className="relative z-10 flex items-center justify-center min-h-screen p-4">
-          <div className="max-w-md w-full glass-card rounded-3xl p-8 shadow-premium border-2 border-ui-blue-accent/30 animate-fade-in">
-            <div className="text-center">
-              <div className="mx-auto w-20 h-20 bg-gradient-to-br from-ui-success to-ui-success/80 rounded-full flex items-center justify-center mb-6">
-                <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path>
-                </svg>
-              </div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-3">
-                Booking Request Created!
-              </h2>
-              <p className="text-gray-700 mb-6 leading-relaxed">
-                Your booking request has been successfully created. Our admin team will now match you with the best student guides and follow up with you by email.
-              </p>
-              <p className="text-sm text-gray-600 mb-6">
-                You should have received a confirmation email with your request ID and next steps.
-              </p>
-
-              <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                <Button
-                  variant="outline"
-                  onClick={() => router.push('/booking')}
-                  className="hover-lift shadow-soft"
-                >
-                  Create Another Booking
-                </Button>
-                <PrimaryCTAButton
-                  onClick={() => router.push('/')}
-                  variant="blue"
-                  className="hover-lift"
-                >
-                  Return to Home
-                </PrimaryCTAButton>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
-  }
 
   useEffect(() => {
     if (!requestId) {
