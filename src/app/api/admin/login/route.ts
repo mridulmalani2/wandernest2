@@ -3,8 +3,37 @@ export const dynamic = 'force-dynamic'
 
 import { NextRequest, NextResponse } from 'next/server'
 import { requireDatabase } from '@/lib/prisma'
-import { verifyPassword, generateToken } from '@/lib/auth'
+import { verifyPassword, generateToken, hashPassword } from '@/lib/auth'
 import { withErrorHandler, withDatabaseRetry, AppError } from '@/lib/error-handler'
+
+async function ensureDefaultAdminSeeded() {
+  const db = requireDatabase()
+
+  const email = process.env.ADMIN_EMAIL || 'mridulmalani'
+  const password = process.env.ADMIN_PASSWORD || 'travelbuddy16'
+  const name = process.env.ADMIN_NAME || 'Mridul Malani'
+
+  const passwordHash = await hashPassword(password)
+
+  return withDatabaseRetry(() =>
+    db.admin.upsert({
+      where: { email },
+      update: {
+        passwordHash,
+        name,
+        role: 'SUPER_ADMIN',
+        isActive: true,
+      },
+      create: {
+        email,
+        passwordHash,
+        name,
+        role: 'SUPER_ADMIN',
+        isActive: true,
+      },
+    })
+  )
+}
 
 async function adminLogin(request: NextRequest) {
   const db = requireDatabase()
@@ -16,8 +45,8 @@ async function adminLogin(request: NextRequest) {
     throw new AppError(400, 'Username/email and password are required', 'MISSING_CREDENTIALS')
   }
 
-  // Ensure database is available
-  const prisma = requireDatabase()
+  // Ensure at least one admin account exists (helps on fresh installs)
+  await ensureDefaultAdminSeeded()
 
   // Find admin by email
   const admin = await withDatabaseRetry(async () =>
