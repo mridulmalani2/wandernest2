@@ -497,12 +497,16 @@ export function OnboardingWizard({ session }: OnboardingWizardProps) {
           });
 
           if (!uploadResponse.ok) {
-            throw new Error(`Failed to upload ${type.replace('_', ' ')}`);
+            const errorData = await uploadResponse.json().catch(() => ({}));
+            const errorMessage = errorData.error || `Failed to upload ${type.replace('_', ' ')}`;
+            console.error(`Upload error for ${type}:`, errorData);
+            throw new Error(errorMessage);
           }
 
           const uploadData = await uploadResponse.json();
           uploadedUrls[type] = uploadData.url;
         } else if (preview) {
+          // If preview exists but no file, it might be from a previous upload
           uploadedUrls[type] = preview;
         }
       }
@@ -629,16 +633,19 @@ export function OnboardingWizard({ session }: OnboardingWizardProps) {
         <Navigation variant="student" />
 
         {/* Main Content */}
-        <main className="container mx-auto px-4 py-12 flex-1">
-          <div className="max-w-4xl mx-auto mb-8 text-center animate-fade-in-up">
-            <h1 className="text-4xl font-bold mb-4 text-white text-shadow-lg">Become a TourWiseCo Guide</h1>
-            <p className="text-white text-lg text-shadow">
-              Complete your profile to start connecting with travelers visiting Paris and London
+        <main className="container mx-auto px-4 py-8 sm:py-12 lg:py-16 flex-1">
+          <div className="max-w-5xl mx-auto mb-10 sm:mb-12 text-center animate-fade-in-up">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 sm:mb-6 text-white text-shadow-lg leading-tight">
+              Become a TourWiseCo Guide
+            </h1>
+            <p className="text-white text-base sm:text-lg lg:text-xl text-shadow max-w-3xl mx-auto leading-relaxed">
+              Join our community of student guides and start earning by sharing your city with travelers.
+              Complete your profile in just a few steps.
             </p>
           </div>
 
           {/* Step Indicator */}
-          <div className="max-w-4xl mx-auto mb-8">
+          <div className="max-w-5xl mx-auto mb-8 sm:mb-10">
             <FormProgressHeader
               steps={STEPS}
               currentStep={currentStep}
@@ -648,10 +655,11 @@ export function OnboardingWizard({ session }: OnboardingWizardProps) {
           </div>
 
           {/* Form Steps */}
-          <div className="relative max-w-4xl mx-auto animate-fade-in-up delay-200">
-            <div className="relative glass-card rounded-3xl border-2 border-white/40 shadow-premium p-8 hover-lift">
+          <div className="relative max-w-5xl mx-auto animate-fade-in-up delay-200">
+            <div className="relative glass-card rounded-3xl border-2 border-white/40 shadow-premium p-6 sm:p-10 lg:p-12 hover-lift transition-all duration-300">
               <div className="relative z-10">
-            {/* Step Content */}
+            {/* Step Content with fade transition */}
+            <div className="min-h-[600px] transition-opacity duration-300">
             {currentStep === 1 && (
               <BasicProfileStep
                 formData={formData}
@@ -702,17 +710,18 @@ export function OnboardingWizard({ session }: OnboardingWizardProps) {
                 errors={errors}
               />
             )}
+            </div>
 
                 {/* Navigation Buttons */}
-                <div className="mt-8 flex justify-between">
+                <div className="mt-10 pt-8 border-t border-white/20 flex flex-col sm:flex-row justify-between gap-4">
                   <Button
                     type="button"
                     variant="outline"
                     onClick={handleBack}
                     disabled={currentStep === 1 || isSubmitting}
-                    className="hover-lift shadow-soft"
+                    className="hover-lift shadow-soft bg-white/80 hover:bg-white text-gray-700 border-2 border-gray-200 hover:border-gray-300 px-8 py-6 text-base font-semibold rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed order-2 sm:order-1"
                   >
-                    Back
+                    ← Back
                   </Button>
 
                   {currentStep < STEPS.length ? (
@@ -721,8 +730,9 @@ export function OnboardingWizard({ session }: OnboardingWizardProps) {
                       onClick={handleNext}
                       disabled={isSubmitting}
                       variant="blue"
+                      className="px-8 py-6 text-base font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 order-1 sm:order-2"
                     >
-                      Next
+                      Continue →
                     </PrimaryCTAButton>
                   ) : (
                     <PrimaryCTAButton
@@ -730,8 +740,19 @@ export function OnboardingWizard({ session }: OnboardingWizardProps) {
                       onClick={handleSubmit}
                       disabled={isSubmitting}
                       variant="blue"
+                      className="px-8 py-6 text-base font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 order-1 sm:order-2"
                     >
-                      {isSubmitting ? 'Submitting for Review...' : 'Submit for Review'}
+                      {isSubmitting ? (
+                        <span className="flex items-center gap-2">
+                          <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                          </svg>
+                          Submitting...
+                        </span>
+                      ) : (
+                        '✓ Submit for Review'
+                      )}
                     </PrimaryCTAButton>
                   )}
                 </div>

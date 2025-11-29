@@ -1,11 +1,10 @@
 'use client';
 
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { OnboardingFormData } from './OnboardingWizard';
 import { useState } from 'react';
+import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { OnboardingFormData } from './OnboardingWizard';
 
 interface CoverLetterStepProps {
   formData: OnboardingFormData;
@@ -14,35 +13,35 @@ interface CoverLetterStepProps {
   city: string;
 }
 
-const COMMON_LANGUAGES = [
-  'English', 'French', 'Spanish', 'German', 'Italian', 'Portuguese',
-  'Chinese (Mandarin)', 'Chinese (Cantonese)', 'Japanese', 'Korean',
-  'Arabic', 'Hindi', 'Bengali', 'Russian', 'Turkish'
+const PRESET_SKILLS = [
+  'Photography', 'History', 'Art', 'Architecture', 'Food & Cuisine',
+  'Local Culture', 'Hidden Gems', 'Walking Tours', 'Public Transport',
+  'Museum Guide', 'Night Life', 'Shopping', 'Family-Friendly', 'Budget Travel'
 ];
 
-const COMMON_INTERESTS = [
-  'Food & Dining', 'Museums & Art', 'Architecture', 'History', 'Shopping',
-  'Nightlife', 'Parks & Nature', 'Photography', 'Local Markets', 'Music',
-  'Street Art', 'Cafes & Coffee', 'Wine & Bars', 'Sports', 'Fashion'
+const PRESET_INTERESTS = [
+  'History', 'Art & Museums', 'Food & Dining', 'Architecture', 'Music',
+  'Theatre & Performing Arts', 'Sports', 'Fashion', 'Photography', 'Literature',
+  'Nightlife', 'Local Markets', 'Street Art', 'Parks & Gardens', 'Technology'
 ];
 
 export function CoverLetterStep({ formData, updateFormData, errors, city }: CoverLetterStepProps) {
-  const [customLanguage, setCustomLanguage] = useState('');
+  const [customSkill, setCustomSkill] = useState('');
   const [customInterest, setCustomInterest] = useState('');
 
-  const toggleLanguage = (language: string) => {
-    const current = formData.languages || [];
-    if (current.includes(language)) {
-      updateFormData({ languages: current.filter((l) => l !== language) });
+  const toggleSkill = (skill: string) => {
+    const current = formData.skills || [];
+    if (current.includes(skill)) {
+      updateFormData({ skills: current.filter((s) => s !== skill) });
     } else {
-      updateFormData({ languages: [...current, language] });
+      updateFormData({ skills: [...current, skill] });
     }
   };
 
-  const addCustomLanguage = () => {
-    if (customLanguage.trim() && !formData.languages.includes(customLanguage.trim())) {
-      updateFormData({ languages: [...formData.languages, customLanguage.trim()] });
-      setCustomLanguage('');
+  const addCustomSkill = () => {
+    if (customSkill.trim() && !formData.skills.includes(customSkill.trim())) {
+      updateFormData({ skills: [...formData.skills, customSkill.trim()] });
+      setCustomSkill('');
     }
   };
 
@@ -62,211 +61,89 @@ export function CoverLetterStep({ formData, updateFormData, errors, city }: Cove
     }
   };
 
-  const charCount = formData.coverLetter.length;
-  const minChars = 200;
-
-  const [customSkill, setCustomSkill] = useState('');
-
-  const toggleSkill = (skill: string) => {
-    const current = formData.skills || [];
-    if (current.includes(skill)) {
-      updateFormData({ skills: current.filter((s) => s !== skill) });
-    } else {
-      updateFormData({ skills: [...current, skill] });
-    }
-  };
-
-  const addCustomSkill = () => {
-    if (customSkill.trim() && !formData.skills.includes(customSkill.trim())) {
-      updateFormData({ skills: [...formData.skills, customSkill.trim()] });
-      setCustomSkill('');
-    }
-  };
-
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold mb-2">Profile Information</h2>
-        <p className="text-gray-600">
-          Create your guide profile to showcase your expertise and personality.
+    <div className="space-y-8">
+      {/* Header */}
+      <div className="text-center sm:text-left">
+        <h2 className="text-3xl sm:text-4xl font-bold mb-3 text-gray-900">Tell Your Story</h2>
+        <p className="text-gray-600 text-lg leading-relaxed">
+          Share what makes you unique and why you'd be a great guide for {city || 'your city'}.
         </p>
       </div>
 
-      {/* Guidance */}
-      <div className="bg-[hsl(var(--ui-purple-primary)/0.1)] border border-[hsl(var(--ui-purple-primary)/0.3)] rounded-lg p-4">
-        <h3 className="font-bold text-[hsl(var(--ui-purple-primary))] mb-2">What to Include:</h3>
-        <ul className="text-sm text-[hsl(var(--ui-purple-accent))] space-y-1 list-disc list-inside">
-          <li>Specific places, neighborhoods, cafés, or restaurants you'd recommend</li>
-          <li>Practical advice (metro tips, tipping culture, local norms)</li>
-          <li>At least one personal touch or story that makes it unique</li>
-          <li>What makes you the perfect guide for someone from your country</li>
-        </ul>
-        <p className="text-xs text-[hsl(var(--ui-purple-accent))] mt-3">
-          💡 AI help is allowed, but make it personal and non-generic. Tourists want authentic recommendations!
-        </p>
-      </div>
+      {/* Bio Section */}
+      <div className="bg-gradient-to-br from-blue-50 to-blue-100/50 border-2 border-blue-200 rounded-2xl p-6 sm:p-8 shadow-sm">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white text-xl">
+            ✍️
+          </div>
+          <h3 className="text-xl font-bold text-blue-900">Your Bio</h3>
+        </div>
 
-      {/* Cover Letter */}
-      <div className="space-y-2">
-        <Label htmlFor="coverLetter">
-          Cover Letter <span className="text-[hsl(var(--ui-error))]">*</span>
-        </Label>
-        <Textarea
-          id="coverLetter"
-          value={formData.coverLetter}
-          onChange={(e) => updateFormData({ coverLetter: e.target.value })}
-          placeholder={`Example: "As an Indian student studying at Sorbonne, I know all the best spots in Paris for fellow Indians! I'd start with a walk through Le Marais, grab coffee at Café de Flore, then lunch at a hidden gem serving amazing Lebanese food (the closest you'll find to Indian spices!). I'll show you how to navigate the metro like a local, explain French dining etiquette, and take you to my favorite sunset spot at Sacré-Cœur. Having lived here for 2 years, I know exactly what newcomers from India need to know..."`}
-          rows={12}
-          className={errors.coverLetter ? 'border-[hsl(var(--ui-error))]' : ''}
-        />
-        <div className="flex justify-between items-center">
-          {errors.coverLetter && <p className="text-sm text-[hsl(var(--ui-error))]">{errors.coverLetter}</p>}
-          <p className={`text-xs ml-auto ${charCount < minChars ? 'text-[hsl(var(--ui-warning))]' : 'text-[hsl(var(--ui-success))]'}`}>
-            {charCount} / {minChars} characters minimum
+        <div className="space-y-4">
+          <Label htmlFor="bio" className="text-base font-semibold text-gray-700">
+            About You <span className="text-red-500">*</span>
+          </Label>
+          <p className="text-sm text-gray-600">
+            Write a brief introduction about yourself. What do you study? What do you love about {city || 'your city'}?
           </p>
-        </div>
-      </div>
-
-      {/* Languages */}
-      <div className="space-y-3">
-        <Label>
-          Languages You Speak <span className="text-[hsl(var(--ui-error))]">*</span>
-        </Label>
-        <p className="text-sm text-gray-600">Select all languages you're comfortable guiding in</p>
-        <div className="flex flex-wrap gap-2">
-          {COMMON_LANGUAGES.map((language) => (
-            <button
-              key={language}
-              type="button"
-              onClick={() => toggleLanguage(language)}
-              className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
-                formData.languages.includes(language)
-                  ? 'bg-[hsl(var(--ui-blue-primary))] text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-            >
-              {language}
-            </button>
-          ))}
-        </div>
-
-        {/* Custom Language */}
-        <div className="flex gap-2">
-          <Input
-            value={customLanguage}
-            onChange={(e) => setCustomLanguage(e.target.value)}
-            placeholder="Add another language"
-            onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addCustomLanguage())}
+          <Textarea
+            id="bio"
+            value={formData.bio}
+            onChange={(e) => updateFormData({ bio: e.target.value })}
+            placeholder={`Hi! I'm a ${formData.yearOfStudy || 'student'} studying ${formData.programDegree || 'at university'} in ${city || 'the city'}. I love exploring...`}
+            rows={6}
+            className={`text-base resize-none ${errors.bio ? 'border-red-500 ring-2 ring-red-200' : 'border-gray-300'}`}
           />
-          <Button type="button" variant="outline" onClick={addCustomLanguage}>
-            Add
-          </Button>
-        </div>
-
-        {/* Selected Languages */}
-        {formData.languages.length > 0 && (
-          <div className="mt-2">
-            <p className="text-sm font-medium mb-2">Selected ({formData.languages.length}):</p>
-            <div className="flex flex-wrap gap-2">
-              {formData.languages.map((language) => (
-                <span
-                  key={language}
-                  className="px-3 py-1 bg-[hsl(var(--ui-blue-primary)/0.2)] text-[hsl(var(--ui-blue-primary))] rounded-full text-sm flex items-center gap-2"
-                >
-                  {language}
-                  <button
-                    type="button"
-                    onClick={() => toggleLanguage(language)}
-                    className="text-[hsl(var(--ui-blue-accent))] hover:text-[hsl(var(--ui-blue-primary))] font-bold"
-                  >
-                    ×
-                  </button>
-                </span>
-              ))}
-            </div>
+          <div className="flex items-center justify-between">
+            <p className={`text-sm ${
+              formData.bio.length < 50
+                ? 'text-gray-500'
+                : formData.bio.length >= 50
+                ? 'text-green-600 font-medium'
+                : 'text-gray-600'
+            }`}>
+              {formData.bio.length} / 50 characters minimum
+            </p>
+            {formData.bio.length >= 50 && (
+              <span className="text-sm text-green-600 flex items-center gap-1">
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                Complete
+              </span>
+            )}
           </div>
-        )}
-        {errors.languages && <p className="text-sm text-[hsl(var(--ui-error))]">{errors.languages}</p>}
+          {errors.bio && (
+            <p className="text-sm text-red-600 flex items-center gap-1">
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+              </svg>
+              {errors.bio}
+            </p>
+          )}
+        </div>
       </div>
 
-      {/* Interests */}
-      <div className="space-y-3">
-        <Label>
-          Your Interests & Expertise <span className="text-[hsl(var(--ui-error))]">*</span>
-        </Label>
-        <p className="text-sm text-gray-600">What aspects of {city || 'the city'} are you most knowledgeable about?</p>
-        <div className="flex flex-wrap gap-2">
-          {COMMON_INTERESTS.map((interest) => (
-            <button
-              key={interest}
-              type="button"
-              onClick={() => toggleInterest(interest)}
-              className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
-                formData.interests.includes(interest)
-                  ? 'bg-[hsl(var(--ui-purple-primary))] text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-            >
-              {interest}
-            </button>
-          ))}
+      {/* Skills Section */}
+      <div className="space-y-5">
+        <div>
+          <Label className="text-xl font-bold text-gray-900">
+            Your Guiding Skills <span className="text-red-500">*</span>
+          </Label>
+          <p className="text-sm text-gray-600 mt-2">Select all skills that apply to you as a guide</p>
         </div>
 
-        {/* Custom Interest */}
-        <div className="flex gap-2">
-          <Input
-            value={customInterest}
-            onChange={(e) => setCustomInterest(e.target.value)}
-            placeholder="Add another interest"
-            onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addCustomInterest())}
-          />
-          <Button type="button" variant="outline" onClick={addCustomInterest}>
-            Add
-          </Button>
-        </div>
-
-        {/* Selected Interests */}
-        {formData.interests.length > 0 && (
-          <div className="mt-2">
-            <p className="text-sm font-medium mb-2">Selected ({formData.interests.length}):</p>
-            <div className="flex flex-wrap gap-2">
-              {formData.interests.map((interest) => (
-                <span
-                  key={interest}
-                  className="px-3 py-1 bg-[hsl(var(--ui-purple-primary)/0.2)] text-[hsl(var(--ui-purple-primary))] rounded-full text-sm flex items-center gap-2"
-                >
-                  {interest}
-                  <button
-                    type="button"
-                    onClick={() => toggleInterest(interest)}
-                    className="text-[hsl(var(--ui-purple-accent))] hover:text-[hsl(var(--ui-purple-primary))] font-bold"
-                  >
-                    ×
-                  </button>
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
-        {errors.interests && <p className="text-sm text-[hsl(var(--ui-error))]">{errors.interests}</p>}
-      </div>
-
-      {/* Skills / Areas of Interest */}
-      <div className="space-y-3">
-        <Label>
-          Skills or Areas of Interest <span className="text-[hsl(var(--ui-error))]">*</span>
-        </Label>
-        <p className="text-sm text-gray-600">What skills or areas can you help visitors with?</p>
         <div className="flex flex-wrap gap-2">
-          {COMMON_INTERESTS.map((skill) => (
+          {PRESET_SKILLS.map((skill) => (
             <button
               key={skill}
               type="button"
               onClick={() => toggleSkill(skill)}
-              className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+              className={`px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
                 formData.skills.includes(skill)
-                  ? 'bg-[hsl(var(--ui-success))] text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  ? 'bg-green-600 text-white shadow-md hover:bg-green-700'
+                  : 'bg-white text-gray-700 border-2 border-gray-200 hover:border-green-300 hover:bg-green-50'
               }`}
             >
               {skill}
@@ -276,32 +153,36 @@ export function CoverLetterStep({ formData, updateFormData, errors, city }: Cove
 
         {/* Custom Skill */}
         <div className="flex gap-2">
-          <Input
+          <input
+            type="text"
             value={customSkill}
             onChange={(e) => setCustomSkill(e.target.value)}
-            placeholder="Add another skill"
+            placeholder="Add a custom skill"
             onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addCustomSkill())}
+            className="flex-1 px-4 py-3 border-2 border-gray-300 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
           />
-          <Button type="button" variant="outline" onClick={addCustomSkill}>
+          <Button type="button" variant="outline" onClick={addCustomSkill} className="px-6 h-12">
             Add
           </Button>
         </div>
 
         {/* Selected Skills */}
         {formData.skills.length > 0 && (
-          <div className="mt-2">
-            <p className="text-sm font-medium mb-2">Selected ({formData.skills.length}):</p>
+          <div className="p-4 bg-white rounded-xl border-2 border-green-200">
+            <p className="text-sm font-semibold mb-3 text-gray-700">
+              Selected ({formData.skills.length} skill{formData.skills.length !== 1 ? 's' : ''}):
+            </p>
             <div className="flex flex-wrap gap-2">
               {formData.skills.map((skill) => (
                 <span
                   key={skill}
-                  className="px-3 py-1 bg-[hsl(var(--ui-success)/0.2)] text-[hsl(var(--ui-success))] rounded-full text-sm flex items-center gap-2"
+                  className="px-4 py-2 bg-green-100 text-green-700 rounded-xl text-sm font-medium flex items-center gap-2 border border-green-200"
                 >
                   {skill}
                   <button
                     type="button"
                     onClick={() => toggleSkill(skill)}
-                    className="text-[hsl(var(--ui-success))] hover:text-[hsl(var(--ui-success))] font-bold"
+                    className="text-green-600 hover:text-green-800 font-bold text-lg leading-none"
                   >
                     ×
                   </button>
@@ -310,46 +191,171 @@ export function CoverLetterStep({ formData, updateFormData, errors, city }: Cove
             </div>
           </div>
         )}
-        {errors.skills && <p className="text-sm text-[hsl(var(--ui-error))]">{errors.skills}</p>}
+
+        {errors.skills && (
+          <p className="text-sm text-red-600 flex items-center gap-1">
+            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+            </svg>
+            {errors.skills}
+          </p>
+        )}
       </div>
 
-      {/* Preferred Guide Style */}
-      <div className="space-y-2">
-        <Label htmlFor="preferredGuideStyle">Preferred Guide Style</Label>
-        <select
-          id="preferredGuideStyle"
-          value={formData.preferredGuideStyle}
-          onChange={(e) => updateFormData({ preferredGuideStyle: e.target.value })}
-          className="w-full px-3 py-2 border rounded-lg"
-        >
-          <option value="">Select your guide style...</option>
-          <option value="friendly">Friendly & Casual</option>
-          <option value="structured">Structured & Organized</option>
-          <option value="energetic">Energetic & Adventurous</option>
-          <option value="relaxed">Relaxed & Flexible</option>
-          <option value="educational">Educational & Informative</option>
-          <option value="fun">Fun & Entertaining</option>
-        </select>
-        <p className="text-xs text-gray-500">
-          This helps tourists understand your guiding approach
-        </p>
+      {/* Cover Letter Section */}
+      <div className="bg-gradient-to-br from-purple-50 to-purple-100/50 border-2 border-purple-200 rounded-2xl p-6 sm:p-8 shadow-sm">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-10 h-10 rounded-full bg-purple-500 flex items-center justify-center text-white text-xl">
+            💌
+          </div>
+          <h3 className="text-xl font-bold text-purple-900">Your Cover Letter</h3>
+        </div>
+
+        <div className="space-y-4">
+          <Label htmlFor="coverLetter" className="text-base font-semibold text-gray-700">
+            Why do you want to be a guide? <span className="text-red-500">*</span>
+          </Label>
+          <p className="text-sm text-gray-600">
+            This is your chance to shine! Tell us why you'd be an amazing guide and what makes you passionate about showing tourists around {city || 'your city'}.
+          </p>
+
+          <div className="bg-white/60 border border-purple-200 rounded-xl p-4 text-sm text-purple-800">
+            <p className="font-semibold mb-2">💡 Tips for a great cover letter:</p>
+            <ul className="list-disc list-inside space-y-1 ml-2">
+              <li>Share your favorite spots in {city || 'the city'}</li>
+              <li>Mention any previous experience (volunteering, helping friends, etc.)</li>
+              <li>Explain what excites you about meeting people from different cultures</li>
+              <li>Describe your personality and guiding style</li>
+            </ul>
+          </div>
+
+          <Textarea
+            id="coverLetter"
+            value={formData.coverLetter}
+            onChange={(e) => updateFormData({ coverLetter: e.target.value })}
+            placeholder="I would love to be a guide because..."
+            rows={10}
+            className={`text-base resize-none ${errors.coverLetter ? 'border-red-500 ring-2 ring-red-200' : 'border-gray-300'}`}
+          />
+          <div className="flex items-center justify-between">
+            <p className={`text-sm ${
+              formData.coverLetter.length < 200
+                ? 'text-gray-500'
+                : formData.coverLetter.length >= 200
+                ? 'text-green-600 font-medium'
+                : 'text-gray-600'
+            }`}>
+              {formData.coverLetter.length} / 200 characters minimum
+            </p>
+            {formData.coverLetter.length >= 200 && (
+              <span className="text-sm text-green-600 flex items-center gap-1">
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
+                Complete
+              </span>
+            )}
+          </div>
+          {errors.coverLetter && (
+            <p className="text-sm text-red-600 flex items-center gap-1">
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+              </svg>
+              {errors.coverLetter}
+            </p>
+          )}
+        </div>
       </div>
 
-      {/* Bio */}
-      <div className="space-y-2">
-        <Label htmlFor="bio">
-          Short Bio <span className="text-[hsl(var(--ui-error))]">*</span>
-        </Label>
-        <Textarea
-          id="bio"
-          value={formData.bio}
-          onChange={(e) => updateFormData({ bio: e.target.value })}
-          placeholder="A brief introduction about yourself (e.g., your major, hobbies, why you love your city...)"
-          rows={4}
-          className={errors.bio ? 'border-[hsl(var(--ui-error))]' : ''}
-        />
-        <p className="text-xs text-gray-500">This will appear on your guide profile (minimum 50 characters)</p>
-        {errors.bio && <p className="text-sm text-[hsl(var(--ui-error))]">{errors.bio}</p>}
+      {/* Interests Section */}
+      <div className="space-y-5">
+        <div>
+          <Label className="text-xl font-bold text-gray-900">
+            Your Interests <span className="text-red-500">*</span>
+          </Label>
+          <p className="text-sm text-gray-600 mt-2">
+            What aspects of {city || 'the city'} do you enjoy most? This helps us match you with like-minded tourists.
+          </p>
+        </div>
+
+        <div className="flex flex-wrap gap-2">
+          {PRESET_INTERESTS.map((interest) => (
+            <button
+              key={interest}
+              type="button"
+              onClick={() => toggleInterest(interest)}
+              className={`px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
+                formData.interests.includes(interest)
+                  ? 'bg-purple-600 text-white shadow-md hover:bg-purple-700'
+                  : 'bg-white text-gray-700 border-2 border-gray-200 hover:border-purple-300 hover:bg-purple-50'
+              }`}
+            >
+              {interest}
+            </button>
+          ))}
+        </div>
+
+        {/* Custom Interest */}
+        <div className="flex gap-2">
+          <input
+            type="text"
+            value={customInterest}
+            onChange={(e) => setCustomInterest(e.target.value)}
+            placeholder="Add a custom interest"
+            onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addCustomInterest())}
+            className="flex-1 px-4 py-3 border-2 border-gray-300 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+          />
+          <Button type="button" variant="outline" onClick={addCustomInterest} className="px-6 h-12">
+            Add
+          </Button>
+        </div>
+
+        {/* Selected Interests */}
+        {formData.interests.length > 0 && (
+          <div className="p-4 bg-white rounded-xl border-2 border-purple-200">
+            <p className="text-sm font-semibold mb-3 text-gray-700">
+              Selected ({formData.interests.length} interest{formData.interests.length !== 1 ? 's' : ''}):
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {formData.interests.map((interest) => (
+                <span
+                  key={interest}
+                  className="px-4 py-2 bg-purple-100 text-purple-700 rounded-xl text-sm font-medium flex items-center gap-2 border border-purple-200"
+                >
+                  {interest}
+                  <button
+                    type="button"
+                    onClick={() => toggleInterest(interest)}
+                    className="text-purple-600 hover:text-purple-800 font-bold text-lg leading-none"
+                  >
+                    ×
+                  </button>
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {errors.interests && (
+          <p className="text-sm text-red-600 flex items-center gap-1">
+            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+            </svg>
+            {errors.interests}
+          </p>
+        )}
+      </div>
+
+      {/* Encouragement */}
+      <div className="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 rounded-2xl p-5">
+        <div className="flex items-start gap-3">
+          <div className="w-8 h-8 rounded-full bg-green-500 flex items-center justify-center text-white text-xl flex-shrink-0">
+            ⭐
+          </div>
+          <p className="text-sm text-green-800 leading-relaxed">
+            <strong>Be yourself!</strong> Tourists appreciate authentic, passionate guides. Share what genuinely excites you about {city || 'your city'} – your enthusiasm will shine through!
+          </p>
+        </div>
       </div>
     </div>
   );
