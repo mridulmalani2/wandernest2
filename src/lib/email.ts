@@ -182,7 +182,7 @@ export async function sendBookingConfirmation(
                 <tr>
                   <td style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); padding: 32px 40px; text-align: center;">
                     <h1 style="margin: 0; font-size: 28px; font-weight: 700; color: #ffffff; letter-spacing: -0.5px;">
-                      TourWiseCo
+                      WanderNest
                     </h1>
                     <p style="margin: 8px 0 0 0; font-size: 14px; color: rgba(255, 255, 255, 0.9);">
                       Connect with Local Student Guides
@@ -207,7 +207,9 @@ export async function sendBookingConfirmation(
                 <tr>
                   <td style="padding: 48px 40px;">
                     <p style="margin: 0 0 24px 0; font-size: 16px; line-height: 1.6; color: #374151;">
-                      Great news! Your booking request has been successfully created. Our team will now review your request and match you with the best student guides for your trip.
+                      ${hasMatches
+                        ? 'Great news! Your booking request has been successfully submitted and we\'ve found matching student guides who can help with your trip.'
+                        : 'Great news! Your booking request has been successfully created. While we don\'t have immediate matches yet, your request is saved and we\'re actively working to find the perfect student guide for you.'}
                     </p>
 
                     <!-- Request ID Card -->
@@ -228,7 +230,9 @@ export async function sendBookingConfirmation(
                       What Happens Next?
                     </h3>
 
-                    <!-- Timeline Steps - Admin-led matching process -->
+                    <!-- Timeline Steps - Dynamic based on match status -->
+                    ${hasMatches ? `
+                    <!-- When matches are found -->
                     <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
                       <tr>
                         <td style="padding: 16px; background: #f9fafb; border-radius: 10px; margin-bottom: 12px;">
@@ -238,8 +242,8 @@ export async function sendBookingConfirmation(
                                 <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 14px;">1</div>
                               </td>
                               <td style="padding-left: 12px; vertical-align: top;">
-                                <p style="margin: 0; font-size: 15px; font-weight: 600; color: #111827;">Our team reviews your request</p>
-                                <p style="margin: 4px 0 0 0; font-size: 14px; color: #6b7280;">We carefully review all booking details and your preferences to find the perfect match</p>
+                                <p style="margin: 0; font-size: 15px; font-weight: 600; color: #111827;">Student guides are reviewing your request</p>
+                                <p style="margin: 4px 0 0 0; font-size: 14px; color: #6b7280;">We've notified ${options?.matchesFound} qualified guides about your trip</p>
                               </td>
                             </tr>
                           </table>
@@ -254,8 +258,8 @@ export async function sendBookingConfirmation(
                                 <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 14px;">2</div>
                               </td>
                               <td style="padding-left: 12px; vertical-align: top;">
-                                <p style="margin: 0; font-size: 15px; font-weight: 600; color: #111827;">We match you with qualified student guides</p>
-                                <p style="margin: 4px 0 0 0; font-size: 14px; color: #6b7280;">Our team identifies and contacts verified students who best fit your trip requirements</p>
+                                <p style="margin: 0; font-size: 15px; font-weight: 600; color: #111827;">Receive acceptance notification</p>
+                                <p style="margin: 4px 0 0 0; font-size: 14px; color: #6b7280;">You'll get an email when a guide accepts (usually within 24 hours)</p>
                               </td>
                             </tr>
                           </table>
@@ -270,21 +274,75 @@ export async function sendBookingConfirmation(
                                 <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 14px;">3</div>
                               </td>
                               <td style="padding-left: 12px; vertical-align: top;">
-                                <p style="margin: 0; font-size: 15px; font-weight: 600; color: #111827;">You receive a follow-up email</p>
-                                <p style="margin: 4px 0 0 0; font-size: 14px; color: #6b7280;">We'll contact you by email with student guide options and next steps for your trip</p>
+                                <p style="margin: 0; font-size: 15px; font-weight: 600; color: #111827;">Connect and plan your trip</p>
+                                <p style="margin: 4px 0 0 0; font-size: 14px; color: #6b7280;">Get their contact info and start planning your adventure!</p>
                               </td>
                             </tr>
                           </table>
                         </td>
                       </tr>
                     </table>
+                    ` : `
+                    <!-- When no matches are found yet - reassuring timeline -->
+                    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                      <tr>
+                        <td style="padding: 16px; background: #f9fafb; border-radius: 10px; margin-bottom: 12px;">
+                          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                            <tr>
+                              <td width="40" style="vertical-align: top;">
+                                <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 14px;">1</div>
+                              </td>
+                              <td style="padding-left: 12px; vertical-align: top;">
+                                <p style="margin: 0; font-size: 15px; font-weight: 600; color: #111827;">Your request is secured</p>
+                                <p style="margin: 4px 0 0 0; font-size: 14px; color: #6b7280;">We've saved all your trip details and preferences. Your booking request is active in our system.</p>
+                              </td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                      <tr><td style="height: 12px;"></td></tr>
+                      <tr>
+                        <td style="padding: 16px; background: #f9fafb; border-radius: 10px;">
+                          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                            <tr>
+                              <td width="40" style="vertical-align: top;">
+                                <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 14px;">2</div>
+                              </td>
+                              <td style="padding-left: 12px; vertical-align: top;">
+                                <p style="margin: 0; font-size: 15px; font-weight: 600; color: #111827;">We're actively searching</p>
+                                <p style="margin: 4px 0 0 0; font-size: 14px; color: #6b7280;">Student guides are continuously joining our platform. We'll match you with the perfect guide as soon as one becomes available.</p>
+                              </td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                      <tr><td style="height: 12px;"></td></tr>
+                      <tr>
+                        <td style="padding: 16px; background: #f9fafb; border-radius: 10px;">
+                          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                            <tr>
+                              <td width="40" style="vertical-align: top;">
+                                <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 14px;">3</div>
+                              </td>
+                              <td style="padding-left: 12px; vertical-align: top;">
+                                <p style="margin: 0; font-size: 15px; font-weight: 600; color: #111827;">Instant notification when matched</p>
+                                <p style="margin: 4px 0 0 0; font-size: 14px; color: #6b7280;">You'll receive an email immediately when a suitable guide accepts your request. Check your inbox regularly!</p>
+                              </td>
+                            </tr>
+                          </table>
+                        </td>
+                      </tr>
+                    </table>
+                    `}
 
                     <!-- Info Box -->
                     <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin: 32px 0; background: #fef3c7; border-left: 4px solid #f59e0b; border-radius: 8px;">
                       <tr>
                         <td style="padding: 20px;">
                           <p style="margin: 0; font-size: 14px; line-height: 1.5; color: #92400e;">
-                            <strong style="color: #78350f;">💡 Important:</strong> Our team typically reviews booking requests within 24-48 hours. We'll send you an email with matched student guide options and next steps. Keep an eye on your inbox!
+                            <strong style="color: #78350f;">💡 Pro Tip:</strong> ${hasMatches
+                              ? 'You\'ll receive an email as soon as a guide accepts your request. Keep an eye on your inbox!'
+                              : 'Your request remains active for 7 days. We\'ll notify you immediately when a matching guide becomes available. Check your email regularly!'}
                           </p>
                         </td>
                       </tr>
@@ -299,7 +357,7 @@ export async function sendBookingConfirmation(
                       Questions? We're here to help!
                     </p>
                     <p style="margin: 0; font-size: 13px; color: #9ca3af; text-align: center; line-height: 1.6;">
-                      © ${new Date().getFullYear()} TourWiseCo · Connecting travelers with local student guides worldwide<br>
+                      © ${new Date().getFullYear()} WanderNest · Connecting travelers with local student guides worldwide<br>
                       <a href="${getBaseUrl()}" style="color: #6366f1; text-decoration: none;">Visit Dashboard</a>
                     </p>
                   </td>
@@ -315,7 +373,7 @@ export async function sendBookingConfirmation(
   return await sendEmail(
     {
       to: email,
-      subject: 'Your TourWiseCo booking request has been received',
+      subject: '✅ Booking Confirmed – Your Adventure Awaits!',
       html,
     },
     'Booking Confirmation'
@@ -361,7 +419,7 @@ export async function sendStudentRequestNotification(
                 <tr>
                   <td style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); padding: 32px 40px; text-align: center;">
                     <h1 style="margin: 0; font-size: 28px; font-weight: 700; color: #ffffff; letter-spacing: -0.5px;">
-                      TourWiseCo
+                      WanderNest
                     </h1>
                     <p style="margin: 8px 0 0 0; font-size: 14px; color: rgba(255, 255, 255, 0.9);">
                       Student Guide Opportunities
@@ -632,7 +690,7 @@ export async function sendStudentMatchInvitation(
                 <tr>
                   <td style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); padding: 32px 40px; text-align: center;">
                     <h1 style="margin: 0; font-size: 28px; font-weight: 700; color: #ffffff; letter-spacing: -0.5px;">
-                      TourWiseCo
+                      WanderNest
                     </h1>
                     <p style="margin: 8px 0 0 0; font-size: 14px; color: rgba(255, 255, 255, 0.9);">
                       Student Guide Opportunities
@@ -923,7 +981,7 @@ export async function sendTouristAcceptanceNotification(
                 <tr>
                   <td style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); padding: 32px 40px; text-align: center;">
                     <h1 style="margin: 0; font-size: 28px; font-weight: 700; color: #ffffff; letter-spacing: -0.5px;">
-                      TourWiseCo
+                      WanderNest
                     </h1>
                     <p style="margin: 8px 0 0 0; font-size: 14px; color: rgba(255, 255, 255, 0.9);">
                       Your Travel Connection
@@ -1197,7 +1255,7 @@ export async function sendVerificationEmail(
                 <tr>
                   <td style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); padding: 32px 40px; text-align: center;">
                     <h1 style="margin: 0; font-size: 28px; font-weight: 700; color: #ffffff; letter-spacing: -0.5px;">
-                      TourWiseCo
+                      WanderNest
                     </h1>
                     <p style="margin: 8px 0 0 0; font-size: 14px; color: rgba(255, 255, 255, 0.9);">
                       Connect with Local Student Guides
@@ -1314,7 +1372,7 @@ export async function sendStudentConfirmation(
                 <tr>
                   <td style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); padding: 32px 40px; text-align: center;">
                     <h1 style="margin: 0; font-size: 28px; font-weight: 700; color: #ffffff; letter-spacing: -0.5px;">
-                      TourWiseCo
+                      WanderNest
                     </h1>
                     <p style="margin: 8px 0 0 0; font-size: 14px; color: rgba(255, 255, 255, 0.9);">
                       Student Guide Platform
