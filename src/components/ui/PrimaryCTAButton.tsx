@@ -40,6 +40,21 @@ const variantStyles: Record<
     textColor: 'text-slate-900',
     iconColor: 'text-indigo-600',
   },
+  ghost: {
+    gradient:
+      'bg-white/5 border border-white/40 backdrop-blur-sm text-white hover:bg-white/10 transition-colors duration-300',
+    glow: 'bg-white/10',
+  },
+  ghost: {
+    gradient:
+      'bg-white/5 border border-white/40 backdrop-blur-sm text-white hover:bg-white/10 transition-colors duration-300',
+    glow: 'bg-white/10',
+  },
+  ghost: {
+    gradient:
+      'bg-white/5 border border-white/40 backdrop-blur-sm text-white hover:bg-white/10 transition-colors duration-300',
+    glow: 'bg-white/10',
+  },
 };
 
 export function PrimaryCTAButton({
