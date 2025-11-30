@@ -15,6 +15,16 @@ import {
 
 export const dynamic = 'force-dynamic';
 
+const DAYS_OF_WEEK = [
+  'Monday',
+  'Tuesday',
+  'Wednesday',
+  'Thursday',
+  'Friday',
+  'Saturday',
+  'Sunday',
+];
+
 /**
  * GET /api/student/profile
  *
@@ -72,7 +82,15 @@ export async function GET(request: NextRequest) {
         onlineServicesAvailable: true,
         timezone: true,
         preferredDurations: true,
-        availability: true,
+        availability: {
+          select: {
+            id: true,
+            dayOfWeek: true,
+            startTime: true,
+            endTime: true,
+            note: true,
+          },
+        },
         unavailabilityExceptions: true,
         emergencyContactName: true,
         emergencyContactPhone: true,
@@ -129,7 +147,16 @@ export async function PUT(request: NextRequest) {
     // Parse request body
     const body = await request.json();
 
-    // Define allowed updatable fields (excluding sensitive/system fields)
+    // Get the current student
+    const currentStudent = await getStudentFromSession(session);
+    if (!currentStudent) {
+      return NextResponse.json(
+        { error: 'Student profile not found' },
+        { status: 404 }
+      );
+    }
+
+    // Define allowed updatable fields (excluding relations and sensitive/system fields)
     const allowedFields = [
       'name',
       'dateOfBirth',
@@ -153,8 +180,6 @@ export async function PUT(request: NextRequest) {
       'onlineServicesAvailable',
       'timezone',
       'preferredDurations',
-      'availability',
-      'unavailabilityExceptions',
       'emergencyContactName',
       'emergencyContactPhone',
     ];
@@ -167,8 +192,29 @@ export async function PUT(request: NextRequest) {
       }
     }
 
+    // Handle availability separately (it's a relation, not a simple field)
+    let availabilityUpdate = null;
+    if (body.availability && Array.isArray(body.availability)) {
+      // Convert UI format (DayAvailability[]) to database format
+      availabilityUpdate = body.availability.flatMap((dayAvail: any) => {
+        if (!dayAvail.available || !dayAvail.slots || dayAvail.slots.length === 0) {
+          return [];
+        }
+
+        const dayIndex = DAYS_OF_WEEK.indexOf(dayAvail.day);
+        // Convert our index (0=Mon) to database dayOfWeek (0=Sun, 1=Mon, etc.)
+        const dayOfWeek = dayIndex === 6 ? 0 : dayIndex + 1;
+
+        return dayAvail.slots.map((slot: any) => ({
+          dayOfWeek,
+          startTime: slot.start,
+          endTime: slot.end,
+        }));
+      });
+    }
+
     // Validate that there's something to update
-    if (Object.keys(updateData).length === 0) {
+    if (Object.keys(updateData).length === 0 && !availabilityUpdate) {
       return NextResponse.json(
         { error: 'No valid fields to update' },
         { status: 400 }
@@ -181,6 +227,13 @@ export async function PUT(request: NextRequest) {
       data: {
         ...updateData,
         updatedAt: new Date(),
+        // Update availability if provided
+        ...(availabilityUpdate && {
+          availability: {
+            deleteMany: {}, // Remove all existing availability
+            create: availabilityUpdate, // Add new availability
+          },
+        }),
       },
       select: {
         id: true,
@@ -207,12 +260,22 @@ export async function PUT(request: NextRequest) {
         onlineServicesAvailable: true,
         timezone: true,
         preferredDurations: true,
-        availability: true,
+        availability: {
+          select: {
+            id: true,
+            dayOfWeek: true,
+            startTime: true,
+            endTime: true,
+            note: true,
+          },
+        },
         unavailabilityExceptions: true,
         emergencyContactName: true,
         emergencyContactPhone: true,
         status: true,
         profileCompleteness: true,
+        tripsHosted: true,
+        averageRating: true,
         updatedAt: true,
       },
     });

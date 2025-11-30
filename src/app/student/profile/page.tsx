@@ -164,10 +164,17 @@ export default function StudentProfilePage() {
   };
 
   const updateField = (field: keyof StudentProfile, value: any) => {
-    setEditedProfile((prev) => ({
-      ...prev!,
-      [field]: value,
-    }));
+    setEditedProfile((prev) => {
+      // Guard against null/undefined
+      if (!prev) {
+        console.warn('updateField called before profile loaded');
+        return prev;
+      }
+      return {
+        ...prev,
+        [field]: value,
+      };
+    });
   };
 
   if (isLoading) {
