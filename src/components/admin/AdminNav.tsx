@@ -7,6 +7,7 @@ import { useEffect } from 'react'
 const NAV_ITEMS = [
   { href: '/admin', label: 'Dashboard', icon: '🏠' },
   { href: '/admin/approvals', label: 'Approvals', icon: '✓' },
+  { href: '/admin/requests', label: 'Requests', icon: '🧭' },
   { href: '/admin/students', label: 'Students', icon: '👥' },
   { href: '/admin/reports', label: 'Reports', icon: '⚠️' },
   { href: '/admin/analytics', label: 'Analytics', icon: '📊' },
@@ -50,6 +51,7 @@ export default function AdminNav() {
   const navItems = [
     { href: '/admin', label: 'Dashboard', icon: '🏠' },
     { href: '/admin/approvals', label: 'Approvals', icon: '✓' },
+    { href: '/admin/requests', label: 'Requests', icon: '🧭' },
     { href: '/admin/students', label: 'Students', icon: '👥' },
     { href: '/admin/reports', label: 'Reports', icon: '⚠️' },
     { href: '/admin/analytics', label: 'Analytics', icon: '📊' },

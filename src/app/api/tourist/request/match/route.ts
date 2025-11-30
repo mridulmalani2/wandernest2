@@ -385,9 +385,16 @@ async function matchStudents(req: NextRequest) {
         reliabilityBadge: student.reliabilityBadge,
         tags: extractTags(student),
         matchReasons: student.matchReasons,
+        availability: student.availability?.map((slot) => ({
+          dayOfWeek: slot.dayOfWeek,
+          startTime: slot.startTime,
+          endTime: slot.endTime,
+        })),
       })),
       suggestedPriceRange,
       requestId: touristRequest.id,
+      preferredNationality: touristRequest.preferredNationality,
+      preferredLanguages: touristRequest.preferredLanguages,
     })
   } catch (error) {
     if (error instanceof AppError) {
