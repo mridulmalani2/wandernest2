@@ -26,6 +26,10 @@ const INTERESTS = [
 ]
 
 export function PreferencesStep({ data, errors, updateData }: Props) {
+  const rateMin = 10
+  const rateMax = 100
+  const recommendedRate = 20
+
   const toggleLanguage = (language: string) => {
     const current = data.preferredLanguages || []
     const updated = current.includes(language)
@@ -40,6 +44,10 @@ export function PreferencesStep({ data, errors, updateData }: Props) {
       ? current.filter((i) => i !== interest)
       : [...current, interest]
     updateData({ interests: updated })
+  }
+
+  const handleDiscoveryFeeConsentChange = (checked: boolean | string) => {
+    updateData({ discoveryFeeConsent: !!checked })
   }
 
   return (
@@ -202,50 +210,73 @@ export function PreferencesStep({ data, errors, updateData }: Props) {
         </div>
       )}
 
-      {/* Pricing Guidance - Conditional on Service Type */}
-      {data.serviceType && (
-        <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-          <h3 className="font-semibold text-sm mb-2">💰 Suggested pricing:</h3>
-          {data.serviceType === 'itinerary_help' ? (
-            <p className="text-sm text-gray-700">
-              For itinerary planning, we recommend a <strong>30–40 minute online call</strong>,
-              typically priced around <strong>€15–€20</strong>. You can adjust your total budget
-              based on how many sessions you'd like and any follow-up support.
-            </p>
-          ) : (
-            <p className="text-sm text-gray-700">
-              For a guided walk, we recommend a <strong>3–4 hour experience</strong>, with a
-              typical rate of about <strong>€20 per hour</strong>. You can adjust your total
-              budget to cover the number of hours and any extras you have in mind.
-            </p>
-          )}
-        </div>
-      )}
-
       {/* Budget Range */}
       <div className="space-y-2">
-        <Label htmlFor="totalBudget">
-          Total Trip Budget (EUR) – Optional
-        </Label>
+        <Label htmlFor="totalBudget">What are you willing to pay the student per hour?</Label>
         <p className="text-sm text-gray-600 mb-3">
-          This is your approximate total budget for this experience. It helps us recommend guides in your price range.
+          Choose any hourly rate that feels right for you and the student. Subtle guidance is shown below, but the final choice is yours.
         </p>
         <div className="space-y-4">
-          <Slider
-            id="totalBudget"
-            min={50}
-            max={500}
-            step={10}
-            value={[data.totalBudget || 150]}
-            onValueChange={(values) => updateData({ totalBudget: values[0] })}
-            className="w-full"
-          />
+          <div className="relative pb-8">
+            <Slider
+              id="totalBudget"
+              min={rateMin}
+              max={rateMax}
+              step={1}
+              value={[data.totalBudget || recommendedRate]}
+              onValueChange={(values) => updateData({ totalBudget: values[0] })}
+              className="w-full"
+            />
+            <div
+              className="pointer-events-none absolute inset-x-0 top-1/2 -translate-y-1/2"
+              aria-hidden="true"
+            >
+              <div
+                className="flex flex-col items-center text-[10px] text-gray-500"
+                style={{
+                  left: `${((recommendedRate - rateMin) / (rateMax - rateMin)) * 100}%`,
+                  position: 'absolute',
+                  transform: 'translateX(-50%)',
+                }}
+              >
+                <div className="flex flex-col items-center gap-1">
+                  <span className="block h-8 w-px bg-ui-blue-primary/50" />
+                  <span className="block h-2 w-2 rounded-full bg-ui-blue-primary/70 shadow-sm" />
+                </div>
+                <div className="mt-1 rounded-md bg-white/80 px-2 py-1 border border-gray-200 shadow-sm">
+                  Recommended student rate (~€20/hr). Choose what feels right.
+                </div>
+              </div>
+            </div>
+          </div>
           <div className="flex justify-between text-sm text-gray-600">
-            <span>€50</span>
-            <span className="font-bold text-ui-blue-primary">
-              €{data.totalBudget || 150}
+            <span>€10</span>
+            <span className="font-bold text-ui-blue-primary text-base">
+              {data.totalBudget === rateMax
+                ? '€100+/hr'
+                : `€${data.totalBudget || recommendedRate}/hr`}
             </span>
-            <span>€500+</span>
+            <span>€100+</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Discovery Fee Interest */}
+      <div className="space-y-2">
+        <div className="flex items-start space-x-3 rounded-lg border border-gray-200 bg-gray-50 p-4">
+          <Checkbox
+            id="discoveryFeeConsent"
+            checked={!!data.discoveryFeeConsent}
+            onCheckedChange={handleDiscoveryFeeConsentChange}
+          />
+          <div className="space-y-1">
+            <Label htmlFor="discoveryFeeConsent" className="font-medium cursor-pointer">
+              In the future, if TourWiseCo introduces a €2–€3 discovery fee, would you be willing to pay this fee on your next
+              bookings if you have a good experience?
+            </Label>
+            <p className="text-xs text-gray-600">
+              This is optional and only helps us plan ahead. Your choice won&apos;t affect current pricing.
+            </p>
           </div>
         </div>
       </div>

@@ -388,6 +388,8 @@ async function matchStudents(req: NextRequest) {
       })),
       suggestedPriceRange,
       requestId: touristRequest.id,
+      preferredNationality: touristRequest.preferredNationality,
+      preferredLanguages: touristRequest.preferredLanguages,
     })
   } catch (error) {
     if (error instanceof AppError) {
