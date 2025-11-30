@@ -25,6 +25,8 @@ NextAuth automatically handles Vercel's proxy configuration through the `NEXTAUT
 
 **Note:** No code change needed - this is handled automatically when you set `NEXTAUTH_URL` in your Vercel environment variables.
 
+**Preview deployments:** If you test on a Vercel preview URL, add that preview domain to your Google OAuth **Authorized redirect URIs** (e.g., `https://<preview-id>.vercel.app/api/auth/callback/google`). Google rejects requests when the callback domain is not whitelisted, which triggers the `redirect_uri_mismatch` error shown during sign-in.
+
 ### 2. Secure Cookie Configuration
 
 ```typescript
