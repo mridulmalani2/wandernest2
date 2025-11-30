@@ -41,14 +41,15 @@ You must complete these steps in Google Cloud Console to resolve the redirect_ur
 
 ### Step 3: Add Authorized Redirect URIs
 
-In the **Authorized redirect URIs** section, add these two URIs:
+In the **Authorized redirect URIs** section, add these URIs (they must match the domain you are currently deploying):
 
-#### Production URI (CRITICAL):
-```
-https://wandernest2-umber.vercel.app/api/auth/callback/google
-```
+#### Production URI (CRITICAL)
+- Use your deployed domain, for example:
+  - `https://wandernest2-umber.vercel.app/api/auth/callback/google`
+  - If you have a custom domain, replace it accordingly (e.g., `https://<your-domain>/api/auth/callback/google`).
+- If you are testing a Vercel **preview** deployment, you must add that preview domain too (e.g., `https://<preview-id>.vercel.app/api/auth/callback/google`). Preview domains are unique per deployment and need to be whitelisted when you test them.
 
-#### Localhost URI (for development/testing):
+#### Localhost URI (for development/testing)
 ```
 http://localhost:3000/api/auth/callback/google
 ```
@@ -65,6 +66,7 @@ In the **Authorized JavaScript origins** section, add:
 
 ```
 https://wandernest2-umber.vercel.app
+https://<preview-id>.vercel.app (if testing a preview deployment)
 http://localhost:3000
 ```
 

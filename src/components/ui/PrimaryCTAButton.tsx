@@ -4,7 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { LucideIcon } from 'lucide-react';
 
-export type CTAVariant = 'blue' | 'purple';
+export type CTAVariant = 'blue' | 'purple' | 'ghost';
 
 interface PrimaryCTAButtonProps {
   children: React.ReactNode;
@@ -26,6 +26,11 @@ const variantStyles: Record<CTAVariant, { gradient: string; glow: string }> = {
   purple: {
     gradient: 'bg-gradient-to-r from-purple-300 via-purple-400 to-pink-400',
     glow: 'bg-gradient-to-r from-purple-300 via-purple-400 to-pink-400',
+  },
+  ghost: {
+    gradient:
+      'bg-white/5 border border-white/40 backdrop-blur-sm text-white hover:bg-white/10 transition-colors duration-300',
+    glow: 'bg-white/10',
   },
 };
 
