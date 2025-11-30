@@ -23,8 +23,11 @@ A safe diagnostic script that runs before Prisma commands to validate DATABASE_U
 ### 2. Updated Build Command
 Modified `package.json` to run diagnostic before Prisma:
 ```json
-"vercel-build": "node scripts/check-db-url.js && prisma generate && prisma migrate deploy && next build"
+"vercel-build": "node scripts/check-db-url.js && prisma generate --schema=./src/prisma/schema.prisma && prisma migrate deploy --schema=./src/prisma/schema.prisma && next build"
 ```
+
+**⚠️ CRITICAL SAFETY NOTE:**
+This build command must **NEVER** include `scripts/reset-neon-db.js`. The reset script completely wipes the database (all tables, all data) and is **ONLY** for local development troubleshooting. Including it in `vercel-build` would delete all production data on every deployment.
 
 ### 3. What to Check in Vercel
 
@@ -120,3 +123,71 @@ The diagnostic script can optionally be removed by changing `vercel-build` back 
 ```
 
 However, **it's recommended to keep it** as it provides ongoing validation and helpful error messages if DATABASE_URL ever becomes misconfigured.
+
+---
+
+## Database Reset Script Safety
+
+### ⚠️ CRITICAL: scripts/reset-neon-db.js
+
+This repository contains a `scripts/reset-neon-db.js` file that **completely wipes the database**, removing:
+- All tables (including `_prisma_migrations`)
+- All enums
+- **ALL USER DATA** (students, tourists, bookings, reviews, admin accounts, etc.)
+
+### Production Protection Measures
+
+The reset script has multiple safety guards:
+
+1. **Blocks production environment**: Exits if `NODE_ENV === "production"`
+2. **Blocks Vercel deployments**: Exits if `VERCEL` environment variable is set
+3. **Requires explicit permission**: Exits unless `ALLOW_DB_RESET=true` is set
+
+### Safe Development Usage
+
+To reset your **LOCAL** database during development:
+
+```bash
+# Safe wrapper that sets required environment variables
+npm run db:reset:dev
+```
+
+This will:
+- Set `ALLOW_DB_RESET=true`
+- Set `NODE_ENV=development`
+- Run the reset against your local `DATABASE_URL`
+- Apply migrations after reset
+
+### What NOT to Do
+
+❌ **NEVER** include `reset-neon-db.js` in `vercel-build` or any production script
+❌ **NEVER** run it against production Neon database
+❌ **NEVER** use it in CI/CD pipelines
+❌ **NEVER** run `node scripts/reset-neon-db.js` directly (use `npm run db:reset:dev`)
+
+### Correct vercel-build Script
+
+The production build script must look like this:
+
+```json
+"vercel-build": "node scripts/check-db-url.js && prisma generate --schema=./src/prisma/schema.prisma && prisma migrate deploy --schema=./src/prisma/schema.prisma && next build"
+```
+
+**No `reset-neon-db.js` anywhere in the chain!**
+
+### If You Accidentally Added reset-neon-db.js to Production
+
+If you find `reset-neon-db.js` in the `vercel-build` script:
+
+1. **Remove it immediately** from `package.json`
+2. Commit and push the fix
+3. The next deployment will stop wiping the database
+4. Previous data is likely lost and will need manual recovery from backups
+
+### For Production Database Management
+
+To reset or modify the production database:
+
+1. **Use the Neon web console** for manual operations
+2. **Create a backup first** before any destructive operations
+3. **Never use automated scripts** that could accidentally run during deploys
