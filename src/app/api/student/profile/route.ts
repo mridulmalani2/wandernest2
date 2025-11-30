@@ -6,11 +6,12 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth-options';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { prisma } from '@/lib/prisma';
+import {
+  getValidStudentSession,
+  readStudentTokenFromRequest,
+  getStudentFromSession,
+} from '@/lib/student-auth';
 
 export const dynamic = 'force-dynamic';
 
@@ -23,19 +24,29 @@ export const dynamic = 'force-dynamic';
  */
 export async function GET(request: NextRequest) {
   try {
-    // Authenticate the request
-    const session = await getServerSession(authOptions);
+    // Authenticate the request via OTP-backed student session
+    const token = readStudentTokenFromRequest(request);
+    const session = await getValidStudentSession(token);
 
-    if (!session?.user?.email) {
+    if (!session) {
       return NextResponse.json(
         { error: 'Unauthorized - Please sign in' },
         { status: 401 }
       );
     }
 
+    const student = await getStudentFromSession(session);
+
+    if (!student) {
+      return NextResponse.json(
+        { error: 'Student profile not found' },
+        { status: 404 }
+      );
+    }
+
     // Fetch student profile
-    const student = await prisma.student.findUnique({
-      where: { email: session.user.email },
+    const profile = await prisma.student.findUnique({
+      where: { id: student.id },
       select: {
         id: true,
         email: true,
@@ -74,7 +85,7 @@ export async function GET(request: NextRequest) {
       },
     });
 
-    if (!student) {
+    if (!profile) {
       return NextResponse.json(
         { error: 'Student profile not found' },
         { status: 404 }
@@ -83,9 +94,8 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      student,
+      student: profile,
     });
-
   } catch (error) {
     console.error('Error fetching student profile:', error);
     return NextResponse.json(
@@ -105,10 +115,11 @@ export async function GET(request: NextRequest) {
  */
 export async function PUT(request: NextRequest) {
   try {
-    // Authenticate the request
-    const session = await getServerSession(authOptions);
+    // Authenticate the request via OTP-backed student session
+    const token = readStudentTokenFromRequest(request);
+    const session = await getValidStudentSession(token);
 
-    if (!session?.user?.email) {
+    if (!session) {
       return NextResponse.json(
         { error: 'Unauthorized - Please sign in' },
         { status: 401 }
@@ -166,7 +177,7 @@ export async function PUT(request: NextRequest) {
 
     // Update the student profile
     const updatedStudent = await prisma.student.update({
-      where: { email: session.user.email },
+      where: { email: session.email },
       data: {
         ...updateData,
         updatedAt: new Date(),
@@ -211,7 +222,6 @@ export async function PUT(request: NextRequest) {
       message: 'Profile updated successfully',
       student: updatedStudent,
     });
-
   } catch (error: any) {
     console.error('Error updating student profile:', error);
 

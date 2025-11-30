@@ -1,19 +1,36 @@
 'use client'
 
 import Link from 'next/link'
-import Image from 'next/image'
 import { usePathname } from 'next/navigation'
+import { useEffect } from 'react'
+
+const NAV_ITEMS = [
+  { href: '/admin', label: 'Dashboard', icon: '🏠' },
+  { href: '/admin/approvals', label: 'Approvals', icon: '✓' },
+  { href: '/admin/students', label: 'Students', icon: '👥' },
+  { href: '/admin/reports', label: 'Reports', icon: '⚠️' },
+  { href: '/admin/analytics', label: 'Analytics', icon: '📊' },
+]
 
 export default function AdminNav() {
   const pathname = usePathname()
 
-  const navItems = [
-    { href: '/admin', label: 'Dashboard', icon: '🏠' },
-    { href: '/admin/approvals', label: 'Approvals', icon: '✓' },
-    { href: '/admin/students', label: 'Students', icon: '👥' },
-    { href: '/admin/reports', label: 'Reports', icon: '⚠️' },
-    { href: '/admin/analytics', label: 'Analytics', icon: '📊' },
-  ]
+  // Mirror the admin token into a same-site cookie on every nav render so
+  // middleware and server components consistently see the session.
+  useEffect(() => {
+    const token = window.localStorage.getItem('adminToken')
+    if (!token) return
+
+    const secureFlag = window.location.protocol === 'https:' ? '; Secure' : ''
+    document.cookie = `admin-token=${token}; Path=/; SameSite=Lax; Max-Age=${60 * 60 * 8}${secureFlag}`
+  }, [pathname])
+
+  const handleLogout = () => {
+    window.localStorage.removeItem('adminToken')
+    window.localStorage.removeItem('adminUser')
+    document.cookie = 'admin-token=; Path=/; Max-Age=0; SameSite=Lax'
+    window.location.href = '/admin/login'
+  }
 
   return (
     <nav className="bg-white shadow-sm border-b border-gray-200">
@@ -24,29 +41,30 @@ export default function AdminNav() {
               <span className="text-xl font-bold text-gray-900">TourWiseCo Admin</span>
             </div>
             <div className="hidden sm:flex sm:space-x-8">
-              {navItems.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
-                    pathname === item.href
-                      ? 'border-blue-500 text-gray-900'
-                      : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
-                  }`}
-                >
-                  <span className="mr-2">{item.icon}</span>
-                  {item.label}
-                </Link>
-              ))}
+              {NAV_ITEMS.map((item) => {
+                const isActive = pathname === item.href
+                const baseClasses =
+                  'inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium'
+                const activeClasses = isActive
+                  ? 'border-blue-500 text-gray-900'
+                  : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
+
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`${baseClasses} ${activeClasses}`}
+                  >
+                    <span className="mr-2">{item.icon}</span>
+                    {item.label}
+                  </Link>
+                )
+              })}
             </div>
           </div>
           <div className="flex items-center">
             <button
-              onClick={() => {
-                localStorage.removeItem('adminToken')
-                localStorage.removeItem('adminUser')
-                window.location.href = '/admin/login'
-              }}
+              onClick={handleLogout}
               className="text-gray-500 hover:text-gray-700 text-sm font-medium"
             >
               Logout
