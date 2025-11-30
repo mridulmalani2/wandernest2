@@ -21,6 +21,7 @@ function SelectGuideContent() {
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [errorType, setErrorType] = useState<'network' | 'server' | 'notfound' | null>(null)
+  const [suggestedPrice, setSuggestedPrice] = useState<any>(null)
   const [nationalityFilter, setNationalityFilter] = useState<string>('all')
   const [languageFilters, setLanguageFilters] = useState<string[]>([])
   const [requestPreferences, setRequestPreferences] = useState<{
@@ -86,6 +87,7 @@ function SelectGuideContent() {
       // The backend returns { success: true, hasMatches: false, matches: [] } for this case
       if (data.success) {
         setMatches(data.matches || [])
+        setSuggestedPrice(data.suggestedPriceRange)
         setRequestPreferences({
           preferredNationality: data.preferredNationality || null,
           preferredLanguages: data.preferredLanguages || [],
@@ -431,6 +433,26 @@ function SelectGuideContent() {
                 ))}
               </div>
             </div>
+          </div>
+        )}
+
+        {/* Suggested Price Range */}
+        {suggestedPrice && (
+          <div className="max-w-3xl mx-auto mb-8 p-6 glass-card rounded-2xl border-2 border-white/40 shadow-premium hover-lift animate-fade-in-up delay-200">
+            <h3 className="font-bold text-gray-900 mb-2 text-lg">
+              Suggested Price Range
+            </h3>
+            <p className="text-3xl font-bold bg-gradient-to-r from-ui-purple-primary to-ui-purple-accent bg-clip-text text-transparent mb-2">
+              {suggestedPrice.min}-{suggestedPrice.max} {suggestedPrice.currency}
+              {suggestedPrice.type === 'hourly' && (
+                <span className="text-sm font-normal text-gray-600">/hour</span>
+              )}
+            </p>
+            <p className="text-sm text-gray-700 font-medium">{suggestedPrice.note}</p>
+            <p className="text-xs text-gray-600 mt-2">
+              Note: Rates are suggested based on student job benchmarks and city pricing.
+              You agree on the final price directly with the student.
+            </p>
           </div>
         )}
 
