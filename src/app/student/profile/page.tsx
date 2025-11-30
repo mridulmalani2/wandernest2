@@ -274,56 +274,62 @@ export default function StudentProfilePage() {
       <div className="relative z-10 w-full px-4 sm:px-6 lg:px-8 py-8 md:py-12">
         <div className="max-w-6xl mx-auto space-y-8">
 
-          {/* Header Section */}
+          {/* Header Section - Profile Hero */}
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="glass-card rounded-3xl shadow-premium border border-white/60 backdrop-blur-lg p-6 md:p-8"
+            className="glass-card rounded-3xl shadow-premium border border-white/60 backdrop-blur-lg overflow-hidden"
           >
-            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-              <div>
-                <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-ui-blue-accent via-ui-purple-accent to-ui-purple-primary bg-clip-text text-transparent mb-3">
-                  Your Profile
-                </h1>
-                <p className="text-gray-700 text-lg leading-relaxed">
-                  Manage your information and availability
-                </p>
-              </div>
+            {/* Subtle gradient background accent */}
+            <div className="absolute inset-0 bg-gradient-to-br from-ui-blue-accent/5 via-transparent to-ui-purple-accent/5 pointer-events-none" />
 
-              {/* Edit Button */}
-              <div className="flex items-center gap-3 flex-shrink-0">
-                {!isEditing ? (
-                  <PrimaryCTAButton
-                    onClick={handleEdit}
-                    icon={Edit}
-                    variant="blue"
-                    showArrow
-                  >
-                    Edit Profile
-                  </PrimaryCTAButton>
-                ) : (
-                  <>
-                    <Button
-                      onClick={handleCancel}
-                      variant="outline"
-                      disabled={isSaving}
-                      className="border-2 border-gray-300 hover:border-gray-400 bg-white/80 backdrop-blur"
-                    >
-                      <X className="w-4 h-4 mr-2" />
-                      Cancel
-                    </Button>
+            <div className="relative px-6 py-5 sm:px-8 sm:py-6 md:px-10 md:py-7">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-5 md:gap-8">
+                {/* Left: Title & Subtitle */}
+                <div className="flex-1 min-w-0">
+                  <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold bg-gradient-to-r from-ui-blue-accent via-ui-purple-accent to-ui-purple-primary bg-clip-text text-transparent mb-2">
+                    Your Profile
+                  </h1>
+                  <p className="text-gray-600/90 text-base sm:text-lg leading-relaxed font-medium">
+                    Manage your information and availability
+                  </p>
+                </div>
+
+                {/* Right: Edit/Save Actions */}
+                <div className="flex items-center gap-3 flex-shrink-0">
+                  {!isEditing ? (
                     <PrimaryCTAButton
-                      onClick={handleSave}
-                      disabled={isSaving}
-                      icon={Save}
-                      variant="purple"
-                      isLoading={isSaving}
-                      loadingText="Saving..."
+                      onClick={handleEdit}
+                      icon={Edit}
+                      variant="blue"
+                      showArrow
                     >
-                      Save Changes
+                      Edit Profile
                     </PrimaryCTAButton>
-                  </>
-                )}
+                  ) : (
+                    <>
+                      <Button
+                        onClick={handleCancel}
+                        variant="outline"
+                        disabled={isSaving}
+                        className="border-2 border-gray-300 hover:border-gray-400 bg-white/80 backdrop-blur transition-colors"
+                      >
+                        <X className="w-4 h-4 mr-2" />
+                        Cancel
+                      </Button>
+                      <PrimaryCTAButton
+                        onClick={handleSave}
+                        disabled={isSaving}
+                        icon={Save}
+                        variant="purple"
+                        isLoading={isSaving}
+                        loadingText="Saving..."
+                      >
+                        Save Changes
+                      </PrimaryCTAButton>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
           </motion.div>
