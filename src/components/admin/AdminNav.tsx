@@ -6,6 +6,7 @@ import { useEffect } from 'react'
 
 const NAV_ITEMS = [
   { href: '/admin', label: 'Dashboard', icon: '🏠' },
+  { href: '/admin/bookings', label: 'Bookings', icon: '🧭' },
   { href: '/admin/approvals', label: 'Approvals', icon: '✓' },
   { href: '/admin/students', label: 'Students', icon: '👥' },
   { href: '/admin/reports', label: 'Reports', icon: '⚠️' },
@@ -46,14 +47,6 @@ export default function AdminNav() {
       document.cookie = `admin-token=${token}; path=/; SameSite=Lax`
     }
   }, [])
-
-  const navItems = [
-    { href: '/admin', label: 'Dashboard', icon: '🏠' },
-    { href: '/admin/approvals', label: 'Approvals', icon: '✓' },
-    { href: '/admin/students', label: 'Students', icon: '👥' },
-    { href: '/admin/reports', label: 'Reports', icon: '⚠️' },
-    { href: '/admin/analytics', label: 'Analytics', icon: '📊' },
-  ]
 
   return (
     <nav className="bg-white shadow-sm border-b border-gray-200">
