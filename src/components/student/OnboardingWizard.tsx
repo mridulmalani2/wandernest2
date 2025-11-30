@@ -744,13 +744,13 @@ export function OnboardingWizard({ session }: OnboardingWizardProps) {
             </div>
 
                 {/* Navigation Buttons */}
-                <div className="mt-10 pt-8 border-t border-white/20 flex flex-col sm:flex-row justify-between gap-4">
+                <div className="mt-10 pt-8 border-t border-white/20 flex flex-col-reverse sm:flex-row justify-between gap-4">
                   <Button
                     type="button"
                     variant="outline"
                     onClick={handleBack}
                     disabled={currentStep === 1 || isSubmitting}
-                    className="hover-lift shadow-soft bg-white/80 hover:bg-white text-gray-700 border-2 border-gray-200 hover:border-gray-300 px-8 py-6 text-base font-semibold rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed order-2 sm:order-1"
+                    className="hover-lift shadow-soft bg-white/80 hover:bg-white text-gray-700 border-2 border-gray-200 hover:border-gray-300 px-8 py-6 text-base font-semibold rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     ← Back
                   </Button>
@@ -761,7 +761,7 @@ export function OnboardingWizard({ session }: OnboardingWizardProps) {
                       onClick={handleNext}
                       disabled={isSubmitting}
                       variant="blue"
-                      className="px-8 py-6 text-base font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 order-1 sm:order-2"
+                      className="px-8 py-6 text-base font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
                     >
                       Continue →
                     </PrimaryCTAButton>
@@ -769,21 +769,12 @@ export function OnboardingWizard({ session }: OnboardingWizardProps) {
                     <PrimaryCTAButton
                       type="button"
                       onClick={handleSubmit}
-                      disabled={isSubmitting}
+                      isLoading={isSubmitting}
+                      loadingText="Submitting..."
                       variant="blue"
-                      className="px-8 py-6 text-base font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 order-1 sm:order-2"
+                      className="px-8 py-6 text-base font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
                     >
-                      {isSubmitting ? (
-                        <span className="flex items-center gap-2">
-                          <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                          </svg>
-                          Submitting...
-                        </span>
-                      ) : (
-                        '✓ Submit for Review'
-                      )}
+                      ✓ Submit for Review
                     </PrimaryCTAButton>
                   )}
                 </div>

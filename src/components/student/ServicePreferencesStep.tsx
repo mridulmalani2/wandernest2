@@ -136,29 +136,44 @@ export function ServicePreferencesStep({ formData, updateFormData, errors }: Ser
       </div>
 
       {/* Hourly Rate */}
-      <div className="space-y-3">
-        <Label htmlFor="hourlyRate" className="text-xl font-bold text-gray-900">
-          Your Hourly Guide Rate (€) <span className="text-red-500">*</span>
-        </Label>
-        <div className="flex items-center gap-3 max-w-md">
-          <div className="flex items-center gap-2 flex-1">
-            <span className="text-3xl font-bold text-gray-700">€</span>
-            <Input
-              id="hourlyRate"
-              type="number"
-              min="0"
-              step="1"
-              value={formData.hourlyRate}
-              onChange={(e) => updateFormData({ hourlyRate: e.target.value })}
-              placeholder="15"
-              className={`text-xl font-semibold h-14 ${errors.hourlyRate ? 'border-red-500 ring-2 ring-red-200' : 'border-gray-300'}`}
-            />
-            <span className="text-gray-600 font-medium">per hour</span>
-          </div>
+      <div className="space-y-4">
+        <div>
+          <Label htmlFor="hourlyRate" className="text-xl font-bold text-gray-900">
+            Your Hourly Guide Rate (€) <span className="text-red-500">*</span>
+          </Label>
+          <p className="text-sm text-gray-600 mt-2">
+            Set a fair rate considering your expertise and local market rates
+          </p>
         </div>
-        <p className="text-sm text-gray-500">
-          Set a fair rate considering your expertise and local market rates
-        </p>
+
+        <div className="bg-gradient-to-br from-purple-50 to-purple-100/50 border-2 border-purple-200 rounded-2xl p-6">
+          <div className="flex items-center gap-3 max-w-md mx-auto">
+            <div className="flex items-center gap-3 flex-1">
+              <span className="text-4xl font-bold text-purple-700">€</span>
+              <Input
+                id="hourlyRate"
+                type="number"
+                min="0"
+                step="1"
+                value={formData.hourlyRate}
+                onChange={(e) => updateFormData({ hourlyRate: e.target.value })}
+                placeholder="15"
+                className={`text-2xl font-bold h-16 text-center border-2 placeholder:text-gray-400 placeholder:font-normal ${
+                  errors.hourlyRate
+                    ? 'border-red-500 ring-2 ring-red-200'
+                    : 'border-purple-300 focus:border-purple-500'
+                }`}
+              />
+              <span className="text-gray-700 font-semibold text-sm">/ hour</span>
+            </div>
+          </div>
+          {!formData.hourlyRate && (
+            <p className="text-xs text-purple-700 text-center mt-3 italic">
+              Enter your desired hourly rate (typically €12-20)
+            </p>
+          )}
+        </div>
+
         {errors.hourlyRate && (
           <p className="text-sm text-red-600 flex items-center gap-1">
             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">

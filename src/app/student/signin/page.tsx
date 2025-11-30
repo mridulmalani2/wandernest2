@@ -223,8 +223,13 @@ function StudentSignInContent() {
 
             {/* Info / success message */}
             {message && (
-              <div className="glass-card bg-emerald-500/10 border-2 border-emerald-400/40 rounded-2xl p-3 text-sm text-emerald-100 shadow-premium">
-                {message}
+              <div className="glass-card bg-emerald-100/95 border-2 border-emerald-400 rounded-2xl p-4 shadow-premium backdrop-blur-md animate-scale-in">
+                <div className="flex items-start gap-2">
+                  <svg className="w-5 h-5 text-emerald-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  <p className="text-sm text-emerald-900 font-semibold flex-1">{message}</p>
+                </div>
               </div>
             )}
 
@@ -236,7 +241,7 @@ function StudentSignInContent() {
                     <div>
                       <label
                         htmlFor="email"
-                        className="block text-sm font-medium text-gray-700 mb-2"
+                        className="block text-sm font-semibold text-gray-800 mb-2"
                       >
                         University Email Address
                       </label>
@@ -256,40 +261,35 @@ function StudentSignInContent() {
                             setMessage(null);
                           }}
                           placeholder="your.email@university.edu"
-                          className="pl-12"
+                          className="pl-12 h-12 text-base"
                           disabled={isSubmitting || isVerifying}
                         />
                       </div>
-                      <p className="text-xs text-gray-200 mt-1">
-                        We’ll send a 6-digit verification code to your email.
+                      <p className="text-xs text-gray-700 mt-2 font-medium">
+                        We'll send a 6-digit verification code to your email.
                       </p>
                     </div>
 
                     <PrimaryCTAButton
                       type="submit"
                       disabled={isSubmitting || !email}
+                      isLoading={isSubmitting}
+                      loadingText="Sending code..."
                       variant="purple"
                       className="w-full justify-center"
                     >
-                      {isSubmitting ? (
-                        <>
-                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2" />
-                          <span>Sending code...</span>
-                        </>
-                      ) : (
-                        <span>Send verification code</span>
-                      )}
+                      Send verification code
                     </PrimaryCTAButton>
                   </form>
 
-                  <div className="text-center text-sm text-gray-200">
+                  <div className="text-center text-sm text-gray-700">
                     <p>
                       By signing in, you agree to our{' '}
-                      <Link href="/terms" className="text-ui-purple-primary hover:underline">
+                      <Link href="/terms" className="text-purple-700 hover:underline font-semibold">
                         Terms of Service
                       </Link>{' '}
                       and{' '}
-                      <Link href="/privacy" className="text-ui-purple-primary hover:underline">
+                      <Link href="/privacy" className="text-purple-700 hover:underline font-semibold">
                         Privacy Policy
                       </Link>
                     </p>
@@ -298,15 +298,15 @@ function StudentSignInContent() {
               ) : (
                 <div className="space-y-6">
                   <div className="text-center">
-                    <div className="mx-auto w-16 h-16 bg-ui-blue-secondary/30 rounded-full flex items-center justify-center mb-3">
-                      <CheckCircle2 className="w-8 h-8 text-ui-blue-primary" />
+                    <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-3">
+                      <CheckCircle2 className="w-8 h-8 text-green-600" />
                     </div>
-                    <h3 className="text-xl font-bold text-white mb-1">
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">
                       Enter your verification code
                     </h3>
-                    <p className="text-sm text-gray-200">
-                      We’ve sent a 6-digit code to{' '}
-                      <span className="font-semibold">{email}</span>
+                    <p className="text-sm text-gray-700 font-medium">
+                      We've sent a 6-digit code to{' '}
+                      <span className="font-bold text-purple-700">{email}</span>
                     </p>
                   </div>
 
@@ -314,7 +314,7 @@ function StudentSignInContent() {
                     <div>
                       <label
                         htmlFor="code"
-                        className="block text-sm font-medium text-gray-100 mb-2"
+                        className="block text-sm font-semibold text-gray-800 mb-2"
                       >
                         6-digit code
                       </label>
@@ -328,11 +328,11 @@ function StudentSignInContent() {
                           setCode(e.target.value.replace(/\D/g, ''))
                         }
                         placeholder="••••••"
-                        className="text-center tracking-[0.5em] text-lg font-semibold"
+                        className="text-center tracking-[0.5em] text-2xl font-bold h-14"
                         disabled={isVerifying || isSubmitting}
                         required
                       />
-                      <p className="text-xs text-gray-200 mt-1">
+                      <p className="text-xs text-gray-700 mt-2 font-medium">
                         Code is valid for 10 minutes.
                       </p>
                     </div>
@@ -340,28 +340,23 @@ function StudentSignInContent() {
                     <PrimaryCTAButton
                       type="submit"
                       disabled={isVerifying || code.length !== 6}
+                      isLoading={isVerifying}
+                      loadingText="Verifying..."
                       variant="purple"
                       className="w-full justify-center"
                     >
-                      {isVerifying ? (
-                        <>
-                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2" />
-                          <span>Verifying...</span>
-                        </>
-                      ) : (
-                        <span>Verify & continue</span>
-                      )}
+                      Verify & continue
                     </PrimaryCTAButton>
                   </form>
 
-                  <div className="flex flex-col gap-2 text-center text-xs text-gray-200">
+                  <div className="flex flex-col gap-2 text-center text-sm">
                     <button
                       type="button"
                       onClick={handleResend}
                       disabled={isSubmitting || isVerifying}
-                      className="text-ui-blue-primary hover:underline disabled:opacity-60"
+                      className="text-purple-700 font-semibold hover:underline disabled:opacity-60 disabled:cursor-not-allowed"
                     >
-                      Didn’t get the code? Resend
+                      Didn't get the code? Resend
                     </button>
                     <button
                       type="button"
@@ -371,7 +366,7 @@ function StudentSignInContent() {
                         setMessage(null);
                         setEmailErrorMessage(null);
                       }}
-                      className="text-gray-300 hover:underline"
+                      className="text-gray-700 hover:underline"
                     >
                       Use a different email
                     </button>
@@ -381,14 +376,14 @@ function StudentSignInContent() {
             </div>
 
             {/* Info Box */}
-            <div className="glass-frosted bg-ui-purple-primary/10 border-2 border-ui-purple-primary/30 rounded-2xl p-6 shadow-soft hover-lift">
+            <div className="glass-frosted bg-purple-100/90 border-2 border-purple-300 rounded-2xl p-6 shadow-lg hover-lift backdrop-blur-md">
               <div className="flex items-start space-x-3">
-                <div className="text-2xl">🎓</div>
+                <div className="text-3xl">🎓</div>
                 <div>
-                  <h3 className="font-bold text-ui-purple-accent mb-2">
+                  <h3 className="font-bold text-purple-900 mb-3 text-lg">
                     What happens next?
                   </h3>
-                  <ul className="list-disc list-inside text-sm text-ui-purple-accent/80 space-y-1">
+                  <ul className="list-disc list-inside text-sm text-purple-800 space-y-2 font-medium">
                     <li>Complete your profile and verification</li>
                     <li>Set your availability and preferences</li>
                     <li>Start receiving booking requests</li>
@@ -400,11 +395,11 @@ function StudentSignInContent() {
 
             {/* Tourist Link */}
             <div className="text-center">
-              <p className="text-gray-200">
+              <p className="text-white font-medium text-shadow">
                 Looking to book a guide?{' '}
                 <Link
                   href="/tourist/signin"
-                  className="text-ui-blue-primary hover:underline font-medium"
+                  className="text-blue-300 hover:text-blue-200 hover:underline font-bold"
                 >
                   Sign in as Tourist
                 </Link>
@@ -415,8 +410,8 @@ function StudentSignInContent() {
 
         {/* Footer */}
         <footer className="border-t-2 glass-card border-white/40 mt-16 animate-fade-in">
-          <div className="container mx-auto px-4 py-8 text-center text-gray-100">
-            <p>&copy; {new Date().getFullYear()} TourWiseCo. All rights reserved.</p>
+          <div className="container mx-auto px-4 py-8 text-center">
+            <p className="text-white font-medium text-shadow">&copy; {new Date().getFullYear()} TourWiseCo. All rights reserved.</p>
           </div>
         </footer>
       </div>
