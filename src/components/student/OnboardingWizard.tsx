@@ -5,6 +5,7 @@ import { Session } from 'next-auth';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
+import { ShieldCheck, UploadCloud, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Navigation from '@/components/Navigation';
 import { FormProgressHeader } from '@/components/shared/FormProgressHeader';
@@ -642,6 +643,36 @@ export function OnboardingWizard({ session }: OnboardingWizardProps) {
               Join our community of student guides and start earning by sharing your city with travelers.
               Complete your profile in just a few steps.
             </p>
+          </div>
+
+          <div className="max-w-5xl mx-auto grid gap-3 sm:gap-4 sm:grid-cols-3 mb-8 sm:mb-12 animate-fade-in-up delay-150">
+            <div className="glass-card rounded-2xl border border-white/30 shadow-premium p-4 flex items-center gap-3 backdrop-blur-md">
+              <span className="p-2.5 rounded-xl bg-white/15 text-white">
+                <UploadCloud className="w-5 h-5" />
+              </span>
+              <div className="text-left">
+                <p className="text-sm text-white/70">Fast uploads</p>
+                <p className="text-base font-semibold text-white">Drag, drop, done</p>
+              </div>
+            </div>
+            <div className="glass-card rounded-2xl border border-white/30 shadow-premium p-4 flex items-center gap-3 backdrop-blur-md">
+              <span className="p-2.5 rounded-xl bg-white/15 text-white">
+                <ShieldCheck className="w-5 h-5" />
+              </span>
+              <div className="text-left">
+                <p className="text-sm text-white/70">Secure & verified</p>
+                <p className="text-base font-semibold text-white">Identity protected</p>
+              </div>
+            </div>
+            <div className="glass-card rounded-2xl border border-white/30 shadow-premium p-4 flex items-center gap-3 backdrop-blur-md sm:col-span-1">
+              <span className="p-2.5 rounded-xl bg-white/15 text-white">
+                <Sparkles className="w-5 h-5" />
+              </span>
+              <div className="text-left">
+                <p className="text-sm text-white/70">Modern intake</p>
+                <p className="text-base font-semibold text-white">UI built for speed</p>
+              </div>
+            </div>
           </div>
 
           {/* Step Indicator */}
