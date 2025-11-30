@@ -1,15 +1,17 @@
 'use client';
 
+import { Suspense, useEffect, useState } from 'react';
+
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
+
 import Navigation from '@/components/Navigation';
 import { PrimaryCTAButton } from '@/components/ui/PrimaryCTAButton';
 
 export const dynamic = 'force-dynamic';
 
-export default function StudentAuthLanding() {
+function StudentAuthLandingContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const intent = searchParams.get('intent');
@@ -123,5 +125,21 @@ export default function StudentAuthLanding() {
         </main>
       </div>
     </div>
+  );
+}
+
+export default function StudentAuthLanding() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-ui-blue-primary/10 via-ui-purple-primary/10 to-ui-purple-accent/10">
+          <div className="glass-card rounded-3xl border-2 border-white/40 p-6 shadow-premium text-center text-white/90">
+            Preparing your student experience…
+          </div>
+        </div>
+      }
+    >
+      <StudentAuthLandingContent />
+    </Suspense>
   );
 }
