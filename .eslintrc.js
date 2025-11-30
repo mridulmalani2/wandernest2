@@ -20,4 +20,8 @@ module.exports = {
       rootDir: ['./src', './'],
     },
   },
+  rules: {
+    // Allow apostrophes in JSX text without forcing HTML entities to prevent noisy lint errors
+    'react/no-unescaped-entities': 'off',
+  },
 };
