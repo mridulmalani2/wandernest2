@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, Suspense } from 'react'
+import { useEffect, useMemo, useState, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
@@ -13,9 +13,15 @@ function SelectGuideContent() {
   const router = useRouter()
   const requestId = searchParams.get('requestId')
 
+  const [matches, setMatches] = useState<StudentMatch[]>([])
+  const [filteredMatches, setFilteredMatches] = useState<StudentMatch[]>([])
+  const [selectedStudents, setSelectedStudents] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [errorType, setErrorType] = useState<'network' | 'server' | 'notfound' | null>(null)
+  const [suggestedPrice, setSuggestedPrice] = useState<any>(null)
+  const [nationalityFilter, setNationalityFilter] = useState<string>('all')
+  const [languageFilters, setLanguageFilters] = useState<string[]>([])
   const [requestPreferences, setRequestPreferences] = useState<{
     preferredNationality: string | null
     preferredLanguages: string[]
@@ -73,6 +79,8 @@ function SelectGuideContent() {
       const data = await response.json()
 
       if (data.success) {
+        setMatches(data.matches || [])
+        setSuggestedPrice(data.suggestedPriceRange)
         setRequestPreferences({
           preferredNationality: data.preferredNationality || null,
           preferredLanguages: data.preferredLanguages || [],
@@ -89,6 +97,132 @@ function SelectGuideContent() {
       setErrorType('network')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleToggleStudent = (studentId: string) => {
+    setSelectedStudents((prev) =>
+      prev.includes(studentId)
+        ? prev.filter((id) => id !== studentId)
+        : [...prev, studentId]
+    )
+  }
+
+  const availableNationalities = useMemo(() => {
+    return Array.from(
+      new Set(matches.map((student) => student.nationality).filter(Boolean))
+    )
+  }, [matches])
+
+  const availableLanguages = useMemo(() => {
+    return Array.from(
+      new Set(matches.flatMap((student) => student.languages || []))
+    ).sort()
+  }, [matches])
+
+  const recommendedMatches = useMemo(() => {
+    const { preferredNationality, preferredLanguages } = requestPreferences
+
+    return matches
+      .map((student) => {
+        const nationalityMatch =
+          preferredNationality && student.nationality === preferredNationality
+        const languageOverlap = (preferredLanguages || []).filter((language) =>
+          student.languages.includes(language)
+        )
+
+        const recommendationScore = (nationalityMatch ? 2 : 0) +
+          (languageOverlap.length > 0 ? 1 : 0)
+
+        return { student, recommendationScore, languageOverlap, nationalityMatch }
+      })
+      .filter(({ recommendationScore }) => recommendationScore > 0)
+      .sort((a, b) => b.recommendationScore - a.recommendationScore)
+      .slice(0, 3)
+      .map(({ student }) => student)
+  }, [matches, requestPreferences])
+
+  const recommendationSummary = useMemo(() => {
+    const { preferredNationality, preferredLanguages } = requestPreferences
+    const parts: string[] = []
+
+    if (preferredNationality) {
+      parts.push(`from ${preferredNationality}`)
+    }
+
+    if (preferredLanguages.length > 0) {
+      parts.push(`who speak ${preferredLanguages.join(', ')}`)
+    }
+
+    if (parts.length === 0) {
+      return 'that align with your background and preferences'
+    }
+
+    if (parts.length === 1) {
+      return parts[0]
+    }
+
+    return `${parts[0]} and ${parts[1]}`
+  }, [requestPreferences])
+
+  useEffect(() => {
+    const filtered = matches.filter((student) => {
+      const nationalityPasses =
+        nationalityFilter === 'all' || student.nationality === nationalityFilter
+
+      const languagePasses =
+        languageFilters.length === 0 ||
+        languageFilters.every((lang) => student.languages.includes(lang))
+
+      return nationalityPasses && languagePasses
+    })
+
+    setFilteredMatches(filtered)
+  }, [languageFilters, matches, nationalityFilter])
+
+  const toggleLanguageFilter = (language: string) => {
+    setLanguageFilters((prev) =>
+      prev.includes(language)
+        ? prev.filter((lang) => lang !== language)
+        : [...prev, language]
+    )
+  }
+
+  const clearFilters = () => {
+    setNationalityFilter('all')
+    setLanguageFilters([])
+  }
+
+  const handleSubmitSelection = async () => {
+    if (selectedStudents.length === 0) {
+      alert('Please select at least one guide')
+      return
+    }
+
+    setSubmitting(true)
+    try {
+      const response = await fetch('/api/tourist/request/select', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          requestId,
+          selectedStudentIds: selectedStudents,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (data.success) {
+        // Redirect to confirmation page
+        router.push(`/booking/pending?requestId=${requestId}`)
+      } else {
+        alert(data.error || 'Failed to submit selection')
+      }
+    } catch (err) {
+      console.error('Error submitting selection:', err)
+      alert('Failed to submit selection')
+    } finally {
+      setSubmitting(false)
     }
   }
 
@@ -203,6 +337,9 @@ function SelectGuideContent() {
           <p className="text-lg md:text-xl text-white/90 text-shadow font-medium max-w-3xl mx-auto">
             Our admin team will handle student recommendations internally to protect everyone’s privacy.
             We’ll reach out once the best student confirms availability.
+          <p className="text-lg md:text-xl text-white text-shadow mb-6 font-medium">
+            We've found {filteredMatches.length} guide
+            {filteredMatches.length === 1 ? '' : 's'} that match your preferences
           </p>
         </div>
 
@@ -237,6 +374,158 @@ function SelectGuideContent() {
                 </li>
               </ul>
             </div>
+        {/* Recommendations */}
+        {recommendedMatches.length > 0 && (
+          <div className="max-w-5xl mx-auto mb-8 animate-fade-in-up delay-150">
+            <div className="glass-card rounded-2xl border-2 border-white/40 shadow-premium p-6 bg-white/70 backdrop-blur">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
+                <div>
+                  <p className="text-xs uppercase tracking-wide text-ui-blue-primary font-bold mb-1">
+                    Recommended for you
+                  </p>
+                  <h3 className="text-xl font-bold text-gray-900">
+                    Guides {recommendationSummary}
+                  </h3>
+                  <p className="text-sm text-gray-700 mt-1">
+                    Based on your nationality and preferred languages, these guides are most likely
+                    to understand your background and communicate effortlessly.
+                  </p>
+                </div>
+                <div className="flex items-center gap-2 text-ui-blue-primary font-semibold bg-ui-blue-primary/10 border border-ui-blue-primary/30 rounded-full px-3 py-1">
+                  <Info className="h-4 w-4" />
+                  Personalized picks
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {recommendedMatches.map((student) => (
+                  <StudentProfileCard
+                    key={`recommended-${student.studentId}`}
+                    student={student}
+                    isSelected={selectedStudents.includes(student.studentId)}
+                    onToggleSelect={handleToggleStudent}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Suggested Price Range */}
+        {suggestedPrice && (
+          <div className="max-w-3xl mx-auto mb-8 p-6 glass-card rounded-2xl border-2 border-white/40 shadow-premium hover-lift animate-fade-in-up delay-200">
+            <h3 className="font-bold text-gray-900 mb-2 text-lg">
+              Suggested Price Range
+            </h3>
+            <p className="text-3xl font-bold bg-gradient-to-r from-ui-purple-primary to-ui-purple-accent bg-clip-text text-transparent mb-2">
+              {suggestedPrice.min}-{suggestedPrice.max} {suggestedPrice.currency}
+              {suggestedPrice.type === 'hourly' && (
+                <span className="text-sm font-normal text-gray-600">/hour</span>
+              )}
+            </p>
+            <p className="text-sm text-gray-700 font-medium">{suggestedPrice.note}</p>
+            <p className="text-xs text-gray-600 mt-2">
+              Note: Rates are suggested based on student job benchmarks and city pricing.
+              You agree on the final price directly with the student.
+            </p>
+          </div>
+        )}
+
+        {/* Filters */}
+        <div className="max-w-6xl mx-auto mb-8 animate-fade-in-up delay-200">
+          <div className="glass-card rounded-2xl border-2 border-white/40 shadow-premium p-4 md:p-6">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+              <div className="space-y-3 md:space-y-2">
+                <h3 className="text-lg font-bold text-gray-900">Filter your matches</h3>
+                <p className="text-sm text-gray-600">
+                  Prioritize guides who share your nationality or speak the languages you prefer.
+                </p>
+              </div>
+
+              <div className="flex flex-wrap gap-3 items-center">
+                <div>
+                  <label className="block text-xs font-semibold text-gray-600 uppercase mb-2">
+                    Nationality
+                  </label>
+                  <select
+                    className="border rounded-lg px-3 py-2 bg-white text-sm min-w-[180px]"
+                    value={nationalityFilter}
+                    onChange={(e) => setNationalityFilter(e.target.value)}
+                  >
+                    <option value="all">All nationalities</option>
+                    {availableNationalities.map((nationality) => (
+                      <option key={nationality} value={nationality}>
+                        {nationality}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <span className="block text-xs font-semibold text-gray-600 uppercase mb-2">
+                    Languages
+                  </span>
+                  <div className="flex flex-wrap gap-2 max-w-xl">
+                    {availableLanguages.map((language) => (
+                      <button
+                        key={language}
+                        type="button"
+                        onClick={() => toggleLanguageFilter(language)}
+                        className={`px-3 py-1 rounded-full border text-sm transition-colors ${
+                          languageFilters.includes(language)
+                            ? 'bg-ui-blue-primary text-white border-ui-blue-primary'
+                            : 'bg-white text-gray-700 border-gray-200 hover:border-ui-blue-primary'
+                        }`}
+                      >
+                        {language}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {(languageFilters.length > 0 || nationalityFilter !== 'all') && (
+                  <Button variant="outline" onClick={clearFilters} className="self-start">
+                    Clear filters
+                  </Button>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Student Cards Grid */}
+        {filteredMatches.length === 0 ? (
+          <div className="max-w-3xl mx-auto mb-8 p-6 glass-card rounded-2xl border-2 border-amber-200 bg-amber-50/70 shadow-soft text-center animate-fade-in-up delay-300">
+            <p className="text-lg font-semibold text-amber-900 mb-2">No guides match these filters</p>
+            <p className="text-sm text-amber-900 mb-4">
+              Try adjusting the nationality or languages to see more guide options.
+            </p>
+            <Button variant="outline" onClick={clearFilters} className="hover-lift">
+              Clear filters
+            </Button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 animate-fade-in-up delay-300">
+            {filteredMatches.map((student) => (
+              <StudentProfileCard
+                key={student.studentId}
+                student={student}
+                isSelected={selectedStudents.includes(student.studentId)}
+                onToggleSelect={handleToggleStudent}
+              />
+            ))}
+          </div>
+        )}
+
+        {/* Action Buttons */}
+        <div className="max-w-3xl mx-auto flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up delay-500">
+          <Button
+            variant="outline"
+            onClick={() => router.push('/booking')}
+            disabled={submitting}
+            className="w-full sm:w-auto hover-lift border-2 hover:border-ui-blue-accent hover:text-ui-blue-primary"
+          >
+            Modify Request
+          </Button>
 
             <div className="glass-card rounded-2xl border border-ui-purple-primary/30 p-5 bg-white/70">
               <p className="text-sm font-semibold text-ui-purple-primary uppercase mb-2">What happens next</p>
