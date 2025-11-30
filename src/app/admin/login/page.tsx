@@ -21,16 +21,23 @@ export default function AdminLogin() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
+        credentials: 'include',
       })
 
+      const data = await response.json()
+
       if (!response.ok) {
-        const data = await response.json()
         throw new Error(data.error || 'Login failed')
       }
 
-      const data = await response.json()
       localStorage.setItem('adminToken', data.token)
       localStorage.setItem('adminUser', JSON.stringify(data.admin))
+
+      // Mirror the token into a same-site cookie immediately so middleware
+      // and server components see it on the next navigation (some browsers
+      // block the httpOnly Set-Cookie response).
+      const secureFlag = window.location.protocol === 'https:' ? '; Secure' : ''
+      document.cookie = `admin-token=${data.token}; path=/; SameSite=Lax; Max-Age=${60 * 60 * 8}${secureFlag}`
 
       // Redirect to approvals page
       router.push('/admin/approvals')
@@ -72,15 +79,15 @@ export default function AdminLogin() {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Email Address
+                Email or Username
               </label>
               <input
-                type="email"
+                type="text"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-soft"
-                placeholder="admin@tourwiseco.com"
+                placeholder="admin@tourwiseco.com or username"
               />
             </div>
 

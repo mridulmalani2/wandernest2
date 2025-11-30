@@ -40,13 +40,16 @@ export async function autoMatchAndInvite(
     // Step 1: Find candidate students using existing matching algorithm
     const candidates = await findMatches(request);
 
+    // IMPORTANT: Zero matches is a VALID SUCCESS state, not an error
+    // The booking request has been successfully created and saved
+    // The tourist will be notified when matching guides become available
     if (candidates.length === 0) {
-      console.log(`[autoMatchAndInvite] No candidates found for request ${request.id}`);
+      console.log(`[autoMatchAndInvite] No candidates found for request ${request.id} - this is a valid success state`);
       return {
-        success: true, // Not an error - just no matches
+        success: true, // Zero matches is NOT an error - booking is successfully created
         candidatesFound: 0,
         invitationsSent: 0,
-        errors: ['No matching students found in this city'],
+        errors: ['No matching students found in this city yet - tourist will be notified when guides become available'],
       };
     }
 

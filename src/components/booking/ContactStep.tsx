@@ -7,14 +7,16 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Textarea } from '@/components/ui/textarea'
 import { BookingFormData } from './BookingForm'
 import { useState } from 'react'
+import Link from 'next/link'
 
 type Props = {
   data: BookingFormData
   errors: Record<string, string>
   updateData: (data: Partial<BookingFormData>) => void
+  isEmailFromSession?: boolean
 }
 
-export function ContactStep({ data, errors, updateData }: Props) {
+export function ContactStep({ data, errors, updateData, isEmailFromSession = false }: Props) {
   const [useWhatsApp, setUseWhatsApp] = useState(false)
 
   const handleWhatsAppToggle = (checked: boolean) => {
@@ -52,11 +54,19 @@ export function ContactStep({ data, errors, updateData }: Props) {
           value={data.email}
           onChange={(e) => updateData({ email: e.target.value })}
           className={errors.email ? 'border-ui-error' : ''}
+          readOnly={isEmailFromSession}
+          disabled={isEmailFromSession}
         />
         {errors.email && <p className="text-sm text-ui-error">{errors.email}</p>}
-        <p className="text-xs text-gray-500">
-          We'll send a verification code to this email
-        </p>
+        {isEmailFromSession ? (
+          <p className="text-xs text-ui-success flex items-center gap-1">
+            <span>✓</span> Email linked to your account
+          </p>
+        ) : (
+          <p className="text-xs text-gray-500">
+            We'll send a verification code to this email
+          </p>
+        )}
       </div>
 
       {/* Phone Number with Country Code */}
@@ -171,7 +181,15 @@ export function ContactStep({ data, errors, updateData }: Props) {
             className="mt-1"
           />
           <Label htmlFor="termsConsent" className="font-normal text-sm cursor-pointer leading-relaxed">
-            I agree to the Terms of Service and Privacy Policy, and I understand that{' '}
+            I agree to the{' '}
+            <Link href="/terms" target="_blank" rel="noopener noreferrer" className="text-ui-blue-primary hover:text-ui-blue-accent underline font-medium">
+              Terms of Service
+            </Link>
+            {' '}and{' '}
+            <Link href="/privacy" target="_blank" rel="noopener noreferrer" className="text-ui-blue-primary hover:text-ui-blue-accent underline font-medium">
+              Privacy Policy
+            </Link>
+            , and I understand that{' '}
             <strong>TourWiseCo is a marketplace connector only</strong> and does not handle payments, guarantee service quality, or assume liability for guide interactions.
             <span className="text-ui-error ml-1">*</span>
           </Label>

@@ -20,6 +20,16 @@ export const config = {
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
+  const host = request.headers.get('host')
+  const adminHost = process.env.ADMIN_DASHBOARD_HOST
+
+  // Force admin routes to live on the dedicated admin host when configured
+  if (adminHost && pathname.startsWith('/admin') && host && host !== adminHost) {
+    const adminUrl = new URL(request.url)
+    adminUrl.hostname = adminHost
+
+    return NextResponse.redirect(adminUrl)
+  }
 
   // Admin routes - check for admin token (separate from NextAuth)
   if (pathname.startsWith('/admin') && !pathname.startsWith('/admin/login')) {
@@ -31,25 +41,22 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // Student routes - check for NextAuth session with student userType
+  // Student routes - accept either OTP-backed session cookie or legacy NextAuth token
   if (pathname.startsWith('/student/dashboard') || pathname.startsWith('/student/onboarding')) {
-    const token = await getToken({
-      req: request,
-      secret: process.env.NEXTAUTH_SECRET
-    })
+    const studentSessionToken = request.cookies.get('student_session_token')?.value
 
-    if (!token) {
-      return NextResponse.redirect(new URL('/student/signin', request.url))
-    }
+    // OTP session present → allow through (server routes will validate expiry/ownership)
+    if (!studentSessionToken) {
+      const token = await getToken({
+        req: request,
+        secret: process.env.NEXTAUTH_SECRET
+      })
 
-    // Verify user is a student
-    if (token.userType !== 'student') {
-      return NextResponse.redirect(new URL('/student/signin', request.url))
-    }
+      if (!token || token.userType !== 'student') {
+        return NextResponse.redirect(new URL('/student/signin', request.url))
+      }
 
-    // If accessing dashboard, ensure onboarding is complete
-    if (pathname.startsWith('/student/dashboard')) {
-      if (!token.hasCompletedOnboarding) {
+      if (pathname.startsWith('/student/dashboard') && !token.hasCompletedOnboarding) {
         return NextResponse.redirect(new URL('/student/onboarding', request.url))
       }
     }

@@ -121,10 +121,7 @@ export async function POST(req: NextRequest) {
     // Delete verification code from Redis
     await deleteVerificationCode(validatedData.email)
 
-    // Send booking confirmation email
-    await sendBookingConfirmation(validatedData.email, touristRequest.id)
-
-    // AUTOMATIC MATCHING: Find and invite candidate students
+    // AUTOMATIC MATCHING: Find and invite candidate students (do this BEFORE sending email)
     console.log(`[verifyTouristRequest] Triggering automatic matching for request ${touristRequest.id}`)
     const matchResult = await autoMatchAndInvite(touristRequest)
 
@@ -140,6 +137,17 @@ export async function POST(req: NextRequest) {
 
     if (matchResult.errors.length > 0) {
       console.warn(`[verifyTouristRequest] Auto-match warnings:`, matchResult.errors)
+    }
+
+    // Send booking confirmation email with match status (non-critical)
+    const emailResult = await sendBookingConfirmation(
+      validatedData.email,
+      touristRequest.id,
+      { matchesFound: matchResult.candidatesFound }
+    )
+    if (!emailResult.success) {
+      console.warn('⚠️  Failed to send booking confirmation email:', emailResult.error)
+      // Continue anyway - email is not critical for the booking
     }
 
     return NextResponse.json(

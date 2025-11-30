@@ -7,9 +7,8 @@ import { z } from 'zod';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { requireDatabase } from '@/lib/prisma';
-import { sendBookingConfirmation } from '@/lib/email';
+import { sendBookingConfirmation } from '@/lib/transactional-email';
 import { withErrorHandler, withDatabaseRetry, AppError } from '@/lib/error-handler';
-import { autoMatchAndInvite } from '@/lib/matching/autoMatch';
 
 // In-memory storage for demo mode (when database is unavailable)
 const demoRequests = new Map<string, any>();
@@ -30,7 +29,6 @@ const createBookingSchema = z.object({
   // Preferences
   preferredNationality: z.string().optional(),
   preferredLanguages: z.array(z.string()).min(1, 'At least one language required'),
-  preferredGender: z.enum(['male', 'female', 'no_preference']).optional(),
   serviceType: z.enum(['itinerary_help', 'guided_experience']),
   interests: z.array(z.string()).min(1, 'At least one interest required'),
   budget: z.number().positive().optional(),
@@ -101,7 +99,6 @@ async function createTouristRequest(req: NextRequest) {
           // Preferences
           preferredNationality: validatedData.preferredNationality,
           preferredLanguages: validatedData.preferredLanguages,
-          preferredGender: validatedData.preferredGender,
           serviceType: validatedData.serviceType,
           interests: validatedData.interests,
           budget: validatedData.budget,
@@ -119,29 +116,20 @@ async function createTouristRequest(req: NextRequest) {
       })
     );
 
-    // Send booking confirmation email (non-critical)
-    const emailResult = await sendBookingConfirmation(session.user.email, touristRequest.id)
-    if (!emailResult.success) {
-      console.warn('⚠️  Failed to send booking confirmation email:', emailResult.error)
-      // Continue anyway - email is not critical for the booking
-    }
+    // Send booking confirmation email to tourist
+    // Matching will be handled separately via admin dashboard
+    console.log(`[createTouristRequest] Sending booking confirmation email to ${session.user.email}`)
+    const emailResult = await sendBookingConfirmation(
+      session.user.email,
+      touristRequest.id,
+      { matchesFound: 0 } // No automatic matching - admin will handle matching later
+    )
 
-    // AUTOMATIC MATCHING: Find and invite candidate students
-    console.log(`[createTouristRequest] Triggering automatic matching for request ${touristRequest.id}`)
-    const matchResult = await autoMatchAndInvite(touristRequest)
-
-    if (matchResult.success) {
-      console.log(
-        `[createTouristRequest] Auto-match successful: ${matchResult.candidatesFound} candidates found, ` +
-        `${matchResult.invitationsSent} invitations sent`
-      )
+    if (emailResult.success) {
+      console.log(`[createTouristRequest] ✅ Booking confirmation email sent successfully`)
     } else {
-      console.warn(`[createTouristRequest] Auto-match failed:`, matchResult.errors)
-      // Continue anyway - matching is not critical for request creation
-    }
-
-    if (matchResult.errors.length > 0) {
-      console.warn(`[createTouristRequest] Auto-match warnings:`, matchResult.errors)
+      console.warn('⚠️  Failed to send booking confirmation email:', emailResult.error)
+      // Continue anyway - email failure should not block booking creation
     }
   } else {
     // Database not available - use in-memory storage for demo
@@ -164,7 +152,6 @@ async function createTouristRequest(req: NextRequest) {
       // Preferences
       preferredNationality: validatedData.preferredNationality,
       preferredLanguages: validatedData.preferredLanguages,
-      preferredGender: validatedData.preferredGender,
       serviceType: validatedData.serviceType,
       interests: validatedData.interests,
       budget: validatedData.budget,
