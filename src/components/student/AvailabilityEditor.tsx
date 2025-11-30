@@ -18,8 +18,18 @@ interface DayAvailability {
   slots: TimeSlot[];
 }
 
+// Database model from Prisma
+interface StudentAvailability {
+  id?: string;
+  studentId?: string;
+  dayOfWeek: number; // 0-6 (Sunday-Saturday)
+  startTime: string;
+  endTime: string;
+  note?: string;
+}
+
 interface AvailabilityEditorProps {
-  value: any; // JSON availability data from database
+  value: any; // Can be StudentAvailability[] from database or DayAvailability[] from UI
   onChange: (availability: DayAvailability[]) => void;
   disabled?: boolean;
 }
@@ -42,6 +52,63 @@ const TIME_OPTIONS = [
 ];
 
 /**
+ * Convert database StudentAvailability[] to UI DayAvailability[]
+ */
+function convertFromDatabase(dbAvailability: StudentAvailability[]): DayAvailability[] {
+  const result: DayAvailability[] = DAYS_OF_WEEK.map((day, index) => ({
+    day,
+    available: false,
+    slots: [],
+  }));
+
+  if (!dbAvailability || dbAvailability.length === 0) {
+    return result;
+  }
+
+  dbAvailability.forEach((item) => {
+    // Convert dayOfWeek (0=Sunday) to our index (0=Monday)
+    // Database: 0=Sun, 1=Mon, 2=Tue, 3=Wed, 4=Thu, 5=Fri, 6=Sat
+    // Our array: 0=Mon, 1=Tue, 2=Wed, 3=Thu, 4=Fri, 5=Sat, 6=Sun
+    let dayIndex = item.dayOfWeek - 1;
+    if (dayIndex < 0) dayIndex = 6; // Sunday wraps to end
+
+    if (dayIndex >= 0 && dayIndex < 7) {
+      result[dayIndex].available = true;
+      result[dayIndex].slots.push({
+        start: item.startTime,
+        end: item.endTime,
+      });
+    }
+  });
+
+  return result;
+}
+
+/**
+ * Check if value is database format (StudentAvailability[])
+ */
+function isDatabaseFormat(value: any): boolean {
+  if (!Array.isArray(value) || value.length === 0) return false;
+  const first = value[0];
+  return typeof first === 'object' &&
+         'dayOfWeek' in first &&
+         'startTime' in first &&
+         'endTime' in first;
+}
+
+/**
+ * Check if value is UI format (DayAvailability[])
+ */
+function isUIFormat(value: any): boolean {
+  if (!Array.isArray(value) || value.length === 0) return false;
+  const first = value[0];
+  return typeof first === 'object' &&
+         'day' in first &&
+         'available' in first &&
+         'slots' in first;
+}
+
+/**
  * AvailabilityEditor Component
  *
  * Allows students to edit their weekly availability by:
@@ -50,6 +117,7 @@ const TIME_OPTIONS = [
  * - Removing time slots
  *
  * Data format: Array of DayAvailability objects
+ * Handles conversion from database StudentAvailability[] format
  */
 export const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({
   value,
@@ -57,28 +125,42 @@ export const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({
   disabled = false,
 }) => {
   const [availability, setAvailability] = useState<DayAvailability[]>([]);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   // Initialize availability from prop value
   useEffect(() => {
-    if (value && Array.isArray(value)) {
-      setAvailability(value);
+    let initialAvailability: DayAvailability[];
+
+    if (isDatabaseFormat(value)) {
+      // Convert from database format
+      initialAvailability = convertFromDatabase(value as StudentAvailability[]);
+    } else if (isUIFormat(value)) {
+      // Already in UI format
+      initialAvailability = value as DayAvailability[];
     } else {
       // Initialize with default structure
-      const defaultAvailability: DayAvailability[] = DAYS_OF_WEEK.map(day => ({
+      initialAvailability = DAYS_OF_WEEK.map(day => ({
         day,
         available: false,
         slots: [],
       }));
-      setAvailability(defaultAvailability);
     }
+
+    setAvailability(initialAvailability);
+    // Mark as initialized after a brief delay to prevent initial onChange call
+    setTimeout(() => setIsInitialized(true), 0);
   }, [value]);
 
-  // Notify parent of changes
+  // Notify parent of changes (only when user actively edits, not during initialization)
   useEffect(() => {
-    if (availability.length > 0) {
+    // Only call onChange when:
+    // 1. Component is initialized (not first render)
+    // 2. Availability has data
+    // 3. Not in disabled/read-only mode
+    if (isInitialized && availability.length > 0 && !disabled) {
       onChange(availability);
     }
-  }, [availability]);
+  }, [availability, isInitialized, disabled, onChange]);
 
   const toggleDayAvailability = (dayIndex: number) => {
     const updated = [...availability];
