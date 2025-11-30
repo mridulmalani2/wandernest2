@@ -29,6 +29,13 @@ function SelectGuideContent() {
     preferredLanguages: string[]
   }>({ preferredNationality: null, preferredLanguages: [] })
 
+  const errorTitle =
+    errorType === 'notfound'
+      ? 'Request Not Found'
+      : errorType === 'network'
+        ? 'Connection Issue'
+        : 'Something Went Wrong'
+
   useEffect(() => {
     if (!requestId) {
       setError('No request ID provided. Please start a new booking from the booking page.')
@@ -286,9 +293,7 @@ function SelectGuideContent() {
                 <AlertCircle className="w-8 h-8 text-ui-error" />
               </div>
               <h2 className="text-2xl font-bold text-gray-900 mb-3">
-                {errorType === 'notfound' ? 'Request Not Found' :
-                 errorType === 'network' ? 'Connection Issue' :
-                 'Something Went Wrong'}
+                {errorTitle}
               </h2>
               <p className="text-gray-700 mb-6">{error}</p>
 
