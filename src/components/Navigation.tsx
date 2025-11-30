@@ -84,7 +84,7 @@ export default function Navigation({ variant = 'default', showBackButton = false
             >
               <Image
                 src="/images/logo-large.png"
-                alt="WanderNest Logo"
+                alt="TourWiseCo Logo"
                 fill
                 className="object-cover"
                 sizes="40px"

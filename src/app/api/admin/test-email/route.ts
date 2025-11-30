@@ -122,12 +122,12 @@ export async function POST(request: Request) {
     const result = await transport.sendMail({
       to,
       from: config.email.from,
-      subject: 'Test Email - WanderNest Email Configuration',
-      text: `This is a test email from WanderNest to verify your email configuration is working correctly.\n\nIf you received this email, your SMTP settings are configured properly!`,
+      subject: 'Test Email - TourWiseCo Email Configuration',
+      text: `This is a test email from TourWiseCo to verify your email configuration is working correctly.\n\nIf you received this email, your SMTP settings are configured properly!`,
       html: `
         <div style="font-family: Arial, sans-serif; padding: 20px;">
           <h2>✅ Email Configuration Test Successful</h2>
-          <p>This is a test email from WanderNest to verify your email configuration is working correctly.</p>
+          <p>This is a test email from TourWiseCo to verify your email configuration is working correctly.</p>
           <p><strong>If you received this email, your SMTP settings are configured properly!</strong></p>
           <hr style="margin: 20px 0;">
           <p style="color: #666; font-size: 12px;">

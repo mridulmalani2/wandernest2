@@ -35,25 +35,11 @@ const variantStyles: Record<
     iconColor: 'text-white',
   },
   ghost: {
-    gradient: 'bg-white border border-slate-200',
-    glow: 'bg-slate-200',
-    textColor: 'text-slate-900',
-    iconColor: 'text-indigo-600',
-  },
-  ghost: {
     gradient:
-      'bg-white/5 border border-white/40 backdrop-blur-sm text-white hover:bg-white/10 transition-colors duration-300',
+      'bg-white/5 border border-white/40 backdrop-blur-sm hover:bg-white/10 transition-colors duration-300',
     glow: 'bg-white/10',
-  },
-  ghost: {
-    gradient:
-      'bg-white/5 border border-white/40 backdrop-blur-sm text-white hover:bg-white/10 transition-colors duration-300',
-    glow: 'bg-white/10',
-  },
-  ghost: {
-    gradient:
-      'bg-white/5 border border-white/40 backdrop-blur-sm text-white hover:bg-white/10 transition-colors duration-300',
-    glow: 'bg-white/10',
+    textColor: 'text-white',
+    iconColor: 'text-white',
   },
 };
 

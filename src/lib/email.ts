@@ -23,7 +23,7 @@ function getBaseUrl(): string {
     console.warn(
       '⚠️  NEXT_PUBLIC_BASE_URL not configured - email links will use fallback'
     )
-    return 'https://wandernest.com' // Fallback URL
+    return 'https://tourwiseco.com' // Fallback URL
   }
   return baseUrl
 }
@@ -182,7 +182,7 @@ export async function sendBookingConfirmation(
                 <tr>
                   <td style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); padding: 32px 40px; text-align: center;">
                     <h1 style="margin: 0; font-size: 28px; font-weight: 700; color: #ffffff; letter-spacing: -0.5px;">
-                      WanderNest
+                      TourWiseCo
                     </h1>
                     <p style="margin: 8px 0 0 0; font-size: 14px; color: rgba(255, 255, 255, 0.9);">
                       Connect with Local Student Guides
@@ -357,7 +357,7 @@ export async function sendBookingConfirmation(
                       Questions? We're here to help!
                     </p>
                     <p style="margin: 0; font-size: 13px; color: #9ca3af; text-align: center; line-height: 1.6;">
-                      © ${new Date().getFullYear()} WanderNest · Connecting travelers with local student guides worldwide<br>
+                      © ${new Date().getFullYear()} TourWiseCo · Connecting travelers with local student guides worldwide<br>
                       <a href="${getBaseUrl()}" style="color: #6366f1; text-decoration: none;">Visit Dashboard</a>
                     </p>
                   </td>
@@ -419,7 +419,7 @@ export async function sendStudentRequestNotification(
                 <tr>
                   <td style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); padding: 32px 40px; text-align: center;">
                     <h1 style="margin: 0; font-size: 28px; font-weight: 700; color: #ffffff; letter-spacing: -0.5px;">
-                      WanderNest
+                      TourWiseCo
                     </h1>
                     <p style="margin: 8px 0 0 0; font-size: 14px; color: rgba(255, 255, 255, 0.9);">
                       Student Guide Opportunities
@@ -618,7 +618,7 @@ export async function sendStudentRequestNotification(
                       Questions? We're here to help!
                     </p>
                     <p style="margin: 0; font-size: 13px; color: #9ca3af; text-align: center; line-height: 1.6;">
-                      © ${new Date().getFullYear()} WanderNest · Connecting travelers with local student guides worldwide
+                      © ${new Date().getFullYear()} TourWiseCo · Connecting travelers with local student guides worldwide
                     </p>
                   </td>
                 </tr>
@@ -690,7 +690,7 @@ export async function sendStudentMatchInvitation(
                 <tr>
                   <td style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); padding: 32px 40px; text-align: center;">
                     <h1 style="margin: 0; font-size: 28px; font-weight: 700; color: #ffffff; letter-spacing: -0.5px;">
-                      WanderNest
+                      TourWiseCo
                     </h1>
                     <p style="margin: 8px 0 0 0; font-size: 14px; color: rgba(255, 255, 255, 0.9);">
                       Student Guide Opportunities
@@ -928,7 +928,7 @@ export async function sendStudentMatchInvitation(
                       Questions? We're here to help!
                     </p>
                     <p style="margin: 0; font-size: 13px; color: #9ca3af; text-align: center; line-height: 1.6;">
-                      © ${new Date().getFullYear()} WanderNest · Connecting travelers with local student guides worldwide
+                      © ${new Date().getFullYear()} TourWiseCo · Connecting travelers with local student guides worldwide
                     </p>
                   </td>
                 </tr>
@@ -981,7 +981,7 @@ export async function sendTouristAcceptanceNotification(
                 <tr>
                   <td style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); padding: 32px 40px; text-align: center;">
                     <h1 style="margin: 0; font-size: 28px; font-weight: 700; color: #ffffff; letter-spacing: -0.5px;">
-                      WanderNest
+                      TourWiseCo
                     </h1>
                     <p style="margin: 8px 0 0 0; font-size: 14px; color: rgba(255, 255, 255, 0.9);">
                       Your Travel Connection
@@ -1191,7 +1191,7 @@ export async function sendTouristAcceptanceNotification(
                             ⚠️ Important Reminders
                           </p>
                           <p style="margin: 0; font-size: 14px; line-height: 1.6; color: #92400e;">
-                            • WanderNest is a connector platform – we don't handle payments<br>
+                            • TourWiseCo is a connector platform – we don't handle payments<br>
                             • Arrange all payments directly with your guide<br>
                             • Meet in public places for your first interaction<br>
                             • Report any concerns to our support team
@@ -1209,7 +1209,7 @@ export async function sendTouristAcceptanceNotification(
                       Have a wonderful trip! 🌍
                     </p>
                     <p style="margin: 0; font-size: 13px; color: #9ca3af; text-align: center; line-height: 1.6;">
-                      © ${new Date().getFullYear()} WanderNest · Connecting travelers with local student guides worldwide
+                      © ${new Date().getFullYear()} TourWiseCo · Connecting travelers with local student guides worldwide
                     </p>
                   </td>
                 </tr>
@@ -1255,7 +1255,7 @@ export async function sendVerificationEmail(
                 <tr>
                   <td style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); padding: 32px 40px; text-align: center;">
                     <h1 style="margin: 0; font-size: 28px; font-weight: 700; color: #ffffff; letter-spacing: -0.5px;">
-                      WanderNest
+                      TourWiseCo
                     </h1>
                     <p style="margin: 8px 0 0 0; font-size: 14px; color: rgba(255, 255, 255, 0.9);">
                       Connect with Local Student Guides
@@ -1304,7 +1304,7 @@ export async function sendVerificationEmail(
                           </p>
                           <p style="margin: 0; font-size: 13px; line-height: 1.6; color: #92400e;">
                             • Never share this code with anyone<br>
-                            • WanderNest will never ask for your code via phone or email<br>
+                            • TourWiseCo will never ask for your code via phone or email<br>
                             • If you didn't request this, please ignore this email
                           </p>
                         </td>
@@ -1320,7 +1320,7 @@ export async function sendVerificationEmail(
                       Having trouble? Contact our support team
                     </p>
                     <p style="margin: 0; font-size: 13px; color: #9ca3af; text-align: center; line-height: 1.6;">
-                      © ${new Date().getFullYear()} WanderNest · Connecting travelers with local student guides worldwide
+                      © ${new Date().getFullYear()} TourWiseCo · Connecting travelers with local student guides worldwide
                     </p>
                   </td>
                 </tr>
@@ -1335,7 +1335,7 @@ export async function sendVerificationEmail(
   return await sendEmail(
     {
       to: email,
-      subject: '🔐 Your WanderNest Verification Code',
+      subject: '🔐 Your TourWiseCo Verification Code',
       html,
     },
     'Verification Email'
@@ -1372,7 +1372,7 @@ export async function sendStudentConfirmation(
                 <tr>
                   <td style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); padding: 32px 40px; text-align: center;">
                     <h1 style="margin: 0; font-size: 28px; font-weight: 700; color: #ffffff; letter-spacing: -0.5px;">
-                      WanderNest
+                      TourWiseCo
                     </h1>
                     <p style="margin: 8px 0 0 0; font-size: 14px; color: rgba(255, 255, 255, 0.9);">
                       Student Guide Platform
@@ -1549,7 +1549,7 @@ export async function sendStudentConfirmation(
                       Good luck – You've got this! 🌟
                     </p>
                     <p style="margin: 0; font-size: 13px; color: #9ca3af; text-align: center; line-height: 1.6;">
-                      © ${new Date().getFullYear()} WanderNest · Empowering student guides worldwide
+                      © ${new Date().getFullYear()} TourWiseCo · Empowering student guides worldwide
                     </p>
                   </td>
                 </tr>

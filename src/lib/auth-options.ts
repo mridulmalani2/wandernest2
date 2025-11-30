@@ -154,7 +154,7 @@ function html({ url, host, email }: { url: string; host: string; email: string }
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Sign in to WanderNest</title>
+    <title>Sign in to TourWiseCo</title>
   </head>
   <body style="margin: 0; padding: 0; background-color: #f3f4f6; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
     <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #f3f4f6;">
@@ -166,7 +166,7 @@ function html({ url, host, email }: { url: string; host: string; email: string }
             <tr>
               <td style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); padding: 32px 40px; text-align: center;">
                 <h1 style="margin: 0; font-size: 28px; font-weight: 700; color: #ffffff; letter-spacing: -0.5px;">
-                  WanderNest
+                  TourWiseCo
                 </h1>
                 <p style="margin: 8px 0 0 0; font-size: 14px; color: rgba(255, 255, 255, 0.9);">
                   Connect with Local Student Guides
@@ -202,7 +202,7 @@ function html({ url, host, email }: { url: string; host: string; email: string }
                         <tr>
                           <td style="border-radius: 12px; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);">
                             <a href="${url}" style="display: inline-block; padding: 18px 48px; font-size: 17px; font-weight: 700; color: #ffffff; text-decoration: none; border-radius: 12px;">
-                              🔓 Sign in to WanderNest
+                              🔓 Sign in to TourWiseCo
                             </a>
                           </td>
                         </tr>
@@ -248,7 +248,7 @@ function html({ url, host, email }: { url: string; host: string; email: string }
                   Questions? We're here to help!
                 </p>
                 <p style="margin: 0; font-size: 13px; color: #9ca3af; text-align: center; line-height: 1.6;">
-                  © ${new Date().getFullYear()} WanderNest · Connecting travelers with local student guides worldwide
+                  © ${new Date().getFullYear()} TourWiseCo · Connecting travelers with local student guides worldwide
                 </p>
               </td>
             </tr>

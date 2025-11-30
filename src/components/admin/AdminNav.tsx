@@ -88,12 +88,6 @@ export default function AdminNav() {
           <div className="flex items-center">
             <button
               onClick={handleLogout}
-              onClick={() => {
-                localStorage.removeItem('adminToken')
-                localStorage.removeItem('adminUser')
-                document.cookie = 'admin-token=; path=/; Max-Age=0; SameSite=Lax'
-                window.location.href = '/admin/login'
-              }}
               className="text-gray-500 hover:text-gray-700 text-sm font-medium"
             >
               Logout
