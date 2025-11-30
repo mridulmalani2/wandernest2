@@ -26,6 +26,7 @@ export type BookingFormData = {
   serviceType: 'itinerary_help' | 'guided_experience' | ''
   interests: string[]
   totalBudget?: number
+  discoveryFeeConsent?: boolean
   callDurationMinutes?: number
   tourDurationHours?: number
 
@@ -59,6 +60,7 @@ export function BookingForm() {
     preferredLanguages: [],
     serviceType: '',
     interests: [],
+    discoveryFeeConsent: false,
     email: '',
     contactMethod: 'email',
   })
@@ -187,6 +189,7 @@ export function BookingForm() {
           serviceType: formData.serviceType,
           interests: formData.interests,
           totalBudget: formData.totalBudget,
+          discoveryFeeConsent: formData.discoveryFeeConsent,
           callDurationMinutes: formData.callDurationMinutes,
           tourDurationHours: formData.tourDurationHours,
           phone: formData.phone,
