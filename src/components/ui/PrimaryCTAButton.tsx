@@ -18,14 +18,27 @@ interface PrimaryCTAButtonProps {
   type?: 'button' | 'submit' | 'reset';
 }
 
-const variantStyles: Record<CTAVariant, { gradient: string; glow: string }> = {
+const variantStyles: Record<
+  CTAVariant,
+  { gradient: string; glow: string; textColor: string; iconColor: string }
+> = {
   blue: {
     gradient: 'bg-gradient-to-r from-blue-300 via-blue-400 to-purple-400',
     glow: 'bg-gradient-to-r from-blue-300 via-blue-400 to-purple-400',
+    textColor: 'text-white',
+    iconColor: 'text-white',
   },
   purple: {
     gradient: 'bg-gradient-to-r from-purple-300 via-purple-400 to-pink-400',
     glow: 'bg-gradient-to-r from-purple-300 via-purple-400 to-pink-400',
+    textColor: 'text-white',
+    iconColor: 'text-white',
+  },
+  ghost: {
+    gradient: 'bg-white border border-slate-200',
+    glow: 'bg-slate-200',
+    textColor: 'text-slate-900',
+    iconColor: 'text-indigo-600',
   },
   ghost: {
     gradient:
@@ -58,7 +71,7 @@ export function PrimaryCTAButton({
 
       {/* Main button */}
       <div
-        className={`relative px-8 py-4 ${styles.gradient} rounded-2xl shadow-lg overflow-hidden ${
+        className={`relative px-6 py-3 sm:px-8 sm:py-4 ${styles.gradient} rounded-2xl shadow-lg overflow-hidden ${
           disabled ? 'opacity-50 cursor-not-allowed' : ''
         }`}
       >
@@ -67,11 +80,11 @@ export function PrimaryCTAButton({
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 pointer-events-none" />
         )}
 
-        <div className={`relative flex items-center gap-3 ${className}`}>
-          {Icon && <Icon className="w-5 h-5 text-white" />}
-          <span className="text-base lg:text-lg font-medium text-white">{children}</span>
+        <div className={`relative flex items-center gap-2 sm:gap-3 ${className}`}>
+          {Icon && <Icon className={`w-5 h-5 ${styles.iconColor}`} />}
+          <span className={`text-base lg:text-lg font-medium ${styles.textColor}`}>{children}</span>
           {showArrow && (
-            <span className="ml-auto text-white group-hover:translate-x-1 transition-transform duration-300">
+            <span className={`ml-auto ${styles.textColor} group-hover:translate-x-1 transition-transform duration-300`}>
               →
             </span>
           )}
@@ -82,7 +95,10 @@ export function PrimaryCTAButton({
 
   if (href && !disabled) {
     return (
-      <Link href={href} className="group inline-block">
+      <Link
+        href={href}
+        className="group inline-block focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-white/50 focus-visible:ring-offset-4 focus-visible:ring-offset-transparent rounded-2xl transition-all"
+      >
         {buttonContent}
       </Link>
     );
@@ -98,7 +114,7 @@ export function PrimaryCTAButton({
         }
       }}
       disabled={disabled}
-      className="group inline-block cursor-pointer"
+      className="group inline-block cursor-pointer focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-white/50 focus-visible:ring-offset-4 focus-visible:ring-offset-transparent rounded-2xl transition-all"
     >
       {buttonContent}
     </button>

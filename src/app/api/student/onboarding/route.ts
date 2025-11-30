@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic'
 
 import { NextRequest, NextResponse } from 'next/server';
 import { requireDatabase } from '@/lib/prisma';
+import { getValidStudentSession, readStudentTokenFromRequest } from '@/lib/student-auth';
 import { z } from 'zod';
 import { withErrorHandler, withDatabaseRetry, AppError } from '@/lib/error-handler';
 
@@ -109,6 +110,14 @@ async function submitOnboarding(req: NextRequest) {
   // Validate input
   const validatedData = onboardingSchema.parse(body);
 
+  // Validate OTP-backed student session and ensure ownership
+  const sessionToken = readStudentTokenFromRequest(req);
+  const session = await getValidStudentSession(sessionToken);
+
+  if (!session || session.email !== validatedData.email) {
+    throw new AppError(401, 'Unauthorized. Please sign in again.', 'UNAUTHORIZED');
+  }
+
   const db = requireDatabase();
 
 
@@ -121,6 +130,10 @@ async function submitOnboarding(req: NextRequest) {
 
   if (existingStudent) {
     throw new AppError(400, 'A profile with this email already exists', 'EMAIL_EXISTS');
+  }
+
+  if (session.studentId) {
+    throw new AppError(400, 'Profile already linked to this session', 'ALREADY_ONBOARDED');
   }
 
   // Check if googleId is already used (only if provided)
@@ -202,6 +215,15 @@ async function submitOnboarding(req: NextRequest) {
         // System Fields
         status: 'PENDING_APPROVAL',
         profileCompleteness: completeness,
+      },
+    })
+  );
+
+  await withDatabaseRetry(async () =>
+    db.studentSession.update({
+      where: { id: session.id },
+      data: {
+        studentId: student.id,
       },
     })
   );

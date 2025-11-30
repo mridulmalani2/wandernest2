@@ -15,7 +15,7 @@ function TouristSignInContent() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const searchParams = useSearchParams()
-  const callbackUrl = searchParams.get('callbackUrl') || '/tourist/dashboard'
+  const callbackUrl = searchParams.get('callbackUrl') || '/tourist/auth-landing'
   const error = searchParams.get('error')
 
   useEffect(() => {
@@ -72,27 +72,38 @@ function TouristSignInContent() {
           {/* Error Message */}
           {error && (
             <div className="glass-card bg-ui-error/10 border-2 border-ui-error/30 rounded-2xl p-4 shadow-premium animate-scale-in">
-              <p className="text-sm text-ui-error font-semibold">
-                {error === 'OAuthSignin'
-                  ? 'Error occurred while signing in with Google'
-                  : error === 'OAuthCallback'
-                  ? 'Error occurred during the authentication callback'
-                  : error === 'OAuthCreateAccount'
-                  ? 'Could not create account with the provided information'
-                  : error === 'EmailCreateAccount'
-                  ? 'Could not create account with the provided email'
-                  : error === 'Callback'
-                  ? 'Error in the authentication callback'
-                  : error === 'OAuthAccountNotLinked'
-                  ? 'This email is already associated with another account'
-                  : error === 'EmailSignin'
-                  ? 'Check your email for the sign in link'
-                  : error === 'CredentialsSignin'
-                  ? 'Invalid credentials'
-                  : error === 'SessionRequired'
-                  ? 'Please sign in to access this page'
-                  : 'An error occurred during authentication'}
-              </p>
+              <div className="space-y-2">
+                <p className="text-sm text-ui-error font-semibold">
+                  {error === 'OAuthSignin'
+                    ? 'Error occurred while signing in with Google'
+                    : error === 'OAuthCallback'
+                    ? 'Error occurred during the authentication callback'
+                    : error === 'OAuthCreateAccount'
+                    ? 'Could not create account with the provided information'
+                    : error === 'EmailCreateAccount'
+                    ? 'Could not create account with the provided email'
+                    : error === 'Callback'
+                    ? 'Error in the authentication callback'
+                    : error === 'OAuthAccountNotLinked'
+                    ? 'This email is already associated with another account'
+                    : error === 'EmailSignin'
+                    ? 'Check your email for the sign in link'
+                    : error === 'CredentialsSignin'
+                    ? 'Invalid credentials'
+                    : error === 'SessionRequired'
+                    ? 'Please sign in to access this page'
+                    : 'An error occurred during authentication'}
+                </p>
+                {(error === 'OAuthSignin' || error === 'OAuthCallback') && (
+                  <p className="text-xs text-ui-error/80">
+                    If you have a university email (.edu, .ac.uk, etc.), please{' '}
+                    <Link href="/student/signin" className="underline font-semibold">
+                      sign in as a student
+                    </Link>{' '}
+                    using the magic link instead.
+                  </p>
+                )}
+              </div>
             </div>
           )}
 

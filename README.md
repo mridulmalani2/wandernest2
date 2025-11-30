@@ -396,6 +396,14 @@ tourwiseco/
 - `GET /api/admin/analytics` - Get platform analytics
 - `GET /api/admin/reports` - Get user reports
 
+**Provision an admin account (default: `mridulmalani` / `travelbuddy16`):**
+1. Ensure `DATABASE_URL` is configured and reachable.
+2. Run `node scripts/create-admin-user.js` to upsert the default admin:
+   - Email/username: `mridulmalani`
+   - Password: `travelbuddy16`
+   - Name: `Mridul Malani`
+3. To override the defaults, set `ADMIN_EMAIL`, `ADMIN_PASSWORD`, and `ADMIN_NAME` env vars when running the script.
+
 ### 5. Review System
 
 **Key Pages:**
@@ -626,6 +634,13 @@ TourWiseCo uses a **dual authentication system**:
 **Functions:**
 - `hashPassword(password)` - Hash password
 - `verifyPassword(password, hash)` - Verify password
+
+#### Accessing the Admin Dashboard
+
+1. Set the `ADMIN_DASHBOARD_HOST` environment variable to the admin-only subdomain you want to use (for example, `admin.example.com`). The middleware will redirect any `/admin` traffic hitting another host onto this subdomain before the page renders.
+2. Point your DNS (and TLS if applicable) at that subdomain so it resolves to your deployment.
+3. Visit `https://<ADMIN_DASHBOARD_HOST>/admin/login` and sign in with an active admin account. On success the login API issues an `admin-token` httpOnly cookie scoped to `/admin`, so browser navigation to dashboard pages passes the middleware check.
+4. After signing in, you can move between dashboard routes such as `/admin/approvals`, `/admin/students`, or `/admin/analytics` without re-authenticating while the cookie remains valid (8 hours by default).
 
 ### Protected Route Pattern
 

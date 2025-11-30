@@ -294,6 +294,18 @@ model Admin {
   @@index([role])
 }
 
+model StudentOtp {
+  id        String   @id @default(cuid())
+  email     String
+  code      String   // 6-digit OTP
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([email])
+}
+
+
 model TouristSession {
   id                String   @id @default(cuid())
   email             String

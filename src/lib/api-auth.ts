@@ -31,12 +31,15 @@ export interface AuthenticatedRequest extends NextRequest {
 export async function verifyAdmin(request: NextRequest): Promise<{ authorized: boolean; admin?: { id: string; email: string; role: string; isActive: boolean }; error?: string }> {
   try {
     const authHeader = request.headers.get('authorization')
+    const cookieToken = request.cookies.get('admin-token')?.value
+    const token =
+      authHeader && authHeader.startsWith('Bearer ')
+        ? authHeader.substring(7)
+        : cookieToken
 
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    if (!token) {
       return { authorized: false, error: 'No token provided' }
     }
-
-    const token = authHeader.substring(7)
     const decoded = verifyToken(token)
 
     if (!decoded || typeof decoded === 'string' || !(decoded as any).adminId) {

@@ -5,6 +5,7 @@ import { Session } from 'next-auth';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
+import { ShieldCheck, UploadCloud, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Navigation from '@/components/Navigation';
 import { FormProgressHeader } from '@/components/shared/FormProgressHeader';
@@ -331,21 +332,144 @@ export function OnboardingWizard({ session }: OnboardingWizardProps) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const getStepErrors = (step: number): Record<string, string> => {
+    const stepErrors: Record<string, string> = {};
+
+    // Step 1: Basic Profile
+    if (step === 1) {
+      if (!formData.name.trim()) stepErrors.name = 'Name is required';
+      if (!formData.dateOfBirth) stepErrors.dateOfBirth = 'Date of birth is required';
+      if (!formData.gender) stepErrors.gender = 'Gender selection is required';
+      if (!formData.nationality.trim()) stepErrors.nationality = 'Nationality is required';
+      if (!formData.phoneNumber.trim()) stepErrors.phoneNumber = 'Phone number is required';
+      if (!formData.city) stepErrors.city = 'City selection is required';
+      if (!formData.campus) stepErrors.campus = 'Campus selection is required';
+      if (!formData.institute.trim()) stepErrors.institute = 'University name is required';
+      if (!formData.programDegree.trim()) stepErrors.programDegree = 'Program/Degree is required';
+      if (!formData.yearOfStudy) stepErrors.yearOfStudy = 'Year of study is required';
+      if (!formData.expectedGraduation.trim()) stepErrors.expectedGraduation = 'Expected graduation is required';
+      if (formData.languages.length === 0) stepErrors.languages = 'At least one language is required';
+    }
+
+    // Step 2: Identity Verification
+    if (step === 2) {
+      if (!formData.studentIdFile && !formData.studentIdPreview) {
+        stepErrors.studentIdFile = 'Student ID card upload is required';
+      }
+      if (!formData.studentIdExpiry) {
+        stepErrors.studentIdExpiry = 'Student ID expiry date is required';
+      }
+      if (!formData.governmentIdFile && !formData.governmentIdPreview) {
+        stepErrors.governmentIdFile = 'Government ID upload is required';
+      }
+      if (!formData.governmentIdExpiry) {
+        stepErrors.governmentIdExpiry = 'Government ID expiry date is required';
+      }
+      if (!formData.selfieFile && !formData.selfiePreview) {
+        stepErrors.selfieFile = 'Selfie upload is required';
+      }
+      if (!formData.profilePhotoFile && !formData.profilePhotoPreview) {
+        stepErrors.profilePhotoFile = 'Profile photo upload is required';
+      }
+      if (!formData.documentsOwnedConfirmation) {
+        stepErrors.documentsOwnedConfirmation = 'You must confirm document ownership';
+      }
+      if (!formData.verificationConsent) {
+        stepErrors.verificationConsent = 'You must consent to verification';
+      }
+    }
+
+    // Step 3: Profile Information
+    if (step === 3) {
+      if (!formData.bio.trim()) {
+        stepErrors.bio = 'Bio is required';
+      } else if (formData.bio.trim().length < 50) {
+        stepErrors.bio = 'Bio must be at least 50 characters';
+      }
+      if (formData.skills.length === 0) {
+        stepErrors.skills = 'At least one skill is required';
+      }
+      if (!formData.coverLetter.trim()) {
+        stepErrors.coverLetter = 'Cover letter is required';
+      } else if (formData.coverLetter.trim().length < 200) {
+        stepErrors.coverLetter = 'Cover letter must be at least 200 characters';
+      }
+      if (formData.interests.length === 0) {
+        stepErrors.interests = 'At least one interest is required';
+      }
+    }
+
+    // Step 4: Availability
+    if (step === 4) {
+      if (formData.availability.length === 0) {
+        stepErrors.availability = 'At least one availability slot is required';
+      } else {
+        const hasValidSlot = formData.availability.some((slot) => {
+          const start = slot.startTime.split(':').map(Number);
+          const end = slot.endTime.split(':').map(Number);
+          const duration = (end[0] * 60 + end[1]) - (start[0] * 60 + start[1]);
+          return duration >= 180;
+        });
+        if (!hasValidSlot) {
+          stepErrors.availability = 'At least one slot must be 3+ hours';
+        }
+      }
+      if (!formData.timezone) stepErrors.timezone = 'Timezone is required';
+      if (formData.preferredDurations.length === 0) {
+        stepErrors.preferredDurations = 'At least one preferred duration is required';
+      }
+    }
+
+    // Step 5: Service Preferences
+    if (step === 5) {
+      if (formData.servicesOffered.length === 0) {
+        stepErrors.servicesOffered = 'At least one service must be selected';
+      }
+      if (!formData.hourlyRate || parseFloat(formData.hourlyRate) <= 0) {
+        stepErrors.hourlyRate = 'Valid hourly rate is required';
+      }
+    }
+
+    // Step 6: Safety & Compliance
+    if (step === 6) {
+      if (!formData.termsAccepted) {
+        stepErrors.termsAccepted = 'You must accept the Terms & Conditions';
+      }
+      if (!formData.independentGuideAcknowledged) {
+        stepErrors.independentGuideAcknowledged = 'You must acknowledge independent guide status';
+      }
+      if (!formData.safetyGuidelinesAccepted) {
+        stepErrors.safetyGuidelinesAccepted = 'You must accept safety guidelines';
+      }
+    }
+
+    return stepErrors;
+  };
+
   const handleSubmit = async () => {
     // Validate ALL steps before final submission
     let allValid = true;
+    const incompleteSteps: Array<{ id: number; name: string; errors: string[] }> = [];
 
     for (let step = 1; step <= STEPS.length - 1; step++) {
-      const stepValid = validateStep(step);
-      if (!stepValid) {
+      const stepErrors = getStepErrors(step);
+      if (Object.keys(stepErrors).length > 0) {
         allValid = false;
+        const stepInfo = STEPS.find(s => s.id === step);
+        incompleteSteps.push({
+          id: step,
+          name: stepInfo?.name || `Step ${step}`,
+          errors: Object.values(stepErrors),
+        });
       }
     }
 
     if (!allValid) {
       setErrors({
-        submit: 'Please complete all required fields in all sections before submitting. Click on any step above to review and complete missing information.',
+        submit: 'Please complete all required fields in all sections before submitting.',
+        incompleteSteps: JSON.stringify(incompleteSteps),
       });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
 
@@ -374,12 +498,16 @@ export function OnboardingWizard({ session }: OnboardingWizardProps) {
           });
 
           if (!uploadResponse.ok) {
-            throw new Error(`Failed to upload ${type.replace('_', ' ')}`);
+            const errorData = await uploadResponse.json().catch(() => ({}));
+            const errorMessage = errorData.error || `Failed to upload ${type.replace('_', ' ')}`;
+            console.error(`Upload error for ${type}:`, errorData);
+            throw new Error(errorMessage);
           }
 
           const uploadData = await uploadResponse.json();
           uploadedUrls[type] = uploadData.url;
         } else if (preview) {
+          // If preview exists but no file, it might be from a previous upload
           uploadedUrls[type] = preview;
         }
       }
@@ -506,16 +634,49 @@ export function OnboardingWizard({ session }: OnboardingWizardProps) {
         <Navigation variant="student" />
 
         {/* Main Content */}
-        <main className="container mx-auto px-4 py-12 flex-1">
-          <div className="max-w-4xl mx-auto mb-8 text-center animate-fade-in-up">
-            <h1 className="text-4xl font-bold mb-4 text-white text-shadow-lg">Become a TourWiseCo Guide</h1>
-            <p className="text-white text-lg text-shadow">
-              Complete your profile to start connecting with travelers visiting Paris and London
+        <main className="container mx-auto px-4 py-8 sm:py-12 lg:py-16 flex-1">
+          <div className="max-w-5xl mx-auto mb-10 sm:mb-12 text-center animate-fade-in-up">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 sm:mb-6 text-white text-shadow-lg leading-tight">
+              Become a TourWiseCo Guide
+            </h1>
+            <p className="text-white text-base sm:text-lg lg:text-xl text-shadow max-w-3xl mx-auto leading-relaxed">
+              Join our community of student guides and start earning by sharing your city with travelers.
+              Complete your profile in just a few steps.
             </p>
           </div>
 
+          <div className="max-w-5xl mx-auto grid gap-3 sm:gap-4 sm:grid-cols-3 mb-8 sm:mb-12 animate-fade-in-up delay-150">
+            <div className="glass-card rounded-2xl border border-white/30 shadow-premium p-4 flex items-center gap-3 backdrop-blur-md">
+              <span className="p-2.5 rounded-xl bg-white/15 text-white">
+                <UploadCloud className="w-5 h-5" />
+              </span>
+              <div className="text-left">
+                <p className="text-sm text-white/70">Fast uploads</p>
+                <p className="text-base font-semibold text-white">Drag, drop, done</p>
+              </div>
+            </div>
+            <div className="glass-card rounded-2xl border border-white/30 shadow-premium p-4 flex items-center gap-3 backdrop-blur-md">
+              <span className="p-2.5 rounded-xl bg-white/15 text-white">
+                <ShieldCheck className="w-5 h-5" />
+              </span>
+              <div className="text-left">
+                <p className="text-sm text-white/70">Secure & verified</p>
+                <p className="text-base font-semibold text-white">Identity protected</p>
+              </div>
+            </div>
+            <div className="glass-card rounded-2xl border border-white/30 shadow-premium p-4 flex items-center gap-3 backdrop-blur-md sm:col-span-1">
+              <span className="p-2.5 rounded-xl bg-white/15 text-white">
+                <Sparkles className="w-5 h-5" />
+              </span>
+              <div className="text-left">
+                <p className="text-sm text-white/70">Modern intake</p>
+                <p className="text-base font-semibold text-white">UI built for speed</p>
+              </div>
+            </div>
+          </div>
+
           {/* Step Indicator */}
-          <div className="max-w-4xl mx-auto mb-8">
+          <div className="max-w-5xl mx-auto mb-8 sm:mb-10">
             <FormProgressHeader
               steps={STEPS}
               currentStep={currentStep}
@@ -525,10 +686,11 @@ export function OnboardingWizard({ session }: OnboardingWizardProps) {
           </div>
 
           {/* Form Steps */}
-          <div className="relative max-w-4xl mx-auto animate-fade-in-up delay-200">
-            <div className="relative glass-card rounded-3xl border-2 border-white/40 shadow-premium p-8 hover-lift">
+          <div className="relative max-w-5xl mx-auto animate-fade-in-up delay-200">
+            <div className="relative glass-card rounded-3xl border-2 border-white/40 shadow-premium p-6 sm:p-10 lg:p-12 hover-lift transition-all duration-300">
               <div className="relative z-10">
-            {/* Step Content */}
+            {/* Step Content with fade transition */}
+            <div className="min-h-[600px] transition-opacity duration-300">
             {currentStep === 1 && (
               <BasicProfileStep
                 formData={formData}
@@ -579,17 +741,18 @@ export function OnboardingWizard({ session }: OnboardingWizardProps) {
                 errors={errors}
               />
             )}
+            </div>
 
                 {/* Navigation Buttons */}
-                <div className="mt-8 flex justify-between">
+                <div className="mt-10 pt-8 border-t border-white/20 flex flex-col sm:flex-row justify-between gap-4">
                   <Button
                     type="button"
                     variant="outline"
                     onClick={handleBack}
                     disabled={currentStep === 1 || isSubmitting}
-                    className="hover-lift shadow-soft"
+                    className="hover-lift shadow-soft bg-white/80 hover:bg-white text-gray-700 border-2 border-gray-200 hover:border-gray-300 px-8 py-6 text-base font-semibold rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed order-2 sm:order-1"
                   >
-                    Back
+                    ← Back
                   </Button>
 
                   {currentStep < STEPS.length ? (
@@ -598,8 +761,9 @@ export function OnboardingWizard({ session }: OnboardingWizardProps) {
                       onClick={handleNext}
                       disabled={isSubmitting}
                       variant="blue"
+                      className="px-8 py-6 text-base font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 order-1 sm:order-2"
                     >
-                      Next
+                      Continue →
                     </PrimaryCTAButton>
                   ) : (
                     <PrimaryCTAButton
@@ -607,16 +771,85 @@ export function OnboardingWizard({ session }: OnboardingWizardProps) {
                       onClick={handleSubmit}
                       disabled={isSubmitting}
                       variant="blue"
+                      className="px-8 py-6 text-base font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 order-1 sm:order-2"
                     >
-                      {isSubmitting ? 'Submitting for Review...' : 'Submit for Review'}
+                      {isSubmitting ? (
+                        <span className="flex items-center gap-2">
+                          <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                          </svg>
+                          Submitting...
+                        </span>
+                      ) : (
+                        '✓ Submit for Review'
+                      )}
                     </PrimaryCTAButton>
                   )}
                 </div>
 
                 {/* Submit Error */}
                 {errors.submit && (
-                  <div className="mt-4 p-4 glass-frosted bg-gradient-to-br from-[hsl(var(--ui-error))]/10 to-[hsl(var(--ui-error))]/20 border-2 border-[hsl(var(--ui-error))] rounded-2xl text-[hsl(var(--ui-error))] text-sm shadow-soft">
-                    {errors.submit}
+                  <div className="mt-4 space-y-3">
+                    <div className="p-4 glass-frosted bg-gradient-to-br from-[hsl(var(--ui-error))]/10 to-[hsl(var(--ui-error))]/20 border-2 border-[hsl(var(--ui-error))] rounded-2xl text-[hsl(var(--ui-error))] text-sm shadow-soft">
+                      {errors.submit}
+                    </div>
+
+                    {/* Missing Steps Popup */}
+                    {errors.incompleteSteps && (() => {
+                      try {
+                        const incompleteSteps = JSON.parse(errors.incompleteSteps) as Array<{
+                          id: number;
+                          name: string;
+                          errors: string[];
+                        }>;
+
+                        return incompleteSteps.length > 0 ? (
+                          <div className="p-4 glass-frosted bg-gradient-to-br from-[hsl(var(--ui-error))]/5 to-[hsl(var(--ui-error))]/10 border border-[hsl(var(--ui-error))]/50 rounded-2xl shadow-soft animate-fade-in-up">
+                            <h3 className="font-semibold text-[hsl(var(--ui-error))] mb-3 flex items-center gap-2">
+                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                              </svg>
+                              Missing Steps ({incompleteSteps.length})
+                            </h3>
+                            <div className="space-y-2">
+                              {incompleteSteps.map((step) => (
+                                <div
+                                  key={step.id}
+                                  className="p-3 bg-white/10 rounded-lg cursor-pointer hover:bg-white/20 transition-colors"
+                                  onClick={() => handleStepClick(step.id)}
+                                >
+                                  <div className="flex items-start justify-between gap-2">
+                                    <div className="flex-1">
+                                      <div className="font-medium text-[hsl(var(--ui-error))]">
+                                        Step {step.id}: {step.name}
+                                      </div>
+                                      <div className="text-xs text-[hsl(var(--ui-error))]/80 mt-1">
+                                        {step.errors.length} issue{step.errors.length > 1 ? 's' : ''} found
+                                      </div>
+                                    </div>
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleStepClick(step.id);
+                                      }}
+                                      className="text-xs px-3 py-1 bg-[hsl(var(--ui-error))]/20 hover:bg-[hsl(var(--ui-error))]/30 text-[hsl(var(--ui-error))] rounded-lg transition-colors font-medium"
+                                    >
+                                      Fix Now
+                                    </button>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                            <p className="text-xs text-[hsl(var(--ui-error))]/70 mt-3 italic">
+                              Click on any step above to navigate and complete the missing fields
+                            </p>
+                          </div>
+                        ) : null;
+                      } catch {
+                        return null;
+                      }
+                    })()}
                   </div>
                 )}
               </div>
