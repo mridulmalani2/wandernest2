@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
-import { Menu, X, User, LogOut, LayoutDashboard, ChevronLeft, UserCircle } from 'lucide-react'
+import { Menu, X, User, LogOut, LayoutDashboard, ChevronLeft, UserCircle, Home } from 'lucide-react'
 import { useSession, signOut } from 'next-auth/react'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
@@ -163,12 +163,20 @@ export default function Navigation({ variant = 'default', showBackButton = false
             {(session || studentSession) && (
               <>
                 {session?.user?.userType === 'tourist' && (
-                  <Link href="/tourist/dashboard">
-                    <Button variant="ghost" className="rounded-full px-4 py-2 h-auto text-white/90 hover:bg-white/10 hover:text-white transition-all duration-200 hover:scale-105 active:scale-95 font-sans text-sm font-medium">
-                      <LayoutDashboard className="w-4 h-4 mr-2" />
-                      Dashboard
-                    </Button>
-                  </Link>
+                  <>
+                    <Link href="/">
+                      <Button variant="ghost" className="rounded-full px-4 py-2 h-auto text-white/90 hover:bg-white/10 hover:text-white transition-all duration-200 hover:scale-105 active:scale-95 font-sans text-sm font-medium">
+                        <Home className="w-4 h-4 mr-2" />
+                        Home
+                      </Button>
+                    </Link>
+                    <Link href="/tourist/dashboard">
+                      <Button variant="ghost" className="rounded-full px-4 py-2 h-auto text-white/90 hover:bg-white/10 hover:text-white transition-all duration-200 hover:scale-105 active:scale-95 font-sans text-sm font-medium">
+                        <LayoutDashboard className="w-4 h-4 mr-2" />
+                        Dashboard
+                      </Button>
+                    </Link>
+                  </>
                 )}
                 {(session?.user?.userType === 'student' || studentSession) && (
                   <>
@@ -297,12 +305,20 @@ export default function Navigation({ variant = 'default', showBackButton = false
                     </span>
                   </div>
                   {session?.user?.userType === 'tourist' && (
-                    <Link href="/tourist/dashboard" onClick={() => setMobileMenuOpen(false)}>
-                      <Button variant="ghost" className="w-full justify-start rounded-full text-white/90 hover:bg-white/10 hover:text-white transition-all font-sans text-sm font-medium">
-                        <LayoutDashboard className="w-4 h-4 mr-2" />
-                        Dashboard
-                      </Button>
-                    </Link>
+                    <>
+                      <Link href="/" onClick={() => setMobileMenuOpen(false)}>
+                        <Button variant="ghost" className="w-full justify-start rounded-full text-white/90 hover:bg-white/10 hover:text-white transition-all font-sans text-sm font-medium">
+                          <Home className="w-4 h-4 mr-2" />
+                          Home
+                        </Button>
+                      </Link>
+                      <Link href="/tourist/dashboard" onClick={() => setMobileMenuOpen(false)}>
+                        <Button variant="ghost" className="w-full justify-start rounded-full text-white/90 hover:bg-white/10 hover:text-white transition-all font-sans text-sm font-medium">
+                          <LayoutDashboard className="w-4 h-4 mr-2" />
+                          Dashboard
+                        </Button>
+                      </Link>
+                    </>
                   )}
                   {(session?.user?.userType === 'student' || studentSession) && (
                     <>
