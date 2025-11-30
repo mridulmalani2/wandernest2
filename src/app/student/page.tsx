@@ -2,7 +2,6 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { Button } from '@/components/ui/button'
 import Navigation from '@/components/Navigation'
 import Footer from '@/components/Footer'
 import ModernFAQ from '@/components/student/ModernFAQ'
@@ -221,15 +220,16 @@ export default function StudentLandingPage() {
               <p className="text-xl md:text-2xl text-white/95 max-w-2xl mx-auto leading-relaxed font-medium text-shadow">
                 Join hundreds of students already earning flexible income by sharing their city with visitors.
               </p>
-              <Link href="/student/signin" className="inline-block mt-4">
-                <Button
-                  size="lg"
-                  className="text-lg px-12 py-8 h-auto gradient-vibrant hover:shadow-glow-purple shadow-premium text-white font-semibold group hover-lift-lg transition-all duration-300 focus-visible:ring-4 focus-visible:ring-white/50 focus-visible:ring-offset-4"
+              <div className="flex justify-center mt-4">
+                <PrimaryCTAButton
+                  href="/student/signin"
+                  showArrow
+                  variant="purple"
+                  className="text-lg"
                 >
                   Explore Now
-                  <span className="ml-2 group-hover:translate-x-2 transition-transform inline-block" aria-hidden="true">→</span>
-                </Button>
-              </Link>
+                </PrimaryCTAButton>
+              </div>
             </div>
 
           </div>

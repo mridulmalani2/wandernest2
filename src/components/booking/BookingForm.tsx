@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { useSession } from 'next-auth/react'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { TripDetailsStep } from './TripDetailsStep'
@@ -22,7 +23,6 @@ export type BookingFormData = {
   // Step 2: Preferences
   preferredNationality?: string
   preferredLanguages: string[]
-  preferredGender?: 'male' | 'female' | 'no_preference'
   serviceType: 'itinerary_help' | 'guided_experience' | ''
   interests: string[]
   totalBudget?: number
@@ -46,6 +46,7 @@ const STEPS = [
 
 export function BookingForm() {
   const router = useRouter()
+  const { data: session } = useSession()
   const [currentStep, setCurrentStep] = useState(1)
   const [completedSteps, setCompletedSteps] = useState<number[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -63,12 +64,12 @@ export function BookingForm() {
   })
   const [errors, setErrors] = useState<Record<string, string>>({})
 
-  // // Pre-fill email from session
-  // useEffect(() => {
-  //   if (session?.user?.email) {
-  //     setFormData((prev) => ({ ...prev, email: session.user.email! }))
-  //   }
-  // }, [session])
+  // Pre-fill email from session
+  useEffect(() => {
+    if (session?.user?.email) {
+      setFormData((prev) => ({ ...prev, email: session.user.email! }))
+    }
+  }, [session])
 
   const updateFormData = (data: Partial<BookingFormData>) => {
     setFormData((prev) => ({ ...prev, ...data }))
@@ -183,7 +184,6 @@ export function BookingForm() {
           accessibilityNeeds: formData.accessibilityNeeds,
           preferredNationality: formData.preferredNationality,
           preferredLanguages: formData.preferredLanguages,
-          preferredGender: formData.preferredGender,
           serviceType: formData.serviceType,
           interests: formData.interests,
           totalBudget: formData.totalBudget,
@@ -256,6 +256,7 @@ export function BookingForm() {
             data={formData}
             errors={errors}
             updateData={updateFormData}
+            isEmailFromSession={!!session?.user?.email}
           />
         )}
 

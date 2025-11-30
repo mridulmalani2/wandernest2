@@ -7,6 +7,11 @@ const nextConfig = {
   // Enable React Strict Mode for better development experience
   reactStrictMode: true,
 
+  // Prevent lint errors from blocking production builds (handled via CI)
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+
   // Security: Remove X-Powered-By header
   poweredByHeader: false,
 

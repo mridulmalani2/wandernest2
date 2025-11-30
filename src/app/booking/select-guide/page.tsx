@@ -19,11 +19,13 @@ function SelectGuideContent() {
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [errorType, setErrorType] = useState<'network' | 'server' | 'notfound' | null>(null)
   const [suggestedPrice, setSuggestedPrice] = useState<any>(null)
 
   useEffect(() => {
     if (!requestId) {
-      setError('No request ID provided')
+      setError('No request ID provided. Please start a new booking from the booking page.')
+      setErrorType('notfound')
       setLoading(false)
       return
     }
@@ -34,23 +36,63 @@ function SelectGuideContent() {
   const fetchMatches = async () => {
     try {
       setLoading(true)
+      setError(null)
+      setErrorType(null)
+
       const response = await fetch('/api/tourist/request/match', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ requestId }),
       })
 
+      // Check if response is OK before parsing JSON
+      if (!response.ok) {
+        // Handle HTTP errors (404, 500, etc.) - these are server-side issues, not network issues
+        let errorMessage = 'Unable to load your booking request.'
+        let errType: 'server' | 'notfound' = 'server'
+
+        try {
+          const data = await response.json()
+          errorMessage = data.error || errorMessage
+          if (response.status === 404) {
+            errType = 'notfound'
+            errorMessage = 'Booking request not found. It may have expired or been deleted.'
+          }
+        } catch {
+          // Failed to parse error response
+          if (response.status === 404) {
+            errType = 'notfound'
+            errorMessage = 'Booking request not found. It may have expired or been deleted.'
+          } else {
+            errorMessage = `Server error (${response.status}). Please try again later.`
+          }
+        }
+
+        setError(errorMessage)
+        setErrorType(errType)
+        setLoading(false)
+        return
+      }
+
       const data = await response.json()
 
+      // Important: "No matches found" (empty array) is a SUCCESS state, not an error
+      // The backend returns { success: true, hasMatches: false, matches: [] } for this case
       if (data.success) {
-        setMatches(data.matches)
+        setMatches(data.matches || [])
         setSuggestedPrice(data.suggestedPriceRange)
+        setError(null)
+        setErrorType(null)
       } else {
-        setError(data.error || 'Failed to find matching guides')
+        // Only set error for actual failures (database errors, etc.)
+        setError(data.error || 'Unable to process your request. Please try again.')
+        setErrorType('server')
       }
     } catch (err) {
       console.error('Error fetching matches:', err)
-      setError('Failed to load matching guides')
+      // True network error (fetch threw before getting a response)
+      setError('Unable to connect to the server. This might be a network issue - please check your connection and try again.')
+      setErrorType('network')
     } finally {
       setLoading(false)
     }
@@ -142,10 +184,38 @@ function SelectGuideContent() {
         <div className="absolute inset-0 pattern-dots opacity-10" />
 
         <div className="relative z-10 flex items-center justify-center min-h-screen p-4">
-          <Alert variant="destructive" className="max-w-md glass-card shadow-premium">
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
+          <div className="max-w-md w-full glass-card rounded-3xl p-8 shadow-premium border-2 border-ui-error/30 animate-fade-in">
+            <div className="text-center">
+              <div className="mx-auto w-16 h-16 bg-ui-error/20 rounded-full flex items-center justify-center mb-4">
+                <AlertCircle className="w-8 h-8 text-ui-error" />
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-3">
+                {errorType === 'notfound' ? 'Request Not Found' :
+                 errorType === 'network' ? 'Connection Issue' :
+                 'Something Went Wrong'}
+              </h2>
+              <p className="text-gray-700 mb-6">{error}</p>
+
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <Button
+                  variant="outline"
+                  onClick={() => router.push('/booking')}
+                  className="hover-lift shadow-soft"
+                >
+                  Back to Booking
+                </Button>
+                {errorType !== 'notfound' && (
+                  <PrimaryCTAButton
+                    onClick={fetchMatches}
+                    variant="blue"
+                    className="hover-lift"
+                  >
+                    Try Again
+                  </PrimaryCTAButton>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     )
@@ -164,22 +234,28 @@ function SelectGuideContent() {
             className="object-cover"
           />
           <div className="absolute inset-0 bg-black/20 backdrop-blur-[4px]" />
-          <div className="absolute inset-0 bg-gradient-to-br from-ui-blue-primary/15 via-ui-purple-primary/10 to-ui-purple-accent/15" />
+          <div className="absolute inset-0 bg-gradient-to-br from-ui-success/15 via-ui-success/10 to-ui-success/15" />
         </div>
         <div className="absolute inset-0 pattern-dots opacity-10" />
 
         <div className="relative z-10 flex items-center justify-center min-h-screen p-4">
-          <div className="max-w-md text-center glass-card rounded-3xl p-8 shadow-premium animate-fade-in">
-            <AlertCircle className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">
-              No Guides Available
+          <div className="max-w-md text-center glass-card rounded-3xl p-8 shadow-premium animate-fade-in border-2 border-ui-success/30">
+            <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-to-br from-ui-success to-ui-success/80 flex items-center justify-center shadow-lg">
+              <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path>
+              </svg>
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">
+              Request Successfully Created!
             </h2>
-            <p className="text-gray-700 mb-6">
-              We couldn't find any available guides matching your criteria at the moment.
-              This could be due to limited availability in your selected city or dates.
+            <p className="text-lg font-medium text-ui-success mb-6">
+              Your request has been generated, please check inbox for further details
             </p>
-            <Button onClick={() => router.push('/booking')} variant="outline" className="hover-lift shadow-soft">
-              Modify Your Request
+            <p className="text-gray-700 text-sm mb-6">
+              We've saved your request and will notify you as soon as suitable student guides become available in your selected city.
+            </p>
+            <Button onClick={() => router.push('/')} className="hover-lift shadow-soft bg-ui-success hover:bg-ui-success/90 text-white">
+              Return to Home
             </Button>
           </div>
         </div>

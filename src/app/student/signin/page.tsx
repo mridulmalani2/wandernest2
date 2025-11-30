@@ -2,31 +2,42 @@
 
 export const dynamic = 'force-dynamic';
 
-import { signIn, useSession } from 'next-auth/react';
+import { useSession } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import Navigation from '@/components/Navigation';
-import { Button } from '@/components/ui/button';
-import { CheckCircle2, Mail } from 'lucide-react';
+import { CheckCircle2, Mail, AlertCircle } from 'lucide-react';
 import { PrimaryCTAButton } from '@/components/ui/PrimaryCTAButton';
+import { Input } from '@/components/ui/input';
+import {
+  isStudentEmail,
+  isValidEmailFormat,
+  getStudentEmailErrorMessage,
+} from '@/lib/email-validation';
+
+type Step = 'email' | 'otp';
 
 function StudentSignInContent() {
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get('callbackUrl') || '/student/auth-landing?intent=student';
-  const error = searchParams.get('error');
+  const callbackUrl = searchParams.get('callbackUrl') || '/student/auth-landing';
+  const urlError = searchParams.get('error'); // next-auth wale errors agar aaye to
 
   const [email, setEmail] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [emailSent, setEmailSent] = useState(false);
-  const [emailProviderAvailable, setEmailProviderAvailable] = useState<boolean | null>(null);
-  const [providerCheckError, setProviderCheckError] = useState(false);
+  const [step, setStep] = useState<Step>('email');
+  const [code, setCode] = useState('');
 
+  const [isSubmitting, setIsSubmitting] = useState(false); // email submit
+  const [isVerifying, setIsVerifying] = useState(false); // otp verify
+  const [emailErrorMessage, setEmailErrorMessage] = useState<string | null>(null);
+  const [domainValidationError, setDomainValidationError] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
+
+  // already logged in as student → redirect
   useEffect(() => {
-    // If already signed in as student, check onboarding status
     if (session?.user && session.user.userType === 'student') {
       if (session.user.hasCompletedOnboarding) {
         router.push('/student/dashboard');
@@ -36,64 +47,124 @@ function StudentSignInContent() {
     }
   }, [session, router]);
 
-  // Check if email provider is configured
-  useEffect(() => {
-    const checkEmailProvider = async () => {
-      try {
-        const response = await fetch('/api/auth/provider-status');
-        if (response.ok) {
-          const data = await response.json();
-          setEmailProviderAvailable(data.providers?.email ?? false);
-        } else {
-          setProviderCheckError(true);
-        }
-      } catch (error) {
-        console.error('Failed to check provider status:', error);
-        setProviderCheckError(true);
-      }
-    };
-
-    checkEmailProvider();
-  }, []);
-
+  // STEP 1: Email → request OTP
   const handleEmailSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
 
-    // Check if email provider is available before attempting sign-in
-    if (emailProviderAvailable === false) {
-      alert('Email sign-in is not currently available. Please contact support or try again later.');
+    setEmailErrorMessage(null);
+    setDomainValidationError(null);
+    setMessage(null);
+
+    // format check
+    if (!isValidEmailFormat(email)) {
+      setDomainValidationError('Please enter a valid email address.');
+      return;
+    }
+
+    // domain check (student email)
+    if (!isStudentEmail(email)) {
+      setDomainValidationError(getStudentEmailErrorMessage(email));
       return;
     }
 
     setIsSubmitting(true);
     try {
-      const result = await signIn('email', {
-        email,
-        callbackUrl,
-        redirect: false,
+      const res = await fetch('/api/student/auth/send-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
       });
 
-      if (result?.error) {
-        console.error('Sign-in error:', result.error);
-        alert(`Sign-in failed: ${result.error}. Please try again or contact support.`);
-      } else if (result?.ok) {
-        setEmailSent(true);
-      } else {
-        console.error('Sign-in failed with unknown error');
-        alert('Sign-in failed. Please try again or contact support.');
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        setEmailErrorMessage(
+          data.error || 'Could not send verification code. Please try again.'
+        );
+        return;
       }
+
+      setMessage('We’ve sent a 6-digit verification code to your email.');
+      setStep('otp');
     } catch (error) {
-      console.error('Sign-in error:', error);
-      alert('An unexpected error occurred. Please try again or contact support.');
+      console.error('OTP request error:', error);
+      setEmailErrorMessage('An unexpected error occurred. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleGoogleSignIn = () => {
-    signIn('google', { callbackUrl });
+  // STEP 2: Verify OTP
+  const handleOtpVerify = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!code) return;
+
+    setEmailErrorMessage(null);
+    setDomainValidationError(null);
+    setMessage(null);
+
+    setIsVerifying(true);
+    try {
+      const res = await fetch('/api/student/auth/verify-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, code }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        setEmailErrorMessage(
+          data.error || 'Invalid or expired code. Please try again.'
+        );
+        return;
+      }
+
+      // backend StudentSession cookie set karega
+      setMessage('Signed in successfully. Redirecting…');
+      router.push(callbackUrl);
+    } catch (error) {
+      console.error('OTP verify error:', error);
+      setEmailErrorMessage('An unexpected error occurred. Please try again.');
+    } finally {
+      setIsVerifying(false);
+    }
   };
+
+  // resend OTP
+  const handleResend = async () => {
+    if (!email || isSubmitting || isVerifying) return;
+    setEmailErrorMessage(null);
+    setDomainValidationError(null);
+    setMessage(null);
+
+    setIsSubmitting(true);
+    try {
+      const res = await fetch('/api/student/otp/request', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        setEmailErrorMessage(
+          data.error || 'Could not resend code. Please try again.'
+        );
+        return;
+      }
+
+      setMessage('New code sent to your email.');
+    } catch (error) {
+      console.error('Resend OTP error:', error);
+      setEmailErrorMessage('An unexpected error occurred. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const anyError = domainValidationError || emailErrorMessage || urlError;
 
   return (
     <div className="min-h-screen flex flex-col relative overflow-hidden">
@@ -108,16 +179,13 @@ function StudentSignInContent() {
           sizes="100vw"
           className="object-cover"
         />
-        {/* Dark overlay for text contrast */}
         <div className="absolute inset-0 bg-black/25 backdrop-blur-[4px]" />
-        {/* Gradient overlay for visual depth */}
         <div className="absolute inset-0 bg-gradient-to-br from-ui-blue-primary/20 via-ui-purple-primary/15 to-ui-purple-accent/20" />
       </div>
       <div className="absolute inset-0 pattern-grid opacity-15" />
 
       {/* Content */}
       <div className="relative z-10 flex flex-col min-h-screen">
-        {/* Header */}
         <Navigation variant="student" showBackButton backHref="/student" />
 
         {/* Main Content */}
@@ -131,138 +199,90 @@ function StudentSignInContent() {
                 </span>
               </h2>
               <p className="text-white mt-2 text-shadow">
-                Sign in with Google or use a magic link sent to any email address
+                Use your university email (.edu, .ac.uk, etc.)
               </p>
             </div>
 
-            {/* Error Message */}
-            {error && (
+            {/* Error Messages */}
+            {anyError && (
               <div className="glass-card bg-ui-error/10 border-2 border-ui-error/30 rounded-2xl p-4 shadow-premium animate-scale-in">
-                <p className="text-sm text-ui-error font-semibold">
-                  {error === 'OAuthSignin'
-                    ? 'Error occurred while signing in with Google'
-                    : error === 'OAuthCallback'
-                    ? 'Error occurred during the authentication callback'
-                    : error === 'OAuthCreateAccount'
-                    ? 'Could not create account with the provided information'
-                    : error === 'EmailCreateAccount'
-                    ? 'Could not create account with the provided email'
-                    : error === 'Callback'
-                    ? 'Error in the authentication callback'
-                    : error === 'OAuthAccountNotLinked'
-                    ? 'This email is already associated with another account'
-                    : error === 'EmailSignin'
-                    ? 'Check your email for the sign in link'
-                    : error === 'CredentialsSignin'
-                    ? 'Invalid credentials'
-                    : error === 'SessionRequired'
-                    ? 'Please sign in to access this page'
-                    : 'An error occurred during authentication'}
-                </p>
+                <div className="flex items-start gap-3">
+                  <AlertCircle className="w-5 h-5 text-ui-error flex-shrink-0 mt-0.5" />
+                  <div className="flex-1">
+                    <p className="text-sm text-ui-error font-semibold">
+                      {domainValidationError ||
+                        emailErrorMessage ||
+                        (urlError === 'EmailSignin'
+                          ? 'An error occurred during authentication'
+                          : 'An error occurred during authentication')}
+                    </p>
+                  </div>
+                </div>
               </div>
             )}
 
-            {/* Email Provider Not Configured Warning */}
-            {emailProviderAvailable === false && (
-              <div className="glass-card bg-ui-error/10 border-2 border-ui-error/30 rounded-2xl p-4 shadow-premium animate-scale-in">
-                <p className="text-sm text-ui-error font-semibold mb-2">
-                  ⚠️ Magic Link Sign-In Unavailable
-                </p>
-                <p className="text-sm text-gray-700">
-                  The email authentication service is not configured. Please contact the administrator to enable magic link sign-in, or use an alternative sign-in method if available.
-                </p>
+            {/* Info / success message */}
+            {message && (
+              <div className="glass-card bg-emerald-500/10 border-2 border-emerald-400/40 rounded-2xl p-3 text-sm text-emerald-100 shadow-premium">
+                {message}
               </div>
             )}
 
             {/* Sign In Card */}
             <div className="glass-card rounded-3xl border-2 border-white/40 p-8 shadow-premium space-y-6">
-              {!emailSent ? (
+              {step === 'email' ? (
                 <>
-                  {/* Google Sign-In Option */}
-                  <PrimaryCTAButton
-                    onClick={handleGoogleSignIn}
-                    disabled={status === 'loading'}
-                    variant="purple"
-                    className="w-full justify-center"
-                  >
-                    <svg className="w-6 h-6 mr-3" viewBox="0 0 24 24">
-                      <path
-                        fill="currentColor"
-                        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                      />
-                      <path
-                        fill="currentColor"
-                        d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                      />
-                      <path
-                        fill="currentColor"
-                        d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                      />
-                      <path
-                        fill="currentColor"
-                        d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                      />
-                    </svg>
-                    <span>Continue with Google</span>
-                  </PrimaryCTAButton>
-
-                  {/* Divider */}
-                  <div className="relative">
-                    <div className="absolute inset-0 flex items-center">
-                      <div className="w-full border-t border-gray-300"></div>
-                    </div>
-                    <div className="relative flex justify-center text-sm">
-                      <span className="px-4 bg-white text-gray-500">Or sign in with email</span>
-                    </div>
-                  </div>
-
                   <form onSubmit={handleEmailSignIn} className="space-y-4">
                     <div>
-                      <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                        Email Address
+                      <label
+                        htmlFor="email"
+                        className="block text-sm font-medium text-gray-700 mb-2"
+                      >
+                        University Email Address
                       </label>
                       <div className="relative">
                         <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                           <Mail className="h-5 w-5 text-gray-400" />
                         </div>
-                        <input
+                        <Input
                           id="email"
                           type="email"
                           required
                           value={email}
-                          onChange={(e) => setEmail(e.target.value)}
+                          onChange={(e) => {
+                            setEmail(e.target.value);
+                            if (domainValidationError) setDomainValidationError(null);
+                            if (emailErrorMessage) setEmailErrorMessage(null);
+                            setMessage(null);
+                          }}
                           placeholder="your.email@university.edu"
-                          className="block w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-ui-purple-primary focus:border-transparent transition-all"
-                          disabled={isSubmitting}
+                          className="pl-12"
+                          disabled={isSubmitting || isVerifying}
                         />
                       </div>
+                      <p className="text-xs text-gray-200 mt-1">
+                        We’ll send a 6-digit verification code to your email.
+                      </p>
                     </div>
 
                     <PrimaryCTAButton
                       type="submit"
-                      disabled={isSubmitting || !email || emailProviderAvailable === false || emailProviderAvailable === null}
+                      disabled={isSubmitting || !email}
                       variant="purple"
                       className="w-full justify-center"
                     >
-                      {emailProviderAvailable === null ? (
+                      {isSubmitting ? (
                         <>
-                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                          <span>Checking availability...</span>
-                        </>
-                      ) : emailProviderAvailable === false ? (
-                        <span>Sign-In Unavailable</span>
-                      ) : isSubmitting ? (
-                        <>
-                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                          <span>Sending magic link...</span>
+                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2" />
+                          <span>Sending code...</span>
                         </>
                       ) : (
-                        <span>Send Magic Link</span>
+                        <span>Send verification code</span>
                       )}
                     </PrimaryCTAButton>
                   </form>
 
-                  <div className="text-center text-sm text-gray-500">
+                  <div className="text-center text-sm text-gray-200">
                     <p>
                       By signing in, you agree to our{' '}
                       <Link href="/terms" className="text-ui-purple-primary hover:underline">
@@ -276,61 +296,115 @@ function StudentSignInContent() {
                   </div>
                 </>
               ) : (
-                <div className="text-center py-4">
-                  <div className="mb-4">
-                    <div className="mx-auto w-16 h-16 bg-ui-success/20 rounded-full flex items-center justify-center">
-                      <Mail className="w-8 h-8 text-ui-success" />
+                <div className="space-y-6">
+                  <div className="text-center">
+                    <div className="mx-auto w-16 h-16 bg-ui-blue-secondary/30 rounded-full flex items-center justify-center mb-3">
+                      <CheckCircle2 className="w-8 h-8 text-ui-blue-primary" />
                     </div>
+                    <h3 className="text-xl font-bold text-white mb-1">
+                      Enter your verification code
+                    </h3>
+                    <p className="text-sm text-gray-200">
+                      We’ve sent a 6-digit code to{' '}
+                      <span className="font-semibold">{email}</span>
+                    </p>
                   </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">Check your email!</h3>
-                  <p className="text-gray-600 mb-4">
-                    We've sent a magic link to <span className="font-semibold">{email}</span>
-                  </p>
-                  <p className="text-sm text-gray-500">
-                    Click the link in your email to sign in. You can close this page.
-                  </p>
-                  <button
-                    onClick={() => setEmailSent(false)}
-                    className="mt-6 text-ui-purple-primary hover:underline text-sm font-medium"
-                  >
-                    Try a different email
-                  </button>
+
+                  <form onSubmit={handleOtpVerify} className="space-y-4">
+                    <div>
+                      <label
+                        htmlFor="code"
+                        className="block text-sm font-medium text-gray-100 mb-2"
+                      >
+                        6-digit code
+                      </label>
+                      <Input
+                        id="code"
+                        type="text"
+                        inputMode="numeric"
+                        maxLength={6}
+                        value={code}
+                        onChange={(e) =>
+                          setCode(e.target.value.replace(/\D/g, ''))
+                        }
+                        placeholder="••••••"
+                        className="text-center tracking-[0.5em] text-lg font-semibold"
+                        disabled={isVerifying || isSubmitting}
+                        required
+                      />
+                      <p className="text-xs text-gray-200 mt-1">
+                        Code is valid for 10 minutes.
+                      </p>
+                    </div>
+
+                    <PrimaryCTAButton
+                      type="submit"
+                      disabled={isVerifying || code.length !== 6}
+                      variant="purple"
+                      className="w-full justify-center"
+                    >
+                      {isVerifying ? (
+                        <>
+                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2" />
+                          <span>Verifying...</span>
+                        </>
+                      ) : (
+                        <span>Verify & continue</span>
+                      )}
+                    </PrimaryCTAButton>
+                  </form>
+
+                  <div className="flex flex-col gap-2 text-center text-xs text-gray-200">
+                    <button
+                      type="button"
+                      onClick={handleResend}
+                      disabled={isSubmitting || isVerifying}
+                      className="text-ui-blue-primary hover:underline disabled:opacity-60"
+                    >
+                      Didn’t get the code? Resend
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setStep('email');
+                        setCode('');
+                        setMessage(null);
+                        setEmailErrorMessage(null);
+                      }}
+                      className="text-gray-300 hover:underline"
+                    >
+                      Use a different email
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
 
             {/* Info Box */}
-            <div className="glass-card rounded-3xl border-2 border-white/40 p-8 shadow-premium space-y-6">
-              <div className="space-y-3">
-                <h3 className="font-bold text-base">What happens next?</h3>
-                <ul className="text-sm text-gray-600 space-y-3">
-                  <li className="flex items-start space-x-3">
-                    <CheckCircle2 className="w-5 h-5 text-ui-blue-primary flex-shrink-0 mt-0.5" />
-                    <span>Complete your profile and verification</span>
-                  </li>
-                  <li className="flex items-start space-x-3">
-                    <CheckCircle2 className="w-5 h-5 text-ui-purple-primary flex-shrink-0 mt-0.5" />
-                    <span>Set your availability and preferences</span>
-                  </li>
-                  <li className="flex items-start space-x-3">
-                    <CheckCircle2 className="w-5 h-5 text-ui-success flex-shrink-0 mt-0.5" />
-                    <span>Start receiving booking requests</span>
-                  </li>
-                  <li className="flex items-start space-x-3">
-                    <CheckCircle2 className="w-5 h-5 text-ui-purple-accent flex-shrink-0 mt-0.5" />
-                    <span>Earn money by guiding travelers</span>
-                  </li>
-                </ul>
+            <div className="glass-frosted bg-ui-purple-primary/10 border-2 border-ui-purple-primary/30 rounded-2xl p-6 shadow-soft hover-lift">
+              <div className="flex items-start space-x-3">
+                <div className="text-2xl">🎓</div>
+                <div>
+                  <h3 className="font-bold text-ui-purple-accent mb-2">
+                    What happens next?
+                  </h3>
+                  <ul className="list-disc list-inside text-sm text-ui-purple-accent/80 space-y-1">
+                    <li>Complete your profile and verification</li>
+                    <li>Set your availability and preferences</li>
+                    <li>Start receiving booking requests</li>
+                    <li>Earn money by guiding travelers</li>
+                  </ul>
+                </div>
               </div>
             </div>
 
             {/* Tourist Link */}
             <div className="text-center">
-              <p className="text-gray-600">
+              <p className="text-gray-200">
                 Looking to book a guide?{' '}
                 <Link
                   href="/tourist/signin"
-                  className="text-ui-purple-primary hover:underline font-medium"
+                  className="text-ui-blue-primary hover:underline font-medium"
                 >
                   Sign in as Tourist
                 </Link>
@@ -341,7 +415,7 @@ function StudentSignInContent() {
 
         {/* Footer */}
         <footer className="border-t-2 glass-card border-white/40 mt-16 animate-fade-in">
-          <div className="container mx-auto px-4 py-8 text-center text-gray-700">
+          <div className="container mx-auto px-4 py-8 text-center text-gray-100">
             <p>&copy; {new Date().getFullYear()} TourWiseCo. All rights reserved.</p>
           </div>
         </footer>
@@ -352,14 +426,16 @@ function StudentSignInContent() {
 
 export default function StudentSignIn() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-ui-blue-secondary to-ui-purple-secondary">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-ui-purple-primary mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading...</p>
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-ui-blue-secondary to-ui-purple-secondary">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-ui-purple-primary mx-auto mb-4" />
+            <p className="text-gray-600">Loading...</p>
+          </div>
         </div>
-      </div>
-    }>
+      }
+    >
       <StudentSignInContent />
     </Suspense>
   );
