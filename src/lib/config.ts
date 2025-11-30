@@ -150,7 +150,7 @@ function loadConfig(): AppConfig {
   if (!nextAuthUrl) {
     if (isProduction) {
       configWarnings.push(
-        'NEXTAUTH_URL is not set - Vercel can auto-detect this, but explicit is recommended. Set to: https://wandernest2-umber.vercel.app'
+        'NEXTAUTH_URL is not set - Vercel can auto-detect this, but explicit is recommended. Set to your production domain (e.g., https://tourwiseco.com)'
       )
     } else {
       configWarnings.push('NEXTAUTH_URL is not set - using default (http://localhost:3000)')
@@ -255,7 +255,7 @@ function loadConfig(): AppConfig {
  */
 export function logConfigStatus(): void {
   console.log('\n========================================')
-  console.log('🔧 WanderNest Configuration Status')
+  console.log('🔧 TourWiseCo Configuration Status')
   console.log('========================================')
 
   console.log(`\n📊 Environment: ${config.app.nodeEnv}`)

@@ -22,7 +22,7 @@ function getBaseUrl(): string {
     console.warn(
       '⚠️  NEXT_PUBLIC_BASE_URL not configured - email links will use fallback'
     )
-    return 'https://wandernest.com' // Fallback URL
+    return 'https://tourwiseco.com' // Fallback URL
   }
   return baseUrl
 }

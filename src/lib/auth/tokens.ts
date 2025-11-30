@@ -12,7 +12,7 @@
 import * as crypto from 'crypto';
 
 // Secret key for signing tokens - use env var or fallback to secure random string
-const TOKEN_SECRET = process.env.TOKEN_SECRET || process.env.NEXTAUTH_SECRET || 'wandernest-token-secret-change-in-production';
+const TOKEN_SECRET = process.env.TOKEN_SECRET || process.env.NEXTAUTH_SECRET || 'tourwiseco-token-secret-change-in-production';
 
 export interface MatchTokenPayload {
   requestId: string;
@@ -100,7 +100,7 @@ export function verifyMatchToken(token: string): MatchTokenPayload | null {
 /**
  * Generate accept and decline URLs for a student match
  *
- * @param baseUrl - The base URL of the application (e.g., https://wandernest.com)
+ * @param baseUrl - The base URL of the application (e.g., https://tourwiseco.com)
  * @param requestId - TouristRequest ID
  * @param studentId - Student ID
  * @param selectionId - RequestSelection ID

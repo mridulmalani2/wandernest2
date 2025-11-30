@@ -4,7 +4,6 @@ import { Suspense, useEffect, useState } from 'react';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-
 import Navigation from '@/components/Navigation';
 import { PrimaryCTAButton } from '@/components/ui/PrimaryCTAButton';
 
