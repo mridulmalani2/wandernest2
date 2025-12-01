@@ -4,8 +4,10 @@ import { useRef, ChangeEvent } from 'react';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Input } from '@/components/ui/input';
+import { ModernInput } from '@/components/ui/ModernInput';
 import { OnboardingFormData } from './OnboardingWizard';
+import { Upload, X, Shield, FileText, User, Camera, CheckCircle2 } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface StudentVerificationStepProps {
   formData: OnboardingFormData;
@@ -68,381 +70,248 @@ export function StudentVerificationStep({ formData, updateFormData, errors }: St
 
   const handleRemoveFile = (fileType: 'studentId' | 'governmentId' | 'selfie' | 'profilePhoto') => {
     if (fileType === 'studentId') {
-      if (formData.studentIdPreview) {
-        URL.revokeObjectURL(formData.studentIdPreview);
-      }
-      updateFormData({
-        studentIdFile: null,
-        studentIdPreview: '',
-      });
-      if (studentIdInputRef.current) {
-        studentIdInputRef.current.value = '';
-      }
+      if (formData.studentIdPreview) URL.revokeObjectURL(formData.studentIdPreview);
+      updateFormData({ studentIdFile: null, studentIdPreview: '' });
+      if (studentIdInputRef.current) studentIdInputRef.current.value = '';
     } else if (fileType === 'governmentId') {
-      if (formData.governmentIdPreview) {
-        URL.revokeObjectURL(formData.governmentIdPreview);
-      }
-      updateFormData({
-        governmentIdFile: null,
-        governmentIdPreview: '',
-      });
-      if (governmentIdInputRef.current) {
-        governmentIdInputRef.current.value = '';
-      }
+      if (formData.governmentIdPreview) URL.revokeObjectURL(formData.governmentIdPreview);
+      updateFormData({ governmentIdFile: null, governmentIdPreview: '' });
+      if (governmentIdInputRef.current) governmentIdInputRef.current.value = '';
     } else if (fileType === 'selfie') {
-      if (formData.selfiePreview) {
-        URL.revokeObjectURL(formData.selfiePreview);
-      }
-      updateFormData({
-        selfieFile: null,
-        selfiePreview: '',
-      });
-      if (selfieInputRef.current) {
-        selfieInputRef.current.value = '';
-      }
+      if (formData.selfiePreview) URL.revokeObjectURL(formData.selfiePreview);
+      updateFormData({ selfieFile: null, selfiePreview: '' });
+      if (selfieInputRef.current) selfieInputRef.current.value = '';
     } else if (fileType === 'profilePhoto') {
-      if (formData.profilePhotoPreview) {
-        URL.revokeObjectURL(formData.profilePhotoPreview);
-      }
-      updateFormData({
-        profilePhotoFile: null,
-        profilePhotoPreview: '',
-      });
-      if (profilePhotoInputRef.current) {
-        profilePhotoInputRef.current.value = '';
-      }
+      if (formData.profilePhotoPreview) URL.revokeObjectURL(formData.profilePhotoPreview);
+      updateFormData({ profilePhotoFile: null, profilePhotoPreview: '' });
+      if (profilePhotoInputRef.current) profilePhotoInputRef.current.value = '';
     }
   };
 
+  const FileUploadCard = ({
+    title,
+    description,
+    file,
+    preview,
+    error,
+    inputRef,
+    accept = "image/jpeg,image/jpg,image/png,image/webp",
+    onChange,
+    onRemove,
+    icon: Icon
+  }: {
+    title: string;
+    description: string;
+    file: File | null;
+    preview: string;
+    error?: string;
+    inputRef: React.RefObject<HTMLInputElement>;
+    accept?: string;
+    onChange: (e: ChangeEvent<HTMLInputElement>) => void;
+    onRemove: () => void;
+    icon: any;
+  }) => (
+    <div className={cn(
+      "relative group border-2 border-dashed rounded-3xl p-6 transition-all duration-300",
+      error ? "border-ui-error bg-ui-error/5" : "border-gray-200 hover:border-ui-blue-primary/50 hover:bg-ui-blue-primary/5",
+      preview ? "border-solid border-ui-success/50 bg-ui-success/5" : ""
+    )}>
+      <input
+        ref={inputRef}
+        type="file"
+        accept={accept}
+        onChange={onChange}
+        className="hidden"
+      />
+
+      {preview ? (
+        <div className="relative">
+          <button
+            onClick={onRemove}
+            className="absolute -top-2 -right-2 p-1.5 bg-white rounded-full shadow-md text-gray-400 hover:text-ui-error transition-colors z-10"
+          >
+            <X className="h-4 w-4" />
+          </button>
+
+          <div className="flex flex-col items-center">
+            {file?.type === 'application/pdf' ? (
+              <div className="w-full h-48 bg-white rounded-2xl flex flex-col items-center justify-center border border-gray-100 shadow-sm">
+                <FileText className="h-12 w-12 text-ui-blue-primary mb-3" />
+                <p className="font-medium text-gray-900 px-4 text-center truncate max-w-full">{file.name}</p>
+                <p className="text-sm text-gray-500">PDF Document</p>
+              </div>
+            ) : (
+              <div className="relative w-full h-48 rounded-2xl overflow-hidden shadow-sm">
+                <img
+                  src={preview}
+                  alt="Preview"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            )}
+            <div className="mt-4 flex items-center text-ui-success font-medium">
+              <CheckCircle2 className="h-4 w-4 mr-2" />
+              Uploaded Successfully
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div
+          className="flex flex-col items-center justify-center text-center cursor-pointer py-8"
+          onClick={() => inputRef.current?.click()}
+        >
+          <div className="h-16 w-16 rounded-full bg-white shadow-sm flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+            <Icon className="h-8 w-8 text-ui-blue-primary/60 group-hover:text-ui-blue-primary" />
+          </div>
+          <h4 className="font-semibold text-gray-900 mb-1">{title}</h4>
+          <p className="text-sm text-gray-500 max-w-xs">{description}</p>
+          <Button variant="outline" className="mt-6 pointer-events-none">
+            <Upload className="h-4 w-4 mr-2" />
+            Select File
+          </Button>
+        </div>
+      )}
+      {error && <p className="text-xs text-ui-error mt-2 text-center font-medium animate-slide-down">{error}</p>}
+    </div>
+  );
+
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold mb-2">Identity Verification</h2>
-        <p className="text-gray-600">Upload required documents to verify your identity and student status.</p>
+    <div className="space-y-8 animate-fade-in">
+      <div className="text-center mb-8">
+        <h2 className="text-3xl font-bold bg-gradient-to-r from-ui-blue-primary to-ui-purple-primary bg-clip-text text-transparent mb-2">
+          Identity Verification
+        </h2>
+        <p className="text-gray-600 max-w-lg mx-auto">
+          We need to verify your student status to maintain a safe and trusted community.
+        </p>
       </div>
 
       {/* Why we need this */}
-      <div className="bg-[hsl(var(--ui-blue-primary)/0.1)] border border-[hsl(var(--ui-blue-primary)/0.3)] rounded-lg p-4">
-        <h3 className="font-bold text-[hsl(var(--ui-blue-primary))] mb-2">Why do we need these documents?</h3>
-        <ul className="text-sm text-[hsl(var(--ui-blue-accent))] space-y-1 list-disc list-inside">
-          <li>Ensures only verified students can become guides</li>
-          <li>Builds trust with tourists and the TourWiseCo community</li>
-          <li>Protects both guides and visitors</li>
-          <li>Verifies your identity matches your profile</li>
-        </ul>
+      <div className="bg-ui-blue-primary/5 border border-ui-blue-primary/20 rounded-2xl p-6 flex gap-4 items-start">
+        <div className="p-2 bg-white rounded-xl shadow-sm text-ui-blue-primary shrink-0">
+          <Shield className="h-6 w-6" />
+        </div>
+        <div>
+          <h3 className="font-bold text-gray-900 mb-2">Why verification matters</h3>
+          <p className="text-sm text-gray-600 leading-relaxed">
+            TourWiseCo is built on trust. By verifying your student status and identity, we ensure safety for both you and the tourists you'll be guiding. Your documents are encrypted and handled securely.
+          </p>
+        </div>
       </div>
 
-      {/* Student ID Upload */}
-      <div className="space-y-4">
-        <div className="flex justify-between items-center">
-          <Label>
-            Student ID Card Upload <span className="text-[hsl(var(--ui-error))]">*</span>
-          </Label>
-        </div>
-
-        <div className={`border-2 border-dashed rounded-lg p-6 text-center ${
-          errors.studentIdFile ? 'border-[hsl(var(--ui-error))] bg-[hsl(var(--ui-error)/0.1)]' : 'border-gray-300'
-        }`}>
-          {formData.studentIdPreview ? (
-            <div className="space-y-4">
-              {formData.studentIdFile?.type === 'application/pdf' ? (
-                <div className="flex items-center justify-center p-8 bg-gray-100 rounded">
-                  <div className="text-center">
-                    <div className="text-4xl mb-2">📄</div>
-                    <p className="font-medium">{formData.studentIdFile?.name}</p>
-                    <p className="text-sm text-gray-500">PDF Document</p>
-                  </div>
-                </div>
-              ) : (
-                <img
-                  src={formData.studentIdPreview}
-                  alt="Student ID preview"
-                  className="max-w-full max-h-64 mx-auto rounded border"
-                />
-              )}
-              <div className="flex justify-center gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => studentIdInputRef.current?.click()}
-                >
-                  Change File
-                </Button>
-                <Button type="button" variant="destructive" onClick={() => handleRemoveFile('studentId')}>
-                  Remove
-                </Button>
-              </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Student ID Section */}
+        <div className="bg-white/50 backdrop-blur-sm border border-white/60 rounded-3xl p-6 shadow-lg space-y-6">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="h-8 w-8 rounded-full bg-ui-blue-primary/10 flex items-center justify-center text-ui-blue-primary">
+              <FileText className="h-4 w-4" />
             </div>
-          ) : (
-            <div className="space-y-3">
-              <div className="text-4xl">🎓</div>
-              <div>
-                <p className="font-medium mb-1">Upload your student ID card</p>
-                <p className="text-sm text-gray-500">
-                  Clear image or scan where name, photo, and expiry are visible
-                </p>
-                <p className="text-xs text-gray-400 mt-2">
-                  Accepted formats: JPG, PNG, WebP, PDF (Max 5MB)
-                </p>
-              </div>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => studentIdInputRef.current?.click()}
-              >
-                Choose File
-              </Button>
-            </div>
-          )}
-        </div>
+            <h3 className="font-bold text-gray-800">Student ID</h3>
+          </div>
 
-        <input
-          ref={studentIdInputRef}
-          type="file"
-          accept="image/jpeg,image/jpg,image/png,image/webp,application/pdf"
-          onChange={(e) => handleFileChange(e, 'studentId')}
-          className="hidden"
-        />
+          <FileUploadCard
+            title="Upload Student ID"
+            description="Clear scan/photo showing name & expiry"
+            file={formData.studentIdFile}
+            preview={formData.studentIdPreview}
+            error={errors.studentIdFile}
+            inputRef={studentIdInputRef}
+            accept="image/jpeg,image/jpg,image/png,image/webp,application/pdf"
+            onChange={(e) => handleFileChange(e, 'studentId')}
+            onRemove={() => handleRemoveFile('studentId')}
+            icon={FileText}
+          />
 
-        {/* Student ID Expiry */}
-        <div className="space-y-2">
-          <Label htmlFor="studentIdExpiry">
-            Student ID Expiry Date <span className="text-[hsl(var(--ui-error))]">*</span>
-          </Label>
-          <Input
-            id="studentIdExpiry"
+          <ModernInput
+            label="Expiry Date"
             type="date"
             value={formData.studentIdExpiry}
             onChange={(e) => updateFormData({ studentIdExpiry: e.target.value })}
             min={new Date().toISOString().split('T')[0]}
-            className={errors.studentIdExpiry ? 'border-[hsl(var(--ui-error))]' : ''}
+            error={errors.studentIdExpiry}
           />
-          {errors.studentIdExpiry && <p className="text-sm text-[hsl(var(--ui-error))]">{errors.studentIdExpiry}</p>}
         </div>
 
-        {errors.studentIdFile && <p className="text-sm text-[hsl(var(--ui-error))]">{errors.studentIdFile}</p>}
-      </div>
-
-      {/* Government ID Upload */}
-      <div className="space-y-4">
-        <Label>
-          Government ID Upload (Passport or National ID) <span className="text-[hsl(var(--ui-error))]">*</span>
-        </Label>
-
-        <div className={`border-2 border-dashed rounded-lg p-6 text-center ${
-          errors.governmentIdFile ? 'border-[hsl(var(--ui-error))] bg-[hsl(var(--ui-error)/0.1)]' : 'border-gray-300'
-        }`}>
-          {formData.governmentIdPreview ? (
-            <div className="space-y-4">
-              {formData.governmentIdFile?.type === 'application/pdf' ? (
-                <div className="flex items-center justify-center p-8 bg-gray-100 rounded">
-                  <div className="text-center">
-                    <div className="text-4xl mb-2">📄</div>
-                    <p className="font-medium">{formData.governmentIdFile?.name}</p>
-                    <p className="text-sm text-gray-500">PDF Document</p>
-                  </div>
-                </div>
-              ) : (
-                <img
-                  src={formData.governmentIdPreview}
-                  alt="Government ID preview"
-                  className="max-w-full max-h-64 mx-auto rounded border"
-                />
-              )}
-              <div className="flex justify-center gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => governmentIdInputRef.current?.click()}
-                >
-                  Change File
-                </Button>
-                <Button type="button" variant="destructive" onClick={() => handleRemoveFile('governmentId')}>
-                  Remove
-                </Button>
-              </div>
+        {/* Government ID Section */}
+        <div className="bg-white/50 backdrop-blur-sm border border-white/60 rounded-3xl p-6 shadow-lg space-y-6">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="h-8 w-8 rounded-full bg-ui-purple-primary/10 flex items-center justify-center text-ui-purple-primary">
+              <User className="h-4 w-4" />
             </div>
-          ) : (
-            <div className="space-y-3">
-              <div className="text-4xl">🛂</div>
-              <div>
-                <p className="font-medium mb-1">Upload your passport or national ID</p>
-                <p className="text-sm text-gray-500">
-                  Clear image where name, photo, and date of birth are visible
-                </p>
-                <p className="text-xs text-gray-400 mt-2">
-                  Accepted formats: JPG, PNG, WebP, PDF (Max 5MB)
-                </p>
-              </div>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => governmentIdInputRef.current?.click()}
-              >
-                Choose File
-              </Button>
-            </div>
-          )}
-        </div>
+            <h3 className="font-bold text-gray-800">Government ID</h3>
+          </div>
 
-        <input
-          ref={governmentIdInputRef}
-          type="file"
-          accept="image/jpeg,image/jpg,image/png,image/webp,application/pdf"
-          onChange={(e) => handleFileChange(e, 'governmentId')}
-          className="hidden"
-        />
+          <FileUploadCard
+            title="Upload ID / Passport"
+            description="Passport or National ID card"
+            file={formData.governmentIdFile}
+            preview={formData.governmentIdPreview}
+            error={errors.governmentIdFile}
+            inputRef={governmentIdInputRef}
+            accept="image/jpeg,image/jpg,image/png,image/webp,application/pdf"
+            onChange={(e) => handleFileChange(e, 'governmentId')}
+            onRemove={() => handleRemoveFile('governmentId')}
+            icon={User}
+          />
 
-        {/* Government ID Expiry */}
-        <div className="space-y-2">
-          <Label htmlFor="governmentIdExpiry">
-            Government ID Expiry Date <span className="text-[hsl(var(--ui-error))]">*</span>
-          </Label>
-          <Input
-            id="governmentIdExpiry"
+          <ModernInput
+            label="Expiry Date"
             type="date"
             value={formData.governmentIdExpiry}
             onChange={(e) => updateFormData({ governmentIdExpiry: e.target.value })}
             min={new Date().toISOString().split('T')[0]}
-            className={errors.governmentIdExpiry ? 'border-[hsl(var(--ui-error))]' : ''}
+            error={errors.governmentIdExpiry}
           />
-          {errors.governmentIdExpiry && <p className="text-sm text-[hsl(var(--ui-error))]">{errors.governmentIdExpiry}</p>}
         </div>
 
-        {errors.governmentIdFile && <p className="text-sm text-[hsl(var(--ui-error))]">{errors.governmentIdFile}</p>}
-      </div>
-
-      {/* Selfie Upload */}
-      <div className="space-y-4">
-        <Label>
-          Selfie for Verification <span className="text-[hsl(var(--ui-error))]">*</span>
-        </Label>
-        <p className="text-sm text-gray-600">Take a selfie holding your student ID card next to your face</p>
-
-        <div className={`border-2 border-dashed rounded-lg p-6 text-center ${
-          errors.selfieFile ? 'border-[hsl(var(--ui-error))] bg-[hsl(var(--ui-error)/0.1)]' : 'border-gray-300'
-        }`}>
-          {formData.selfiePreview ? (
-            <div className="space-y-4">
-              <img
-                src={formData.selfiePreview}
-                alt="Selfie preview"
-                className="max-w-full max-h-64 mx-auto rounded border"
-              />
-              <div className="flex justify-center gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => selfieInputRef.current?.click()}
-                >
-                  Change Photo
-                </Button>
-                <Button type="button" variant="destructive" onClick={() => handleRemoveFile('selfie')}>
-                  Remove
-                </Button>
-              </div>
+        {/* Selfie Section */}
+        <div className="bg-white/50 backdrop-blur-sm border border-white/60 rounded-3xl p-6 shadow-lg space-y-6">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="h-8 w-8 rounded-full bg-pink-500/10 flex items-center justify-center text-pink-500">
+              <Camera className="h-4 w-4" />
             </div>
-          ) : (
-            <div className="space-y-3">
-              <div className="text-4xl">🤳</div>
-              <div>
-                <p className="font-medium mb-1">Upload a selfie with your ID</p>
-                <p className="text-sm text-gray-500">
-                  Both your face and student ID should be clearly visible
-                </p>
-                <p className="text-xs text-gray-400 mt-2">
-                  Accepted formats: JPG, PNG, WebP (Max 5MB)
-                </p>
-              </div>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => selfieInputRef.current?.click()}
-              >
-                Choose Photo
-              </Button>
-            </div>
-          )}
+            <h3 className="font-bold text-gray-800">Verification Selfie</h3>
+          </div>
+
+          <FileUploadCard
+            title="Take a Selfie"
+            description="Hold your Student ID next to your face"
+            file={formData.selfieFile}
+            preview={formData.selfiePreview}
+            error={errors.selfieFile}
+            inputRef={selfieInputRef}
+            onChange={(e) => handleFileChange(e, 'selfie')}
+            onRemove={() => handleRemoveFile('selfie')}
+            icon={Camera}
+          />
         </div>
 
-        <input
-          ref={selfieInputRef}
-          type="file"
-          accept="image/jpeg,image/jpg,image/png,image/webp"
-          onChange={(e) => handleFileChange(e, 'selfie')}
-          className="hidden"
-        />
-
-        {errors.selfieFile && <p className="text-sm text-[hsl(var(--ui-error))]">{errors.selfieFile}</p>}
-      </div>
-
-      {/* Profile Photo Upload */}
-      <div className="space-y-4">
-        <Label>
-          Profile Photo <span className="text-[hsl(var(--ui-error))]">*</span>
-        </Label>
-        <p className="text-sm text-gray-600">Upload a professional photo for your public guide profile</p>
-
-        <div className={`border-2 border-dashed rounded-lg p-6 text-center ${
-          errors.profilePhotoFile ? 'border-[hsl(var(--ui-error))] bg-[hsl(var(--ui-error)/0.1)]' : 'border-gray-300'
-        }`}>
-          {formData.profilePhotoPreview ? (
-            <div className="space-y-4">
-              <img
-                src={formData.profilePhotoPreview}
-                alt="Profile photo preview"
-                className="max-w-full max-h-64 mx-auto rounded border"
-              />
-              <div className="flex justify-center gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => profilePhotoInputRef.current?.click()}
-                >
-                  Change Photo
-                </Button>
-                <Button type="button" variant="destructive" onClick={() => handleRemoveFile('profilePhoto')}>
-                  Remove
-                </Button>
-              </div>
+        {/* Profile Photo Section */}
+        <div className="bg-white/50 backdrop-blur-sm border border-white/60 rounded-3xl p-6 shadow-lg space-y-6">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="h-8 w-8 rounded-full bg-teal-500/10 flex items-center justify-center text-teal-500">
+              <User className="h-4 w-4" />
             </div>
-          ) : (
-            <div className="space-y-3">
-              <div className="text-4xl">📸</div>
-              <div>
-                <p className="font-medium mb-1">Upload your profile photo</p>
-                <p className="text-sm text-gray-500">
-                  A friendly, professional photo that tourists will see
-                </p>
-                <p className="text-xs text-gray-400 mt-2">
-                  Accepted formats: JPG, PNG, WebP (Max 5MB)
-                </p>
-              </div>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => profilePhotoInputRef.current?.click()}
-              >
-                Choose Photo
-              </Button>
-            </div>
-          )}
+            <h3 className="font-bold text-gray-800">Public Profile Photo</h3>
+          </div>
+
+          <FileUploadCard
+            title="Profile Photo"
+            description="Friendly, professional photo for tourists"
+            file={formData.profilePhotoFile}
+            preview={formData.profilePhotoPreview}
+            error={errors.profilePhotoFile}
+            inputRef={profilePhotoInputRef}
+            onChange={(e) => handleFileChange(e, 'profilePhoto')}
+            onRemove={() => handleRemoveFile('profilePhoto')}
+            icon={User}
+          />
         </div>
-
-        <input
-          ref={profilePhotoInputRef}
-          type="file"
-          accept="image/jpeg,image/jpg,image/png,image/webp"
-          onChange={(e) => handleFileChange(e, 'profilePhoto')}
-          className="hidden"
-        />
-
-        {errors.profilePhotoFile && <p className="text-sm text-[hsl(var(--ui-error))]">{errors.profilePhotoFile}</p>}
       </div>
 
       {/* Consent Checkboxes */}
-      <div className="space-y-4">
-        <div className="flex items-start space-x-3 p-4 border rounded-lg">
+      <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-6 md:p-8 shadow-sm border border-gray-100 space-y-4">
+        <div className="flex items-start space-x-3 p-4 hover:bg-gray-50 rounded-xl transition-colors cursor-pointer" onClick={() => updateFormData({ documentsOwnedConfirmation: !formData.documentsOwnedConfirmation })}>
           <Checkbox
             id="documentsOwnedConfirmation"
             checked={formData.documentsOwnedConfirmation}
@@ -453,18 +322,17 @@ export function StudentVerificationStep({ formData, updateFormData, errors }: St
           <div className="flex-1">
             <Label
               htmlFor="documentsOwnedConfirmation"
-              className="text-sm font-normal cursor-pointer leading-relaxed"
+              className="text-sm font-medium cursor-pointer leading-relaxed text-gray-700"
             >
-              I confirm these documents are mine and the information is accurate.{' '}
-              <span className="text-[hsl(var(--ui-error))]">*</span>
+              I confirm these documents are mine and the information is accurate.
             </Label>
           </div>
         </div>
         {errors.documentsOwnedConfirmation && (
-          <p className="text-sm text-[hsl(var(--ui-error))]">{errors.documentsOwnedConfirmation}</p>
+          <p className="text-sm text-ui-error px-4">{errors.documentsOwnedConfirmation}</p>
         )}
 
-        <div className="flex items-start space-x-3 p-4 border rounded-lg">
+        <div className="flex items-start space-x-3 p-4 hover:bg-gray-50 rounded-xl transition-colors cursor-pointer" onClick={() => updateFormData({ verificationConsent: !formData.verificationConsent })}>
           <Checkbox
             id="verificationConsent"
             checked={formData.verificationConsent}
@@ -475,36 +343,21 @@ export function StudentVerificationStep({ formData, updateFormData, errors }: St
           <div className="flex-1">
             <Label
               htmlFor="verificationConsent"
-              className="text-sm font-normal cursor-pointer leading-relaxed"
+              className="text-sm font-medium cursor-pointer leading-relaxed text-gray-700"
             >
-              I consent to verification of these documents by TourWiseCo and understand that false information may result in account suspension.{' '}
-              <span className="text-[hsl(var(--ui-error))]">*</span>
+              I consent to verification of these documents by TourWiseCo and understand that false information may result in account suspension.
             </Label>
           </div>
         </div>
         {errors.verificationConsent && (
-          <p className="text-sm text-[hsl(var(--ui-error))]">{errors.verificationConsent}</p>
+          <p className="text-sm text-ui-error px-4">{errors.verificationConsent}</p>
         )}
       </div>
 
-      {/* Upload Requirements */}
-      <div className="bg-gray-50 border rounded-lg p-4 text-sm">
-        <p className="font-medium mb-2">Document Requirements:</p>
-        <ul className="space-y-1 text-gray-700 list-disc list-inside">
-          <li>All documents must be clear and not blurry</li>
-          <li>Your full name must be visible on all IDs</li>
-          <li>Photos must show your face clearly</li>
-          <li>Expiry dates must be valid (not expired)</li>
-          <li>All corners of ID cards should be visible</li>
-        </ul>
-      </div>
-
       {/* Security Note */}
-      <div className="bg-[hsl(var(--ui-success)/0.1)] border border-[hsl(var(--ui-success)/0.3)] rounded-lg p-4">
-        <p className="text-sm text-[hsl(var(--ui-success))]">
-          <strong>🔒 Privacy & Security:</strong> Your documents are encrypted and only used for verification purposes.
-          They will be reviewed by our team and will not be shared publicly or with tourists.
-        </p>
+      <div className="flex items-center justify-center gap-2 text-sm text-gray-500">
+        <Shield className="h-4 w-4" />
+        <span>Your data is encrypted and secure.</span>
       </div>
     </div>
   );

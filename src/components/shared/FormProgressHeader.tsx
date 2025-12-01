@@ -65,7 +65,7 @@ export function FormProgressHeader({
         {/* Mobile Progress Bar */}
         <div className="relative h-1.5 bg-white/20 rounded-full overflow-hidden backdrop-blur-sm">
           <div
-            className="absolute top-0 left-0 h-full bg-gradient-to-r from-teal-400 via-teal-500 to-teal-600 rounded-full transition-all duration-500 ease-out shadow-lg shadow-teal-500/30"
+            className="absolute top-0 left-0 h-full bg-gradient-to-r from-ui-blue-primary via-ui-purple-primary to-ui-purple-accent rounded-full transition-all duration-500 ease-out shadow-lg shadow-ui-blue-primary/30"
             style={{ width: `${(currentStep / steps.length) * 100}%` }}
           />
         </div>
@@ -78,14 +78,13 @@ export function FormProgressHeader({
               onClick={() => handleStepClick(step.id)}
               onKeyPress={(e) => handleKeyPress(e, step.id)}
               disabled={!onStepClick}
-              aria-label={`${step.name}: ${
-                isStepCompleted(step.id) ? 'Completed' : isStepCurrent(step.id) ? 'Current step' : 'Upcoming'
-              }`}
+              aria-label={`${step.name}: ${isStepCompleted(step.id) ? 'Completed' : isStepCurrent(step.id) ? 'Current step' : 'Upcoming'
+                }`}
               aria-current={isStepCurrent(step.id) ? 'step' : undefined}
               className={cn(
                 'w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-transparent',
-                isStepCompleted(step.id) && 'bg-teal-500 text-white shadow-md shadow-teal-500/40 scale-100',
-                isStepCurrent(step.id) && 'bg-white text-teal-600 shadow-lg shadow-white/50 scale-110 ring-2 ring-white/30 ring-offset-2 ring-offset-teal-500/20',
+                isStepCompleted(step.id) && 'bg-ui-blue-primary text-white shadow-md shadow-ui-blue-primary/40 scale-100',
+                isStepCurrent(step.id) && 'bg-white text-ui-blue-primary shadow-lg shadow-white/50 scale-110 ring-2 ring-white/30 ring-offset-2 ring-offset-ui-blue-primary/20',
                 isStepUpcoming(step.id) && 'bg-white/30 text-white/60 scale-90',
                 onStepClick && !isStepCurrent(step.id) && 'hover:scale-105 cursor-pointer'
               )}
@@ -121,7 +120,7 @@ export function FormProgressHeader({
                           <div
                             className={cn(
                               'h-full transition-all duration-500 ease-out',
-                              isStepCompleted(steps[index - 1].id) ? 'bg-teal-500' : 'bg-white/20'
+                              isStepCompleted(steps[index - 1].id) ? 'bg-ui-blue-primary' : 'bg-white/20'
                             )}
                           />
                         </div>
@@ -133,7 +132,7 @@ export function FormProgressHeader({
                           <div
                             className={cn(
                               'h-full transition-all duration-500 ease-out',
-                              completed ? 'bg-teal-500' : 'bg-white/20'
+                              completed ? 'bg-ui-blue-primary' : 'bg-white/20'
                             )}
                           />
                         </div>
@@ -144,18 +143,17 @@ export function FormProgressHeader({
                         onClick={() => handleStepClick(step.id)}
                         onKeyPress={(e) => handleKeyPress(e, step.id)}
                         disabled={!onStepClick}
-                        aria-label={`Step ${step.id}: ${step.name}. ${
-                          completed ? 'Completed' : current ? 'Current step' : 'Upcoming'
-                        }`}
+                        aria-label={`Step ${step.id}: ${step.name}. ${completed ? 'Completed' : current ? 'Current step' : 'Upcoming'
+                          }`}
                         aria-current={current ? 'step' : undefined}
                         className={cn(
                           'relative w-12 h-12 rounded-full flex items-center justify-center font-semibold text-base transition-all duration-300 focus:outline-none focus:ring-3 focus:ring-white focus:ring-offset-4 focus:ring-offset-transparent z-10',
-                          completed && 'bg-teal-500 text-white shadow-md hover:shadow-lg hover:shadow-teal-500/30',
-                          current && 'bg-white text-teal-600 shadow-xl shadow-white/40 scale-110 ring-4 ring-teal-400/30',
+                          completed && 'bg-ui-blue-primary text-white shadow-md hover:shadow-lg hover:shadow-ui-blue-primary/30',
+                          current && 'bg-white text-ui-blue-primary shadow-xl shadow-white/40 scale-110 ring-4 ring-ui-blue-primary/30',
                           upcoming && 'bg-white/25 backdrop-blur-sm text-white/70 border border-white/30',
                           onStepClick && !current && 'hover:scale-105 cursor-pointer hover:shadow-lg',
                           onStepClick && upcoming && 'hover:bg-white/35 hover:border-white/50',
-                          onStepClick && completed && 'hover:shadow-teal-500/50'
+                          onStepClick && completed && 'hover:shadow-ui-blue-primary/50'
                         )}
                       >
                         {completed ? (
@@ -166,7 +164,7 @@ export function FormProgressHeader({
                           <span className="relative">
                             {step.id}
                             {current && (
-                              <span className="absolute inset-0 rounded-full bg-teal-400 animate-ping opacity-20" />
+                              <span className="absolute inset-0 rounded-full bg-ui-blue-primary animate-ping opacity-20" />
                             )}
                           </span>
                         )}
@@ -206,7 +204,7 @@ export function FormProgressHeader({
         {/* Desktop Progress Bar (subtle background indicator) */}
         <div className="relative h-1 bg-white/10 rounded-full mt-6 overflow-hidden backdrop-blur-sm">
           <div
-            className="absolute top-0 left-0 h-full bg-gradient-to-r from-teal-400 via-teal-500 to-teal-600 rounded-full transition-all duration-700 ease-out shadow-lg shadow-teal-500/20"
+            className="absolute top-0 left-0 h-full bg-gradient-to-r from-ui-blue-primary via-ui-purple-primary to-ui-purple-accent rounded-full transition-all duration-700 ease-out shadow-lg shadow-ui-blue-primary/20"
             style={{ width: `${((currentStep - 1) / (steps.length - 1)) * 100}%` }}
           />
         </div>

@@ -1,14 +1,14 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { TripDetailsStep } from './TripDetailsStep'
 import { PreferencesStep } from './PreferencesStep'
 import { ContactStep } from './ContactStep'
 import { FormProgressHeader } from '@/components/shared/FormProgressHeader'
 import { PrimaryCTAButton } from '@/components/ui/PrimaryCTAButton'
+import { cn } from '@/lib/utils'
 
 export type BookingFormData = {
   // Step 1: Trip Details
@@ -63,13 +63,6 @@ export function BookingForm() {
   })
   const [errors, setErrors] = useState<Record<string, string>>({})
 
-  // // Pre-fill email from session
-  // useEffect(() => {
-  //   if (session?.user?.email) {
-  //     setFormData((prev) => ({ ...prev, email: session.user.email! }))
-  //   }
-  // }, [session])
-
   const updateFormData = (data: Partial<BookingFormData>) => {
     setFormData((prev) => ({ ...prev, ...data }))
   }
@@ -118,7 +111,6 @@ export function BookingForm() {
 
   const handleNext = () => {
     if (validateStep(currentStep)) {
-      // Mark current step as completed when moving forward
       if (!completedSteps.includes(currentStep)) {
         setCompletedSteps((prev) => [...prev, currentStep])
       }
@@ -140,13 +132,11 @@ export function BookingForm() {
   }
 
   const handleStepClick = (stepId: number) => {
-    // Allow navigation to any step without validation
     setCurrentStep(stepId)
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   const handleSubmit = async () => {
-    // Validate ALL steps before final submission
     let allValid = true
     const allErrors: Record<string, string> = {}
 
@@ -154,21 +144,19 @@ export function BookingForm() {
       const stepValid = validateStep(step)
       if (!stepValid) {
         allValid = false
-        // Collect errors from all steps
         Object.assign(allErrors, errors)
       }
     }
 
     if (!allValid) {
       setErrors({
-        submit: 'Please complete all required fields in all sections before submitting. Click on any step above to review and complete missing information.',
+        submit: 'Please complete all required fields in all sections before submitting.',
       })
       return
     }
 
     setIsSubmitting(true)
     try {
-      // Use the new authenticated endpoint
       const response = await fetch('/api/tourist/request/create', {
         method: 'POST',
         headers: {
@@ -199,7 +187,6 @@ export function BookingForm() {
       const data = await response.json()
 
       if (response.ok && data.success && data.requestId) {
-        // Redirect to matching page
         router.push(`/booking/select-guide?requestId=${data.requestId}`)
       } else if (response.status === 401) {
         setErrors({
@@ -222,7 +209,6 @@ export function BookingForm() {
 
   return (
     <div className="relative w-full max-w-4xl mx-auto p-4 md:p-6">
-      {/* Step Indicator - Optimized for mobile: reduced bottom margin */}
       <div className="mb-6 md:mb-8">
         <FormProgressHeader
           steps={STEPS}
@@ -232,65 +218,64 @@ export function BookingForm() {
         />
       </div>
 
-      {/* Form Steps - Optimized for mobile: responsive padding */}
       <div className="relative glass-card rounded-3xl border-2 border-white/40 shadow-premium p-5 md:p-8 hover-lift">
         <div className="relative z-10">
-        {currentStep === 1 && (
-          <TripDetailsStep
-            data={formData}
-            errors={errors}
-            updateData={updateFormData}
-          />
-        )}
-
-        {currentStep === 2 && (
-          <PreferencesStep
-            data={formData}
-            errors={errors}
-            updateData={updateFormData}
-          />
-        )}
-
-        {currentStep === 3 && (
-          <ContactStep
-            data={formData}
-            errors={errors}
-            updateData={updateFormData}
-          />
-        )}
-
-        {/* Navigation Buttons */}
-        <div className="mt-8 flex justify-between">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handleBack}
-            disabled={currentStep === 1 || isSubmitting}
-            className="hover-lift shadow-soft"
-          >
-            Back
-          </Button>
-
-          <PrimaryCTAButton
-            type="button"
-            onClick={handleNext}
-            disabled={isSubmitting}
-            variant="blue"
-          >
-            {currentStep === 3 ? (
-              isSubmitting ? 'Creating Booking...' : 'Create Booking'
-            ) : (
-              'Next'
+          <div className="animate-fade-in">
+            {currentStep === 1 && (
+              <TripDetailsStep
+                data={formData}
+                errors={errors}
+                updateData={updateFormData}
+              />
             )}
-          </PrimaryCTAButton>
-        </div>
 
-        {/* Submit Error */}
-        {errors.submit && (
-          <div className="mt-4 p-4 glass-frosted bg-gradient-to-br from-ui-error/10 to-ui-error/20 border-2 border-ui-error/30 rounded-2xl text-ui-error text-sm shadow-soft">
-            {errors.submit}
+            {currentStep === 2 && (
+              <PreferencesStep
+                data={formData}
+                errors={errors}
+                updateData={updateFormData}
+              />
+            )}
+
+            {currentStep === 3 && (
+              <ContactStep
+                data={formData}
+                errors={errors}
+                updateData={updateFormData}
+              />
+            )}
           </div>
-        )}
+
+          <div className="mt-8 flex justify-between pt-6 border-t border-gray-100">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleBack}
+              disabled={currentStep === 1 || isSubmitting}
+              className="hover-lift shadow-soft bg-white"
+            >
+              Back
+            </Button>
+
+            <PrimaryCTAButton
+              type="button"
+              onClick={handleNext}
+              disabled={isSubmitting}
+              variant="blue"
+            >
+              {currentStep === 3 ? (
+                isSubmitting ? 'Creating Booking...' : 'Create Booking'
+              ) : (
+                'Next'
+              )}
+            </PrimaryCTAButton>
+          </div>
+
+          {errors.submit && (
+            <div className="mt-4 p-4 glass-frosted bg-gradient-to-br from-ui-error/10 to-ui-error/20 border-2 border-ui-error rounded-2xl text-ui-error text-sm shadow-soft animate-slide-down">
+              {errors.submit}
+            </div>
+          )}
         </div>
       </div>
     </div>

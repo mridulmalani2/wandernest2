@@ -1,13 +1,13 @@
 'use client';
 
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ModernInput } from '@/components/ui/ModernInput';
+import { ModernSelect } from '@/components/ui/ModernSelect';
 import { OnboardingFormData } from './OnboardingWizard';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import { getUniversityOptionsByCity, type UniversityOption } from '@/config/universityOptions';
+import { User, Calendar, Globe, Phone, Building, GraduationCap, BookOpen, Languages, Plus, X } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface BasicProfileStepProps {
   formData: OnboardingFormData;
@@ -17,15 +17,15 @@ interface BasicProfileStepProps {
 }
 
 const YEAR_OF_STUDY_OPTIONS = [
-  '1st year Undergrad',
-  '2nd year Undergrad',
-  '3rd year Undergrad',
-  '4th year Undergrad',
-  '1st year MSc',
-  '2nd year MSc',
-  'PhD 1st year',
-  'PhD 2nd year',
-  'PhD 3rd year+',
+  { value: '1st year Undergrad', label: '1st year Undergrad' },
+  { value: '2nd year Undergrad', label: '2nd year Undergrad' },
+  { value: '3rd year Undergrad', label: '3rd year Undergrad' },
+  { value: '4th year Undergrad', label: '4th year Undergrad' },
+  { value: '1st year MSc', label: '1st year MSc' },
+  { value: '2nd year MSc', label: '2nd year MSc' },
+  { value: 'PhD 1st year', label: 'PhD 1st year' },
+  { value: 'PhD 2nd year', label: 'PhD 2nd year' },
+  { value: 'PhD 3rd year+', label: 'PhD 3rd year+' },
 ];
 
 const COMMON_LANGUAGES = [
@@ -56,337 +56,273 @@ export function BasicProfileStep({ formData, updateFormData, errors, cities }: B
   const campusOptions: UniversityOption[] = formData.city ? getUniversityOptionsByCity(formData.city) : [];
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold mb-2">Basic Profile</h2>
-        <p className="text-gray-600">Tell us about yourself and your academic background.</p>
+    <div className="space-y-8 animate-fade-in">
+      <div className="text-center mb-8">
+        <h2 className="text-3xl font-bold bg-gradient-to-r from-ui-blue-primary to-ui-purple-primary bg-clip-text text-transparent mb-2">
+          Basic Profile
+        </h2>
+        <p className="text-gray-600 max-w-lg mx-auto">
+          Let's start with the basics. This information helps us verify your student status and match you with the right travelers.
+        </p>
       </div>
 
       {/* Personal Details Section */}
-      <div className="bg-[hsl(var(--ui-blue-primary)/0.1)] border border-[hsl(var(--ui-blue-primary)/0.3)] rounded-lg p-4">
-        <h3 className="font-bold text-[hsl(var(--ui-blue-primary))] mb-3">Personal Details</h3>
-        <div className="space-y-4">
+      <div className="bg-white/50 backdrop-blur-sm border border-white/60 rounded-3xl p-6 md:p-8 shadow-lg">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="h-10 w-10 rounded-full bg-ui-blue-primary/10 flex items-center justify-center text-ui-blue-primary">
+            <User className="h-5 w-5" />
+          </div>
+          <h3 className="text-xl font-bold text-gray-800">Personal Details</h3>
+        </div>
 
-        {/* Name */}
-        <div className="space-y-2">
-          <Label htmlFor="name">
-            Full Name (as on ID) <span className="text-[hsl(var(--ui-error))]">*</span>
-          </Label>
-          <Input
-            id="name"
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Name */}
+          <ModernInput
+            label="Full Name (as on ID)"
             value={formData.name}
             onChange={(e) => updateFormData({ name: e.target.value })}
             placeholder="Enter your full name"
-            className={errors.name ? 'border-[hsl(var(--ui-error))]' : ''}
+            error={errors.name}
+            icon={User}
           />
-          {errors.name && <p className="text-sm text-[hsl(var(--ui-error))]">{errors.name}</p>}
-        </div>
 
-        {/* Date of Birth */}
-        <div className="space-y-2">
-          <Label htmlFor="dateOfBirth">
-            Date of Birth <span className="text-[hsl(var(--ui-error))]">*</span>
-          </Label>
-          <Input
-            id="dateOfBirth"
+          {/* Date of Birth */}
+          <ModernInput
+            label="Date of Birth"
             type="date"
             value={formData.dateOfBirth}
             onChange={(e) => updateFormData({ dateOfBirth: e.target.value })}
             max={new Date(new Date().setFullYear(new Date().getFullYear() - 18)).toISOString().split('T')[0]}
-            className={errors.dateOfBirth ? 'border-[hsl(var(--ui-error))]' : ''}
+            error={errors.dateOfBirth}
+            icon={Calendar}
           />
-          <p className="text-xs text-gray-500">You must be at least 18 years old</p>
-          {errors.dateOfBirth && <p className="text-sm text-[hsl(var(--ui-error))]">{errors.dateOfBirth}</p>}
-        </div>
 
-        {/* Gender */}
-        <div className="space-y-2">
-          <Label>
-            Gender <span className="text-[hsl(var(--ui-error))]">*</span>
-          </Label>
-          <RadioGroup
-            value={formData.gender}
-            onValueChange={(value) => updateFormData({ gender: value as any })}
-          >
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="male" id="male" />
-              <Label htmlFor="male" className="font-normal cursor-pointer">
-                Male
-              </Label>
+          {/* Gender */}
+          <div className="md:col-span-2 space-y-2">
+            <label className={cn("text-sm font-medium leading-none", errors.gender ? "text-ui-error" : "text-gray-700")}>
+              Gender
+            </label>
+            <div className="grid grid-cols-3 gap-4">
+              {['male', 'female', 'prefer_not_to_say'].map((option) => (
+                <button
+                  key={option}
+                  type="button"
+                  onClick={() => updateFormData({ gender: option as any })}
+                  className={cn(
+                    "flex items-center justify-center py-3 px-4 rounded-xl border-2 transition-all duration-200 font-medium text-sm",
+                    formData.gender === option
+                      ? "border-ui-blue-primary bg-ui-blue-primary/5 text-ui-blue-primary shadow-sm"
+                      : "border-gray-200 bg-white/50 text-gray-600 hover:border-ui-blue-primary/30 hover:bg-white"
+                  )}
+                >
+                  {option === 'prefer_not_to_say' ? 'Prefer not to say' : option.charAt(0).toUpperCase() + option.slice(1)}
+                </button>
+              ))}
             </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="female" id="female" />
-              <Label htmlFor="female" className="font-normal cursor-pointer">
-                Female
-              </Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="prefer_not_to_say" id="prefer_not_to_say" />
-              <Label htmlFor="prefer_not_to_say" className="font-normal cursor-pointer">
-                Prefer not to say
-              </Label>
-            </div>
-          </RadioGroup>
-          {errors.gender && <p className="text-sm text-[hsl(var(--ui-error))]">{errors.gender}</p>}
-        </div>
+            {errors.gender && <p className="text-xs text-ui-error">{errors.gender}</p>}
+          </div>
 
-        {/* Nationality */}
-        <div className="space-y-2">
-          <Label htmlFor="nationality">
-            Nationality <span className="text-[hsl(var(--ui-error))]">*</span>
-          </Label>
-          <Input
-            id="nationality"
+          {/* Nationality */}
+          <ModernInput
+            label="Nationality"
             value={formData.nationality}
             onChange={(e) => updateFormData({ nationality: e.target.value })}
             placeholder="e.g., Indian, Chinese, French"
-            className={errors.nationality ? 'border-[hsl(var(--ui-error))]' : ''}
+            error={errors.nationality}
+            icon={Globe}
           />
-          <p className="text-xs text-gray-500">
-            This helps us match you with visitors from your home country
-          </p>
-          {errors.nationality && <p className="text-sm text-[hsl(var(--ui-error))]">{errors.nationality}</p>}
-        </div>
 
-        {/* Phone Number */}
-        <div className="space-y-2">
-          <Label htmlFor="phoneNumber">
-            Phone Number <span className="text-[hsl(var(--ui-error))]">*</span>
-          </Label>
-          <Input
-            id="phoneNumber"
+          {/* Phone Number */}
+          <ModernInput
+            label="Phone Number"
             type="tel"
             value={formData.phoneNumber}
             onChange={(e) => updateFormData({ phoneNumber: e.target.value })}
             placeholder="+33 6 12 34 56 78"
-            className={errors.phoneNumber ? 'border-[hsl(var(--ui-error))]' : ''}
+            error={errors.phoneNumber}
+            icon={Phone}
           />
-          <p className="text-xs text-gray-500">Include country code</p>
-          {errors.phoneNumber && <p className="text-sm text-[hsl(var(--ui-error))]">{errors.phoneNumber}</p>}
-        </div>
 
-        {/* Email Address (read-only) */}
-        <div className="space-y-2">
-          <Label htmlFor="email">Email Address</Label>
-          <Input
-            id="email"
-            type="email"
-            value={formData.email}
-            disabled
-            className="bg-gray-50"
-          />
-          <p className="text-xs text-gray-500">Verified from your sign-in</p>
-        </div>
-
-        {/* City */}
-        <div className="space-y-2">
-          <Label htmlFor="city">
-            Current City <span className="text-[hsl(var(--ui-error))]">*</span>
-          </Label>
-          <Select value={formData.city} onValueChange={(value) => updateFormData({ city: value, campus: '' })}>
-            <SelectTrigger className={errors.city ? 'border-[hsl(var(--ui-error))]' : ''}>
-              <SelectValue placeholder="Select your city" />
-            </SelectTrigger>
-            <SelectContent>
-              {cities.map((city) => (
-                <SelectItem key={city} value={city}>
-                  {city}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <p className="text-xs text-gray-500">
-            Where are you currently studying?
-          </p>
-          {errors.city && <p className="text-sm text-[hsl(var(--ui-error))]">{errors.city}</p>}
-        </div>
-
-        {/* Campus */}
-        {formData.city && (
-          <div className="space-y-2">
-            <Label htmlFor="campus">
-              Campus <span className="text-[hsl(var(--ui-error))]">*</span>
-            </Label>
-            <Select value={formData.campus} onValueChange={(value) => {
-              // Find the selected option to get its label
-              const selectedOption = campusOptions.find(opt => opt.value === value);
-              const label = selectedOption?.label || value;
-
-              updateFormData({
-                campus: value,
-                // Sync institute field with campus selection (unless "Other" is selected)
-                institute: value !== 'other' ? label : formData.institute
-              });
-            }}>
-              <SelectTrigger className={errors.campus ? 'border-[hsl(var(--ui-error))]' : ''}>
-                <SelectValue placeholder="Select your campus/university" />
-              </SelectTrigger>
-              <SelectContent>
-                {campusOptions.map((campus) => (
-                  <SelectItem key={campus.value} value={campus.value}>
-                    {campus.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {formData.campus === 'other' && (
-              <Input
-                value={formData.institute}
-                onChange={(e) => updateFormData({ institute: e.target.value })}
-                placeholder="Enter your university name"
-                className="mt-2"
-              />
-            )}
-            {errors.campus && <p className="text-sm text-[hsl(var(--ui-error))]">{errors.campus}</p>}
+          {/* Email Address (read-only) */}
+          <div className="md:col-span-2">
+            <ModernInput
+              label="Email Address"
+              type="email"
+              value={formData.email}
+              disabled
+              className="bg-gray-100/50 text-gray-500 border-gray-200"
+            />
           </div>
-        )}
+
+          {/* City */}
+          <ModernSelect
+            label="Current City"
+            value={formData.city}
+            onValueChange={(value) => updateFormData({ city: value, campus: '' })}
+            placeholder="Select your city"
+            options={cities.map(city => ({ value: city, label: city }))}
+            error={errors.city}
+            icon={Building}
+          />
+
+          {/* Campus */}
+          {formData.city && (
+            <div className="space-y-2">
+              <ModernSelect
+                label="Campus"
+                value={formData.campus}
+                onValueChange={(value) => {
+                  const selectedOption = campusOptions.find(opt => opt.value === value);
+                  const label = selectedOption?.label || value;
+                  updateFormData({
+                    campus: value,
+                    institute: value !== 'other' ? label : formData.institute
+                  });
+                }}
+                placeholder="Select your campus"
+                options={campusOptions}
+                error={errors.campus}
+                icon={Building}
+              />
+              {formData.campus === 'other' && (
+                <ModernInput
+                  value={formData.institute}
+                  onChange={(e) => updateFormData({ institute: e.target.value })}
+                  placeholder="Enter your university name"
+                  className="mt-2"
+                />
+              )}
+            </div>
+          )}
         </div>
       </div>
 
       {/* Academic Details Section */}
-      <div className="bg-[hsl(var(--ui-purple-primary)/0.1)] border border-[hsl(var(--ui-purple-primary)/0.3)] rounded-lg p-4">
-        <h3 className="font-bold text-[hsl(var(--ui-purple-primary))] mb-3">Academic Details</h3>
-        <div className="space-y-4">
-
-        {/* University Name */}
-        <div className="space-y-2">
-          <Label htmlFor="institute">
-            University Name <span className="text-[hsl(var(--ui-error))]">*</span>
-          </Label>
-          <Input
-            id="institute"
-            value={formData.institute}
-            onChange={(e) => updateFormData({ institute: e.target.value })}
-            placeholder="e.g., Sorbonne University, Imperial College London"
-            className={errors.institute ? 'border-[hsl(var(--ui-error))]' : ''}
-            disabled={formData.campus !== 'other' && !!formData.campus}
-          />
-          <p className="text-xs text-gray-500">
-            {formData.campus && formData.campus !== 'other'
-              ? 'Auto-filled from your campus selection'
-              : 'This will be used in your profile'}
-          </p>
-          {errors.institute && <p className="text-sm text-[hsl(var(--ui-error))]">{errors.institute}</p>}
+      <div className="bg-white/50 backdrop-blur-sm border border-white/60 rounded-3xl p-6 md:p-8 shadow-lg">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="h-10 w-10 rounded-full bg-ui-purple-primary/10 flex items-center justify-center text-ui-purple-primary">
+            <GraduationCap className="h-5 w-5" />
+          </div>
+          <h3 className="text-xl font-bold text-gray-800">Academic Details</h3>
         </div>
 
-        {/* Program/Degree */}
-        <div className="space-y-2">
-          <Label htmlFor="programDegree">
-            Program/Degree <span className="text-[hsl(var(--ui-error))]">*</span>
-          </Label>
-          <Input
-            id="programDegree"
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* University Name */}
+          <div className="md:col-span-2">
+            <ModernInput
+              label="University Name"
+              value={formData.institute}
+              onChange={(e) => updateFormData({ institute: e.target.value })}
+              placeholder="e.g., Sorbonne University"
+              error={errors.institute}
+              disabled={formData.campus !== 'other' && !!formData.campus}
+              icon={Building}
+              className={formData.campus !== 'other' && !!formData.campus ? "bg-gray-100/50" : ""}
+            />
+          </div>
+
+          {/* Program/Degree */}
+          <ModernInput
+            label="Program/Degree"
             value={formData.programDegree}
             onChange={(e) => updateFormData({ programDegree: e.target.value })}
-            placeholder="e.g., MSc Computer Science, BA Economics"
-            className={errors.programDegree ? 'border-[hsl(var(--ui-error))]' : ''}
+            placeholder="e.g., MSc Computer Science"
+            error={errors.programDegree}
+            icon={BookOpen}
           />
-          {errors.programDegree && <p className="text-sm text-[hsl(var(--ui-error))]">{errors.programDegree}</p>}
-        </div>
 
-        {/* Year of Study */}
-        <div className="space-y-2">
-          <Label htmlFor="yearOfStudy">
-            Year of Study <span className="text-[hsl(var(--ui-error))]">*</span>
-          </Label>
-          <Select value={formData.yearOfStudy} onValueChange={(value) => updateFormData({ yearOfStudy: value })}>
-            <SelectTrigger className={errors.yearOfStudy ? 'border-[hsl(var(--ui-error))]' : ''}>
-              <SelectValue placeholder="Select your year of study" />
-            </SelectTrigger>
-            <SelectContent>
-              {YEAR_OF_STUDY_OPTIONS.map((year) => (
-                <SelectItem key={year} value={year}>
-                  {year}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          {errors.yearOfStudy && <p className="text-sm text-[hsl(var(--ui-error))]">{errors.yearOfStudy}</p>}
-        </div>
+          {/* Year of Study */}
+          <ModernSelect
+            label="Year of Study"
+            value={formData.yearOfStudy}
+            onValueChange={(value) => updateFormData({ yearOfStudy: value })}
+            placeholder="Select year"
+            options={YEAR_OF_STUDY_OPTIONS}
+            error={errors.yearOfStudy}
+            icon={Calendar}
+          />
 
-        {/* Expected Graduation Year */}
-        <div className="space-y-2">
-          <Label htmlFor="expectedGraduation">
-            Expected Graduation Year <span className="text-[hsl(var(--ui-error))]">*</span>
-          </Label>
-          <Input
-            id="expectedGraduation"
+          {/* Expected Graduation Year */}
+          <ModernInput
+            label="Expected Graduation"
             value={formData.expectedGraduation}
             onChange={(e) => updateFormData({ expectedGraduation: e.target.value })}
-            placeholder="e.g., 2025, June 2026"
-            className={errors.expectedGraduation ? 'border-[hsl(var(--ui-error))]' : ''}
+            placeholder="e.g., 2025"
+            error={errors.expectedGraduation}
+            icon={GraduationCap}
           />
-          {errors.expectedGraduation && <p className="text-sm text-[hsl(var(--ui-error))]">{errors.expectedGraduation}</p>}
-        </div>
 
-        {/* Languages */}
-        <div className="space-y-3">
-          <Label>
-            Languages You Speak <span className="text-[hsl(var(--ui-error))]">*</span>
-          </Label>
-          <p className="text-sm text-gray-600">Select all languages you're comfortable guiding in</p>
-          <div className="flex flex-wrap gap-2">
-            {COMMON_LANGUAGES.map((language) => (
-              <button
-                key={language}
-                type="button"
-                onClick={() => toggleLanguage(language)}
-                className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
-                  formData.languages.includes(language)
-                    ? 'bg-[hsl(var(--ui-purple-primary))] text-white'
-                    : 'bg-white text-gray-700 border hover:bg-gray-100'
-                }`}
-              >
-                {language}
-              </button>
-            ))}
-          </div>
+          {/* Languages */}
+          <div className="md:col-span-2 space-y-3">
+            <label className={cn("text-sm font-medium leading-none", errors.languages ? "text-ui-error" : "text-gray-700")}>
+              Languages You Speak
+            </label>
 
-          {/* Custom Language */}
-          <div className="flex gap-2">
-            <Input
-              value={customLanguage}
-              onChange={(e) => setCustomLanguage(e.target.value)}
-              placeholder="Add another language"
-              onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addCustomLanguage())}
-            />
-            <Button type="button" variant="outline" onClick={addCustomLanguage}>
-              Add
-            </Button>
-          </div>
-
-          {/* Selected Languages */}
-          {formData.languages.length > 0 && (
-            <div className="mt-2">
-              <p className="text-sm font-medium mb-2">Selected ({formData.languages.length}):</p>
-              <div className="flex flex-wrap gap-2">
-                {formData.languages.map((language) => (
-                  <span
+            <div className="flex flex-wrap gap-2 mb-4">
+              {COMMON_LANGUAGES.map((language) => {
+                const isSelected = formData.languages.includes(language);
+                return (
+                  <button
                     key={language}
-                    className="px-3 py-1 bg-[hsl(var(--ui-purple-primary)/0.2)] text-[hsl(var(--ui-purple-primary))] rounded-full text-sm flex items-center gap-2"
+                    type="button"
+                    onClick={() => toggleLanguage(language)}
+                    className={cn(
+                      "px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 border",
+                      isSelected
+                        ? "bg-ui-purple-primary text-white border-ui-purple-primary shadow-md transform scale-105"
+                        : "bg-white text-gray-600 border-gray-200 hover:border-ui-purple-primary/50 hover:bg-ui-purple-primary/5"
+                    )}
                   >
                     {language}
-                    <button
-                      type="button"
-                      onClick={() => toggleLanguage(language)}
-                      className="text-[hsl(var(--ui-purple-accent))] hover:text-[hsl(var(--ui-purple-primary))] font-bold"
-                    >
-                      ×
-                    </button>
-                  </span>
-                ))}
-              </div>
+                  </button>
+                );
+              })}
             </div>
-          )}
-          {errors.languages && <p className="text-sm text-[hsl(var(--ui-error))]">{errors.languages}</p>}
-        </div>
-        </div>
-      </div>
 
-      <div className="bg-[hsl(var(--ui-success)/0.1)] border border-[hsl(var(--ui-success)/0.3)] rounded-lg p-4">
-        <p className="text-sm text-[hsl(var(--ui-success))]">
-          <strong>Note:</strong> Make sure your name matches your student ID card exactly, as we'll verify this in the next step.
-        </p>
+            {/* Custom Language Input */}
+            <div className="flex gap-2 max-w-md">
+              <ModernInput
+                value={customLanguage}
+                onChange={(e) => setCustomLanguage(e.target.value)}
+                placeholder="Add another language"
+                onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addCustomLanguage())}
+                className="h-10"
+              />
+              <Button
+                type="button"
+                onClick={addCustomLanguage}
+                className="h-10 px-4 bg-ui-purple-primary hover:bg-ui-purple-accent text-white rounded-xl"
+              >
+                <Plus className="h-4 w-4" />
+              </Button>
+            </div>
+
+            {/* Selected Languages Summary */}
+            {formData.languages.length > 0 && (
+              <div className="mt-4 p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                <p className="text-sm font-medium text-gray-500 mb-3">Selected Languages:</p>
+                <div className="flex flex-wrap gap-2">
+                  {formData.languages.map((language) => (
+                    <span
+                      key={language}
+                      className="inline-flex items-center gap-1.5 px-3 py-1 bg-white border border-gray-200 text-ui-purple-primary rounded-full text-sm font-medium shadow-sm"
+                    >
+                      {language}
+                      <button
+                        type="button"
+                        onClick={() => toggleLanguage(language)}
+                        className="text-gray-400 hover:text-ui-error transition-colors"
+                      >
+                        <X className="h-3.5 w-3.5" />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+            {errors.languages && <p className="text-xs text-ui-error">{errors.languages}</p>}
+          </div>
+        </div>
       </div>
     </div>
   );

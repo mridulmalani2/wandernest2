@@ -514,66 +514,66 @@ export function OnboardingWizard({ session }: OnboardingWizardProps) {
           <div className="relative max-w-4xl mx-auto animate-fade-in-up delay-200">
             <div className="relative glass-card rounded-3xl border-2 border-white/40 shadow-premium p-8 hover-lift">
               <div className="relative z-10">
-            {/* Step Content */}
-            {currentStep === 1 && (
-              <BasicProfileStep
-                formData={formData}
-                updateFormData={updateFormData}
-                errors={errors}
-                cities={CITIES}
-              />
-            )}
-            {currentStep === 2 && (
-              <StudentVerificationStep
-                formData={formData}
-                updateFormData={updateFormData}
-                errors={errors}
-              />
-            )}
-            {currentStep === 3 && (
-              <CoverLetterStep
-                formData={formData}
-                updateFormData={updateFormData}
-                errors={errors}
-                city={formData.city}
-              />
-            )}
-            {currentStep === 4 && (
-              <AvailabilityStep
-                formData={formData}
-                updateFormData={updateFormData}
-                errors={errors}
-              />
-            )}
-            {currentStep === 5 && (
-              <ServicePreferencesStep
-                formData={formData}
-                updateFormData={updateFormData}
-                errors={errors}
-              />
-            )}
-            {currentStep === 6 && (
-              <SafetyComplianceStep
-                formData={formData}
-                updateFormData={updateFormData}
-                errors={errors}
-              />
-            )}
-            {currentStep === 7 && (
-              <ReviewSubmitStep
-                formData={formData}
-                errors={errors}
-              />
-            )}
+                {/* Step Content */}
+                {currentStep === 1 && (
+                  <BasicProfileStep
+                    formData={formData}
+                    updateFormData={updateFormData}
+                    errors={errors}
+                    cities={CITIES}
+                  />
+                )}
+                {currentStep === 2 && (
+                  <StudentVerificationStep
+                    formData={formData}
+                    updateFormData={updateFormData}
+                    errors={errors}
+                  />
+                )}
+                {currentStep === 3 && (
+                  <CoverLetterStep
+                    formData={formData}
+                    updateFormData={updateFormData}
+                    errors={errors}
+                    city={formData.city}
+                  />
+                )}
+                {currentStep === 4 && (
+                  <AvailabilityStep
+                    formData={formData}
+                    updateFormData={updateFormData}
+                    errors={errors}
+                  />
+                )}
+                {currentStep === 5 && (
+                  <ServicePreferencesStep
+                    formData={formData}
+                    updateFormData={updateFormData}
+                    errors={errors}
+                  />
+                )}
+                {currentStep === 6 && (
+                  <SafetyComplianceStep
+                    formData={formData}
+                    updateFormData={updateFormData}
+                    errors={errors}
+                  />
+                )}
+                {currentStep === 7 && (
+                  <ReviewSubmitStep
+                    formData={formData}
+                    errors={errors}
+                  />
+                )}
 
                 {/* Navigation Buttons */}
-                <div className="mt-8 flex justify-between">
+                <div className="mt-8 flex justify-between pt-6 border-t border-gray-100">
                   <Button
                     type="button"
                     variant="outline"
                     onClick={handleBack}
                     disabled={currentStep === 1 || isSubmitting}
-                    className="hover-lift shadow-soft"
+                    className="hover-lift shadow-soft bg-white"
                   >
                     Back
                   </Button>
@@ -594,19 +594,19 @@ export function OnboardingWizard({ session }: OnboardingWizardProps) {
                       disabled={isSubmitting}
                       variant="blue"
                     >
-                      {isSubmitting ? 'Submitting for Review...' : 'Submit for Review'}
+                      {isSubmitting ? 'Submitting...' : 'Submit Profile'}
                     </PrimaryCTAButton>
                   )}
                 </div>
-
-                {/* Submit Error */}
-                {errors.submit && (
-                  <div className="mt-4 p-4 glass-frosted bg-gradient-to-br from-[hsl(var(--ui-error))]/10 to-[hsl(var(--ui-error))]/20 border-2 border-[hsl(var(--ui-error))] rounded-2xl text-[hsl(var(--ui-error))] text-sm shadow-soft">
-                    {errors.submit}
-                  </div>
-                )}
               </div>
             </div>
+
+            {/* Submit Error */}
+            {errors.submit && (
+              <div className="mt-4 p-4 glass-frosted bg-gradient-to-br from-ui-error/10 to-ui-error/20 border-2 border-ui-error rounded-2xl text-ui-error text-sm shadow-soft animate-slide-down">
+                {errors.submit}
+              </div>
+            )}
           </div>
         </main>
       </div>

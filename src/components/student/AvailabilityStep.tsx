@@ -3,8 +3,11 @@
 import { useState } from 'react';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
+import { ModernInput } from '@/components/ui/ModernInput';
+import { ModernSelect } from '@/components/ui/ModernSelect';
 import { OnboardingFormData } from './OnboardingWizard';
+import { Clock, Calendar, Globe, Plus, Trash2, AlertCircle, CheckCircle2, X } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface AvailabilityStepProps {
   formData: OnboardingFormData;
@@ -13,18 +16,18 @@ interface AvailabilityStepProps {
 }
 
 const DAYS_OF_WEEK = [
-  { value: 0, label: 'Sunday' },
   { value: 1, label: 'Monday' },
   { value: 2, label: 'Tuesday' },
   { value: 3, label: 'Wednesday' },
   { value: 4, label: 'Thursday' },
   { value: 5, label: 'Friday' },
   { value: 6, label: 'Saturday' },
+  { value: 0, label: 'Sunday' },
 ];
 
 const TIME_SLOTS = Array.from({ length: 24 }, (_, i) => {
   const hour = i.toString().padStart(2, '0');
-  return `${hour}:00`;
+  return { value: `${hour}:00`, label: `${hour}:00` };
 });
 
 const DURATION_OPTIONS = ['1 hour', '2 hours', '3-4 hours', 'Half day (4-6 hours)', 'Full day (6+ hours)'];
@@ -149,10 +152,6 @@ export function AvailabilityStep({ formData, updateFormData, errors }: Availabil
     }
   };
 
-  const getDayLabel = (dayValue: number) => {
-    return DAYS_OF_WEEK.find((d) => d.value === dayValue)?.label || '';
-  };
-
   const calculateDuration = (start: string, end: string) => {
     const startArr = start.split(':').map(Number);
     const endArr = end.split(':').map(Number);
@@ -169,296 +168,266 @@ export function AvailabilityStep({ formData, updateFormData, errors }: Availabil
   }));
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold mb-2">Set Your Availability</h2>
-        <p className="text-gray-600">
-          Define your weekly schedule when you're available to guide. You can update this later in your dashboard.
+    <div className="space-y-8 animate-fade-in">
+      <div className="text-center mb-8">
+        <h2 className="text-3xl font-bold bg-gradient-to-r from-ui-blue-primary to-ui-purple-primary bg-clip-text text-transparent mb-2">
+          Set Your Availability
+        </h2>
+        <p className="text-gray-600 max-w-lg mx-auto">
+          Define your weekly schedule. You can always update this later in your dashboard.
         </p>
       </div>
 
       {/* Important Notice */}
-      <div className="bg-[hsl(var(--ui-blue-primary)/0.1)] border border-[hsl(var(--ui-blue-primary)/0.3)] rounded-lg p-4">
-        <h3 className="font-bold text-[hsl(var(--ui-blue-primary))] mb-2">⏰ Important Guidelines:</h3>
-        <ul className="text-sm text-[hsl(var(--ui-blue-accent))] space-y-1 list-disc list-inside">
-          <li>Most experiences are 3-4 hours long</li>
-          <li>Time blocks must be at least 3 hours</li>
-          <li>Be realistic - only set times you can consistently commit to</li>
-          <li>You can specify exam periods and holidays in the notes below</li>
-        </ul>
-      </div>
-
-      {/* Add Availability Form */}
-      <div className="border rounded-lg p-6 space-y-4 bg-gray-50">
-        <h3 className="font-bold text-lg">Add Time Slot</h3>
-
-        {/* Day Selection */}
-        <div className="space-y-2">
-          <Label>Select Day</Label>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-            {DAYS_OF_WEEK.map((day) => (
-              <button
-                key={day.value}
-                type="button"
-                onClick={() => setSelectedDay(day.value)}
-                className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                  selectedDay === day.value
-                    ? 'bg-[hsl(var(--ui-blue-primary))] text-white'
-                    : 'bg-white text-gray-700 border hover:bg-gray-100'
-                }`}
-              >
-                {day.label}
-              </button>
-            ))}
-          </div>
+      <div className="bg-ui-blue-primary/5 border border-ui-blue-primary/20 rounded-2xl p-6 flex gap-4 items-start">
+        <div className="p-2 bg-white rounded-xl shadow-sm text-ui-blue-primary shrink-0">
+          <Clock className="h-6 w-6" />
         </div>
-
-        {/* Time Selection */}
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label>Start Time</Label>
-            <select
-              value={startTime}
-              onChange={(e) => setStartTime(e.target.value)}
-              className="w-full px-3 py-2 border rounded-lg"
-            >
-              {TIME_SLOTS.map((time) => (
-                <option key={time} value={time}>
-                  {time}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="space-y-2">
-            <Label>End Time</Label>
-            <select
-              value={endTime}
-              onChange={(e) => setEndTime(e.target.value)}
-              className="w-full px-3 py-2 border rounded-lg"
-            >
-              {TIME_SLOTS.map((time) => (
-                <option key={time} value={time}>
-                  {time}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        {/* Optional Note */}
-        <div className="space-y-2">
-          <Label>Note (Optional)</Label>
-          <input
-            type="text"
-            value={note}
-            onChange={(e) => setNote(e.target.value)}
-            placeholder="e.g., Not available during exam weeks in May"
-            className="w-full px-3 py-2 border rounded-lg"
-          />
-        </div>
-
-        <Button type="button" onClick={addAvailabilitySlot} className="w-full">
-          Add Time Slot
-        </Button>
-      </div>
-
-      {/* Current Availability */}
-      <div className="space-y-4">
-        <div className="flex justify-between items-center">
-          <h3 className="font-bold text-lg">Your Weekly Schedule</h3>
-          <span className="text-sm text-gray-600">
-            {formData.availability.length} slot{formData.availability.length !== 1 ? 's' : ''} added
-          </span>
-        </div>
-
-        {formData.availability.length === 0 ? (
-          <div className="text-center py-8 text-gray-500 bg-gray-50 rounded-lg border-2 border-dashed">
-            <p>No time slots added yet</p>
-            <p className="text-sm mt-1">Add at least one time slot to continue</p>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {availabilityByDay.map(
-              (day) =>
-                day.slots.length > 0 && (
-                  <div key={day.value} className="border rounded-lg p-4">
-                    <h4 className="font-bold text-[hsl(var(--ui-blue-primary))] mb-2">{day.label}</h4>
-                    <div className="space-y-2">
-                      {day.slots.map((slot, index) => {
-                        const globalIndex = formData.availability.indexOf(slot);
-                        return (
-                          <div
-                            key={globalIndex}
-                            className="flex items-center justify-between bg-gray-50 p-3 rounded"
-                          >
-                            <div>
-                              <p className="font-medium">
-                                {slot.startTime} - {slot.endTime}
-                                <span className="text-sm text-gray-600 ml-2">
-                                  ({calculateDuration(slot.startTime, slot.endTime)})
-                                </span>
-                              </p>
-                              {slot.note && (
-                                <p className="text-sm text-gray-600 mt-1">Note: {slot.note}</p>
-                              )}
-                            </div>
-                            <Button
-                              type="button"
-                              variant="destructive"
-                              size="sm"
-                              onClick={() => removeSlot(globalIndex)}
-                            >
-                              Remove
-                            </Button>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )
-            )}
-          </div>
-        )}
-
-        {errors.availability && <p className="text-sm text-[hsl(var(--ui-error))]">{errors.availability}</p>}
-      </div>
-
-      {/* Timezone */}
-      <div className="space-y-2">
-        <Label htmlFor="timezone">
-          Timezone <span className="text-[hsl(var(--ui-error))]">*</span>
-        </Label>
-        <select
-          id="timezone"
-          value={formData.timezone}
-          onChange={(e) => updateFormData({ timezone: e.target.value })}
-          className={`w-full px-3 py-2 border rounded-lg ${errors.timezone ? 'border-[hsl(var(--ui-error))]' : ''}`}
-        >
-          {TIMEZONE_OPTIONS.map((tz) => (
-            <option key={tz.value} value={tz.value}>
-              {tz.label}
-            </option>
-          ))}
-        </select>
-        <p className="text-xs text-gray-500">
-          Your local timezone for scheduling guide sessions. Tourists will see availability times converted to their timezone.
-        </p>
-        {errors.timezone && <p className="text-sm text-[hsl(var(--ui-error))]">{errors.timezone}</p>}
-      </div>
-
-      {/* Preferred Guide Durations */}
-      <div className="space-y-3">
-        <Label>
-          Preferred Guide Durations <span className="text-[hsl(var(--ui-error))]">*</span>
-        </Label>
-        <p className="text-sm text-gray-600">What session lengths do you prefer to offer?</p>
-        <div className="flex flex-wrap gap-2">
-          {DURATION_OPTIONS.map((duration) => (
-            <button
-              key={duration}
-              type="button"
-              onClick={() => toggleDuration(duration)}
-              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                formData.preferredDurations.includes(duration)
-                  ? 'bg-[hsl(var(--ui-blue-primary))] text-white'
-                  : 'bg-white text-gray-700 border hover:bg-gray-100'
-              }`}
-            >
-              {duration}
-            </button>
-          ))}
-        </div>
-        {formData.preferredDurations.length > 0 && (
-          <p className="text-sm text-[hsl(var(--ui-success))]">
-            Selected: {formData.preferredDurations.join(', ')}
-          </p>
-        )}
-        {errors.preferredDurations && <p className="text-sm text-[hsl(var(--ui-error))]">{errors.preferredDurations}</p>}
-      </div>
-
-      {/* One-Time Unavailability Exceptions */}
-      <div className="space-y-4">
         <div>
-          <Label>One-Time Unavailability (Optional)</Label>
-          <p className="text-sm text-gray-600 mt-1">
-            Add specific dates when you won't be available (e.g., exams, travel, holidays)
-          </p>
+          <h3 className="font-bold text-gray-900 mb-2">Availability Guidelines</h3>
+          <ul className="text-sm text-gray-600 space-y-1.5 list-disc list-inside">
+            <li>Most experiences are 3-4 hours long</li>
+            <li>Time blocks must be at least 3 hours</li>
+            <li>Be realistic - only set times you can consistently commit to</li>
+          </ul>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Left Column: Add Slots */}
+        <div className="lg:col-span-2 space-y-6">
+          <div className="bg-white/50 backdrop-blur-sm border border-white/60 rounded-3xl p-6 shadow-lg">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="h-8 w-8 rounded-full bg-ui-blue-primary/10 flex items-center justify-center text-ui-blue-primary">
+                <Plus className="h-4 w-4" />
+              </div>
+              <h3 className="font-bold text-gray-800">Add Time Slot</h3>
+            </div>
+
+            <div className="space-y-6">
+              {/* Day Selection */}
+              <div className="space-y-3">
+                <Label>Select Day</Label>
+                <div className="flex flex-wrap gap-2">
+                  {DAYS_OF_WEEK.map((day) => (
+                    <button
+                      key={day.value}
+                      type="button"
+                      onClick={() => setSelectedDay(day.value)}
+                      className={cn(
+                        "px-4 py-2 rounded-xl font-medium transition-all duration-200 border-2",
+                        selectedDay === day.value
+                          ? "border-ui-blue-primary bg-ui-blue-primary text-white shadow-md transform scale-105"
+                          : "border-gray-100 bg-white text-gray-600 hover:border-ui-blue-primary/30 hover:bg-gray-50"
+                      )}
+                    >
+                      {day.label.slice(0, 3)}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Time Selection */}
+              <div className="grid grid-cols-2 gap-4">
+                <ModernSelect
+                  label="Start Time"
+                  value={startTime}
+                  onValueChange={setStartTime}
+                  options={TIME_SLOTS}
+                  icon={Clock}
+                />
+                <ModernSelect
+                  label="End Time"
+                  value={endTime}
+                  onValueChange={setEndTime}
+                  options={TIME_SLOTS}
+                  icon={Clock}
+                />
+              </div>
+
+              {/* Optional Note */}
+              <ModernInput
+                label="Note (Optional)"
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                placeholder="e.g., Not available during exam weeks"
+              />
+
+              <Button
+                type="button"
+                onClick={addAvailabilitySlot}
+                className="w-full h-12 rounded-xl bg-ui-blue-primary hover:bg-ui-blue-accent text-white font-medium shadow-lg hover:shadow-xl transition-all"
+              >
+                Add Time Slot
+              </Button>
+            </div>
+          </div>
+
+          {/* Timezone & Durations */}
+          <div className="bg-white/50 backdrop-blur-sm border border-white/60 rounded-3xl p-6 shadow-lg space-y-6">
+            <ModernSelect
+              label="Timezone"
+              value={formData.timezone}
+              onValueChange={(value) => updateFormData({ timezone: value })}
+              options={TIMEZONE_OPTIONS}
+              error={errors.timezone}
+              icon={Globe}
+            />
+
+            <div className="space-y-3">
+              <Label className={errors.preferredDurations ? "text-ui-error" : ""}>
+                Preferred Session Lengths
+              </Label>
+              <div className="flex flex-wrap gap-2">
+                {DURATION_OPTIONS.map((duration) => {
+                  const isSelected = formData.preferredDurations.includes(duration);
+                  return (
+                    <button
+                      key={duration}
+                      type="button"
+                      onClick={() => toggleDuration(duration)}
+                      className={cn(
+                        "px-4 py-2 rounded-xl font-medium transition-all duration-200 border-2 text-sm",
+                        isSelected
+                          ? "border-ui-purple-primary bg-ui-purple-primary/10 text-ui-purple-primary shadow-sm"
+                          : "border-gray-100 bg-white text-gray-600 hover:border-ui-purple-primary/30"
+                      )}
+                    >
+                      {duration}
+                    </button>
+                  );
+                })}
+              </div>
+              {errors.preferredDurations && <p className="text-xs text-ui-error">{errors.preferredDurations}</p>}
+            </div>
+          </div>
         </div>
 
-        <div className="border rounded-lg p-4 space-y-3 bg-gray-50">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <div className="space-y-2">
-              <Label>Date</Label>
-              <input
+        {/* Right Column: Schedule Summary */}
+        <div className="space-y-6">
+          <div className="bg-white/80 backdrop-blur-sm border border-gray-100 rounded-3xl p-6 shadow-lg h-full">
+            <div className="flex justify-between items-center mb-6">
+              <div className="flex items-center gap-2">
+                <Calendar className="h-5 w-5 text-gray-500" />
+                <h3 className="font-bold text-gray-800">Weekly Schedule</h3>
+              </div>
+              <span className="text-xs font-medium px-2 py-1 bg-gray-100 rounded-full text-gray-600">
+                {formData.availability.length} slots
+              </span>
+            </div>
+
+            {formData.availability.length === 0 ? (
+              <div className="text-center py-12 px-4 border-2 border-dashed border-gray-200 rounded-2xl">
+                <div className="h-12 w-12 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <Clock className="h-6 w-6 text-gray-300" />
+                </div>
+                <p className="text-gray-500 font-medium">No time slots added</p>
+                <p className="text-xs text-gray-400 mt-1">Add your availability to continue</p>
+              </div>
+            ) : (
+              <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
+                {availabilityByDay.map(
+                  (day) =>
+                    day.slots.length > 0 && (
+                      <div key={day.value} className="space-y-2">
+                        <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider ml-1">{day.label}</h4>
+                        {day.slots.map((slot, index) => {
+                          const globalIndex = formData.availability.indexOf(slot);
+                          return (
+                            <div
+                              key={globalIndex}
+                              className="group relative bg-white border border-gray-100 p-3 rounded-xl shadow-sm hover:shadow-md transition-all"
+                            >
+                              <div className="flex justify-between items-start">
+                                <div>
+                                  <p className="font-semibold text-gray-800 text-sm">
+                                    {slot.startTime} - {slot.endTime}
+                                  </p>
+                                  <p className="text-xs text-gray-500 mt-0.5">
+                                    {calculateDuration(slot.startTime, slot.endTime)}
+                                  </p>
+                                  {slot.note && (
+                                    <p className="text-xs text-ui-blue-primary mt-1.5 bg-ui-blue-primary/5 px-2 py-1 rounded-md inline-block">
+                                      {slot.note}
+                                    </p>
+                                  )}
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => removeSlot(globalIndex)}
+                                  className="text-gray-300 hover:text-ui-error transition-colors p-1"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </button>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )
+                )}
+              </div>
+            )}
+            {errors.availability && <p className="text-xs text-ui-error mt-4 text-center">{errors.availability}</p>}
+          </div>
+
+          {/* Exceptions Section */}
+          <div className="bg-white/50 backdrop-blur-sm border border-white/60 rounded-3xl p-6 shadow-lg">
+            <h3 className="font-bold text-gray-800 mb-4 text-sm">Unavailable Dates</h3>
+
+            <div className="space-y-3 mb-4">
+              <ModernInput
                 type="date"
                 value={exceptionDate}
                 onChange={(e) => setExceptionDate(e.target.value)}
                 min={new Date().toISOString().split('T')[0]}
-                className="w-full px-3 py-2 border rounded-lg"
+                className="h-10 text-sm"
               />
-            </div>
-            <div className="space-y-2">
-              <Label>Reason (Optional)</Label>
-              <input
-                type="text"
+              <ModernInput
                 value={exceptionReason}
                 onChange={(e) => setExceptionReason(e.target.value)}
-                placeholder="e.g., Final exams"
-                className="w-full px-3 py-2 border rounded-lg"
+                placeholder="Reason (e.g. Exams)"
+                className="h-10 text-sm"
               />
+              <Button
+                type="button"
+                onClick={addException}
+                variant="outline"
+                size="sm"
+                className="w-full"
+              >
+                Add Date
+              </Button>
             </div>
-          </div>
-          <Button type="button" onClick={addException} variant="outline" className="w-full">
-            Add Unavailable Date
-          </Button>
-        </div>
 
-        {formData.unavailabilityExceptions.length > 0 && (
-          <div className="space-y-2">
-            <p className="text-sm font-medium">
-              Unavailable Dates ({formData.unavailabilityExceptions.length}):
-            </p>
-            <div className="space-y-2">
-              {formData.unavailabilityExceptions.map((exception, index) => (
-                <div
-                  key={index}
-                  className="flex items-center justify-between bg-gray-100 p-3 rounded border"
-                >
-                  <div>
-                    <p className="font-medium">
-                      {new Date(exception.date).toLocaleDateString('en-US', {
-                        weekday: 'short',
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric',
-                      })}
-                    </p>
-                    {exception.reason && (
-                      <p className="text-sm text-gray-600">Reason: {exception.reason}</p>
-                    )}
-                  </div>
-                  <Button
-                    type="button"
-                    variant="destructive"
-                    size="sm"
-                    onClick={() => removeException(index)}
+            {formData.unavailabilityExceptions.length > 0 && (
+              <div className="space-y-2">
+                {formData.unavailabilityExceptions.map((exception, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center justify-between bg-gray-50 p-2 rounded-lg border border-gray-100 text-sm"
                   >
-                    Remove
-                  </Button>
-                </div>
-              ))}
-            </div>
+                    <div>
+                      <p className="font-medium text-gray-700">
+                        {new Date(exception.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                      </p>
+                      {exception.reason && (
+                        <p className="text-xs text-gray-500">{exception.reason}</p>
+                      )}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => removeException(index)}
+                      className="text-gray-400 hover:text-ui-error"
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
-        )}
-      </div>
-
-      {/* Tip */}
-      <div className="bg-[hsl(var(--ui-success)/0.1)] border border-[hsl(var(--ui-success)/0.3)] rounded-lg p-4">
-        <p className="text-sm text-[hsl(var(--ui-success))]">
-          💡 <strong>Tip:</strong> Start with a realistic schedule. You can always add more slots later
-          as you get more comfortable. Quality experiences are better than overcommitting!
-        </p>
+        </div>
       </div>
     </div>
   );
