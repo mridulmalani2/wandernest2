@@ -83,10 +83,10 @@ export function PreferencesStep({ data, errors, updateData }: Props) {
     <div className="space-y-12 animate-fade-in max-w-3xl mx-auto">
       {/* Header */}
       <div className="text-center space-y-2">
-        <h2 className="text-4xl font-light tracking-tight text-liquid-dark-primary">
+        <h2 className="text-4xl font-light tracking-tight text-white">
           Your Preferences
         </h2>
-        <p className="text-base font-light text-gray-500 max-w-md mx-auto">
+        <p className="text-base font-light text-gray-200 max-w-md mx-auto">
           Help us find your perfect match
         </p>
       </div>
@@ -104,7 +104,7 @@ export function PreferencesStep({ data, errors, updateData }: Props) {
 
           {/* Language Multi-Select Dropdown */}
           <div className="space-y-3" ref={dropdownRef}>
-            <label className="text-sm font-light tracking-wide text-liquid-dark-secondary">
+            <label className="text-sm font-light tracking-wide text-white/90">
               Preferred Languages {errors.preferredLanguages && <span className="text-ui-error ml-1">*</span>}
             </label>
             <div className="relative">
@@ -112,9 +112,9 @@ export function PreferencesStep({ data, errors, updateData }: Props) {
                 onClick={() => setIsLanguageOpen(!isLanguageOpen)}
                 className={cn(
                   'w-full min-h-[48px] px-0 py-3 cursor-pointer',
-                  'border-0 border-b border-gray-300 transition-all duration-300',
+                  'border-0 border-b border-white/20 transition-all duration-300',
                   'flex flex-wrap gap-2 items-center',
-                  isLanguageOpen && 'border-b-2 border-liquid-dark-primary',
+                  isLanguageOpen && 'border-b-2 border-white',
                   errors.preferredLanguages && 'border-ui-error'
                 )}
               >
@@ -124,7 +124,7 @@ export function PreferencesStep({ data, errors, updateData }: Props) {
                     return (
                       <span
                         key={langValue}
-                        className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-liquid-dark-primary text-white text-sm font-medium shadow-sm"
+                        className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-white text-black text-sm font-medium shadow-sm"
                       >
                         {langLabel}
                         <button
@@ -140,7 +140,7 @@ export function PreferencesStep({ data, errors, updateData }: Props) {
                     )
                   })
                 ) : (
-                  <span className="text-gray-400 font-light">Select languages...</span>
+                  <span className="text-white/50 font-light">Select languages...</span>
                 )}
                 <ChevronDown
                   className={cn(
@@ -194,7 +194,7 @@ export function PreferencesStep({ data, errors, updateData }: Props) {
           </div>
 
           <div className="space-y-3">
-            <label className="text-sm font-light tracking-wide text-liquid-dark-secondary block">
+            <label className="text-sm font-light tracking-wide text-white/90 block">
               Gender Preference (Optional)
             </label>
             <div className="flex gap-2">
@@ -211,8 +211,8 @@ export function PreferencesStep({ data, errors, updateData }: Props) {
                     'flex-1 py-2.5 px-4 rounded-full text-sm font-medium transition-all duration-300',
                     'border-2',
                     data.preferredGender === option.value || (!data.preferredGender && option.value === 'no_preference')
-                      ? 'bg-liquid-dark-primary text-white border-liquid-dark-primary shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]'
-                      : 'bg-white text-gray-900 border-gray-300 hover:border-liquid-dark-primary hover:shadow-md hover:bg-liquid-light active:scale-[0.98] active:bg-gray-100'
+                      ? 'bg-white text-black border-white shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]'
+                      : 'bg-transparent text-white border-white/30 hover:border-white hover:shadow-md hover:bg-white/10 active:scale-[0.98] active:bg-white/5'
                   )}
                 >
                   {option.label}
@@ -226,7 +226,7 @@ export function PreferencesStep({ data, errors, updateData }: Props) {
       {/* Service Type */}
       <FlowCard padding="lg">
         <div className="space-y-4">
-          <label className="text-sm font-light tracking-wide text-liquid-dark-secondary block">
+          <label className="text-sm font-light tracking-wide text-white/90 block">
             Service Type {errors.serviceType && <span className="text-ui-error ml-1">*</span>}
           </label>
           {[
@@ -244,12 +244,12 @@ export function PreferencesStep({ data, errors, updateData }: Props) {
                   'w-full flex items-center gap-4 p-4 rounded-full transition-all duration-300 text-left',
                   'border-2',
                   isSelected
-                    ? 'bg-liquid-dark-primary text-white border-liquid-dark-primary shadow-lg hover:shadow-xl hover:scale-[1.01] active:scale-[0.99]'
-                    : 'bg-white text-gray-900 border-gray-300 hover:border-liquid-dark-primary hover:bg-liquid-light hover:shadow-md active:scale-[0.99] active:bg-gray-100'
+                    ? 'bg-white text-black border-white shadow-lg hover:shadow-xl hover:scale-[1.01] active:scale-[0.99]'
+                    : 'bg-transparent text-white border-white/30 hover:border-white hover:bg-white/10 hover:shadow-md active:scale-[0.99] active:bg-white/5'
                 )}
               >
                 <div className={cn('h-10 w-10 rounded-full flex items-center justify-center shrink-0',
-                  isSelected ? 'bg-white/20' : 'bg-liquid-light')}>
+                  isSelected ? 'bg-black/10' : 'bg-white/10')}>
                   <Icon className="h-5 w-5" />
                 </div>
                 <div className="flex-1">
@@ -293,8 +293,8 @@ export function PreferencesStep({ data, errors, updateData }: Props) {
             />
 
             <div className="pt-4 text-center">
-              <div className="text-xs font-light text-gray-500 mb-1">Estimated Total Budget</div>
-              <div className="text-3xl font-light text-liquid-dark-primary">
+              <div className="text-xs font-light text-gray-300 mb-1">Estimated Total Budget</div>
+              <div className="text-3xl font-light text-white">
                 €{data.totalBudget || 0}
               </div>
               <div className="text-xs font-light text-gray-400 mt-1">
@@ -334,7 +334,7 @@ export function PreferencesStep({ data, errors, updateData }: Props) {
 
       {/* Interests - Pills */}
       <div className="space-y-4">
-        <label className="text-sm font-light tracking-wide text-liquid-dark-secondary block">
+        <label className="text-sm font-light tracking-wide text-white/90 block">
           Interests {errors.interests && <span className="text-ui-error ml-1">*</span>}
         </label>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -349,8 +349,8 @@ export function PreferencesStep({ data, errors, updateData }: Props) {
                   'flex items-center justify-center gap-2 px-6 py-3 rounded-full transition-all duration-300',
                   'border-2',
                   isSelected
-                    ? 'bg-liquid-dark-primary text-white border-liquid-dark-primary shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]'
-                    : 'bg-white text-gray-900 border-gray-300 hover:border-liquid-dark-primary hover:bg-liquid-light hover:shadow-md active:scale-[0.98] active:bg-gray-100'
+                    ? 'bg-white text-black border-white shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]'
+                    : 'bg-transparent text-white border-white/30 hover:border-white hover:bg-white/10 hover:shadow-md active:scale-[0.98] active:bg-white/5'
                 )}
               >
                 <span className="text-sm font-medium">{interest.label}</span>

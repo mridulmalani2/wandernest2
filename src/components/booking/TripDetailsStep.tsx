@@ -46,10 +46,10 @@ export function TripDetailsStep({ data, errors, updateData }: Props) {
     <div className="space-y-12 animate-fade-in max-w-3xl mx-auto">
       {/* Header */}
       <div className="text-center space-y-2">
-        <h2 className="text-4xl font-light tracking-tight text-liquid-dark-primary">
+        <h2 className="text-4xl font-light tracking-tight text-white">
           Trip Details
         </h2>
-        <p className="text-base font-light text-gray-500 max-w-md mx-auto">
+        <p className="text-base font-light text-gray-200 max-w-md mx-auto">
           Tell us about your travel plans
         </p>
       </div>
@@ -106,7 +106,7 @@ export function TripDetailsStep({ data, errors, updateData }: Props) {
 
       {/* Group Type - Compact Pills */}
       <div className="space-y-4">
-        <h3 className="text-sm font-light tracking-wide text-liquid-dark-secondary">
+        <h3 className="text-sm font-light tracking-wide text-white/90">
           Who are you traveling with? {errors.groupType && <span className="text-ui-error ml-1">*</span>}
         </h3>
         <div className="flex flex-wrap gap-3">
@@ -123,8 +123,8 @@ export function TripDetailsStep({ data, errors, updateData }: Props) {
                   'flex items-center gap-2',
                   'border-2 text-sm font-medium',
                   isSelected
-                    ? 'bg-liquid-dark-primary text-white border-liquid-dark-primary shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]'
-                    : 'bg-white text-gray-900 border-gray-300 hover:border-liquid-dark-primary hover:bg-liquid-light hover:shadow-md active:scale-[0.98] active:bg-gray-100'
+                    ? 'bg-white text-black border-white shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]'
+                    : 'bg-transparent text-white border-white/30 hover:border-white hover:bg-white/10 hover:shadow-md active:scale-[0.98] active:bg-white/5'
                 )}
               >
                 <Icon className="h-4 w-4" />
@@ -143,7 +143,7 @@ export function TripDetailsStep({ data, errors, updateData }: Props) {
 
       {/* Time Preference - Compact Pills */}
       <div className="space-y-4">
-        <h3 className="text-sm font-light tracking-wide text-liquid-dark-secondary">
+        <h3 className="text-sm font-light tracking-wide text-white/90">
           Preferred Time of Day {errors.preferredTime && <span className="text-ui-error ml-1">*</span>}
         </h3>
         <div className="flex flex-wrap gap-3">
@@ -160,8 +160,8 @@ export function TripDetailsStep({ data, errors, updateData }: Props) {
                   'flex items-center gap-2',
                   'border-2 text-sm font-medium',
                   isSelected
-                    ? 'bg-liquid-dark-primary text-white border-liquid-dark-primary shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]'
-                    : 'bg-white text-gray-900 border-gray-300 hover:border-liquid-dark-primary hover:bg-liquid-light hover:shadow-md active:scale-[0.98] active:bg-gray-100'
+                    ? 'bg-white text-black border-white shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]'
+                    : 'bg-transparent text-white border-white/30 hover:border-white hover:bg-white/10 hover:shadow-md active:scale-[0.98] active:bg-white/5'
                 )}
               >
                 <Icon className="h-4 w-4" />
@@ -184,8 +184,8 @@ export function TripDetailsStep({ data, errors, updateData }: Props) {
       {/* Accessibility Needs */}
       <FlowCard padding="lg" variant="subtle">
         <div className="space-y-3">
-          <label className="text-sm font-light tracking-wide text-liquid-dark-secondary block">
-            Accessibility Needs <span className="text-xs text-gray-400 ml-1">(Optional)</span>
+          <label className="text-sm font-light tracking-wide text-white/90 block">
+            Accessibility Needs <span className="text-xs text-white/50 ml-1">(Optional)</span>
           </label>
           <textarea
             value={data.accessibilityNeeds || ''}
@@ -194,9 +194,9 @@ export function TripDetailsStep({ data, errors, updateData }: Props) {
             placeholder="Any special requirements..."
             className={cn(
               'w-full bg-transparent px-0 py-2 text-base font-light',
-              'text-liquid-dark-primary placeholder:text-gray-400',
-              'border-0 border-b border-gray-300',
-              'focus:outline-none focus:border-b-2 focus:border-liquid-dark-primary',
+              'text-white placeholder:text-white/30',
+              'border-0 border-b border-white/20',
+              'focus:outline-none focus:border-b-2 focus:border-white',
               'transition-all duration-300 resize-none'
             )}
           />

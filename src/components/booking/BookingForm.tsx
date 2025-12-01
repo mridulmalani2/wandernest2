@@ -259,13 +259,13 @@ export function BookingForm() {
             )}
           </div>
 
-          <div className="mt-8 flex justify-between pt-6 border-t border-gray-100">
+          <div className="mt-8 flex justify-between pt-6 border-t border-white/10">
             <Button
               type="button"
               variant="outline"
               onClick={handleBack}
               disabled={currentStep === 1 || isSubmitting}
-              className="hover-lift shadow-soft bg-white"
+              className="hover-lift shadow-soft bg-transparent border-white/30 text-white hover:bg-white/10 hover:text-white"
             >
               Back
             </Button>

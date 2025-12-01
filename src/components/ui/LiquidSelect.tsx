@@ -40,7 +40,7 @@ export function LiquidSelect({
                     htmlFor={id}
                     className={cn(
                         'block mb-2 text-xs font-normal tracking-wide transition-colors duration-200',
-                        error ? 'text-ui-error' : 'text-liquid-dark-secondary'
+                        error ? 'text-ui-error' : 'text-white/80'
                     )}
                 >
                     {label}
@@ -53,13 +53,13 @@ export function LiquidSelect({
                     className={cn(
                         // Base - minimal underline style
                         'w-full bg-transparent px-0 py-3 text-base font-light tracking-wide',
-                        'text-liquid-dark-primary',
-                        'border-0 border-b border-gray-300',
+                        'text-white',
+                        'border-0 border-b border-white/20',
                         'transition-all duration-300 ease-out',
 
                         // Focus/Open state
-                        'focus:outline-none focus:ring-0 focus:border-b-2 focus:border-liquid-dark-primary',
-                        isOpen && 'border-b-2 border-liquid-dark-primary',
+                        'focus:outline-none focus:ring-0 focus:border-b-2 focus:border-white',
+                        isOpen && 'border-b-2 border-white',
 
                         // Error state
                         error && 'border-ui-error focus:border-ui-error',

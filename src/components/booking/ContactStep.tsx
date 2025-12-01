@@ -45,10 +45,10 @@ export function ContactStep({ data, errors, updateData, isEmailFromSession = fal
     <div className="space-y-12 animate-fade-in max-w-3xl mx-auto">
       {/* Header */}
       <div className="text-center space-y-2">
-        <h2 className="text-4xl font-light tracking-tight text-liquid-dark-primary">
+        <h2 className="text-4xl font-light tracking-tight text-white">
           Contact Information
         </h2>
-        <p className="text-base font-light text-gray-500 max-w-md mx-auto">
+        <p className="text-base font-light text-gray-200 max-w-md mx-auto">
           How should we reach you?
         </p>
       </div>
@@ -69,8 +69,8 @@ export function ContactStep({ data, errors, updateData, isEmailFromSession = fal
           />
 
           <div className="space-y-3">
-            <label className="text-sm font-light tracking-wide text-liquid-dark-secondary block">
-              Phone Number <span className="text-xs text-gray-400 ml-1">(Optional)</span>
+            <label className="text-sm font-light tracking-wide text-white/90 block">
+              Phone Number <span className="text-xs text-white/50 ml-1">(Optional)</span>
             </label>
             <div className="flex gap-3">
               <input
@@ -78,8 +78,8 @@ export function ContactStep({ data, errors, updateData, isEmailFromSession = fal
                 placeholder="+1"
                 defaultValue="+1"
                 className={cn(
-                  'w-20 text-center bg-transparent px-2 py-3 text-base font-light',
-                  'border-0 border-b border-gray-300 focus:border-b-2 focus:border-liquid-dark-primary',
+                  'w-20 text-center bg-transparent px-2 py-3 text-base font-light text-white',
+                  'border-0 border-b border-white/20 focus:border-b-2 focus:border-white',
                   'transition-all duration-300 focus:outline-none'
                 )}
               />
@@ -95,16 +95,16 @@ export function ContactStep({ data, errors, updateData, isEmailFromSession = fal
           </div>
 
           {data.phone && (
-            <div className="bg-liquid-light rounded-2xl p-4 space-y-3 animate-fade-in">
+            <div className="bg-white/5 rounded-2xl p-4 space-y-3 animate-fade-in">
               <div className="flex items-center gap-3">
                 <input
                   type="checkbox"
                   id="whatsapp"
                   checked={useWhatsApp}
                   onChange={handleWhatsAppToggle}
-                  className="h-4 w-4 rounded border-gray-300 text-liquid-dark-primary focus:ring-liquid-dark-primary"
+                  className="h-4 w-4 rounded border-white/30 bg-transparent text-white focus:ring-white"
                 />
-                <label htmlFor="whatsapp" className="text-sm font-light cursor-pointer flex items-center gap-2">
+                <label htmlFor="whatsapp" className="text-sm font-light cursor-pointer flex items-center gap-2 text-white/90">
                   <MessageSquare className="h-4 w-4" />
                   This number is also my WhatsApp
                 </label>
@@ -125,7 +125,7 @@ export function ContactStep({ data, errors, updateData, isEmailFromSession = fal
 
       {/* Contact Method - Pills */}
       <div className="space-y-4">
-        <label className="text-sm font-light tracking-wide text-liquid-dark-secondary block">
+        <label className="text-sm font-light tracking-wide text-white/90 block">
           Preferred Contact Method {errors.contactMethod && <span className="text-ui-error ml-1">*</span>}
         </label>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -141,8 +141,8 @@ export function ContactStep({ data, errors, updateData, isEmailFromSession = fal
                   'flex items-center justify-center gap-3 py-4 px-6 rounded-full transition-all duration-300',
                   'border-2',
                   isSelected
-                    ? 'bg-liquid-dark-primary text-white border-liquid-dark-primary shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]'
-                    : 'bg-white text-gray-900 border-gray-300 hover:border-liquid-dark-primary hover:bg-liquid-light hover:shadow-md active:scale-[0.98] active:bg-gray-100'
+                    ? 'bg-white text-black border-white shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]'
+                    : 'bg-transparent text-white border-white/30 hover:border-white hover:bg-white/10 hover:shadow-md active:scale-[0.98] active:bg-white/5'
                 )}
               >
                 <Icon className="h-5 w-5" />
@@ -160,8 +160,8 @@ export function ContactStep({ data, errors, updateData, isEmailFromSession = fal
       {/* Trip Notes */}
       <FlowCard padding="lg" variant="subtle">
         <div className="space-y-3">
-          <label className="text-sm font-light tracking-wide text-liquid-dark-secondary block">
-            Additional Notes <span className="text-xs text-gray-400 ml-1">(Optional)</span>
+          <label className="text-sm font-light tracking-wide text-white/90 block">
+            Additional Notes <span className="text-xs text-white/50 ml-1">(Optional)</span>
           </label>
           <textarea
             placeholder="Any special requests, dietary restrictions, or information you'd like to share..."
@@ -170,8 +170,8 @@ export function ContactStep({ data, errors, updateData, isEmailFromSession = fal
             rows={4}
             className={cn(
               'w-full bg-transparent px-0 py-2 text-base font-light',
-              'text-liquid-dark-primary placeholder:text-gray-400',
-              'border-0 border-b border-gray-300 focus:border-b-2 focus:border-liquid-dark-primary',
+              'text-white placeholder:text-white/30',
+              'border-0 border-b border-white/20 focus:border-b-2 focus:border-white',
               'transition-all duration-300 resize-none focus:outline-none'
             )}
           />
@@ -190,18 +190,18 @@ export function ContactStep({ data, errors, updateData, isEmailFromSession = fal
             checked={data.termsAccepted || false}
             onChange={(e) => updateData({ termsAccepted: e.target.checked })}
             className={cn(
-              'mt-1 h-5 w-5 rounded border-gray-300',
-              'focus:ring-liquid-dark-primary',
-              data.termsAccepted ? 'text-liquid-dark-primary' : '',
+              'mt-1 h-5 w-5 rounded border-white/30 bg-transparent',
+              'focus:ring-white',
+              data.termsAccepted ? 'text-white' : '',
               errors.termsAccepted && 'border-ui-error'
             )}
           />
           <label htmlFor="termsConsent" className="text-sm font-light cursor-pointer space-y-2">
-            <p className="text-liquid-dark-secondary">
-              I agree to the <Link href="/terms" className="font-medium text-liquid-dark-primary hover:underline" onClick={(e) => e.stopPropagation()}>Terms of Service</Link> and <Link href="/privacy" className="font-medium text-liquid-dark-primary hover:underline" onClick={(e) => e.stopPropagation()}>Privacy Policy</Link>.
+            <p className="text-white/90">
+              I agree to the <Link href="/terms" className="font-medium text-white hover:underline" onClick={(e) => e.stopPropagation()}>Terms of Service</Link> and <Link href="/privacy" className="font-medium text-white hover:underline" onClick={(e) => e.stopPropagation()}>Privacy Policy</Link>.
             </p>
-            <div className="bg-liquid-light p-3 rounded-xl border border-gray-100 text-xs text-gray-500">
-              <strong className="text-gray-700 block mb-1">Disclaimer:</strong>
+            <div className="bg-white/10 p-3 rounded-xl border border-white/10 text-xs text-gray-300">
+              <strong className="text-white block mb-1">Disclaimer:</strong>
               TourWiseCo is a marketplace connector only and does not handle payments, guarantee service quality, or assume liability for guide interactions.
             </div>
           </label>
@@ -215,11 +215,11 @@ export function ContactStep({ data, errors, updateData, isEmailFromSession = fal
       </FlowCard>
 
       {/* Privacy Notice */}
-      <div className="bg-liquid-light/50 rounded-2xl p-4 flex gap-3 items-start border border-gray-100">
-        <Shield className="h-5 w-5 text-liquid-dark-secondary shrink-0 mt-0.5" />
+      <div className="bg-white/5 rounded-2xl p-4 flex gap-3 items-start border border-white/10">
+        <Shield className="h-5 w-5 text-white/70 shrink-0 mt-0.5" />
         <div className="space-y-1">
-          <h3 className="font-medium text-liquid-dark-primary text-sm">Privacy Guarantee</h3>
-          <p className="text-xs font-light text-gray-600 leading-relaxed">
+          <h3 className="font-medium text-white text-sm">Privacy Guarantee</h3>
+          <p className="text-xs font-light text-gray-300 leading-relaxed">
             Your contact information will only be shared with your matched guide after you accept their proposal.
           </p>
         </div>

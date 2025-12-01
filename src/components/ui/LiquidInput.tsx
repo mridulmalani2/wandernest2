@@ -42,16 +42,16 @@ const LiquidInput = React.forwardRef<HTMLInputElement, LiquidInputProps>(
                         className={cn(
                             // Base styles - minimal, transparent
                             'w-full bg-transparent px-0 py-3 text-base font-light tracking-wide',
-                            'text-liquid-dark-primary',
+                            'text-white',
 
                             // Border - single bottom line
-                            'border-0 border-b border-gray-300',
+                            'border-0 border-b border-white/20',
                             'transition-all duration-300 ease-out',
 
                             // Focus state - gradient underline
                             'focus:outline-none focus:ring-0',
                             'focus:border-b-2',
-                            isFocused && 'border-liquid-dark-primary',
+                            isFocused && 'border-white',
 
                             // Error state
                             error && 'border-ui-error focus:border-ui-error',
@@ -68,6 +68,9 @@ const LiquidInput = React.forwardRef<HTMLInputElement, LiquidInputProps>(
                             // Force hide date input placeholders (browser default)
                             type === 'date' && '[&::-webkit-datetime-edit]:opacity-0 focus:[&::-webkit-datetime-edit]:opacity-100',
                             type === 'date' && hasValue && '[&::-webkit-datetime-edit]:opacity-100',
+
+                            // Date input specific styling for dark mode
+                            type === 'date' && '[color-scheme:dark]',
 
                             className
                         )}
@@ -89,14 +92,14 @@ const LiquidInput = React.forwardRef<HTMLInputElement, LiquidInputProps>(
 
                                 // Floating animation
                                 isFocused || hasValue || props.value
-                                    ? '-top-5 text-xs text-liquid-dark-secondary'
-                                    : 'top-3 text-base text-gray-400',
+                                    ? '-top-5 text-xs text-white/80'
+                                    : 'top-3 text-base text-white/50',
 
                                 // Error state
                                 error && 'text-ui-error',
 
                                 // Focus state
-                                isFocused && !error && 'text-liquid-dark-primary font-normal'
+                                isFocused && !error && 'text-white font-normal'
                             )}
                         >
                             {label}

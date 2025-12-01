@@ -20,17 +20,17 @@ const FlowCard = React.forwardRef<HTMLDivElement, FlowCardProps>(
 
                     // Variants
                     variant === 'default' && [
-                        'bg-white/60 backdrop-blur-sm',
-                        'border border-gray-100',
+                        'bg-white/5 backdrop-blur-sm',
+                        'border border-white/10',
                         'shadow-sm',
                     ],
                     variant === 'elevated' && [
-                        'bg-white',
-                        'border border-gray-50',
+                        'bg-white/10',
+                        'border border-white/20',
                         'shadow-md',
                     ],
                     variant === 'subtle' && [
-                        'bg-liquid-light/40',
+                        'bg-white/5',
                         'border border-transparent',
                         'shadow-none',
                     ],
