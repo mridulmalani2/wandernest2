@@ -1,10 +1,9 @@
 'use client';
 
-import { Label } from '@/components/ui/label';
-import { ModernInput } from '@/components/ui/ModernInput';
-import { Checkbox } from '@/components/ui/checkbox';
+import { LiquidInput } from '@/components/ui/LiquidInput';
+import { FlowCard } from '@/components/ui/FlowCard';
 import { OnboardingFormData } from './OnboardingWizard';
-import { Shield, AlertTriangle, CheckCircle2, Phone, User, Lock } from 'lucide-react';
+import { Shield, Phone, AlertTriangle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface SafetyComplianceStepProps {
@@ -15,147 +14,125 @@ interface SafetyComplianceStepProps {
 
 export function SafetyComplianceStep({ formData, updateFormData, errors }: SafetyComplianceStepProps) {
   return (
-    <div className="space-y-8 animate-fade-in">
-      <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold bg-gradient-to-r from-ui-blue-primary to-ui-purple-primary bg-clip-text text-transparent mb-2">
+    <div className="space-y-12 animate-fade-in max-w-3xl mx-auto">
+      <div className="text-center space-y-2">
+        <h2 className="text-4xl font-light tracking-tight text-liquid-dark-primary">
           Safety & Compliance
         </h2>
-        <p className="text-gray-600 max-w-lg mx-auto">
-          Please review our safety guidelines and provide emergency contact details.
+        <p className="text-base font-light text-gray-500 max-w-md mx-auto">
+          Your safety is our priority
         </p>
-      </div>
-
-      {/* Platform Terms */}
-      <div className="bg-ui-blue-primary/5 border border-ui-blue-primary/20 rounded-2xl p-6 flex gap-4 items-start">
-        <div className="bg-ui-blue-primary/10 p-2 rounded-full shrink-0">
-          <Shield className="h-6 w-6 text-ui-blue-primary" />
-        </div>
-        <div>
-          <h3 className="font-bold text-ui-blue-primary mb-1">Safety First Commitment</h3>
-          <p className="text-sm text-gray-600 leading-relaxed">
-            TourWiseCo is committed to creating a safe environment. We require all guides to adhere to our safety standards and code of conduct.
-          </p>
-        </div>
-      </div>
-
-      {/* Checkboxes */}
-      <div className="space-y-4">
-        {[
-          {
-            id: 'termsAccepted',
-            label: (
-              <>
-                I agree to the platform's <a href="/terms" className="text-ui-blue-primary hover:underline font-medium">Terms & Conditions</a> and <a href="/privacy" className="text-ui-blue-primary hover:underline font-medium">Privacy Policy</a>.
-              </>
-            ),
-            error: errors.termsAccepted
-          },
-          {
-            id: 'independentGuideAcknowledged',
-            label: "I understand that I am an independent guide responsible for my own safety and conduct. TourWiseCo is a marketplace connector only.",
-            error: errors.independentGuideAcknowledged
-          },
-          {
-            id: 'safetyGuidelinesAccepted',
-            label: "I agree to follow safety guidelines: meeting in public places, sharing trip details with contacts, and maintaining professional conduct.",
-            error: errors.safetyGuidelinesAccepted
-          }
-        ].map((item) => (
-          <div
-            key={item.id}
-            className={cn(
-              "border-2 rounded-xl p-4 transition-all duration-200 hover:bg-gray-50",
-              item.error ? "border-ui-error bg-ui-error/5" : "border-gray-100 bg-white"
-            )}
-          >
-            <div className="flex items-start space-x-3">
-              <Checkbox
-                id={item.id}
-                checked={formData[item.id as keyof OnboardingFormData] as boolean}
-                onCheckedChange={(checked) =>
-                  updateFormData({ [item.id]: checked as boolean })
-                }
-                className="mt-1"
-              />
-              <div className="flex-1">
-                <Label
-                  htmlFor={item.id}
-                  className="text-sm font-normal cursor-pointer leading-relaxed text-gray-700 block"
-                >
-                  {item.label} <span className="text-ui-error">*</span>
-                </Label>
-              </div>
-            </div>
-            {item.error && (
-              <p className="text-xs text-ui-error mt-2 ml-7">{item.error}</p>
-            )}
-          </div>
-        ))}
-      </div>
-
-      {/* Key Safety Guidelines */}
-      <div className="bg-ui-purple-primary/5 border border-ui-purple-primary/20 rounded-2xl p-6">
-        <h3 className="font-bold text-ui-purple-primary mb-3 flex items-center gap-2">
-          <CheckCircle2 className="h-5 w-5" />
-          Key Safety Guidelines
-        </h3>
-        <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          {[
-            "Always meet in public, well-lit areas",
-            "Share itinerary with emergency contact",
-            "Maintain professional boundaries",
-            "Trust your instincts & report issues",
-            "No off-platform payments",
-            "Verify tourist identity if needed"
-          ].map((guideline, i) => (
-            <li key={i} className="flex items-center gap-2 text-sm text-gray-700">
-              <span className="h-1.5 w-1.5 rounded-full bg-ui-purple-primary shrink-0" />
-              {guideline}
-            </li>
-          ))}
-        </ul>
       </div>
 
       {/* Emergency Contact */}
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-lg font-bold text-gray-900">Emergency Contact</h3>
-            <p className="text-sm text-gray-500">Optional but highly recommended</p>
+      <FlowCard padding="lg">
+        <div className="space-y-6">
+          <div className="flex items-center gap-2 text-sm font-light tracking-wide text-liquid-dark-secondary">
+            <Phone className="h-4 w-4" />
+            Emergency Contact <span className="text-xs text-gray-400 ml-1">(Optional but recommended)</span>
           </div>
-          <div className="bg-ui-warning/10 text-ui-warning px-3 py-1 rounded-full text-xs font-bold border border-ui-warning/20 flex items-center gap-1">
-            <AlertTriangle className="h-3 w-3" />
-            Recommended
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <LiquidInput
+              label="Contact Name"
+              value={formData.emergencyContactName || ''}
+              onChange={(e) => updateFormData({ emergencyContactName: e.target.value })}
+              placeholder="Full name"
+            />
+
+            <LiquidInput
+              label="Contact Phone"
+              type="tel"
+              value={formData.emergencyContactPhone || ''}
+              onChange={(e) => updateFormData({ emergencyContactPhone: e.target.value })}
+              placeholder="+33 6 12 34 56 78"
+              icon={Phone}
+            />
           </div>
         </div>
+      </FlowCard>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <ModernInput
-            label="Contact Name"
-            placeholder="e.g., Parent, Sibling"
-            value={formData.emergencyContactName || ''}
-            onChange={(e) => updateFormData({ emergencyContactName: e.target.value })}
-            icon={User}
-            error={errors.emergencyContactName}
-          />
-          <ModernInput
-            label="Contact Phone"
-            placeholder="+1 234 567 8900"
-            value={formData.emergencyContactPhone || ''}
-            onChange={(e) => updateFormData({ emergencyContactPhone: e.target.value })}
-            icon={Phone}
-            error={errors.emergencyContactPhone}
-            helperText="Include country code"
-          />
+      {/* Safety Guidelines */}
+      <FlowCard padding="md" variant="subtle">
+        <div className="flex gap-3 items-start">
+          <AlertTriangle className="h-5 w-5 text-liquid-dark-secondary mt-0.5 shrink-0" />
+          <div className="space-y-2 text-sm font-light">
+            <p className="font-medium text-liquid-dark-primary">Safety Guidelines</p>
+            <ul className="space-y-1 text-gray-600 text-xs">
+              <li>• Always meet tourists in public places</li>
+              <li>• Share your itinerary with a friend/family member</li>
+              <li>• Trust your instincts - you can decline any request</li>
+              <li>• Use the platform's messaging system for communication</li>
+              <li>• Report any concerning behavior immediately</li>
+            </ul>
+          </div>
         </div>
-      </div>
+      </FlowCard>
 
-      {/* Privacy Note */}
-      <div className="flex gap-3 bg-gray-50 p-4 rounded-xl border border-gray-100 text-sm text-gray-600">
-        <Lock className="h-5 w-5 text-gray-400 shrink-0" />
-        <p>
-          <strong>Privacy Assurance:</strong> Your emergency contact information is stored securely and encrypted. It will only be accessed in genuine emergency situations and never shared with tourists.
-        </p>
+      {/* Terms Acceptance */}
+      <FlowCard padding="lg">
+        <div className="space-y-6">
+          <div className="flex items-start gap-4">
+            <input
+              type="checkbox"
+              id="termsAccepted"
+              checked={formData.termsAccepted || false}
+              onChange={(e) => updateFormData({ termsAccepted: e.target.checked })}
+              className={cn(
+                'mt-1 h-5 w-5 rounded border-gray-300 focus:ring-liquid-dark-primary',
+                formData.termsAccepted ? 'text-liquid-dark-primary' : '',
+                errors.termsAccepted && 'border-ui-error'
+              )}
+            />
+            <label htmlFor="termsAccepted" className="text-sm font-light cursor-pointer">
+              <p className="text-liquid-dark-secondary">
+                I agree to the <span className="font-medium text-liquid-dark-primary hover:underline">Terms of Service</span> and <span className="font-medium text-liquid-dark-primary hover:underline">Privacy Policy</span>.
+              </p>
+            </label>
+          </div>
+          {errors.termsAccepted && (
+            <p className="text-xs font-light text-ui-error flex items-center gap-1">
+              <Shield className="h-3 w-3" />
+              {errors.termsAccepted}
+            </p>
+          )}
+
+          <div className="flex items-start gap-4">
+            <input
+              type="checkbox"
+              id="safetyGuidelinesAccepted"
+              checked={formData.safetyGuidelinesAccepted || false}
+              onChange={(e) => updateFormData({ safetyGuidelinesAccepted: e.target.checked })}
+              className={cn(
+                'mt-1 h-5 w-5 rounded border-gray-300 focus:ring-liquid-dark-primary',
+                formData.safetyGuidelinesAccepted ? 'text-liquid-dark-primary' : '',
+                errors.safetyGuidelinesAccepted && 'border-ui-error'
+              )}
+            />
+            <label htmlFor="safetyGuidelinesAccepted" className="text-sm font-light cursor-pointer">
+              <p className="text-liquid-dark-secondary">
+                I have read and agree to the <span className="font-medium text-liquid-dark-primary hover:underline">Safety Guidelines</span> and <span className="font-medium text-liquid-dark-primary hover:underline">Code of Conduct</span>.
+              </p>
+            </label>
+          </div>
+          {errors.safetyGuidelinesAccepted && (
+            <p className="text-xs font-light text-ui-error flex items-center gap-1">
+              <Shield className="h-3 w-3" />
+              {errors.safetyGuidelinesAccepted}
+            </p>
+          )}
+        </div>
+      </FlowCard>
+
+      {/* Disclaimer */}
+      <div className="bg-liquid-light/50 rounded-2xl p-4 flex gap-3 items-start border border-gray-100">
+        <Shield className="h-5 w-5 text-liquid-dark-secondary shrink-0 mt-0.5" />
+        <div className="space-y-1">
+          <h3 className="font-medium text-liquid-dark-primary text-sm">Background Verification</h3>
+          <p className="text-xs font-light text-gray-600 leading-relaxed">
+            Your documents will be verified within 2-3 business days. You'll be notified once your profile is approved and you can start accepting bookings.
+          </p>
+        </div>
       </div>
     </div>
   );

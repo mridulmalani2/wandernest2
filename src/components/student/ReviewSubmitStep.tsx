@@ -1,9 +1,8 @@
 'use client';
 
 import { OnboardingFormData } from './OnboardingWizard';
-import { ModernCard } from '@/components/ui/ModernCard';
-import { User, GraduationCap, Shield, FileText, Calendar, Briefcase, CheckCircle2, AlertCircle } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { FlowCard } from '@/components/ui/FlowCard';
+import { User, GraduationCap, Shield, FileText, Calendar, Briefcase, CheckCircle2 } from 'lucide-react';
 
 interface ReviewSubmitStepProps {
   formData: OnboardingFormData;
@@ -28,128 +27,128 @@ export function ReviewSubmitStep({ formData, errors }: ReviewSubmitStepProps) {
   })).filter((day) => day.slots.length > 0);
 
   return (
-    <div className="space-y-8 animate-fade-in">
-      <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold bg-gradient-to-r from-ui-blue-primary to-ui-purple-primary bg-clip-text text-transparent mb-2">
+    <div className="space-y-8 animate-fade-in max-w-4xl mx-auto">
+      <div className="text-center space-y-2">
+        <h2 className="text-4xl font-light tracking-tight text-liquid-dark-primary">
           Review & Submit
         </h2>
-        <p className="text-gray-600 max-w-lg mx-auto">
-          Please verify your information before submitting your application.
+        <p className="text-base font-light text-gray-500">
+          Please verify your information
         </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Personal Details */}
-        <ModernCard className="p-6">
-          <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-            <div className="bg-blue-100 p-2 rounded-lg text-blue-600">
-              <User className="h-5 w-5" />
+        {/* Personal */}
+        <FlowCard padding="md">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="h-8 w-8 rounded-full bg-liquid-dark-primary/10 flex items-center justify-center">
+              <User className="h-4 w-4 text-liquid-dark-primary" />
             </div>
-            Personal Details
-          </h3>
-          <div className="space-y-3 text-sm">
-            <div className="grid grid-cols-2 gap-4">
+            <h3 className="text-sm font-medium text-liquid-dark-primary">Personal Details</h3>
+          </div>
+          <div className="space-y-3 text-sm font-light">
+            <div className="grid grid-cols-2 gap-3">
               <div>
-                <p className="text-gray-500 text-xs uppercase tracking-wider font-medium">Full Name</p>
-                <p className="font-medium text-gray-900">{formData.name}</p>
+                <p className="text-xs text-gray-500">Name</p>
+                <p className="text-liquid-dark-primary">{formData.name}</p>
               </div>
               <div>
-                <p className="text-gray-500 text-xs uppercase tracking-wider font-medium">Nationality</p>
-                <p className="font-medium text-gray-900">{formData.nationality}</p>
+                <p className="text-xs text-gray-500">Nationality</p>
+                <p className="text-liquid-dark-primary">{formData.nationality}</p>
               </div>
               <div>
-                <p className="text-gray-500 text-xs uppercase tracking-wider font-medium">Gender</p>
-                <p className="font-medium text-gray-900 capitalize">{formData.gender.replace('_', ' ')}</p>
+                <p className="text-xs text-gray-500">Gender</p>
+                <p className="text-liquid-dark-primary capitalize">{formData.gender.replace('_', ' ')}</p>
               </div>
               <div>
-                <p className="text-gray-500 text-xs uppercase tracking-wider font-medium">City</p>
-                <p className="font-medium text-gray-900">{formData.city}</p>
+                <p className="text-xs text-gray-500">City</p>
+                <p className="text-liquid-dark-primary">{formData.city}</p>
               </div>
             </div>
             <div className="pt-3 border-t border-gray-100">
-              <p className="text-gray-500 text-xs uppercase tracking-wider font-medium">Contact</p>
-              <p className="font-medium text-gray-900">{formData.email}</p>
-              <p className="font-medium text-gray-900">{formData.phoneNumber}</p>
+              <p className="text-xs text-gray-500 mb-1">Contact</p>
+              <p className="text-liquid-dark-primary text-xs">{formData.email}</p>
+              <p className="text-liquid-dark-primary text-xs">{formData.phoneNumber}</p>
             </div>
           </div>
-        </ModernCard>
+        </FlowCard>
 
-        {/* Academic Details */}
-        <ModernCard className="p-6">
-          <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-            <div className="bg-purple-100 p-2 rounded-lg text-purple-600">
-              <GraduationCap className="h-5 w-5" />
+        {/* Academic */}
+        <FlowCard padding="md">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="h-8 w-8 rounded-full bg-liquid-dark-primary/10 flex items-center justify-center">
+              <GraduationCap className="h-4 w-4 text-liquid-dark-primary" />
             </div>
-            Academic Profile
-          </h3>
-          <div className="space-y-4 text-sm">
+            <h3 className="text-sm font-medium text-liquid-dark-primary">Academic Profile</h3>
+          </div>
+          <div className="space-y-3 text-sm font-light">
             <div>
-              <p className="text-gray-500 text-xs uppercase tracking-wider font-medium">University</p>
-              <p className="font-medium text-gray-900">{formData.institute}</p>
-              <p className="text-gray-600">{formData.campus}</p>
+              <p className="text-xs text-gray-500">University</p>
+              <p className="text-liquid-dark-primary">{formData.institute}</p>
+              <p className="text-xs text-gray-600">{formData.campus}</p>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-3">
               <div>
-                <p className="text-gray-500 text-xs uppercase tracking-wider font-medium">Program</p>
-                <p className="font-medium text-gray-900">{formData.programDegree}</p>
+                <p className="text-xs text-gray-500">Program</p>
+                <p className="text-liquid-dark-primary text-xs">{formData.programDegree}</p>
               </div>
               <div>
-                <p className="text-gray-500 text-xs uppercase tracking-wider font-medium">Year</p>
-                <p className="font-medium text-gray-900">{formData.yearOfStudy}</p>
+                <p className="text-xs text-gray-500">Year</p>
+                <p className="text-liquid-dark-primary text-xs">{formData.yearOfStudy}</p>
               </div>
             </div>
             <div>
-              <p className="text-gray-500 text-xs uppercase tracking-wider font-medium mb-2">Languages</p>
-              <div className="flex flex-wrap gap-2">
+              <p className="text-xs text-gray-500 mb-2">Languages</p>
+              <div className="flex flex-wrap gap-1.5">
                 {formData.languages.map((lang) => (
-                  <span key={lang} className="px-2.5 py-1 bg-purple-50 text-purple-700 rounded-lg text-xs font-medium border border-purple-100">
+                  <span key={lang} className="px-2 py-0.5 bg-liquid-dark-primary/5 text-liquid-dark-primary rounded-full text-xs">
                     {lang}
                   </span>
                 ))}
               </div>
             </div>
           </div>
-        </ModernCard>
+        </FlowCard>
 
         {/* Profile Content */}
-        <ModernCard className="p-6 md:col-span-2">
-          <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-            <div className="bg-orange-100 p-2 rounded-lg text-orange-600">
-              <FileText className="h-5 w-5" />
+        <FlowCard padding="md" className="md:col-span-2">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="h-8 w-8 rounded-full bg-liquid-dark-primary/10 flex items-center justify-center">
+              <FileText className="h-4 w-4 text-liquid-dark-primary" />
             </div>
-            Profile Content
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-4">
+            <h3 className="text-sm font-medium text-liquid-dark-primary">Profile Content</h3>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm font-light">
+            <div className="space-y-3">
               <div>
-                <p className="text-gray-500 text-xs uppercase tracking-wider font-medium mb-2">Bio</p>
-                <div className="bg-gray-50 p-3 rounded-xl text-sm text-gray-700 border border-gray-100 max-h-32 overflow-y-auto">
+                <p className="text-xs text-gray-500 mb-1">Bio</p>
+                <div className="bg-liquid-light/50 p-3 rounded-2xl text-xs max-h-24 overflow-y-auto">
                   {formData.bio}
                 </div>
               </div>
               <div>
-                <p className="text-gray-500 text-xs uppercase tracking-wider font-medium mb-2">Interests</p>
-                <div className="flex flex-wrap gap-2">
+                <p className="text-xs text-gray-500 mb-1">Interests</p>
+                <div className="flex flex-wrap gap-1.5">
                   {formData.interests.map((interest) => (
-                    <span key={interest} className="px-2.5 py-1 bg-orange-50 text-orange-700 rounded-lg text-xs font-medium border border-orange-100">
+                    <span key={interest} className="px-2 py-0.5 bg-liquid-dark-primary/5 text-liquid-dark-primary rounded-full text-xs">
                       {interest}
                     </span>
                   ))}
                 </div>
               </div>
             </div>
-            <div className="space-y-4">
+            <div className="space-y-3">
               <div>
-                <p className="text-gray-500 text-xs uppercase tracking-wider font-medium mb-2">Cover Letter</p>
-                <div className="bg-gray-50 p-3 rounded-xl text-sm text-gray-700 border border-gray-100 max-h-32 overflow-y-auto">
+                <p className="text-xs text-gray-500 mb-1">Cover Letter</p>
+                <div className="bg-liquid-light/50 p-3 rounded-2xl text-xs max-h-24 overflow-y-auto">
                   {formData.coverLetter}
                 </div>
               </div>
               <div>
-                <p className="text-gray-500 text-xs uppercase tracking-wider font-medium mb-2">Skills</p>
-                <div className="flex flex-wrap gap-2">
+                <p className="text-xs text-gray-500 mb-1">Skills</p>
+                <div className="flex flex-wrap gap-1.5">
                   {formData.skills.map((skill) => (
-                    <span key={skill} className="px-2.5 py-1 bg-blue-50 text-blue-700 rounded-lg text-xs font-medium border border-blue-100">
+                    <span key={skill} className="px-2 py-0.5 bg-liquid-dark-primary/5 text-liquid-dark-primary rounded-full text-xs">
                       {skill}
                     </span>
                   ))}
@@ -157,63 +156,58 @@ export function ReviewSubmitStep({ formData, errors }: ReviewSubmitStepProps) {
               </div>
             </div>
           </div>
-        </ModernCard>
+        </FlowCard>
 
-        {/* Service & Availability */}
-        <ModernCard className="p-6">
-          <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-            <div className="bg-green-100 p-2 rounded-lg text-green-600">
-              <Briefcase className="h-5 w-5" />
+        {/* Service */}
+        <FlowCard padding="md">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="h-8 w-8 rounded-full bg-liquid-dark-primary/10 flex items-center justify-center">
+              <Briefcase className="h-4 w-4 text-liquid-dark-primary" />
             </div>
-            Service Details
-          </h3>
-          <div className="space-y-4 text-sm">
-            <div className="flex justify-between items-center bg-green-50 p-3 rounded-xl border border-green-100">
-              <span className="font-medium text-green-900">Hourly Rate</span>
-              <span className="text-lg font-bold text-green-700">€{formData.hourlyRate}</span>
+            <h3 className="text-sm font-medium text-liquid-dark-primary">Service Details</h3>
+          </div>
+          <div className="space-y-3 text-sm font-light">
+            <div className="flex justify-between items-center bg-liquid-light p-3 rounded-2xl">
+              <span className="text-gray-600">Hourly Rate</span>
+              <span className="text-xl font-medium text-liquid-dark-primary">€{formData.hourlyRate}</span>
             </div>
             <div>
-              <p className="text-gray-500 text-xs uppercase tracking-wider font-medium mb-2">Services Offered</p>
-              <div className="space-y-2">
-                {formData.servicesOffered.map((service) => (
-                  <div key={service} className="flex items-center gap-2 text-gray-700">
-                    <CheckCircle2 className="h-4 w-4 text-green-500" />
-                    <span className="capitalize">{service.replace('-', ' ')}</span>
-                  </div>
-                ))}
-              </div>
+              <p className="text-xs text-gray-500 mb-2">Services Offered</p>
+              {formData.servicesOffered.map((service) => (
+                <div key={service} className="flex items-center gap-2 text-xs mb-1">
+                  <CheckCircle2 className="h-3 w-3 text-liquid-dark-primary" />
+                  <span className="capitalize">{service.replace('-', ' ')}</span>
+                </div>
+              ))}
             </div>
-            <div className="pt-2">
-              <p className="text-gray-500 text-xs uppercase tracking-wider font-medium mb-1">Online Services</p>
-              <p className="font-medium text-gray-900">
-                {formData.onlineServicesAvailable ? 'Available' : 'Not Available'}
-              </p>
+            <div className="pt-2 border-t border-gray-100">
+              <p className="text-xs text-gray-500">Online Services</p>
+              <p className="text-liquid-dark-primary">{formData.onlineServicesAvailable ? 'Available' : 'Not Available'}</p>
             </div>
           </div>
-        </ModernCard>
+        </FlowCard>
 
-        <ModernCard className="p-6">
-          <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-            <div className="bg-yellow-100 p-2 rounded-lg text-yellow-600">
-              <Calendar className="h-5 w-5" />
+        {/* Availability */}
+        <FlowCard padding="md">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="h-8 w-8 rounded-full bg-liquid-dark-primary/10 flex items-center justify-center">
+              <Calendar className="h-4 w-4 text-liquid-dark-primary" />
             </div>
-            Availability
-          </h3>
-          <div className="space-y-4 text-sm">
-            <div className="flex justify-between text-gray-600">
+            <h3 className="text-sm font-medium text-liquid-dark-primary">Availability</h3>
+          </div>
+          <div className="space-y-3 text-sm font-light">
+            <div className="flex justify-between text-xs text-gray-500">
               <span>Timezone: {formData.timezone}</span>
               <span>{formData.availability.length} Slots</span>
             </div>
-
-            <div className="space-y-2 max-h-48 overflow-y-auto pr-2 custom-scrollbar">
+            <div className="space-y-2 max-h-40 overflow-y-auto">
               {availabilityByDay.map((dayData) => (
-                <div key={dayData.day} className="bg-gray-50 rounded-lg p-3 border border-gray-100">
-                  <p className="font-bold text-gray-900 text-xs uppercase mb-2">{dayData.day}</p>
-                  <div className="space-y-1">
+                <div key={dayData.day} className="bg-liquid-light rounded-2xl p-2 border border-gray-100">
+                  <p className="font-medium text-liquid-dark-primary text-xs mb-1">{dayData.day}</p>
+                  <div className="space-y-0.5">
                     {dayData.slots.map((slot, index) => (
-                      <div key={index} className="flex justify-between text-gray-700 text-xs">
-                        <span>{slot.startTime} - {slot.endTime}</span>
-                        <span className="text-gray-500">{calculateDuration(slot.startTime, slot.endTime)}</span>
+                      <div key={index} className="flex justify-between text-xs"> <span className="text-gray-600">{slot.startTime} - {slot.endTime}</span>
+                        <span className="text-gray-400">{calculateDuration(slot.startTime, slot.endTime)}</span>
                       </div>
                     ))}
                   </div>
@@ -221,55 +215,54 @@ export function ReviewSubmitStep({ formData, errors }: ReviewSubmitStepProps) {
               ))}
             </div>
           </div>
-        </ModernCard>
+        </FlowCard>
 
-        {/* Verification Status */}
-        <ModernCard className="p-6 md:col-span-2 bg-gradient-to-br from-gray-50 to-white">
-          <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-            <div className="bg-gray-200 p-2 rounded-lg text-gray-700">
-              <Shield className="h-5 w-5" />
+        {/* Verification */}
+        <FlowCard padding="md" className="md:col-span-2" variant="subtle">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="h-8 w-8 rounded-full bg-liquid-dark-primary/10 flex items-center justify-center">
+              <Shield className="h-4 w-4 text-liquid-dark-primary" />
             </div>
-            Verification & Compliance
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="flex items-center gap-3 bg-white p-3 rounded-xl border border-gray-200">
-              <div className="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center text-green-600 shrink-0">
-                <CheckCircle2 className="h-5 w-5" />
+            <h3 className="text-sm font-medium text-liquid-dark-primary">Verification & Compliance</h3>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div className="flex items-center gap-3 bg-white p-3 rounded-2xl border border-gray-100">
+              <div className="h-8 w-8 rounded-full bg-liquid-dark-primary/10 flex items-center justify-center shrink-0">
+                <CheckCircle2 className="h-4 w-4 text-liquid-dark-primary" />
               </div>
-              <div>
-                <p className="font-bold text-sm text-gray-900">Documents Uploaded</p>
-                <p className="text-xs text-gray-500">ID, Student Card, Photo</p>
+              <div className="text-xs">
+                <p className="font-medium text-liquid-dark-primary">Documents</p>
+                <p className="text-gray-500">ID, Student Card, Photo</p>
               </div>
             </div>
-            <div className="flex items-center gap-3 bg-white p-3 rounded-xl border border-gray-200">
-              <div className="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center text-green-600 shrink-0">
-                <CheckCircle2 className="h-5 w-5" />
+            <div className="flex items-center gap-3 bg-white p-3 rounded-2xl border border-gray-100">
+              <div className="h-8 w-8 rounded-full bg-liquid-dark-primary/10 flex items-center justify-center shrink-0">
+                <CheckCircle2 className="h-4 w-4 text-liquid-dark-primary" />
               </div>
-              <div>
-                <p className="font-bold text-sm text-gray-900">Terms Accepted</p>
-                <p className="text-xs text-gray-500">Platform Policies</p>
+              <div className="text-xs">
+                <p className="font-medium text-liquid-dark-primary">Terms Accepted</p>
+                <p className="text-gray-500">Platform Policies</p>
               </div>
             </div>
             {formData.emergencyContactName && (
-              <div className="flex items-center gap-3 bg-white p-3 rounded-xl border border-gray-200">
-                <div className="h-8 w-8 rounded-full bg-green-100 flex items-center justify-center text-green-600 shrink-0">
-                  <CheckCircle2 className="h-5 w-5" />
+              <div className="flex items-center gap-3 bg-white p-3 rounded-2xl border border-gray-100">
+                <div className="h-8 w-8 rounded-full bg-liquid-dark-primary/10 flex items-center justify-center shrink-0">
+                  <CheckCircle2 className="h-4 w-4 text-liquid-dark-primary" />
                 </div>
-                <div>
-                  <p className="font-bold text-sm text-gray-900">Emergency Contact</p>
-                  <p className="text-xs text-gray-500">Provided</p>
+                <div className="text-xs">
+                  <p className="font-medium text-liquid-dark-primary">Emergency Contact</p>
+                  <p className="text-gray-500">Provided</p>
                 </div>
               </div>
             )}
           </div>
-        </ModernCard>
+        </FlowCard>
       </div>
 
-      {/* Final Submit Error */}
       {errors.submit && (
-        <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-center gap-3 text-red-700 animate-scale-in">
-          <AlertCircle className="h-5 w-5 shrink-0" />
-          <p className="text-sm font-medium">{errors.submit}</p>
+        <div className="bg-ui-error/10 border border-ui-error/20 rounded-2xl p-4 flex items-center gap-3 text-ui-error">
+          <Shield className="h-5 w-5 shrink-0" />
+          <p className="text-sm font-light">{errors.submit}</p>
         </div>
       )}
     </div>

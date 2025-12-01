@@ -1,54 +1,55 @@
 'use client';
 
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { ModernInput } from '@/components/ui/ModernInput';
-import { ModernSelect } from '@/components/ui/ModernSelect';
-import { Button } from '@/components/ui/button';
+import { LiquidInput } from '@/components/ui/LiquidInput';
+import { LiquidSelect } from '@/components/ui/LiquidSelect';
+import { FlowCard } from '@/components/ui/FlowCard';
 import { OnboardingFormData } from './OnboardingWizard';
 import { useState } from 'react';
-import { Plus, X, Lightbulb, PenTool, Sparkles, User, MapPin } from 'lucide-react';
+import { FileText, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface CoverLetterStepProps {
   formData: OnboardingFormData;
   updateFormData: (data: Partial<OnboardingFormData>) => void;
   errors: Record<string, string>;
-  city: string;
 }
 
-const COMMON_INTERESTS = [
-  'Food & Dining', 'Museums & Art', 'Architecture', 'History', 'Shopping',
-  'Nightlife', 'Parks & Nature', 'Photography', 'Local Markets', 'Music',
-  'Street Art', 'Cafes & Coffee', 'Wine & Bars', 'Sports', 'Fashion'
+const INTEREST_OPTIONS = [
+  'Art & Museums', 'Food & Dining', 'History', 'Photography', 'Nightlife',
+  'Nature & Parks', 'Shopping', 'Sports', 'Architecture', 'Music & Concerts'
 ];
 
-export function CoverLetterStep({ formData, updateFormData, errors, city }: CoverLetterStepProps) {
+const SKILL_OPTIONS = [
+  'Local Knowledge', 'Photography', 'Language Teaching', 'Cultural Insight',
+  'Event Planning', 'Food Tours', 'Navigation', 'Public Speaking', 'First Aid'
+];
+
+export function CoverLetterStep({ formData, updateFormData, errors }: CoverLetterStepProps) {
   const [customInterest, setCustomInterest] = useState('');
   const [customSkill, setCustomSkill] = useState('');
 
   const toggleInterest = (interest: string) => {
     const current = formData.interests || [];
-    if (current.includes(interest)) {
-      updateFormData({ interests: current.filter((i) => i !== interest) });
-    } else {
-      updateFormData({ interests: [...current, interest] });
-    }
+    updateFormData({
+      interests: current.includes(interest)
+        ? current.filter((i) => i !== interest)
+        : [...current, interest]
+    });
+  };
+
+  const toggleSkill = (skill: string) => {
+    const current = formData.skills || [];
+    updateFormData({
+      skills: current.includes(skill)
+        ? current.filter((s) => s !== skill)
+        : [...current, skill]
+    });
   };
 
   const addCustomInterest = () => {
     if (customInterest.trim() && !formData.interests.includes(customInterest.trim())) {
       updateFormData({ interests: [...formData.interests, customInterest.trim()] });
       setCustomInterest('');
-    }
-  };
-
-  const toggleSkill = (skill: string) => {
-    const current = formData.skills || [];
-    if (current.includes(skill)) {
-      updateFormData({ skills: current.filter((s) => s !== skill) });
-    } else {
-      updateFormData({ skills: [...current, skill] });
     }
   };
 
@@ -59,231 +60,210 @@ export function CoverLetterStep({ formData, updateFormData, errors, city }: Cove
     }
   };
 
-  const charCount = formData.coverLetter.length;
-  const minChars = 200;
-
   return (
-    <div className="space-y-8 animate-fade-in">
-      <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold bg-gradient-to-r from-ui-blue-primary to-ui-purple-primary bg-clip-text text-transparent mb-2">
-          Profile Information
+    <div className="space-y-12 animate-fade-in max-w-3xl mx-auto">
+      <div className="text-center space-y-2">
+        <h2 className="text-4xl font-light tracking-tight text-liquid-dark-primary">
+          Tell Your Story
         </h2>
-        <p className="text-gray-600 max-w-lg mx-auto">
-          Create your guide profile to showcase your expertise and personality to potential tourists.
+        <p className="text-base font-light text-gray-500 max-w-md mx-auto">
+          Help travelers get to know you
         </p>
       </div>
 
-      {/* Guidance */}
-      <div className="bg-ui-purple-primary/5 border border-ui-purple-primary/20 rounded-2xl p-6 flex gap-4 items-start">
-        <div className="p-2 bg-white rounded-xl shadow-sm text-ui-purple-primary shrink-0">
-          <Lightbulb className="h-6 w-6" />
-        </div>
-        <div>
-          <h3 className="font-bold text-gray-900 mb-2">What makes a great profile?</h3>
-          <ul className="text-sm text-gray-600 space-y-1.5 list-disc list-inside">
-            <li>Mention specific places, neighborhoods, or hidden gems you love</li>
-            <li>Share practical advice (metro tips, local norms)</li>
-            <li>Add a personal story that makes you unique</li>
-            <li>Explain why you're the perfect guide for someone from your country</li>
-          </ul>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 gap-8">
-        {/* Bio Section */}
-        <div className="bg-white/50 backdrop-blur-sm border border-white/60 rounded-3xl p-6 shadow-lg space-y-4">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="h-8 w-8 rounded-full bg-ui-blue-primary/10 flex items-center justify-center text-ui-blue-primary">
-              <User className="h-4 w-4" />
-            </div>
-            <h3 className="font-bold text-gray-800">Short Bio</h3>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="bio" className="sr-only">Short Bio</Label>
-            <Textarea
-              id="bio"
-              value={formData.bio}
-              onChange={(e) => updateFormData({ bio: e.target.value })}
-              placeholder="Hi! I'm a computer science student who loves jazz clubs and vintage shopping..."
-              rows={3}
-              className={cn(
-                "rounded-xl border-2 bg-white/50 resize-none focus-visible:ring-ui-blue-primary",
-                errors.bio ? "border-ui-error" : "border-gray-200 hover:border-ui-blue-primary/50"
-              )}
-            />
-            <div className="flex justify-between text-xs text-gray-500 px-1">
-              <span>Minimum 50 characters</span>
-              <span className={formData.bio.length < 50 ? "text-ui-warning" : "text-ui-success"}>
-                {formData.bio.length} chars
-              </span>
-            </div>
-            {errors.bio && <p className="text-sm text-ui-error animate-slide-down">{errors.bio}</p>}
+      {/* Bio */}
+      <FlowCard padding="lg">
+        <div className="space-y-3">
+          <label className="text-sm font-light tracking-wide text-liquid-dark-secondary block">
+            Bio {errors.bio && <span className="text-ui-error ml-1">*</span>}
+          </label>
+          <textarea
+            value={formData.bio}
+            onChange={(e) => updateFormData({ bio: e.target.value })}
+            rows={4}
+            maxLength={500}
+            placeholder="Tell us about yourself, your city, and why you'd make a great guide..."
+            className={cn(
+              'w-full bg-transparent px-0 py-2 text-base font-light',
+              'text-liquid-dark-primary placeholder:text-gray-400',
+              'border-0 border-b border-gray-300 focus:border-b-2 focus:border-liquid-dark-primary',
+              'transition-all duration-300 resize-none focus:outline-none',
+              errors.bio && 'border-ui-error focus:border-ui-error'
+            )}
+          />
+          <div className="flex justify-between text-xs font-light">
+            <span className={errors.bio ? 'text-ui-error' : 'text-gray-500'}>
+              {errors.bio || 'Share your passion for your city'}
+            </span>
+            <span className="text-gray-400">{formData.bio.length}/500</span>
           </div>
         </div>
+      </FlowCard>
 
-        {/* Cover Letter Section */}
-        <div className="bg-white/50 backdrop-blur-sm border border-white/60 rounded-3xl p-6 shadow-lg space-y-4">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="h-8 w-8 rounded-full bg-ui-purple-primary/10 flex items-center justify-center text-ui-purple-primary">
-              <PenTool className="h-4 w-4" />
-            </div>
-            <h3 className="font-bold text-gray-800">Cover Letter</h3>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="coverLetter" className="sr-only">Cover Letter</Label>
-            <Textarea
-              id="coverLetter"
-              value={formData.coverLetter}
-              onChange={(e) => updateFormData({ coverLetter: e.target.value })}
-              placeholder={`Example: "As an Indian student studying at Sorbonne, I know all the best spots in Paris for fellow Indians! I'd start with a walk through Le Marais, grab coffee at Café de Flore, then lunch at a hidden gem serving amazing Lebanese food..."`}
-              rows={10}
-              className={cn(
-                "rounded-xl border-2 bg-white/50 resize-y min-h-[200px] focus-visible:ring-ui-purple-primary",
-                errors.coverLetter ? "border-ui-error" : "border-gray-200 hover:border-ui-purple-primary/50"
-              )}
-            />
-            <div className="flex justify-between items-center px-1">
-              {errors.coverLetter ? (
-                <p className="text-sm text-ui-error animate-slide-down">{errors.coverLetter}</p>
-              ) : (
-                <span className="text-xs text-gray-500">Make it personal and authentic!</span>
-              )}
-              <p className={`text-xs font-medium ${charCount < minChars ? 'text-ui-warning' : 'text-ui-success'}`}>
-                {charCount} / {minChars} chars
-              </p>
-            </div>
+      {/* Cover Letter */}
+      <FlowCard padding="lg">
+        <div className="space-y-3">
+          <label className="text-sm font-light tracking-wide text-liquid-dark-secondary block flex items-center gap-2">
+            <FileText className="h-4 w-4" />
+            Cover Letter {errors.coverLetter && <span className="text-ui-error ml-1">*</span>}
+          </label>
+          <textarea
+            value={formData.coverLetter}
+            onChange={(e) => updateFormData({ coverLetter: e.target.value })}
+            rows={6}
+            maxLength={1000}
+            placeholder="Why do you want to be a student guide? What makes you unique? What experiences can you offer?"
+            className={cn(
+              'w-full bg-transparent px-0 py-2 text-base font-light',
+              'text-liquid-dark-primary placeholder:text-gray-400',
+              'border-0 border-b border-gray-300 focus:border-b-2 focus:border-liquid-dark-primary',
+              'transition-all duration-300 resize-none focus:outline-none',
+              errors.coverLetter && 'border-ui-error focus:border-ui-error'
+            )}
+          />
+          <div className="flex justify-between text-xs font-light">
+            <span className={errors.coverLetter ? 'text-ui-error' : 'text-gray-500'}>
+              {errors.coverLetter || 'This is your chance to stand out'}
+            </span>
+            <span className="text-gray-400">{formData.coverLetter.length}/1000</span>
           </div>
         </div>
+      </FlowCard>
 
-        {/* Interests & Skills Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Interests */}
-          <div className="bg-white/50 backdrop-blur-sm border border-white/60 rounded-3xl p-6 shadow-lg space-y-4">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="h-8 w-8 rounded-full bg-pink-500/10 flex items-center justify-center text-pink-500">
-                <MapPin className="h-4 w-4" />
-              </div>
-              <h3 className="font-bold text-gray-800">City Expertise</h3>
-            </div>
+      {/* Interests */}
+      <div className="space-y-4">
+        <label className="text-sm font-light tracking-wide text-liquid-dark-secondary block">
+          Your Interests {errors.interests && <span className="text-ui-error ml-1">*</span>}
+        </label>
+        <div className="flex flex-wrap gap-2">
+          {INTEREST_OPTIONS.map((interest) => {
+            const isSelected = formData.interests.includes(interest);
+            return (
+              <button
+                key={interest}
+                type="button"
+                onClick={() => toggleInterest(interest)}
+                className={cn(
+                  'px-4 py-2 rounded-full text-sm font-medium transition-all duration-300',
+                  'border hover:shadow-sm',
+                  isSelected
+                    ? 'bg-liquid-dark-primary text-white border-liquid-dark-primary'
+                    : 'bg-white/60 text-gray-600 border-gray-200 hover:border-liquid-dark-primary/30'
+                )}
+              >
+                {interest}
+              </button>
+            );
+          })}
+        </div>
 
-            <p className="text-sm text-gray-600">What do you know best about {city || 'the city'}?</p>
+        <div className="flex gap-2">
+          <LiquidInput
+            value={customInterest}
+            onChange={(e) => setCustomInterest(e.target.value)}
+            placeholder="Add custom interest"
+            onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addCustomInterest())}
+            containerClassName="flex-1"
+          />
+          <button
+            type="button"
+            onClick={addCustomInterest}
+            className="px-6 py-3 rounded-full bg-liquid-dark-primary text-white hover:shadow-md transition-all duration-300"
+          >
+            Add
+          </button>
+        </div>
 
+        {formData.interests.length > 0 && (
+          <FlowCard padding="sm" variant="subtle">
             <div className="flex flex-wrap gap-2">
-              {COMMON_INTERESTS.map((interest) => {
-                const isSelected = formData.interests.includes(interest);
-                return (
+              {formData.interests.filter(i => !INTEREST_OPTIONS.includes(i)).map((interest) => (
+                <span
+                  key={interest}
+                  className="inline-flex items-center gap-1.5 px-3 py-1 bg-white border border-gray-200 text-liquid-dark-primary rounded-full text-sm"
+                >
+                  {interest}
                   <button
-                    key={interest}
                     type="button"
                     onClick={() => toggleInterest(interest)}
-                    className={cn(
-                      "px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 border",
-                      isSelected
-                        ? "bg-pink-500 text-white border-pink-500 shadow-sm transform scale-105"
-                        : "bg-white text-gray-600 border-gray-200 hover:border-pink-300 hover:bg-pink-50"
-                    )}
+                    className="text-gray-400 hover:text-ui-error transition-colors"
                   >
-                    {interest}
+                    <X className="h-3.5 w-3.5" />
                   </button>
-                );
-              })}
+                </span>
+              ))}
             </div>
+          </FlowCard>
+        )}
+        {errors.interests && <p className="text-xs font-light text-ui-error">{errors.interests}</p>}
+      </div>
 
-            <div className="flex gap-2">
-              <ModernInput
-                value={customInterest}
-                onChange={(e) => setCustomInterest(e.target.value)}
-                placeholder="Add custom interest"
-                onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addCustomInterest())}
-                className="h-9 text-sm"
-              />
-              <Button
+      {/* Skills */}
+      <div className="space-y-4">
+        <label className="text-sm font-light tracking-wide text-liquid-dark-secondary block">
+          Your Skills {errors.skills && <span className="text-ui-error ml-1">*</span>}
+        </label>
+        <div className="flex flex-wrap gap-2">
+          {SKILL_OPTIONS.map((skill) => {
+            const isSelected = formData.skills.includes(skill);
+            return (
+              <button
+                key={skill}
                 type="button"
-                onClick={addCustomInterest}
-                size="sm"
-                className="h-9 px-3 bg-pink-500 hover:bg-pink-600 text-white rounded-xl"
+                onClick={() => toggleSkill(skill)}
+                className={cn(
+                  'px-4 py-2 rounded-full text-sm font-medium transition-all duration-300',
+                  'border hover:shadow-sm',
+                  isSelected
+                    ? 'bg-liquid-dark-primary text-white border-liquid-dark-primary'
+                    : 'bg-white/60 text-gray-600 border-gray-200 hover:border-liquid-dark-primary/30'
+                )}
               >
-                <Plus className="h-4 w-4" />
-              </Button>
-            </div>
+                {skill}
+              </button>
+            );
+          })}
+        </div>
 
-            {errors.interests && <p className="text-xs text-ui-error">{errors.interests}</p>}
-          </div>
+        <div className="flex gap-2">
+          <LiquidInput
+            value={customSkill}
+            onChange={(e) => setCustomSkill(e.target.value)}
+            placeholder="Add custom skill"
+            onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addCustomSkill())}
+            containerClassName="flex-1"
+          />
+          <button
+            type="button"
+            onClick={addCustomSkill}
+            className="px-6 py-3 rounded-full bg-liquid-dark-primary text-white hover:shadow-md transition-all duration-300"
+          >
+            Add
+          </button>
+        </div>
 
-          {/* Skills */}
-          <div className="bg-white/50 backdrop-blur-sm border border-white/60 rounded-3xl p-6 shadow-lg space-y-4">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="h-8 w-8 rounded-full bg-teal-500/10 flex items-center justify-center text-teal-500">
-                <Sparkles className="h-4 w-4" />
-              </div>
-              <h3 className="font-bold text-gray-800">Skills</h3>
-            </div>
-
-            <p className="text-sm text-gray-600">What specific skills can you offer?</p>
-
+        {formData.skills.length > 0 && (
+          <FlowCard padding="sm" variant="subtle">
             <div className="flex flex-wrap gap-2">
-              {['Photography', 'Translation', 'History Buff', 'Foodie', 'Shopping Guide', 'Nightlife Expert'].map((skill) => {
-                const isSelected = formData.skills.includes(skill);
-                return (
+              {formData.skills.filter(s => !SKILL_OPTIONS.includes(s)).map((skill) => (
+                <span
+                  key={skill}
+                  className="inline-flex items-center gap-1.5 px-3 py-1 bg-white border border-gray-200 text-liquid-dark-primary rounded-full text-sm"
+                >
+                  {skill}
                   <button
-                    key={skill}
                     type="button"
                     onClick={() => toggleSkill(skill)}
-                    className={cn(
-                      "px-3 py-1.5 rounded-full text-xs font-medium transition-all duration-200 border",
-                      isSelected
-                        ? "bg-teal-500 text-white border-teal-500 shadow-sm transform scale-105"
-                        : "bg-white text-gray-600 border-gray-200 hover:border-teal-300 hover:bg-teal-50"
-                    )}
+                    className="text-gray-400 hover:text-ui-error transition-colors"
                   >
-                    {skill}
+                    <X className="h-3.5 w-3.5" />
                   </button>
-                );
-              })}
+                </span>
+              ))}
             </div>
-
-            <div className="flex gap-2">
-              <ModernInput
-                value={customSkill}
-                onChange={(e) => setCustomSkill(e.target.value)}
-                placeholder="Add custom skill"
-                onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addCustomSkill())}
-                className="h-9 text-sm"
-              />
-              <Button
-                type="button"
-                onClick={addCustomSkill}
-                size="sm"
-                className="h-9 px-3 bg-teal-500 hover:bg-teal-600 text-white rounded-xl"
-              >
-                <Plus className="h-4 w-4" />
-              </Button>
-            </div>
-
-            {errors.skills && <p className="text-xs text-ui-error">{errors.skills}</p>}
-          </div>
-        </div>
-
-        {/* Guide Style */}
-        <div className="bg-white/50 backdrop-blur-sm border border-white/60 rounded-3xl p-6 shadow-lg">
-          <ModernSelect
-            label="Preferred Guide Style"
-            value={formData.preferredGuideStyle}
-            onValueChange={(value) => updateFormData({ preferredGuideStyle: value })}
-            placeholder="Select your guide style..."
-            options={[
-              { value: 'friendly', label: 'Friendly & Casual' },
-              { value: 'structured', label: 'Structured & Organized' },
-              { value: 'energetic', label: 'Energetic & Adventurous' },
-              { value: 'relaxed', label: 'Relaxed & Flexible' },
-              { value: 'educational', label: 'Educational & Informative' },
-              { value: 'fun', label: 'Fun & Entertaining' }
-            ]}
-            icon={Sparkles}
-          />
-        </div>
+          </FlowCard>
+        )}
+        {errors.skills && <p className="text-xs font-light text-ui-error">{errors.skills}</p>}
       </div>
     </div>
   );

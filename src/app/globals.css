@@ -17,23 +17,24 @@
     --surface-elevated: 0 0% 100%;
 
     /* ========================================
-       MODERN COLOR SYSTEM
-       Muted blues, violets, and sand tones
+       LIQUID DESIGN SYSTEM - 3-Shade Premium Palette
+       Ultra-modern, minimal, flowing aesthetic
        ======================================== */
 
-    /* Primary UI Colors - Main interactive elements */
+    /* Main Dark Shades - Primary interactive elements */
+    --liquid-dark-primary: 228 45% 23%;      /* Deep midnight blue #1a1f3a */
+    --liquid-dark-secondary: 215 25% 27%;    /* Charcoal slate #2d3748 */
+    
+    /* Light Shade - Airy contrast and backgrounds */
+    --liquid-light: 220 20% 98%;             /* Soft cream/pearl #f8f9fb */
+
+    /* Legacy Color System (preserved for migration) */
     --ui-blue-primary: 220 70% 65%;          /* Soft periwinkle blue */
     --ui-purple-primary: 260 65% 65%;        /* Soft lavender purple */
-
-    /* Secondary UI Colors - Borders, outlines, subtle backgrounds */
     --ui-blue-secondary: 220 60% 80%;        /* Very light blue */
     --ui-purple-secondary: 260 55% 80%;      /* Very light purple */
-
-    /* Accent UI Colors - Highlights, hover states, active tabs */
     --ui-blue-accent: 215 75% 55%;           /* Deeper blue for emphasis */
     --ui-purple-accent: 265 70% 55%;         /* Deeper purple for emphasis */
-
-    /* Sand/Neutral Tones - Warm neutrals for backgrounds and surfaces */
     --ui-sand-light: 40 30% 96%;             /* Very light warm sand */
     --ui-sand: 38 25% 88%;                   /* Medium warm sand */
     --ui-sand-dark: 36 20% 75%;              /* Darker warm sand */

@@ -22,7 +22,14 @@ const config: Config = {
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
 
-        // Modern Color System: Muted blues, violets, and sand tones
+        // Liquid Design System: 3-Shade Premium Palette
+        'liquid': {
+          'dark-primary': 'hsl(var(--liquid-dark-primary))',    // Deep midnight blue
+          'dark-secondary': 'hsl(var(--liquid-dark-secondary))', // Charcoal slate
+          'light': 'hsl(var(--liquid-light))',                   // Soft cream/pearl
+        },
+
+        // Legacy colors (preserved for backward compatibility during migration)
         'ui-blue': {
           primary: 'hsl(var(--ui-blue-primary))',
           secondary: 'hsl(var(--ui-blue-secondary))',
@@ -77,16 +84,17 @@ const config: Config = {
           elevated: 'hsl(var(--surface-elevated))',
         },
       },
-      // Cohesive border radius scale
+      // Liquid Contour System: Enhanced border radius for flowing design
       borderRadius: {
-        xs: '0.25rem',   // 4px - small badges
-        sm: '0.375rem',  // 6px - inputs, small buttons
-        DEFAULT: '0.5rem', // 8px - default radius
-        md: '0.75rem',   // 12px - cards, larger buttons
-        lg: '1rem',      // 16px - prominent cards
-        xl: '1.25rem',   // 20px - hero cards
-        '2xl': '1.5rem', // 24px - feature sections
-        '3xl': '2rem',   // 32px - large hero elements
+        xs: '0.375rem',   // 6px - minimal elements
+        sm: '0.5rem',     // 8px - small inputs  
+        DEFAULT: '0.75rem', // 12px - default
+        md: '1rem',       // 16px - standard cards
+        lg: '1.5rem',     // 24px - prominent cards (liquid start)
+        xl: '2rem',       // 32px - flowing cards
+        '2xl': '2.5rem',  // 40px - premium cards
+        '3xl': '3rem',    // 48px - hero elements
+        'full': '9999px', // Pills and circular elements
       },
       // Unified spacing scale (extends default)
       spacing: {

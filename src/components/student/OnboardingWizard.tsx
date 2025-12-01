@@ -535,7 +535,6 @@ export function OnboardingWizard({ session }: OnboardingWizardProps) {
                     formData={formData}
                     updateFormData={updateFormData}
                     errors={errors}
-                    city={formData.city}
                   />
                 )}
                 {currentStep === 4 && (
