@@ -336,7 +336,7 @@ export function AvailabilityStep({ formData, updateFormData, errors }: Availabil
                           return (
                             <div
                               key={globalIndex}
-                              className="group relative bg-white border border-gray-100 p-3 rounded-xl shadow-sm hover:shadow-md transition-all"
+                              className="group relative bg-gray-50 border border-gray-200 p-3 rounded-xl shadow-sm hover:shadow-md transition-all hover:bg-white"
                             >
                               <div className="flex justify-between items-start">
                                 <div>
