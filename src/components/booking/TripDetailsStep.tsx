@@ -124,7 +124,7 @@ export function TripDetailsStep({ data, errors, updateData }: Props) {
                   'border-2 hover:shadow-md text-sm font-medium',
                   isSelected
                     ? 'bg-liquid-dark-primary text-white border-liquid-dark-primary shadow-md'
-                    : 'bg-white text-gray-700 border-gray-300 hover:border-liquid-dark-primary/50'
+                    : 'bg-gray-100 text-gray-800 border-gray-400 hover:border-liquid-dark-primary hover:bg-gray-50'
                 )}
               >
                 <Icon className="h-4 w-4" />
@@ -161,7 +161,7 @@ export function TripDetailsStep({ data, errors, updateData }: Props) {
                   'border-2 hover:shadow-md text-sm font-medium',
                   isSelected
                     ? 'bg-liquid-dark-primary text-white border-liquid-dark-primary shadow-md'
-                    : 'bg-white text-gray-700 border-gray-300 hover:border-liquid-dark-primary/50'
+                    : 'bg-gray-100 text-gray-800 border-gray-400 hover:border-liquid-dark-primary hover:bg-gray-50'
                 )}
               >
                 <Icon className="h-4 w-4" />

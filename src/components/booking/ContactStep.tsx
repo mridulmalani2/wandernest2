@@ -141,7 +141,7 @@ export function ContactStep({ data, errors, updateData, isEmailFromSession = fal
                   'border hover:shadow-md',
                   isSelected
                     ? 'bg-liquid-dark-primary text-white border-liquid-dark-primary shadow-md'
-                    : 'bg-white/60 text-gray-600 border-gray-200 hover:border-liquid-dark-primary/30'
+                    : 'bg-gray-100 text-gray-800 border-gray-400 hover:border-liquid-dark-primary hover:bg-gray-50'
                 )}
               >
                 <Icon className="h-5 w-5" />

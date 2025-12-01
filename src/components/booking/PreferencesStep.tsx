@@ -210,7 +210,7 @@ export function PreferencesStep({ data, errors, updateData }: Props) {
                     'border-2 hover:shadow-md',
                     data.preferredGender === option.value || (!data.preferredGender && option.value === 'no_preference')
                       ? 'bg-liquid-dark-primary text-white border-liquid-dark-primary shadow-md'
-                      : 'bg-white text-gray-700 border-gray-300 hover:border-liquid-dark-primary/50'
+                      : 'bg-gray-100 text-gray-800 border-gray-400 hover:border-liquid-dark-primary hover:bg-gray-50'
                   )}
                 >
                   {option.label}
@@ -243,7 +243,7 @@ export function PreferencesStep({ data, errors, updateData }: Props) {
                   'border-2 hover:shadow-md',
                   isSelected
                     ? 'bg-liquid-dark-primary text-white border-liquid-dark-primary shadow-md'
-                    : 'bg-white text-gray-700 border-gray-300 hover:border-liquid-dark-primary/50'
+                    : 'bg-gray-100 text-gray-800 border-gray-400 hover:border-liquid-dark-primary hover:bg-gray-50'
                 )}
               >
                 <div className={cn('h-10 w-10 rounded-full flex items-center justify-center shrink-0',
@@ -348,7 +348,7 @@ export function PreferencesStep({ data, errors, updateData }: Props) {
                   'border-2 hover:shadow-md',
                   isSelected
                     ? 'bg-liquid-dark-primary text-white border-liquid-dark-primary shadow-md'
-                    : 'bg-white text-gray-700 border-gray-300 hover:border-liquid-dark-primary/50'
+                    : 'bg-gray-100 text-gray-800 border-gray-400 hover:border-liquid-dark-primary hover:bg-gray-50'
                 )}
               >
                 <span className="text-sm font-medium">{interest.label}</span>
