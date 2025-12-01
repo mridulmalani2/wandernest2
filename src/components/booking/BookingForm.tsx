@@ -25,6 +25,7 @@ export type BookingFormData = {
   preferredGender?: 'male' | 'female' | 'no_preference'
   serviceType: 'itinerary_help' | 'guided_experience' | ''
   interests: string[]
+  hourlyRate?: number
   totalBudget?: number
   discoveryFeeConsent?: boolean
   callDurationMinutes?: number
@@ -64,6 +65,8 @@ export function BookingForm() {
     email: '',
     contactMethod: 'email',
     preferredGender: 'no_preference',
+    hourlyRate: 20, // Default recommended rate
+    totalBudget: 0,
   })
   const [errors, setErrors] = useState<Record<string, string>>({})
 
