@@ -1,14 +1,14 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useSession, signOut } from 'next-auth/react'
+import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import Navigation from '@/components/Navigation'
 import { PrimaryCTAButton } from '@/components/ui/PrimaryCTAButton'
 import { ModernCard } from '@/components/ui/ModernCard'
-import { Calendar, Users, Clock, MapPin, Star, CheckCircle2, MessageSquare, AlertCircle, Search, User } from 'lucide-react'
+import { Calendar, Users, Clock, MapPin, Star, CheckCircle2, MessageSquare, AlertCircle, Search, User, ArrowRight, Sparkles } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface TouristRequest {
@@ -104,61 +104,47 @@ export default function TouristDashboard() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50/50">
+    <div className="min-h-screen flex flex-col bg-gray-50/50 font-sans">
       <Navigation variant="tourist" />
 
-      <main className="flex-1 container mx-auto px-4 py-8 max-w-7xl">
-        {/* Welcome Section */}
-        <div className="mb-8 animate-fade-in-up">
-          <h1 className="text-3xl font-bold text-gray-900">
-            Your Adventures 🌍
-          </h1>
-          <p className="text-gray-600 mt-2">
-            Manage your bookings and connect with local guides.
-          </p>
+      <main className="flex-1 container mx-auto px-4 py-8 max-w-7xl space-y-12">
+        {/* Hero Section */}
+        <div className="relative rounded-3xl overflow-hidden bg-gradient-to-r from-ui-blue-primary to-ui-purple-primary shadow-premium p-8 md:p-12 text-white animate-fade-in">
+          <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10"></div>
+          <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+            <div>
+              <h1 className="text-3xl md:text-4xl font-bold mb-2 flex items-center gap-3">
+                Your Adventures <Sparkles className="h-8 w-8 text-yellow-300" />
+              </h1>
+              <p className="text-blue-100 text-lg max-w-xl">
+                Manage your bookings, connect with local guides, and get ready to explore like a local.
+              </p>
+            </div>
+            <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl p-4 min-w-[150px]">
+              <p className="text-xs text-blue-100 uppercase tracking-wider font-semibold mb-1">Total Trips</p>
+              <p className="text-3xl font-bold">{stats.total}</p>
+            </div>
+          </div>
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8 animate-fade-in-up delay-100">
-          <ModernCard className="p-6 flex items-center gap-4">
-            <div className="h-12 w-12 rounded-full bg-blue-50 flex items-center justify-center text-blue-600">
-              <Search className="h-6 w-6" />
-            </div>
-            <div>
-              <p className="text-sm text-gray-500 font-medium">Total Requests</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
-            </div>
-          </ModernCard>
-
-          <ModernCard className="p-6 flex items-center gap-4">
-            <div className="h-12 w-12 rounded-full bg-yellow-50 flex items-center justify-center text-yellow-600">
-              <Clock className="h-6 w-6" />
-            </div>
-            <div>
-              <p className="text-sm text-gray-500 font-medium">Pending</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.pending}</p>
-            </div>
-          </ModernCard>
-
-          <ModernCard className="p-6 flex items-center gap-4">
-            <div className="h-12 w-12 rounded-full bg-green-50 flex items-center justify-center text-green-600">
-              <CheckCircle2 className="h-6 w-6" />
-            </div>
-            <div>
-              <p className="text-sm text-gray-500 font-medium">Accepted</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.accepted}</p>
-            </div>
-          </ModernCard>
-
-          <ModernCard className="p-6 flex items-center gap-4">
-            <div className="h-12 w-12 rounded-full bg-purple-50 flex items-center justify-center text-purple-600">
-              <Star className="h-6 w-6" />
-            </div>
-            <div>
-              <p className="text-sm text-gray-500 font-medium">Reviewed</p>
-              <p className="text-2xl font-bold text-gray-900">{stats.completed}</p>
-            </div>
-          </ModernCard>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 animate-fade-in-up delay-100">
+          {[
+            { label: 'Total Requests', value: stats.total, icon: Search, color: 'text-blue-600', bg: 'bg-blue-50' },
+            { label: 'Pending', value: stats.pending, icon: Clock, color: 'text-yellow-600', bg: 'bg-yellow-50' },
+            { label: 'Accepted', value: stats.accepted, icon: CheckCircle2, color: 'text-green-600', bg: 'bg-green-50' },
+            { label: 'Completed', value: stats.completed, icon: Star, color: 'text-purple-600', bg: 'bg-purple-50' },
+          ].map((stat, idx) => (
+            <ModernCard key={idx} className="p-6 flex items-center justify-between hover:scale-[1.02] transition-transform duration-300">
+              <div>
+                <p className="text-sm text-gray-500 font-medium mb-1">{stat.label}</p>
+                <p className="text-3xl font-bold text-gray-900">{stat.value}</p>
+              </div>
+              <div className={cn("h-14 w-14 rounded-2xl flex items-center justify-center shadow-sm", stat.bg, stat.color)}>
+                <stat.icon className="h-7 w-7" />
+              </div>
+            </ModernCard>
+          ))}
         </div>
 
         {error && (
@@ -176,7 +162,7 @@ export default function TouristDashboard() {
 
         {requests.length === 0 ? (
           <div className="text-center py-16 animate-fade-in">
-            <div className="h-24 w-24 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-6">
+            <div className="h-24 w-24 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm">
               <MapPin className="h-10 w-10 text-blue-500" />
             </div>
             <h2 className="text-2xl font-bold text-gray-900 mb-2">No bookings yet</h2>
@@ -188,126 +174,131 @@ export default function TouristDashboard() {
             </PrimaryCTAButton>
           </div>
         ) : (
-          <div className="grid gap-6 animate-fade-in-up delay-200">
-            {requests.map((request) => {
-              const dates = request.dates as { start: string; end?: string }
-              const isAccepted = request.status === 'ACCEPTED'
+          <div className="space-y-6 animate-fade-in-up delay-200">
+            <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+              <MapPin className="h-6 w-6 text-ui-blue-primary" />
+              Your Trips
+            </h2>
 
-              return (
-                <ModernCard
-                  key={request.id}
-                  className={cn(
-                    "p-6 border-l-4 transition-all duration-300 hover:shadow-lg",
-                    isAccepted ? "border-l-green-500" : "border-l-yellow-500"
-                  )}
-                >
-                  <div className="flex flex-col md:flex-row gap-6">
-                    <div className="flex-1 space-y-4">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                            {request.city}
-                            <span className={cn("px-2.5 py-0.5 rounded-full text-xs font-medium border", getStatusBadge(request.status))}>
-                              {request.status}
-                            </span>
-                          </h3>
-                          <p className="text-sm text-gray-500 mt-1 capitalize">
-                            {request.serviceType.replace('_', ' ')}
-                          </p>
-                        </div>
-                      </div>
+            <div className="grid gap-6">
+              {requests.map((request) => {
+                const dates = request.dates as { start: string; end?: string }
+                const isAccepted = request.status === 'ACCEPTED'
 
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                        <div className="flex items-center gap-2 text-gray-600">
-                          <Calendar className="h-4 w-4 text-gray-400" />
-                          <span>
-                            {new Date(dates.start).toLocaleDateString()}
-                            {dates.end && ` - ${new Date(dates.end).toLocaleDateString()}`}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-2 text-gray-600">
-                          <Clock className="h-4 w-4 text-gray-400" />
-                          <span className="capitalize">{request.preferredTime}</span>
-                        </div>
-                        <div className="flex items-center gap-2 text-gray-600">
-                          <Users className="h-4 w-4 text-gray-400" />
-                          <span>{request.numberOfGuests} Guests ({request.groupType})</span>
-                        </div>
-                        <div className="flex items-center gap-2 text-gray-600">
-                          <Calendar className="h-4 w-4 text-gray-400" />
-                          <span>Requested {new Date(request.createdAt).toLocaleDateString()}</span>
-                        </div>
-                      </div>
-
-                      {request.selections.length > 0 && (
-                        <div className="bg-gray-50 rounded-xl p-4 border border-gray-100 mt-4">
-                          <h4 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
-                            <User className="h-4 w-4" />
-                            {isAccepted ? 'Your Guide' : 'Matched Guides'}
-                          </h4>
-                          <div className="space-y-3">
-                            {request.selections.map((selection, idx) => (
-                              <div key={idx} className="flex items-center justify-between bg-white p-3 rounded-lg border border-gray-200 shadow-sm">
-                                <div>
-                                  <p className="font-semibold text-gray-900">{selection.student.name}</p>
-                                  {selection.student.averageRating && (
-                                    <div className="flex items-center gap-1 mt-0.5">
-                                      <Star className="h-3 w-3 text-yellow-400 fill-yellow-400" />
-                                      <span className="text-xs text-gray-600 font-medium">
-                                        {selection.student.averageRating.toFixed(1)}
-                                      </span>
-                                    </div>
-                                  )}
-                                </div>
-                                {isAccepted && (
-                                  <span className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-medium border border-green-200">
-                                    Confirmed
-                                  </span>
-                                )}
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                      {request.review && (
-                        <div className="bg-purple-50 rounded-xl p-4 border border-purple-100">
-                          <div className="flex items-center gap-2 mb-2">
-                            <MessageSquare className="h-4 w-4 text-purple-500" />
-                            <span className="font-semibold text-purple-900 text-sm">Your Review</span>
-                          </div>
-                          <div className="flex items-center gap-1 mb-2">
-                            {Array.from({ length: 5 }).map((_, i) => (
-                              <Star
-                                key={i}
-                                className={cn("h-4 w-4", i < request.review!.rating ? "text-yellow-400 fill-yellow-400" : "text-gray-300")}
-                              />
-                            ))}
-                          </div>
-                          {request.review.comment && (
-                            <p className="text-sm text-gray-600 italic">"{request.review.comment}"</p>
-                          )}
-                        </div>
-                      )}
-
-                      {isAccepted && !request.review && (
-                        <div className="bg-blue-50 rounded-xl p-4 border border-blue-100 flex gap-3">
-                          <div className="bg-blue-100 rounded-full p-1 h-fit">
-                            <AlertCircle className="h-4 w-4 text-blue-600" />
-                          </div>
+                return (
+                  <ModernCard
+                    key={request.id}
+                    className={cn(
+                      "p-0 overflow-hidden border-l-4 transition-all duration-300 hover:shadow-xl group",
+                      isAccepted ? "border-l-green-500" : "border-l-yellow-500"
+                    )}
+                  >
+                    <div className="flex flex-col md:flex-row">
+                      {/* Left: Trip Info */}
+                      <div className="flex-1 p-6 md:p-8 space-y-6">
+                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                           <div>
-                            <p className="text-sm font-medium text-blue-900">Next Steps</p>
-                            <p className="text-sm text-blue-700 mt-1">
-                              Contact your guide to finalize details. You can leave a review after your trip!
+                            <div className="flex items-center gap-3 mb-2">
+                              <h3 className="text-2xl font-bold text-gray-900">{request.city}</h3>
+                              <span className={cn("px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide border", getStatusBadge(request.status))}>
+                                {request.status}
+                              </span>
+                            </div>
+                            <p className="text-gray-500 capitalize flex items-center gap-2">
+                              <span className="w-1.5 h-1.5 rounded-full bg-gray-300"></span>
+                              {request.serviceType.replace('_', ' ')}
                             </p>
                           </div>
+
+                          {/* Guide Info (if matched/accepted) */}
+                          {request.selections.length > 0 && (
+                            <div className="flex items-center gap-4 bg-gray-50 px-4 py-3 rounded-xl border border-gray-100">
+                              <div className="h-10 w-10 rounded-full bg-white border-2 border-white shadow-sm flex items-center justify-center overflow-hidden">
+                                <User className="h-5 w-5 text-gray-400" />
+                              </div>
+                              <div>
+                                <p className="text-xs text-gray-400 font-bold uppercase tracking-wider">Your Guide</p>
+                                <p className="font-bold text-gray-900">{request.selections[0].student.name}</p>
+                              </div>
+                            </div>
+                          )}
                         </div>
-                      )}
+
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 pt-6 border-t border-gray-100">
+                          <div>
+                            <p className="text-xs text-gray-400 font-bold uppercase tracking-wider mb-1">Dates</p>
+                            <div className="flex items-center gap-2 text-gray-700 font-medium">
+                              <Calendar className="h-4 w-4 text-blue-500" />
+                              <span>
+                                {new Date(dates.start).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                                {dates.end && ` - ${new Date(dates.end).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}`}
+                              </span>
+                            </div>
+                          </div>
+                          <div>
+                            <p className="text-xs text-gray-400 font-bold uppercase tracking-wider mb-1">Time</p>
+                            <div className="flex items-center gap-2 text-gray-700 font-medium">
+                              <Clock className="h-4 w-4 text-orange-500" />
+                              <span className="capitalize">{request.preferredTime}</span>
+                            </div>
+                          </div>
+                          <div>
+                            <p className="text-xs text-gray-400 font-bold uppercase tracking-wider mb-1">Guests</p>
+                            <div className="flex items-center gap-2 text-gray-700 font-medium">
+                              <Users className="h-4 w-4 text-purple-500" />
+                              <span>{request.numberOfGuests} ({request.groupType})</span>
+                            </div>
+                          </div>
+                          <div>
+                            <p className="text-xs text-gray-400 font-bold uppercase tracking-wider mb-1">Requested On</p>
+                            <div className="flex items-center gap-2 text-gray-700 font-medium">
+                              <Calendar className="h-4 w-4 text-gray-400" />
+                              <span>{new Date(request.createdAt).toLocaleDateString()}</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Review Section */}
+                        {request.review && (
+                          <div className="bg-purple-50 rounded-xl p-4 border border-purple-100 mt-4">
+                            <div className="flex items-center gap-2 mb-2">
+                              <MessageSquare className="h-4 w-4 text-purple-500" />
+                              <span className="font-bold text-purple-900 text-sm">Your Review</span>
+                            </div>
+                            <div className="flex items-center gap-1 mb-2">
+                              {Array.from({ length: 5 }).map((_, i) => (
+                                <Star
+                                  key={i}
+                                  className={cn("h-4 w-4", i < request.review!.rating ? "text-yellow-400 fill-yellow-400" : "text-gray-300")}
+                                />
+                              ))}
+                            </div>
+                            {request.review.comment && (
+                              <p className="text-sm text-gray-600 italic">"{request.review.comment}"</p>
+                            )}
+                          </div>
+                        )}
+
+                        {/* Next Steps */}
+                        {isAccepted && !request.review && (
+                          <div className="bg-blue-50 rounded-xl p-4 border border-blue-100 flex gap-3 items-start">
+                            <div className="bg-blue-100 rounded-full p-1 mt-0.5">
+                              <AlertCircle className="h-4 w-4 text-blue-600" />
+                            </div>
+                            <div>
+                              <p className="text-sm font-bold text-blue-900">Next Steps</p>
+                              <p className="text-sm text-blue-700 mt-1">
+                                Contact your guide to finalize details. You can leave a review after your trip!
+                              </p>
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                </ModernCard>
-              )
-            })}
+                  </ModernCard>
+                )
+              })}
+            </div>
           </div>
         )}
       </main>
