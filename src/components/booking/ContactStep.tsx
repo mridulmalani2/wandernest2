@@ -6,6 +6,7 @@ import { BookingFormData } from './BookingForm'
 import { useState } from 'react'
 import { Mail, Phone, MessageSquare, CheckCircle2, Shield } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import Link from 'next/link'
 
 type Props = {
   data: BookingFormData
@@ -140,8 +141,8 @@ export function ContactStep({ data, errors, updateData, isEmailFromSession = fal
                   'flex items-center justify-center gap-3 py-4 px-6 rounded-full transition-all duration-300',
                   'border hover:shadow-md',
                   isSelected
-                    ? 'bg-liquid-dark-primary text-white border-liquid-dark-primary shadow-md'
-                    : 'bg-gray-100 text-gray-800 border-gray-400 hover:border-liquid-dark-primary hover:bg-gray-50'
+                    ? 'bg-liquid-dark-primary text-white border-liquid-dark-primary shadow-md active:bg-liquid-dark-primary active:text-white focus:bg-liquid-dark-primary focus:text-white'
+                    : 'bg-gray-100 text-gray-800 border-gray-400 hover:border-liquid-dark-primary hover:bg-gray-50 active:bg-gray-200 active:text-gray-900 focus:bg-gray-100 focus:text-gray-800'
                 )}
               >
                 <Icon className="h-5 w-5" />
@@ -197,7 +198,7 @@ export function ContactStep({ data, errors, updateData, isEmailFromSession = fal
           />
           <label htmlFor="termsConsent" className="text-sm font-light cursor-pointer space-y-2">
             <p className="text-liquid-dark-secondary">
-              I agree to the <span className="font-medium text-liquid-dark-primary hover:underline">Terms of Service</span> and <span className="font-medium text-liquid-dark-primary hover:underline">Privacy Policy</span>.
+              I agree to the <Link href="/terms" className="font-medium text-liquid-dark-primary hover:underline" onClick={(e) => e.stopPropagation()}>Terms of Service</Link> and <Link href="/privacy" className="font-medium text-liquid-dark-primary hover:underline" onClick={(e) => e.stopPropagation()}>Privacy Policy</Link>.
             </p>
             <div className="bg-liquid-light p-3 rounded-xl border border-gray-100 text-xs text-gray-500">
               <strong className="text-gray-700 block mb-1">Disclaimer:</strong>
