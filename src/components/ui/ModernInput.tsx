@@ -7,10 +7,11 @@ export interface ModernInputProps
   label?: string;
   error?: string;
   icon?: LucideIcon;
+  helperText?: string;
 }
 
 const ModernInput = forwardRef<HTMLInputElement, ModernInputProps>(
-  ({ className, type, label, error, icon: Icon, ...props }, ref) => {
+  ({ className, type, label, error, icon: Icon, helperText, ...props }, ref) => {
     return (
       <div className="space-y-2">
         {label && (
@@ -45,6 +46,9 @@ const ModernInput = forwardRef<HTMLInputElement, ModernInputProps>(
         </div>
         {error && (
           <p className="text-xs text-ui-error animate-slide-down">{error}</p>
+        )}
+        {!error && helperText && (
+          <p className="text-xs text-gray-500">{helperText}</p>
         )}
       </div>
     );
