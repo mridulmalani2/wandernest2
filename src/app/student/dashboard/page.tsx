@@ -1,6 +1,5 @@
-'use client';
+'use client'
 
-<<<<<<< HEAD
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useSession, signOut } from 'next-auth/react'
@@ -13,101 +12,88 @@ import { PrimaryCTAButton } from '@/components/ui/PrimaryCTAButton'
 import { ModernCard } from '@/components/ui/ModernCard'
 import { Calendar, Users, Clock, MapPin, DollarSign, Star, CheckCircle2, XCircle, MessageSquare, Phone, Mail, AlertCircle } from 'lucide-react'
 import { cn } from '@/lib/utils'
-=======
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { signOut } from 'next-auth/react';
-import Image from 'next/image';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import Navigation from '@/components/Navigation';
-import { PrimaryCTAButton } from '@/components/ui/PrimaryCTAButton';
->>>>>>> c2626a4f409d082306e95fee7ca9a168640a3362
 
 interface Request {
-  id: string;
-  city: string;
-  dates: unknown;
-  numberOfGuests: number;
-  groupType: string;
-  serviceType: string;
-  interests: string[];
-  preferredTime: string;
-  tripNotes?: string;
-  budget?: number;
-  expiresAt?: string;
-  email?: string;
-  phone?: string;
-  whatsapp?: string;
-  contactMethod?: string;
-  status?: string;
+  id: string
+  city: string
+  dates: unknown
+  numberOfGuests: number
+  groupType: string
+  serviceType: string
+  interests: string[]
+  preferredTime: string
+  tripNotes?: string
+  budget?: number
+  expiresAt?: string
+  email?: string
+  phone?: string
+  whatsapp?: string
+  contactMethod?: string
+  status?: string
 }
 
 interface PendingRequest {
-  id: string;
-  requestId: string;
-  status: string;
-  createdAt: string;
-  request: Request;
+  id: string
+  requestId: string
+  status: string
+  createdAt: string
+  request: Request
 }
 
 interface AcceptedBooking {
-  id: string;
-  requestId: string;
-  status: string;
-  pricePaid?: number;
-  acceptedAt?: string;
-  request: Request;
+  id: string
+  requestId: string
+  status: string
+  pricePaid?: number
+  acceptedAt?: string
+  request: Request
 }
 
 interface Review {
-  id: string;
-  rating: number;
-  comment?: string;
-  createdAt: string;
-  wasNoShow: boolean;
+  id: string
+  rating: number
+  comment?: string
+  createdAt: string
+  wasNoShow: boolean
   request: {
-    city: string;
-    dates: unknown;
-    serviceType: string;
-  };
+    city: string
+    dates: unknown
+    serviceType: string
+  }
 }
 
 interface DashboardData {
   student: {
-    id: string;
-    name: string;
-    email: string;
-    city: string;
-    institute: string;
-    averageRating?: number;
-    tripsHosted: number;
-    status: string;
-  };
+    id: string
+    name: string
+    email: string
+    city: string
+    institute: string
+    averageRating?: number
+    tripsHosted: number
+    status: string
+  }
   stats: {
-    totalBookings: number;
-    pendingRequests: number;
-    totalEarnings: number;
-    averageRating: number;
-    tripsHosted: number;
-  };
-  acceptedBookings: AcceptedBooking[];
-  pendingRequests: PendingRequest[];
-  reviews: Review[];
+    totalBookings: number
+    pendingRequests: number
+    totalEarnings: number
+    averageRating: number
+    tripsHosted: number
+  }
+  acceptedBookings: AcceptedBooking[]
+  pendingRequests: PendingRequest[]
+  reviews: Review[]
 }
 
 export default function StudentDashboard() {
-  const router = useRouter();
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [data, setData] = useState<DashboardData | null>(null);
-  const [processingRequests, setProcessingRequests] = useState<Set<string>>(new Set());
-  const [studentEmail, setStudentEmail] = useState<string | null>(null);
+  const router = useRouter()
+  const { data: session, status } = useSession()
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const [data, setData] = useState<DashboardData | null>(null)
+  const [processingRequests, setProcessingRequests] = useState<Set<string>>(new Set())
 
-  // ✅ First check OTP session via API, then load dashboard data
   useEffect(() => {
-<<<<<<< HEAD
     if (status === 'loading') return
     if (!session?.user?.email) {
       router.push('/student/signin')
@@ -121,87 +107,23 @@ export default function StudentDashboard() {
     try {
       setLoading(true)
       const response = await fetch(`/api/student/dashboard?email=${encodeURIComponent(session.user.email)}`)
-=======
-    const init = async () => {
-      try {
-        const res = await fetch('/api/student/auth/session-status');
-
-        if (!res.ok) {
-          router.push('/student/signin');
-          return;
-        }
-
-        const statusData = await res.json();
-
-        if (!statusData.ok) {
-          router.push('/student/signin');
-          return;
-        }
-
-        // optional: if backend ever returns some other nextPath, respect it
-        if (statusData.nextPath && statusData.nextPath !== '/student/dashboard') {
-          router.push(statusData.nextPath);
-          return;
-        }
-
-        const email =
-          statusData.email ??
-          statusData.student?.email ??
-          null;
-
-        if (email) {
-          setStudentEmail(email);
-          await fetchDashboardData(email);
-        } else {
-          // email nahi mila toh bhi sign-in pe bhej dena safe hai
-          router.push('/student/signin');
-        }
-      } catch (err) {
-        console.error('Error checking student session:', err);
-        router.push('/student/signin');
-      }
-    };
-
-    init();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [router]);
-
-  const fetchDashboardData = async (emailOverride?: string) => {
-    const email = emailOverride ?? studentEmail;
-    if (!email) return;
-
-    try {
-      setLoading(true);
-      const response = await fetch(
-        `/api/student/dashboard?email=${encodeURIComponent(email)}`
-      );
-
->>>>>>> c2626a4f409d082306e95fee7ca9a168640a3362
       if (!response.ok) {
         if (response.status === 401) {
-          router.push('/student/signin');
-          return;
+          router.push('/student/signin')
+          return
         }
-        throw new Error('Failed to fetch dashboard data');
+        throw new Error('Failed to fetch dashboard data')
       }
-<<<<<<< HEAD
       const dashboardData = await response.json()
       setData(dashboardData)
-=======
-
-      const dashboardData = await response.json();
-      setData(dashboardData);
-      setError(null);
->>>>>>> c2626a4f409d082306e95fee7ca9a168640a3362
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load dashboard');
+      setError(err instanceof Error ? err.message : 'Failed to load dashboard')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handleAcceptRequest = async (requestId: string) => {
-<<<<<<< HEAD
     if (!session?.user?.email) return
     setProcessingRequests(prev => new Set(prev).add(requestId))
     setError(null)
@@ -221,52 +143,18 @@ export default function StudentDashboard() {
         `\nPreferred Contact: ${result.touristContact.contactMethod || 'email'}`
       )
       await fetchDashboardData()
-=======
-    if (!studentEmail) return;
-
-    setProcessingRequests((prev) => new Set(prev).add(requestId));
-    setError(null);
-
-    try {
-      const response = await fetch('/api/student/requests/accept', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          requestId,
-          studentEmail,
-        }),
-      });
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.error || 'Failed to accept request');
-      }
-
-      alert(
-        `Request accepted successfully!\n\nTourist Contact:\nEmail: ${result.touristContact.email}\n` +
-          (result.touristContact.phone ? `Phone: ${result.touristContact.phone}\n` : '') +
-          (result.touristContact.whatsapp ? `WhatsApp: ${result.touristContact.whatsapp}\n` : '') +
-          `\nPreferred Contact: ${result.touristContact.contactMethod || 'email'}`
-      );
-
-      await fetchDashboardData();
->>>>>>> c2626a4f409d082306e95fee7ca9a168640a3362
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to accept request');
+      setError(err instanceof Error ? err.message : 'Failed to accept request')
     } finally {
-      setProcessingRequests((prev) => {
-        const next = new Set(prev);
-        next.delete(requestId);
-        return next;
-      });
+      setProcessingRequests(prev => {
+        const next = new Set(prev)
+        next.delete(requestId)
+        return next
+      })
     }
-  };
+  }
 
   const handleRejectRequest = async (requestId: string) => {
-<<<<<<< HEAD
     if (!session?.user?.email) return
     if (!confirm('Are you sure you want to reject this request?')) return
     setProcessingRequests(prev => new Set(prev).add(requestId))
@@ -280,71 +168,28 @@ export default function StudentDashboard() {
       const result = await response.json()
       if (!response.ok) throw new Error(result.error || 'Failed to reject request')
       await fetchDashboardData()
-=======
-    if (!studentEmail) return;
-
-    if (!confirm('Are you sure you want to reject this request?')) {
-      return;
-    }
-
-    setProcessingRequests((prev) => new Set(prev).add(requestId));
-    setError(null);
-
-    try {
-      const response = await fetch('/api/student/requests/reject', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          requestId,
-          studentEmail,
-        }),
-      });
-
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.error || 'Failed to reject request');
-      }
-
-      await fetchDashboardData();
->>>>>>> c2626a4f409d082306e95fee7ca9a168640a3362
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to reject request');
+      setError(err instanceof Error ? err.message : 'Failed to reject request')
     } finally {
-      setProcessingRequests((prev) => {
-        const next = new Set(prev);
-        next.delete(requestId);
-        return next;
-      });
+      setProcessingRequests(prev => {
+        const next = new Set(prev)
+        next.delete(requestId)
+        return next
+      })
     }
-  };
+  }
 
-<<<<<<< HEAD
-=======
-  const handleLogout = async () => {
-    // Abhi ke liye sirf NextAuth signOut + redirect.
-    // Baad me agar tumne custom /api/student/auth/logout banaya ho,
-    // to yaha usko bhi call kar sakte ho.
-    await signOut({ callbackUrl: '/student/signin' });
-  };
-
->>>>>>> c2626a4f409d082306e95fee7ca9a168640a3362
   const formatDate = (dates: unknown) => {
-    if (!dates) return 'N/A';
-    if (typeof dates === 'string') return dates;
+    if (!dates) return 'N/A'
+    if (typeof dates === 'string') return dates
     if (typeof dates === 'object' && dates !== null && 'start' in dates && 'end' in dates) {
-      const datesObj = dates as { start: string; end: string };
-      return `${new Date(datesObj.start).toLocaleDateString()} - ${new Date(
-        datesObj.end
-      ).toLocaleDateString()}`;
+      const datesObj = dates as { start: string; end: string }
+      return `${new Date(datesObj.start).toLocaleDateString()} - ${new Date(datesObj.end).toLocaleDateString()}`
     }
-    return 'N/A';
-  };
+    return 'N/A'
+  }
 
   const getServiceTypeBadge = (serviceType: string) => {
-<<<<<<< HEAD
     const types: Record<string, { label: string, color: string }> = {
       'itinerary_help': { label: 'Itinerary Planning', color: 'bg-ui-purple-primary/10 text-ui-purple-primary border-ui-purple-primary/20' },
       'guided_experience': { label: 'Guided Experience', color: 'bg-ui-blue-primary/10 text-ui-blue-primary border-ui-blue-primary/20' },
@@ -356,17 +201,7 @@ export default function StudentDashboard() {
       </span>
     )
   }
-=======
-    const colors: Record<string, string> = {
-      local_guide: 'bg-ui-blue-primary/10 text-ui-blue-primary',
-      accommodation: 'bg-ui-success/10 text-ui-success',
-      both: 'bg-ui-purple-primary/10 text-ui-purple-primary',
-    };
-    return colors[serviceType] || 'bg-gray-100 text-gray-800';
-  };
->>>>>>> c2626a4f409d082306e95fee7ca9a168640a3362
 
-  // --- Loading state UI (unchanged) ---
   if (loading) {
     return (
       <div className="min-h-screen flex flex-col relative overflow-hidden bg-gray-50">
@@ -375,45 +210,11 @@ export default function StudentDashboard() {
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-ui-blue-primary"></div>
         </div>
       </div>
-    );
+    )
   }
 
-<<<<<<< HEAD
   if (!data) return null
-=======
-  // --- Error: no data ---
-  if (!data) {
-    return (
-      <div className="min-h-screen flex flex-col relative overflow-hidden">
-        {/* Background */}
-        <div className="absolute inset-0">
-          <Image
-            src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=1920&q=80"
-            alt="Students collaborating"
-            fill
-            quality={85}
-            sizes="100vw"
-            className="object-cover"
-          />
-          <div className="absolute inset-0 bg-black/20 backdrop-blur-[4px]" />
-          <div className="absolute inset-0 bg-gradient-to-br from-ui-blue-primary/15 via-ui-purple-primary/10 to-pink-600/15" />
-        </div>
-        <div className="absolute inset-0 pattern-dots opacity-10" />
 
-        <div className="relative z-10 flex items-center justify-center min-h-screen">
-          <div className="text-center glass-card rounded-3xl p-8 shadow-premium animate-fade-in">
-            <p className="text-ui-error font-semibold mb-4">Failed to load dashboard data</p>
-            <PrimaryCTAButton onClick={() => router.push('/student/signin')} variant="blue">
-              Back to Sign In
-            </PrimaryCTAButton>
-          </div>
-        </div>
-      </div>
-    );
-  }
->>>>>>> c2626a4f409d082306e95fee7ca9a168640a3362
-
-  // --- Main dashboard UI (unchanged except for small internal changes) ---
   return (
     <div className="min-h-screen flex flex-col bg-gray-50/50">
       <Navigation variant="student" />
@@ -429,7 +230,6 @@ export default function StudentDashboard() {
           </p>
         </div>
 
-<<<<<<< HEAD
         {error && (
           <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl text-red-600 flex items-center gap-2 animate-scale-in">
             <AlertCircle className="h-5 w-5" />
@@ -479,68 +279,6 @@ export default function StudentDashboard() {
             </div>
           </ModernCard>
         </div>
-=======
-        {/* Optimized for mobile: better responsive padding */}
-        <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-6 md:py-8 w-full">
-          {/* Error Alert */}
-          {error && (
-            <div className="glass-card bg-ui-error/10 border-2 border-ui-error/30 rounded-2xl p-3 md:p-4 mb-4 md:mb-6 shadow-premium animate-scale-in">
-              <p className="text-ui-error font-semibold text-sm md:text-base">{error}</p>
-            </div>
-          )}
-
-          {/* Stats Cards */}
-          {/* ... 👇 yaha se tumhara purana JSX exactly same rakha hai ... */}
-          {/* (I’ve kept everything from your original code unchanged below this line) */}
-
-          {/* Stats Cards - Optimized for mobile: reduced gaps */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 mb-6 md:mb-8 animate-fade-in-up delay-100">
-            <Card className="glass-card border border-white/40 hover-lift shadow-premium">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-gray-700">Total Bookings</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold bg-gradient-to-r from-ui-blue-primary to-ui-blue-accent bg-clip-text text-transparent">
-                  {data.stats.totalBookings}
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="glass-card border border-white/40 hover-lift shadow-premium">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-gray-700">Pending Requests</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold text-ui-warning">{data.stats.pendingRequests}</div>
-              </CardContent>
-            </Card>
-
-            <Card className="glass-card border border-white/40 hover-lift shadow-premium">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-gray-700">Average Rating</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center">
-                  <span className="text-3xl font-bold bg-gradient-to-r from-yellow-500 to-yellow-600 bg-clip-text text-transparent">
-                    {data.stats.averageRating.toFixed(1)}
-                  </span>
-                  <span className="text-yellow-500 text-2xl ml-2">★</span>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="glass-card border border-white/40 hover-lift shadow-premium">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-gray-700">Total Earnings</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold text-ui-success">
-                  ${data.stats.totalEarnings.toFixed(2)}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
->>>>>>> c2626a4f409d082306e95fee7ca9a168640a3362
 
         {/* Pending Requests */}
         {data.pendingRequests.length > 0 && (

@@ -1,19 +1,14 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-<<<<<<< HEAD
-=======
 import { useSession } from 'next-auth/react'
-import Image from 'next/image'
->>>>>>> c2626a4f409d082306e95fee7ca9a168640a3362
 import { Button } from '@/components/ui/button'
 import { TripDetailsStep } from './TripDetailsStep'
 import { PreferencesStep } from './PreferencesStep'
 import { ContactStep } from './ContactStep'
 import { FormProgressHeader } from '@/components/shared/FormProgressHeader'
 import { PrimaryCTAButton } from '@/components/ui/PrimaryCTAButton'
-import { cn } from '@/lib/utils'
 
 export type BookingFormData = {
   // Step 1: Trip Details
@@ -70,8 +65,6 @@ export function BookingForm() {
   })
   const [errors, setErrors] = useState<Record<string, string>>({})
 
-<<<<<<< HEAD
-=======
   // Pre-fill email from session
   useEffect(() => {
     if (session?.user?.email) {
@@ -79,7 +72,6 @@ export function BookingForm() {
     }
   }, [session])
 
->>>>>>> c2626a4f409d082306e95fee7ca9a168640a3362
   const updateFormData = (data: Partial<BookingFormData>) => {
     setFormData((prev) => ({ ...prev, ...data }))
   }
@@ -237,7 +229,6 @@ export function BookingForm() {
 
       <div className="relative glass-card rounded-3xl border-2 border-white/40 shadow-premium p-5 md:p-8 hover-lift">
         <div className="relative z-10">
-<<<<<<< HEAD
           <div className="animate-fade-in">
             {currentStep === 1 && (
               <TripDetailsStep
@@ -245,55 +236,6 @@ export function BookingForm() {
                 errors={errors}
                 updateData={updateFormData}
               />
-=======
-        {currentStep === 1 && (
-          <TripDetailsStep
-            data={formData}
-            errors={errors}
-            updateData={updateFormData}
-          />
-        )}
-
-        {currentStep === 2 && (
-          <PreferencesStep
-            data={formData}
-            errors={errors}
-            updateData={updateFormData}
-          />
-        )}
-
-        {currentStep === 3 && (
-          <ContactStep
-            data={formData}
-            errors={errors}
-            updateData={updateFormData}
-            isEmailFromSession={!!session?.user?.email}
-          />
-        )}
-
-        {/* Navigation Buttons */}
-        <div className="mt-8 flex justify-between">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handleBack}
-            disabled={currentStep === 1 || isSubmitting}
-            className="hover-lift shadow-soft"
-          >
-            Back
-          </Button>
-
-          <PrimaryCTAButton
-            type="button"
-            onClick={handleNext}
-            disabled={isSubmitting}
-            variant="blue"
-          >
-            {currentStep === 3 ? (
-              isSubmitting ? 'Creating Booking...' : 'Create Booking'
-            ) : (
-              'Next'
->>>>>>> c2626a4f409d082306e95fee7ca9a168640a3362
             )}
 
             {currentStep === 2 && (
