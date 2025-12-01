@@ -16,14 +16,14 @@ type Props = {
 }
 
 const INTERESTS = [
-  { value: 'food', label: 'Food & Dining', icon: '🍕' },
-  { value: 'culture', label: 'Culture & Arts', icon: '🎭' },
-  { value: 'history', label: 'History', icon: '🏛️' },
-  { value: 'shopping', label: 'Shopping', icon: '🛍️' },
-  { value: 'nightlife', label: 'Nightlife', icon: '🌃' },
-  { value: 'adventure', label: 'Adventure', icon: '🏔️' },
-  { value: 'nature', label: 'Nature', icon: '🌳' },
-  { value: 'photography', label: 'Photography', icon: '📸' },
+  { value: 'food', label: 'Food & Dining' },
+  { value: 'culture', label: 'Culture & Arts' },
+  { value: 'history', label: 'History' },
+  { value: 'shopping', label: 'Shopping' },
+  { value: 'nightlife', label: 'Nightlife' },
+  { value: 'adventure', label: 'Adventure' },
+  { value: 'nature', label: 'Nature' },
+  { value: 'photography', label: 'Photography' },
 ]
 
 export function PreferencesStep({ data, errors, updateData }: Props) {
@@ -344,15 +344,14 @@ export function PreferencesStep({ data, errors, updateData }: Props) {
                 type="button"
                 onClick={() => toggleInterest(interest.value)}
                 className={cn(
-                  'flex flex-col items-center gap-2 p-4 rounded-full transition-all duration-300',
+                  'flex items-center justify-center gap-2 px-6 py-3 rounded-full transition-all duration-300',
                   'border hover:shadow-md',
                   isSelected
                     ? 'bg-liquid-dark-primary text-white border-liquid-dark-primary shadow-md'
                     : 'bg-white/60 text-gray-600 border-gray-200 hover:border-liquid-dark-primary/30'
                 )}
               >
-                <span className="text-2xl">{interest.icon}</span>
-                <span className="text-xs font-medium text-center">{interest.label}</span>
+                <span className="text-sm font-medium">{interest.label}</span>
               </button>
             )
           })}

@@ -1,12 +1,10 @@
 'use client';
 
-import { useRef, ChangeEvent } from 'react';
-import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
-import { ModernInput } from '@/components/ui/ModernInput';
+import { LiquidInput } from '@/components/ui/LiquidInput';
+import { FlowCard } from '@/components/ui/FlowCard';
 import { OnboardingFormData } from './OnboardingWizard';
-import { Upload, X, Shield, FileText, User, Camera, CheckCircle2 } from 'lucide-react';
+import { useState, useCallback } from 'react';
+import { Upload, X, FileText, Image as ImageIcon, CheckCircle2, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface StudentVerificationStepProps {
@@ -16,348 +14,275 @@ interface StudentVerificationStepProps {
 }
 
 export function StudentVerificationStep({ formData, updateFormData, errors }: StudentVerificationStepProps) {
-  const studentIdInputRef = useRef<HTMLInputElement>(null);
-  const governmentIdInputRef = useRef<HTMLInputElement>(null);
-  const selfieInputRef = useRef<HTMLInputElement>(null);
-  const profilePhotoInputRef = useRef<HTMLInputElement>(null);
+  const [dragStates, setDragStates] = useState({
+    studentId: false,
+    governmentId: false,
+    selfie: false,
+    profilePhoto: false
+  });
 
-  const handleFileChange = (
-    e: ChangeEvent<HTMLInputElement>,
-    fileType: 'studentId' | 'governmentId' | 'selfie' | 'profilePhoto'
-  ) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      // Validate file type
-      const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'application/pdf'];
-      if (!validTypes.includes(file.type)) {
-        alert('Please upload a valid image file (JPG, PNG, WebP) or PDF');
-        return;
+  const handleFileChange = useCallback((field: string, file: File | null) => {
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const preview = reader.result as string;
+
+      switch (field) {
+        case 'studentId':
+          updateFormData({ studentIdFile: file, studentIdPreview: preview });
+          break;
+        case 'governmentId':
+          updateFormData({ governmentIdFile: file, governmentIdPreview: preview });
+          break;
+        case 'selfie':
+          updateFormData({ selfieFile: file, selfiePreview: preview });
+          break;
+        case 'profilePhoto':
+          updateFormData({ profilePhotoFile: file, profilePhotoPreview: preview });
+          break;
       }
+    };
+    reader.readAsDataURL(file);
+  }, [updateFormData]);
 
-      // Validate file size (max 5MB)
-      const maxSize = 5 * 1024 * 1024; // 5MB
-      if (file.size > maxSize) {
-        alert('File size must be less than 5MB');
-        return;
-      }
-
-      // Create preview URL
-      const previewUrl = URL.createObjectURL(file);
-
-      if (fileType === 'studentId') {
-        updateFormData({
-          studentIdFile: file,
-          studentIdPreview: previewUrl,
-        });
-      } else if (fileType === 'governmentId') {
-        updateFormData({
-          governmentIdFile: file,
-          governmentIdPreview: previewUrl,
-        });
-      } else if (fileType === 'selfie') {
-        updateFormData({
-          selfieFile: file,
-          selfiePreview: previewUrl,
-        });
-      } else if (fileType === 'profilePhoto') {
-        updateFormData({
-          profilePhotoFile: file,
-          profilePhotoPreview: previewUrl,
-        });
-      }
-    }
+  const handleDragOver = (e: React.DragEvent, field: string) => {
+    e.preventDefault();
+    setDragStates(prev => ({ ...prev, [field]: true }));
   };
 
-  const handleRemoveFile = (fileType: 'studentId' | 'governmentId' | 'selfie' | 'profilePhoto') => {
-    if (fileType === 'studentId') {
-      if (formData.studentIdPreview) URL.revokeObjectURL(formData.studentIdPreview);
-      updateFormData({ studentIdFile: null, studentIdPreview: '' });
-      if (studentIdInputRef.current) studentIdInputRef.current.value = '';
-    } else if (fileType === 'governmentId') {
-      if (formData.governmentIdPreview) URL.revokeObjectURL(formData.governmentIdPreview);
-      updateFormData({ governmentIdFile: null, governmentIdPreview: '' });
-      if (governmentIdInputRef.current) governmentIdInputRef.current.value = '';
-    } else if (fileType === 'selfie') {
-      if (formData.selfiePreview) URL.revokeObjectURL(formData.selfiePreview);
-      updateFormData({ selfieFile: null, selfiePreview: '' });
-      if (selfieInputRef.current) selfieInputRef.current.value = '';
-    } else if (fileType === 'profilePhoto') {
-      if (formData.profilePhotoPreview) URL.revokeObjectURL(formData.profilePhotoPreview);
-      updateFormData({ profilePhotoFile: null, profilePhotoPreview: '' });
-      if (profilePhotoInputRef.current) profilePhotoInputRef.current.value = '';
+  const handleDragLeave = (field: string) => {
+    setDragStates(prev => ({ ...prev, [field]: false }));
+  };
+
+  const handleDrop = (e: React.DragEvent, field: string) => {
+    e.preventDefault();
+    setDragStates(prev => ({ ...prev, [field]: false }));
+    const file = e.dataTransfer.files[0];
+    if (file && file.type.startsWith('image/')) {
+      handleFileChange(field, file);
     }
   };
 
   const FileUploadCard = ({
-    title,
-    description,
-    file,
+    field,
+    label,
     preview,
-    error,
-    inputRef,
-    accept = "image/jpeg,image/jpg,image/png,image/webp",
-    onChange,
-    onRemove,
-    icon: Icon
+    file,
+    icon: Icon = FileText,
+    error
   }: {
-    title: string;
-    description: string;
-    file: File | null;
-    preview: string;
+    field: string;
+    label: string;
+    preview?: string;
+    file?: File | null;
+    icon?: any;
     error?: string;
-    inputRef: React.RefObject<HTMLInputElement>;
-    accept?: string;
-    onChange: (e: ChangeEvent<HTMLInputElement>) => void;
-    onRemove: () => void;
-    icon: any;
   }) => (
-    <div className={cn(
-      "relative group border-2 border-dashed rounded-3xl p-6 transition-all duration-300",
-      error ? "border-ui-error bg-ui-error/5" : "border-gray-200 hover:border-ui-blue-primary/50 hover:bg-ui-blue-primary/5",
-      preview ? "border-solid border-ui-success/50 bg-ui-success/5" : ""
-    )}>
-      <input
-        ref={inputRef}
-        type="file"
-        accept={accept}
-        onChange={onChange}
-        className="hidden"
-      />
-
-      {preview ? (
-        <div className="relative">
-          <button
-            onClick={onRemove}
-            className="absolute -top-2 -right-2 p-1.5 bg-white rounded-full shadow-md text-gray-400 hover:text-ui-error transition-colors z-10"
-          >
-            <X className="h-4 w-4" />
-          </button>
-
-          <div className="flex flex-col items-center">
-            {file?.type === 'application/pdf' ? (
-              <div className="w-full h-48 bg-white rounded-2xl flex flex-col items-center justify-center border border-gray-100 shadow-sm">
-                <FileText className="h-12 w-12 text-ui-blue-primary mb-3" />
-                <p className="font-medium text-gray-900 px-4 text-center truncate max-w-full">{file.name}</p>
-                <p className="text-sm text-gray-500">PDF Document</p>
-              </div>
-            ) : (
-              <div className="relative w-full h-48 rounded-2xl overflow-hidden shadow-sm">
-                <img
-                  src={preview}
-                  alt="Preview"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            )}
-            <div className="mt-4 flex items-center text-ui-success font-medium">
-              <CheckCircle2 className="h-4 w-4 mr-2" />
-              Uploaded Successfully
+    <div className="space-y-2">
+      <label className="text-sm font-light tracking-wide text-liquid-dark-secondary block">
+        {label} {error && <span className="text-ui-error ml-1">*</span>}
+      </label>
+      <div
+        onDragOver={(e) => handleDragOver(e, field)}
+        onDragLeave={() => handleDragLeave(field)}
+        onDrop={(e) => handleDrop(e, field)}
+        className={cn(
+          'relative rounded-2xl border-2 border-dashed transition-all duration-300',
+          dragStates[field as keyof typeof dragStates] && 'border-liquid-dark-primary bg-liquid-dark-primary/5',
+          error && 'border-ui-error',
+          !error && !dragStates[field as keyof typeof dragStates] && 'border-gray-300 hover:border-liquid-dark-primary/50'
+        )}
+      >
+        {preview ? (
+          <div className="relative group">
+            <img src={preview} alt={label} className="w-full h-48 object-cover rounded-2xl" />
+            <button
+              type="button"
+              onClick={() => {
+                switch (field) {
+                  case 'studentId':
+                    updateFormData({ studentIdFile: null, studentIdPreview: '' });
+                    break;
+                  case 'governmentId':
+                    updateFormData({ governmentIdFile: null, governmentIdPreview: '' });
+                    break;
+                  case 'selfie':
+                    updateFormData({ selfieFile: null, selfiePreview: '' });
+                    break;
+                  case 'profilePhoto':
+                    updateFormData({ profilePhotoFile: null, profilePhotoPreview: '' });
+                    break;
+                }
+              }}
+              className="absolute top-2 right-2 p-2 rounded-full bg-white/90 hover:bg-white shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
+            >
+              <X className="h-4 w-4 text-gray-600" />
+            </button>
+            <div className="absolute bottom-2 left-2 bg-liquid-dark-primary/90 text-white px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1">
+              <CheckCircle2 className="h-3 w-3" />
+              Uploaded
             </div>
           </div>
-        </div>
-      ) : (
-        <div
-          className="flex flex-col items-center justify-center text-center cursor-pointer py-8"
-          onClick={() => inputRef.current?.click()}
-        >
-          <div className="h-16 w-16 rounded-full bg-white shadow-sm flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
-            <Icon className="h-8 w-8 text-ui-blue-primary/60 group-hover:text-ui-blue-primary" />
-          </div>
-          <h4 className="font-semibold text-gray-900 mb-1">{title}</h4>
-          <p className="text-sm text-gray-500 max-w-xs">{description}</p>
-          <Button variant="outline" className="mt-6 pointer-events-none">
-            <Upload className="h-4 w-4 mr-2" />
-            Select File
-          </Button>
-        </div>
+        ) : (
+          <label className="flex flex-col items-center justify-center h-48 cursor-pointer">
+            <div className="h-12 w-12 rounded-full bg-liquid-light flex items-center justify-center mb-3">
+              <Icon className="h-6 w-6 text-liquid-dark-secondary" />
+            </div>
+            <p className="text-sm font-medium text-liquid-dark-primary mb-1">
+              Drop file here or click to upload
+            </p>
+            <p className="text-xs text-gray-500">PNG, JPG up to 10MB</p>
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => handleFileChange(field, e.target.files?.[0] || null)}
+            />
+          </label>
+        )}
+      </div>
+      {error && (
+        <p className="text-xs font-light text-ui-error flex items-center gap-1">
+          <AlertCircle className="h-3 w-3" />
+          {error}
+        </p>
       )}
-      {error && <p className="text-xs text-ui-error mt-2 text-center font-medium animate-slide-down">{error}</p>}
     </div>
   );
 
   return (
-    <div className="space-y-8 animate-fade-in">
-      <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold bg-gradient-to-r from-ui-blue-primary to-ui-purple-primary bg-clip-text text-transparent mb-2">
+    <div className="space-y-12 animate-fade-in max-w-4xl mx-auto">
+      <div className="text-center space-y-2">
+        <h2 className="text-4xl font-light tracking-tight text-liquid-dark-primary">
           Identity Verification
         </h2>
-        <p className="text-gray-600 max-w-lg mx-auto">
-          We need to verify your student status to maintain a safe and trusted community.
+        <p className="text-base font-light text-gray-500 max-w-md mx-auto">
+          We need to verify your identity and student status
         </p>
       </div>
 
-      {/* Why we need this */}
-      <div className="bg-ui-blue-primary/5 border border-ui-blue-primary/20 rounded-2xl p-6 flex gap-4 items-start">
-        <div className="p-2 bg-white rounded-xl shadow-sm text-ui-blue-primary shrink-0">
-          <Shield className="h-6 w-6" />
-        </div>
-        <div>
-          <h3 className="font-bold text-gray-900 mb-2">Why verification matters</h3>
-          <p className="text-sm text-gray-600 leading-relaxed">
-            TourWiseCo is built on trust. By verifying your student status and identity, we ensure safety for both you and the tourists you'll be guiding. Your documents are encrypted and handled securely.
-          </p>
-        </div>
-      </div>
-
+      {/* Document Uploads */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Student ID Section */}
-        <div className="bg-white/50 backdrop-blur-sm border border-white/60 rounded-3xl p-6 shadow-lg space-y-6">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="h-8 w-8 rounded-full bg-ui-blue-primary/10 flex items-center justify-center text-ui-blue-primary">
-              <FileText className="h-4 w-4" />
-            </div>
-            <h3 className="font-bold text-gray-800">Student ID</h3>
-          </div>
-
+        <FlowCard padding="md">
           <FileUploadCard
-            title="Upload Student ID"
-            description="Clear scan/photo showing name & expiry"
-            file={formData.studentIdFile}
+            field="studentId"
+            label="Student ID Card"
             preview={formData.studentIdPreview}
-            error={errors.studentIdFile}
-            inputRef={studentIdInputRef}
-            accept="image/jpeg,image/jpg,image/png,image/webp,application/pdf"
-            onChange={(e) => handleFileChange(e, 'studentId')}
-            onRemove={() => handleRemoveFile('studentId')}
+            file={formData.studentIdFile}
             icon={FileText}
+            error={errors.studentIdFile}
           />
-
-          <ModernInput
-            label="Expiry Date"
-            type="date"
-            value={formData.studentIdExpiry}
-            onChange={(e) => updateFormData({ studentIdExpiry: e.target.value })}
-            min={new Date().toISOString().split('T')[0]}
-            error={errors.studentIdExpiry}
-          />
-        </div>
-
-        {/* Government ID Section */}
-        <div className="bg-white/50 backdrop-blur-sm border border-white/60 rounded-3xl p-6 shadow-lg space-y-6">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="h-8 w-8 rounded-full bg-ui-purple-primary/10 flex items-center justify-center text-ui-purple-primary">
-              <User className="h-4 w-4" />
-            </div>
-            <h3 className="font-bold text-gray-800">Government ID</h3>
+          <div className="mt-4">
+            <LiquidInput
+              label="Student ID Expiry Date"
+              type="date"
+              value={formData.studentIdExpiry}
+              onChange={(e) => updateFormData({ studentIdExpiry: e.target.value })}
+              min={new Date().toISOString().split('T')[0]}
+            />
           </div>
+        </FlowCard>
 
+        <FlowCard padding="md">
           <FileUploadCard
-            title="Upload ID / Passport"
-            description="Passport or National ID card"
-            file={formData.governmentIdFile}
+            field="governmentId"
+            label="Government ID (Passport/Driver's License)"
             preview={formData.governmentIdPreview}
+            file={formData.governmentIdFile}
+            icon={FileText}
             error={errors.governmentIdFile}
-            inputRef={governmentIdInputRef}
-            accept="image/jpeg,image/jpg,image/png,image/webp,application/pdf"
-            onChange={(e) => handleFileChange(e, 'governmentId')}
-            onRemove={() => handleRemoveFile('governmentId')}
-            icon={User}
           />
-
-          <ModernInput
-            label="Expiry Date"
-            type="date"
-            value={formData.governmentIdExpiry}
-            onChange={(e) => updateFormData({ governmentIdExpiry: e.target.value })}
-            min={new Date().toISOString().split('T')[0]}
-            error={errors.governmentIdExpiry}
-          />
-        </div>
-
-        {/* Selfie Section */}
-        <div className="bg-white/50 backdrop-blur-sm border border-white/60 rounded-3xl p-6 shadow-lg space-y-6">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="h-8 w-8 rounded-full bg-pink-500/10 flex items-center justify-center text-pink-500">
-              <Camera className="h-4 w-4" />
-            </div>
-            <h3 className="font-bold text-gray-800">Verification Selfie</h3>
+          <div className="mt-4">
+            <LiquidInput
+              label="ID Expiry Date"
+              type="date"
+              value={formData.governmentIdExpiry}
+              onChange={(e) => updateFormData({ governmentIdExpiry: e.target.value })}
+              min={new Date().toISOString().split('T')[0]}
+            />
           </div>
+        </FlowCard>
 
+        <FlowCard padding="md">
           <FileUploadCard
-            title="Take a Selfie"
-            description="Hold your Student ID next to your face"
-            file={formData.selfieFile}
+            field="selfie"
+            label="Selfie with ID"
             preview={formData.selfiePreview}
+            file={formData.selfieFile}
+            icon={ImageIcon}
             error={errors.selfieFile}
-            inputRef={selfieInputRef}
-            onChange={(e) => handleFileChange(e, 'selfie')}
-            onRemove={() => handleRemoveFile('selfie')}
-            icon={Camera}
           />
-        </div>
+          <p className="text-xs text-gray-500 mt-2">Hold your ID next to your face</p>
+        </FlowCard>
 
-        {/* Profile Photo Section */}
-        <div className="bg-white/50 backdrop-blur-sm border border-white/60 rounded-3xl p-6 shadow-lg space-y-6">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="h-8 w-8 rounded-full bg-teal-500/10 flex items-center justify-center text-teal-500">
-              <User className="h-4 w-4" />
-            </div>
-            <h3 className="font-bold text-gray-800">Public Profile Photo</h3>
-          </div>
-
+        <FlowCard padding="md">
           <FileUploadCard
-            title="Profile Photo"
-            description="Friendly, professional photo for tourists"
-            file={formData.profilePhotoFile}
+            field="profilePhoto"
+            label="Profile Photo"
             preview={formData.profilePhotoPreview}
+            file={formData.profilePhotoFile}
+            icon={ImageIcon}
             error={errors.profilePhotoFile}
-            inputRef={profilePhotoInputRef}
-            onChange={(e) => handleFileChange(e, 'profilePhoto')}
-            onRemove={() => handleRemoveFile('profilePhoto')}
-            icon={User}
           />
-        </div>
+          <p className="text-xs text-gray-500 mt-2">This will be shown to tourists</p>
+        </FlowCard>
       </div>
 
       {/* Consent Checkboxes */}
-      <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-6 md:p-8 shadow-sm border border-gray-100 space-y-4">
-        <div className="flex items-start space-x-3 p-4 hover:bg-gray-50 rounded-xl transition-colors cursor-pointer" onClick={() => updateFormData({ documentsOwnedConfirmation: !formData.documentsOwnedConfirmation })}>
-          <Checkbox
-            id="documentsOwnedConfirmation"
-            checked={formData.documentsOwnedConfirmation}
-            onCheckedChange={(checked) =>
-              updateFormData({ documentsOwnedConfirmation: checked as boolean })
-            }
-          />
-          <div className="flex-1">
-            <Label
-              htmlFor="documentsOwnedConfirmation"
-              className="text-sm font-medium cursor-pointer leading-relaxed text-gray-700"
-            >
-              I confirm these documents are mine and the information is accurate.
-            </Label>
+      <FlowCard padding="lg">
+        <div className="space-y-4">
+          <div className="flex items-start gap-4">
+            <input
+              type="checkbox"
+              id="documentsOwned"
+              checked={formData.documentsOwnedConfirmation || false}
+              onChange={(e) => updateFormData({ documentsOwnedConfirmation: e.target.checked })}
+              className={cn(
+                'mt-1 h-5 w-5 rounded border-gray-300 focus:ring-liquid-dark-primary',
+                formData.documentsOwnedConfirmation ? 'text-liquid-dark-primary' : '',
+                errors.documentsOwnedConfirmation && 'border-ui-error'
+              )}
+            />
+            <label htmlFor="documentsOwned" className="text-sm font-light cursor-pointer text-liquid-dark-secondary">
+              I confirm that all uploaded documents are authentic and belong to me.
+            </label>
           </div>
-        </div>
-        {errors.documentsOwnedConfirmation && (
-          <p className="text-sm text-ui-error px-4">{errors.documentsOwnedConfirmation}</p>
-        )}
+          {errors.documentsOwnedConfirmation && (
+            <p className="text-xs font-light text-ui-error">{errors.documentsOwnedConfirmation}</p>
+          )}
 
-        <div className="flex items-start space-x-3 p-4 hover:bg-gray-50 rounded-xl transition-colors cursor-pointer" onClick={() => updateFormData({ verificationConsent: !formData.verificationConsent })}>
-          <Checkbox
-            id="verificationConsent"
-            checked={formData.verificationConsent}
-            onCheckedChange={(checked) =>
-              updateFormData({ verificationConsent: checked as boolean })
-            }
-          />
-          <div className="flex-1">
-            <Label
-              htmlFor="verificationConsent"
-              className="text-sm font-medium cursor-pointer leading-relaxed text-gray-700"
-            >
-              I consent to verification of these documents by TourWiseCo and understand that false information may result in account suspension.
-            </Label>
+          <div className="flex items-start gap-4">
+            <input
+              type="checkbox"
+              id="verificationConsent"
+              checked={formData.verificationConsent || false}
+              onChange={(e) => updateFormData({ verificationConsent: e.target.checked })}
+              className={cn(
+                'mt-1 h-5 w-5 rounded border-gray-300 focus:ring-liquid-dark-primary',
+                formData.verificationConsent ? 'text-liquid-dark-primary' : '',
+                errors.verificationConsent && 'border-ui-error'
+              )}
+            />
+            <label htmlFor="verificationConsent" className="text-sm font-light cursor-pointer text-liquid-dark-secondary">
+              I consent to background verification and understand documents will be securely stored and used only for verification purposes.
+            </label>
           </div>
+          {errors.verificationConsent && (
+            <p className="text-xs font-light text-ui-error">{errors.verificationConsent}</p>
+          )}
         </div>
-        {errors.verificationConsent && (
-          <p className="text-sm text-ui-error px-4">{errors.verificationConsent}</p>
-        )}
-      </div>
+      </FlowCard>
 
-      {/* Security Note */}
-      <div className="flex items-center justify-center gap-2 text-sm text-gray-500">
-        <Shield className="h-4 w-4" />
-        <span>Your data is encrypted and secure.</span>
+      {/* Info Notice */}
+      <div className="bg-liquid-light/50 rounded-2xl p-4 flex gap-3 items-start border border-gray-100">
+        <FileText className="h-5 w-5 text-liquid-dark-secondary shrink-0 mt-0.5" />
+        <div className="space-y-1">
+          <h3 className="font-medium text-liquid-dark-primary text-sm">Verification Process</h3>
+          <p className="text-xs font-light text-gray-600 leading-relaxed">
+            Your documents will be reviewed within 2-3 business days. We use bank-level encryption to protect your data. Documents are only visible to our verification team and are never shared with third parties.
+          </p>
+        </div>
       </div>
     </div>
   );
