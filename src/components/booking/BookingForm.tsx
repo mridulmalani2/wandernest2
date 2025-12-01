@@ -22,6 +22,7 @@ export type BookingFormData = {
   // Step 2: Preferences
   preferredNationality?: string
   preferredLanguages: string[]
+  preferredGender?: 'male' | 'female' | 'no_preference'
   serviceType: 'itinerary_help' | 'guided_experience' | ''
   interests: string[]
   totalBudget?: number
@@ -62,6 +63,7 @@ export function BookingForm() {
     discoveryFeeConsent: false,
     email: '',
     contactMethod: 'email',
+    preferredGender: 'no_preference',
   })
   const [errors, setErrors] = useState<Record<string, string>>({})
 
@@ -180,6 +182,7 @@ export function BookingForm() {
           accessibilityNeeds: formData.accessibilityNeeds,
           preferredNationality: formData.preferredNationality,
           preferredLanguages: formData.preferredLanguages,
+          preferredGender: formData.preferredGender,
           serviceType: formData.serviceType,
           interests: formData.interests,
           totalBudget: formData.totalBudget,
