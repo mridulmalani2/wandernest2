@@ -108,8 +108,8 @@ export function BasicProfileStep({ formData, updateFormData, errors, cities }: B
                     'py-3 px-4 rounded-full text-sm font-medium transition-all duration-300',
                     'border-2',
                     formData.gender === option
-                      ? 'bg-liquid-dark-primary text-white border-liquid-dark-primary shadow-md'
-                      : 'bg-white text-gray-700 border-gray-300 hover:border-liquid-dark-primary hover:shadow-md hover:bg-gray-50'
+                      ? 'bg-liquid-dark-primary text-white border-liquid-dark-primary shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]'
+                      : 'bg-white text-gray-900 border-gray-300 hover:border-liquid-dark-primary hover:shadow-md hover:bg-liquid-light active:scale-[0.98] active:bg-gray-100'
                   )}
                 >
                   {option === 'prefer_not_to_say' ? 'Prefer not to say' : option.charAt(0).toUpperCase() + option.slice(1)}
@@ -254,10 +254,10 @@ export function BasicProfileStep({ formData, updateFormData, errors, cities }: B
                     onClick={() => toggleLanguage(language)}
                     className={cn(
                       'px-4 py-2 rounded-full text-sm font-medium transition-all duration-300',
-                      'border hover:shadow-sm',
+                      'border-2',
                       isSelected
-                        ? 'bg-liquid-dark-primary text-white border-liquid-dark-primary active:bg-liquid-dark-primary active:text-white focus:bg-liquid-dark-primary focus:text-white'
-                        : 'bg-gray-100 text-gray-800 border-gray-400 hover:border-liquid-dark-primary hover:bg-gray-50 active:bg-gray-200 active:text-gray-900 focus:bg-gray-100 focus:text-gray-800'
+                        ? 'bg-liquid-dark-primary text-white border-liquid-dark-primary shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]'
+                        : 'bg-white text-gray-900 border-gray-300 hover:border-liquid-dark-primary hover:bg-liquid-light hover:shadow-md active:scale-[0.98] active:bg-gray-100'
                     )}
                   >
                     {language}
@@ -278,7 +278,7 @@ export function BasicProfileStep({ formData, updateFormData, errors, cities }: B
               <button
                 type="button"
                 onClick={addCustomLanguage}
-                className="px-6 py-3 rounded-full bg-liquid-dark-primary text-white hover:shadow-md transition-all duration-300 active:bg-liquid-dark-primary active:text-white focus:bg-liquid-dark-primary focus:text-white"
+                className="px-6 py-3 rounded-full bg-liquid-dark-primary text-white border-2 border-liquid-dark-primary shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all duration-300"
               >
                 Add
               </button>

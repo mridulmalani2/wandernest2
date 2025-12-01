@@ -139,10 +139,10 @@ export function ContactStep({ data, errors, updateData, isEmailFromSession = fal
                 onClick={() => updateData({ contactMethod: method.value as any })}
                 className={cn(
                   'flex items-center justify-center gap-3 py-4 px-6 rounded-full transition-all duration-300',
-                  'border hover:shadow-md',
+                  'border-2',
                   isSelected
-                    ? 'bg-liquid-dark-primary text-white border-liquid-dark-primary shadow-md active:bg-liquid-dark-primary active:text-white focus:bg-liquid-dark-primary focus:text-white'
-                    : 'bg-gray-100 text-gray-800 border-gray-400 hover:border-liquid-dark-primary hover:bg-gray-50 active:bg-gray-200 active:text-gray-900 focus:bg-gray-100 focus:text-gray-800'
+                    ? 'bg-liquid-dark-primary text-white border-liquid-dark-primary shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]'
+                    : 'bg-white text-gray-900 border-gray-300 hover:border-liquid-dark-primary hover:bg-liquid-light hover:shadow-md active:scale-[0.98] active:bg-gray-100'
                 )}
               >
                 <Icon className="h-5 w-5" />

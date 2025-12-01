@@ -121,10 +121,10 @@ export function TripDetailsStep({ data, errors, updateData }: Props) {
                 className={cn(
                   'relative px-5 py-2.5 rounded-full transition-all duration-300',
                   'flex items-center gap-2',
-                  'border-2 hover:shadow-md text-sm font-medium',
+                  'border-2 text-sm font-medium',
                   isSelected
-                    ? 'bg-liquid-dark-primary text-white border-liquid-dark-primary shadow-md active:bg-liquid-dark-primary active:text-white focus:bg-liquid-dark-primary focus:text-white'
-                    : 'bg-gray-100 text-gray-800 border-gray-400 hover:border-liquid-dark-primary hover:bg-gray-50 active:bg-gray-200 active:text-gray-900 focus:bg-gray-100 focus:text-gray-800'
+                    ? 'bg-liquid-dark-primary text-white border-liquid-dark-primary shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]'
+                    : 'bg-white text-gray-900 border-gray-300 hover:border-liquid-dark-primary hover:bg-liquid-light hover:shadow-md active:scale-[0.98] active:bg-gray-100'
                 )}
               >
                 <Icon className="h-4 w-4" />
@@ -158,10 +158,10 @@ export function TripDetailsStep({ data, errors, updateData }: Props) {
                 className={cn(
                   'relative px-5 py-2.5 rounded-full transition-all duration-300',
                   'flex items-center gap-2',
-                  'border-2 hover:shadow-md text-sm font-medium',
+                  'border-2 text-sm font-medium',
                   isSelected
-                    ? 'bg-liquid-dark-primary text-white border-liquid-dark-primary shadow-md active:bg-liquid-dark-primary active:text-white focus:bg-liquid-dark-primary focus:text-white'
-                    : 'bg-gray-100 text-gray-800 border-gray-400 hover:border-liquid-dark-primary hover:bg-gray-50 active:bg-gray-200 active:text-gray-900 focus:bg-gray-100 focus:text-gray-800'
+                    ? 'bg-liquid-dark-primary text-white border-liquid-dark-primary shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]'
+                    : 'bg-white text-gray-900 border-gray-300 hover:border-liquid-dark-primary hover:bg-liquid-light hover:shadow-md active:scale-[0.98] active:bg-gray-100'
                 )}
               >
                 <Icon className="h-4 w-4" />
