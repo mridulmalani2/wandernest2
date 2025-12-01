@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { FlowCard } from '@/components/ui/FlowCard';
 import { TrendingUp, Calendar, MapPin, Users, CheckCircle2, Clock } from 'lucide-react';
+import Navigation from '@/components/Navigation';
+import Image from 'next/image';
 
 interface TouristBooking {
   id: string;
@@ -72,11 +74,23 @@ export default function TouristDashboard() {
     <div className="min-h-screen bg-gradient-to-b from-liquid-light to-white relative">
         {/* Subtle Background Pattern */}
         <div
-          className="absolute inset-0 opacity-[0.03] pointer-events-none"
-          style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%231a1f3a' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-          }}
-        />
+          className="absolute inset-0"
+        >
+          <Image
+            src="https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?w=1920&q=80"
+            alt="Vintage compass and travel map"
+            fill
+            quality={85}
+            sizes="100vw"
+            className="object-cover opacity-30"
+          />
+          <div
+            className="absolute inset-0 opacity-[0.03] pointer-events-none"
+            style={{
+              backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%231a1f3a' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+            }}
+          />
+        </div>
 
         <div className="max-w-7xl mx-auto px-4 py-12 relative z-10">
           {/* Header */}

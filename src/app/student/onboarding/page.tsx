@@ -74,10 +74,10 @@ export default function StudentOnboarding() {
     return (
       <div className="min-h-screen flex flex-col relative overflow-hidden">
         {/* Background Image with Overlays */}
-        <div className="absolute inset-0" role="img" aria-label="Students collaborating on campus">
+        <div className="absolute inset-0" role="img" aria-label="Modern university learning space">
           <Image
-            src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=1920&q=80"
-            alt="Students collaborating on campus"
+            src="https://images.unsplash.com/photo-1562774053-701939374585?w=1920&q=80"
+            alt="Modern university lecture hall with natural light"
             fill
             priority
             quality={85}

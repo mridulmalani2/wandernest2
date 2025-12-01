@@ -5,6 +5,7 @@ import { FlowCard } from '@/components/ui/FlowCard';
 import { OnboardingFormData } from './OnboardingWizard';
 import { Shield, Phone, AlertTriangle } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import Link from 'next/link';
 
 interface SafetyComplianceStepProps {
   formData: OnboardingFormData;
@@ -86,7 +87,7 @@ export function SafetyComplianceStep({ formData, updateFormData, errors }: Safet
             />
             <label htmlFor="termsAccepted" className="text-sm font-light cursor-pointer">
               <p className="text-liquid-dark-secondary">
-                I agree to the <span className="font-medium text-liquid-dark-primary hover:underline">Terms of Service</span> and <span className="font-medium text-liquid-dark-primary hover:underline">Privacy Policy</span>.
+                I agree to the <Link href="/terms" className="font-medium text-liquid-dark-primary hover:underline" onClick={(e) => e.stopPropagation()}>Terms of Service</Link> and <Link href="/privacy" className="font-medium text-liquid-dark-primary hover:underline" onClick={(e) => e.stopPropagation()}>Privacy Policy</Link>.
               </p>
             </label>
           </div>

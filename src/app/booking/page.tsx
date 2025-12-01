@@ -17,10 +17,10 @@ export default function BookingPage() {
   return (
     <div className="min-h-screen flex flex-col relative overflow-hidden">
       {/* Background Image with Overlays */}
-      <div className="absolute inset-0" role="img" aria-label="Travelers planning their adventure together">
+      <div className="absolute inset-0" role="img" aria-label="Beautiful travel destination">
         <Image
-          src="https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=1920&q=80"
-          alt="Travelers planning their adventure together"
+          src="https://images.unsplash.com/photo-1613395877344-13d4a8e0d49e?w=1920&q=80"
+          alt="Santorini sunset with blue domes"
           fill
           priority
           quality={85}
