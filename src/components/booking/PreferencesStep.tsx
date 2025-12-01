@@ -207,10 +207,10 @@ export function PreferencesStep({ data, errors, updateData }: Props) {
                   onClick={() => updateData({ preferredGender: option.value as any })}
                   className={cn(
                     'flex-1 py-2.5 px-4 rounded-full text-sm font-medium transition-all duration-300',
-                    'border-2 hover:shadow-md',
+                    'border-2',
                     data.preferredGender === option.value || (!data.preferredGender && option.value === 'no_preference')
-                      ? 'bg-liquid-dark-primary text-white border-liquid-dark-primary shadow-md active:bg-liquid-dark-primary active:text-white focus:bg-liquid-dark-primary focus:text-white'
-                      : 'bg-gray-100 text-gray-800 border-gray-400 hover:border-liquid-dark-primary hover:bg-gray-50 active:bg-gray-200 active:text-gray-900 focus:bg-gray-100 focus:text-gray-800'
+                      ? 'bg-liquid-dark-primary text-white border-liquid-dark-primary shadow-md'
+                      : 'bg-white text-gray-700 border-gray-300 hover:border-liquid-dark-primary hover:shadow-md hover:bg-gray-50'
                   )}
                 >
                   {option.label}
