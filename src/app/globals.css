@@ -22,33 +22,51 @@
        ======================================== */
 
     /* Main Dark Shades - Primary interactive elements */
-    --liquid-dark-primary: 228 45% 23%;      /* Deep midnight blue #1a1f3a */
-    --liquid-dark-secondary: 215 25% 27%;    /* Charcoal slate #2d3748 */
-    
+    --liquid-dark-primary: 228 45% 23%;
+    /* Deep midnight blue #1a1f3a */
+    --liquid-dark-secondary: 215 25% 27%;
+    /* Charcoal slate #2d3748 */
+
     /* Light Shade - Airy contrast and backgrounds */
-    --liquid-light: 220 20% 98%;             /* Soft cream/pearl #f8f9fb */
+    --liquid-light: 220 20% 98%;
+    /* Soft cream/pearl #f8f9fb */
 
     /* Legacy Color System (preserved for migration) */
-    --ui-blue-primary: 220 70% 65%;          /* Soft periwinkle blue */
-    --ui-purple-primary: 260 65% 65%;        /* Soft lavender purple */
-    --ui-blue-secondary: 220 60% 80%;        /* Very light blue */
-    --ui-purple-secondary: 260 55% 80%;      /* Very light purple */
-    --ui-blue-accent: 215 75% 55%;           /* Deeper blue for emphasis */
-    --ui-purple-accent: 265 70% 55%;         /* Deeper purple for emphasis */
-    --ui-sand-light: 40 30% 96%;             /* Very light warm sand */
-    --ui-sand: 38 25% 88%;                   /* Medium warm sand */
-    --ui-sand-dark: 36 20% 75%;              /* Darker warm sand */
+    --ui-blue-primary: 220 70% 65%;
+    /* Soft periwinkle blue */
+    --ui-purple-primary: 260 65% 65%;
+    /* Soft lavender purple */
+    --ui-blue-secondary: 220 60% 80%;
+    /* Very light blue */
+    --ui-purple-secondary: 260 55% 80%;
+    /* Very light purple */
+    --ui-blue-accent: 215 75% 55%;
+    /* Deeper blue for emphasis */
+    --ui-purple-accent: 265 70% 55%;
+    /* Deeper purple for emphasis */
+    --ui-sand-light: 40 30% 96%;
+    /* Very light warm sand */
+    --ui-sand: 38 25% 88%;
+    /* Medium warm sand */
+    --ui-sand-dark: 36 20% 75%;
+    /* Darker warm sand */
 
     /* Semantic Colors - Softened for modern aesthetic */
-    --ui-success: 150 50% 60%;               /* Soft green */
-    --ui-warning: 45 85% 70%;                /* Soft yellow */
-    --ui-error: 0 70% 70%;                   /* Soft red */
-    --ui-info: 200 70% 65%;                  /* Soft cyan-blue */
+    --ui-success: 150 50% 60%;
+    /* Soft green */
+    --ui-warning: 45 85% 70%;
+    /* Soft yellow */
+    --ui-error: 0 70% 70%;
+    /* Soft red */
+    --ui-info: 200 70% 65%;
+    /* Soft cyan-blue */
 
     /* Legacy Brand Colors (kept for backwards compatibility) */
-    --primary: 220 70% 65%;                  /* Maps to ui-blue-primary */
+    --primary: 220 70% 65%;
+    /* Maps to ui-blue-primary */
     --primary-foreground: 0 0% 100%;
-    --secondary: 260 65% 65%;                /* Maps to ui-purple-primary */
+    --secondary: 260 65% 65%;
+    /* Maps to ui-purple-primary */
     --secondary-foreground: 0 0% 100%;
 
     /* Muted colors for subtle elements */
@@ -56,7 +74,8 @@
     --muted-foreground: 215.4 16.3% 46.9%;
 
     /* Accent color */
-    --accent: 265 70% 55%;                   /* Maps to ui-purple-accent */
+    --accent: 265 70% 55%;
+    /* Maps to ui-purple-accent */
     --accent-foreground: 0 0% 100%;
 
     /* Semantic colors */
@@ -77,8 +96,9 @@
     --glass-border: rgba(255, 255, 255, 0.5);
     --glass-bg-strong: rgba(255, 255, 255, 0.95);
 
-    /* Navbar specific colors - Subtle dark tint for glassmorphism */
-    --nav-bg: rgba(0, 0, 0, 0.35);
+    /* Navbar specific colors - Solid dark for consistent contrast on all backgrounds */
+    --nav-bg: rgba(26, 31, 58, 0.95);
+    /* Deep midnight blue with high opacity */
     --nav-border: rgba(255, 255, 255, 0.15);
     --nav-text: 0 0% 100%;
   }
@@ -104,7 +124,12 @@
   }
 
   /* Heading hierarchy - using serif for distinction */
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     @apply text-foreground;
     font-family: Georgia, 'Times New Roman', Times, serif;
     font-weight: 700;
@@ -160,23 +185,27 @@
   }
 
   /* Strong emphasis */
-  strong, b {
+  strong,
+  b {
     font-weight: 600;
   }
 
   /* Lists */
-  ul, ol {
+  ul,
+  ol {
     @apply leading-relaxed;
   }
 }
 
 @layer utilities {
+
   /* Core animations - Used in above-the-fold content */
   @keyframes fadeIn {
     from {
       opacity: 0;
       transform: translateY(10px);
     }
+
     to {
       opacity: 1;
       transform: translateY(0);
@@ -188,6 +217,7 @@
       opacity: 0;
       transform: translateY(20px);
     }
+
     to {
       opacity: 1;
       transform: translateY(0);
@@ -199,6 +229,7 @@
       opacity: 0;
       transform: translateY(-20px);
     }
+
     to {
       opacity: 1;
       transform: translateY(0);
@@ -210,6 +241,7 @@
       opacity: 0;
       transform: scale(0.95);
     }
+
     to {
       opacity: 1;
       transform: scale(1);
@@ -217,9 +249,12 @@
   }
 
   @keyframes gradient-shift {
-    0%, 100% {
+
+    0%,
+    100% {
       background-position: 0% 50%;
     }
+
     50% {
       background-position: 100% 50%;
     }
@@ -230,6 +265,7 @@
       opacity: 0;
       transform: translateY(30px);
     }
+
     to {
       opacity: 1;
       transform: translateY(0);
@@ -241,6 +277,7 @@
       opacity: 0;
       transform: translateX(-40px);
     }
+
     to {
       opacity: 1;
       transform: translateX(0);
@@ -252,6 +289,7 @@
       opacity: 0;
       transform: scale(0.8) rotate(-8deg);
     }
+
     to {
       opacity: 1;
       transform: scale(1) rotate(-6deg);
@@ -259,9 +297,12 @@
   }
 
   @keyframes floatSlow {
-    0%, 100% {
+
+    0%,
+    100% {
       transform: translateY(0);
     }
+
     50% {
       transform: translateY(-20px);
     }
@@ -271,6 +312,7 @@
     from {
       transform: translateY(0);
     }
+
     to {
       transform: translateY(150px);
     }
@@ -412,6 +454,7 @@
 
   /* Fallback for browsers without backdrop-filter support */
   @supports not (backdrop-filter: blur(10px)) {
+
     .glass-card,
     .glass-frosted {
       background: var(--glass-bg-strong);
@@ -494,14 +537,14 @@
 
   /* Background patterns - Used for decorative backgrounds */
   .pattern-dots {
-    background-image: radial-gradient(circle, rgba(0,0,0,0.05) 1px, transparent 1px);
+    background-image: radial-gradient(circle, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
     background-size: 20px 20px;
   }
 
   .pattern-grid {
     background-image:
-      linear-gradient(rgba(0,0,0,0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0,0,0,0.03) 1px, transparent 1px);
+      linear-gradient(rgba(0, 0, 0, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 0, 0, 0.03) 1px, transparent 1px);
     background-size: 30px 30px;
   }
 
@@ -547,6 +590,7 @@
 
   /* Reduce motion for users who prefer it */
   @media (prefers-reduced-motion: reduce) {
+
     *,
     *::before,
     *::after {
