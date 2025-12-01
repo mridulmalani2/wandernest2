@@ -57,14 +57,14 @@ export function ServicePreferencesStep({ formData, updateFormData, errors }: Ser
                 onClick={() => toggleService(service.id)}
                 className={cn(
                   'flex items-start gap-4 p-5 rounded-3xl transition-all duration-300 text-left',
-                  'border hover:shadow-md',
+                  'border-2',
                   isSelected
-                    ? 'bg-liquid-dark-primary text-white border-liquid-dark-primary shadow-md active:bg-liquid-dark-primary active:text-white focus:bg-liquid-dark-primary focus:text-white'
-                    : 'bg-gray-100 text-gray-800 border-gray-400 hover:border-liquid-dark-primary hover:bg-gray-50 active:bg-gray-200 active:text-gray-900 focus:bg-gray-100 focus:text-gray-800'
+                    ? 'bg-liquid-dark-primary text-white border-liquid-dark-primary shadow-lg hover:shadow-xl hover:scale-[1.01] active:scale-[0.99]'
+                    : 'bg-white text-gray-900 border-gray-300 hover:border-liquid-dark-primary hover:bg-liquid-light hover:shadow-md active:scale-[0.99] active:bg-gray-100'
                 )}
               >
                 <div className={cn('h-10 w-10 rounded-full flex items-center justify-center shrink-0',
-                  isSelected ? 'bg-white/20' : 'bg-gray-100')}>
+                  isSelected ? 'bg-white/20' : 'bg-liquid-light')}>
                   <Icon className="h-5 w-5" />
                 </div>
                 <div className="flex-1">
@@ -87,14 +87,14 @@ export function ServicePreferencesStep({ formData, updateFormData, errors }: Ser
         onClick={() => updateFormData({ onlineServicesAvailable: !formData.onlineServicesAvailable })}
         className={cn(
           'w-full flex items-start gap-4 p-5 rounded-3xl transition-all duration-300 text-left',
-          'border hover:shadow-md',
+          'border-2',
           formData.onlineServicesAvailable
-            ? 'bg-liquid-dark-primary text-white border-liquid-dark-primary shadow-md active:bg-liquid-dark-primary active:text-white focus:bg-liquid-dark-primary focus:text-white'
-            : 'bg-gray-100 text-gray-800 border-gray-400 hover:border-liquid-dark-primary hover:bg-gray-50 active:bg-gray-200 active:text-gray-900 focus:bg-gray-100 focus:text-gray-800'
+            ? 'bg-liquid-dark-primary text-white border-liquid-dark-primary shadow-lg hover:shadow-xl hover:scale-[1.01] active:scale-[0.99]'
+            : 'bg-white text-gray-900 border-gray-300 hover:border-liquid-dark-primary hover:bg-liquid-light hover:shadow-md active:scale-[0.99] active:bg-gray-100'
         )}
       >
         <div className={cn('h-10 w-10 rounded-full flex items-center justify-center shrink-0',
-          formData.onlineServicesAvailable ? 'bg-white/20' : 'bg-gray-100')}>
+          formData.onlineServicesAvailable ? 'bg-white/20' : 'bg-liquid-light')}>
           <Globe className="h-5 w-5" />
         </div>
         <div className="flex-1">

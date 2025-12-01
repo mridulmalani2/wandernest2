@@ -124,7 +124,7 @@ export function PreferencesStep({ data, errors, updateData }: Props) {
                     return (
                       <span
                         key={langValue}
-                        className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-liquid-dark-primary/5 text-liquid-dark-primary text-sm"
+                        className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-liquid-dark-primary text-white text-sm font-medium shadow-sm"
                       >
                         {langLabel}
                         <button
@@ -132,7 +132,7 @@ export function PreferencesStep({ data, errors, updateData }: Props) {
                             e.stopPropagation()
                             toggleLanguage(langValue)
                           }}
-                          className="hover:bg-liquid-dark-primary/10 rounded-full p-0.5"
+                          className="hover:bg-white/20 rounded-full p-0.5 transition-colors"
                         >
                           <X className="h-3 w-3" />
                         </button>
@@ -173,8 +173,10 @@ export function PreferencesStep({ data, errors, updateData }: Props) {
                           key={language.value}
                           onClick={() => toggleLanguage(language.value)}
                           className={cn(
-                            'flex items-center justify-between px-3 py-2 rounded-xl cursor-pointer text-sm transition-colors',
-                            isSelected ? 'bg-liquid-dark-primary/5 font-normal' : 'hover:bg-liquid-light'
+                            'flex items-center justify-between px-3 py-2 rounded-xl cursor-pointer text-sm transition-all',
+                            isSelected
+                              ? 'bg-liquid-dark-primary/10 font-medium text-liquid-dark-primary'
+                              : 'hover:bg-liquid-light text-gray-700'
                           )}
                         >
                           <span>{language.label}</span>
@@ -209,8 +211,8 @@ export function PreferencesStep({ data, errors, updateData }: Props) {
                     'flex-1 py-2.5 px-4 rounded-full text-sm font-medium transition-all duration-300',
                     'border-2',
                     data.preferredGender === option.value || (!data.preferredGender && option.value === 'no_preference')
-                      ? 'bg-liquid-dark-primary text-white border-liquid-dark-primary shadow-md'
-                      : 'bg-white text-gray-700 border-gray-300 hover:border-liquid-dark-primary hover:shadow-md hover:bg-gray-50'
+                      ? 'bg-liquid-dark-primary text-white border-liquid-dark-primary shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]'
+                      : 'bg-white text-gray-900 border-gray-300 hover:border-liquid-dark-primary hover:shadow-md hover:bg-liquid-light active:scale-[0.98] active:bg-gray-100'
                   )}
                 >
                   {option.label}
@@ -240,14 +242,14 @@ export function PreferencesStep({ data, errors, updateData }: Props) {
                 onClick={() => updateData({ serviceType: type.value as any })}
                 className={cn(
                   'w-full flex items-center gap-4 p-4 rounded-full transition-all duration-300 text-left',
-                  'border-2 hover:shadow-md',
+                  'border-2',
                   isSelected
-                    ? 'bg-liquid-dark-primary text-white border-liquid-dark-primary shadow-md active:bg-liquid-dark-primary active:text-white focus:bg-liquid-dark-primary focus:text-white'
-                    : 'bg-gray-100 text-gray-800 border-gray-400 hover:border-liquid-dark-primary hover:bg-gray-50 active:bg-gray-200 active:text-gray-900 focus:bg-gray-100 focus:text-gray-800'
+                    ? 'bg-liquid-dark-primary text-white border-liquid-dark-primary shadow-lg hover:shadow-xl hover:scale-[1.01] active:scale-[0.99]'
+                    : 'bg-white text-gray-900 border-gray-300 hover:border-liquid-dark-primary hover:bg-liquid-light hover:shadow-md active:scale-[0.99] active:bg-gray-100'
                 )}
               >
                 <div className={cn('h-10 w-10 rounded-full flex items-center justify-center shrink-0',
-                  isSelected ? 'bg-white/20' : 'bg-gray-100')}>
+                  isSelected ? 'bg-white/20' : 'bg-liquid-light')}>
                   <Icon className="h-5 w-5" />
                 </div>
                 <div className="flex-1">
@@ -345,10 +347,10 @@ export function PreferencesStep({ data, errors, updateData }: Props) {
                 onClick={() => toggleInterest(interest.value)}
                 className={cn(
                   'flex items-center justify-center gap-2 px-6 py-3 rounded-full transition-all duration-300',
-                  'border-2 hover:shadow-md',
+                  'border-2',
                   isSelected
-                    ? 'bg-liquid-dark-primary text-white border-liquid-dark-primary shadow-md active:bg-liquid-dark-primary active:text-white focus:bg-liquid-dark-primary focus:text-white'
-                    : 'bg-gray-100 text-gray-800 border-gray-400 hover:border-liquid-dark-primary hover:bg-gray-50 active:bg-gray-200 active:text-gray-900 focus:bg-gray-100 focus:text-gray-800'
+                    ? 'bg-liquid-dark-primary text-white border-liquid-dark-primary shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]'
+                    : 'bg-white text-gray-900 border-gray-300 hover:border-liquid-dark-primary hover:bg-liquid-light hover:shadow-md active:scale-[0.98] active:bg-gray-100'
                 )}
               >
                 <span className="text-sm font-medium">{interest.label}</span>
