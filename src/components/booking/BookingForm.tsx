@@ -231,7 +231,7 @@ export function BookingForm() {
         />
       </div>
 
-      <div className="relative glass-card rounded-3xl border-2 border-white/40 shadow-premium p-5 md:p-8 hover-lift">
+      <div className="relative glass-card-dark rounded-3xl border-2 border-white/10 shadow-premium p-5 md:p-8 hover-lift">
         <div className="relative z-10">
           <div className="animate-fade-in">
             {currentStep === 1 && (

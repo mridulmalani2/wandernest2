@@ -512,7 +512,7 @@ export function OnboardingWizard({ session }: OnboardingWizardProps) {
 
           {/* Form Steps */}
           <div className="relative max-w-4xl mx-auto animate-fade-in-up delay-200">
-            <div className="relative glass-card rounded-3xl border-2 border-white/40 shadow-premium p-8 hover-lift">
+            <div className="relative glass-card-dark rounded-3xl border-2 border-white/10 shadow-premium p-8 hover-lift">
               <div className="relative z-10">
                 {/* Step Content */}
                 {currentStep === 1 && (

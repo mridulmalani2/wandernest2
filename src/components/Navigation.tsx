@@ -72,9 +72,8 @@ export default function Navigation({ variant = 'default', showBackButton = false
   }, [session, variant])
 
   return (
-    <header className={`border-b border-[var(--nav-border)] bg-[var(--nav-bg)] backdrop-blur-xl sticky top-0 z-50 transition-all duration-300 ${
-      isScrolled ? 'shadow-lg shadow-black/10' : ''
-    }`}>
+    <header className={`border-b border-[var(--nav-border)] bg-[var(--nav-bg)] backdrop-blur-xl fixed top-0 w-full z-50 transition-all duration-300 ${isScrolled ? 'shadow-lg shadow-black/10' : ''
+      }`}>
       <div className="container mx-auto px-4 py-3 md:py-3.5">
         <div className="flex justify-between items-center">
           {/* Logo */}
@@ -257,107 +256,107 @@ export default function Navigation({ variant = 'default', showBackButton = false
             )}
 
             {!session && variant === 'default' && (
-                <>
-                  <Link href="/student" onClick={() => setMobileMenuOpen(false)}>
-                    <Button variant="ghost" className="w-full rounded-full text-white/90 border border-white/20 hover:bg-white/10 hover:text-white transition-all font-sans text-sm font-medium">
-                      I&apos;m a Student
-                    </Button>
-                  </Link>
-                  <Link href="/booking" onClick={() => setMobileMenuOpen(false)}>
-                    <Button className="w-full rounded-full bg-white/15 hover:bg-white/25 border border-white/30 text-white font-sans text-sm font-semibold transition-all backdrop-blur-sm">
-                      Book a Guide
-                    </Button>
-                  </Link>
-                </>
-              )}
-
-              {!session && variant === 'tourist' && (
-                <>
-                  <Link href="/" onClick={() => setMobileMenuOpen(false)}>
-                    <Button variant="ghost" className="w-full justify-start rounded-full text-white/90 hover:bg-white/10 hover:text-white transition-all font-sans text-sm font-medium">
-                      <ChevronLeft className="w-4 h-4 mr-2" /> Back to Home
-                    </Button>
-                  </Link>
-                  <Link href="/booking" onClick={() => setMobileMenuOpen(false)}>
-                    <Button className="w-full rounded-full bg-white/15 hover:bg-white/25 border border-white/30 text-white font-sans text-sm font-semibold transition-all backdrop-blur-sm">
-                      Book a Guide
-                    </Button>
-                  </Link>
-                </>
-              )}
-
-              {!session && !studentSession && variant === 'student' && (
-                <>
-                  <Link href="/" onClick={() => setMobileMenuOpen(false)}>
-                    <Button variant="ghost" className="w-full justify-start rounded-full text-white/90 hover:bg-white/10 hover:text-white transition-all font-sans text-sm font-medium">
-                      <ChevronLeft className="w-4 h-4 mr-2" /> Back to Home
-                    </Button>
-                  </Link>
-                  <Link href="/student/signin" onClick={() => setMobileMenuOpen(false)}>
-                    <Button variant="ghost" className="w-full rounded-full text-white/90 border border-white/20 hover:bg-white/10 hover:text-white transition-all font-sans text-sm font-medium">
-                      Sign In
-                    </Button>
-                  </Link>
-                </>
-              )}
-
-              {(session || studentSession) && (
-                <>
-                  <div className="flex items-center space-x-2 px-3 py-2 bg-white/5 border border-white/20 rounded-full backdrop-blur-sm">
-                    <div className="w-8 h-8 rounded-full bg-white/15 border border-white/30 flex items-center justify-center text-white font-semibold text-sm backdrop-blur-sm">
-                      {session?.user?.name?.charAt(0).toUpperCase() || studentSession?.name?.charAt(0).toUpperCase() || <User className="w-4 h-4" />}
-                    </div>
-                    <span className="text-sm font-medium text-white">
-                      {session?.user?.name || studentSession?.name || studentSession?.email}
-                    </span>
-                  </div>
-                  {session?.user?.userType === 'tourist' && (
-                    <>
-                      <Link href="/" onClick={() => setMobileMenuOpen(false)}>
-                        <Button variant="ghost" className="w-full justify-start rounded-full text-white/90 hover:bg-white/10 hover:text-white transition-all font-sans text-sm font-medium">
-                          <Home className="w-4 h-4 mr-2" />
-                          Home
-                        </Button>
-                      </Link>
-                      <Link href="/tourist/dashboard" onClick={() => setMobileMenuOpen(false)}>
-                        <Button variant="ghost" className="w-full justify-start rounded-full text-white/90 hover:bg-white/10 hover:text-white transition-all font-sans text-sm font-medium">
-                          <LayoutDashboard className="w-4 h-4 mr-2" />
-                          Dashboard
-                        </Button>
-                      </Link>
-                    </>
-                  )}
-                  {(session?.user?.userType === 'student' || studentSession) && (
-                    <>
-                      <Link href="/student/dashboard" onClick={() => setMobileMenuOpen(false)}>
-                        <Button variant="ghost" className="w-full justify-start rounded-full text-white/90 hover:bg-white/10 hover:text-white transition-all font-sans text-sm font-medium">
-                          <LayoutDashboard className="w-4 h-4 mr-2" />
-                          Dashboard
-                        </Button>
-                      </Link>
-                      <Link href="/student/profile" onClick={() => setMobileMenuOpen(false)}>
-                        <Button variant="ghost" className="w-full justify-start rounded-full text-white/90 hover:bg-white/10 hover:text-white transition-all font-sans text-sm font-medium">
-                          <UserCircle className="w-4 h-4 mr-2" />
-                          Profile
-                        </Button>
-                      </Link>
-                    </>
-                  )}
-                  <Button
-                    variant="ghost"
-                    onClick={() => {
-                      setMobileMenuOpen(false)
-                      handleSignOut()
-                    }}
-                    className="w-full justify-start rounded-full hover:bg-red-500/20 hover:text-red-300 text-white/90 transition-all font-sans text-sm font-medium"
-                  >
-                    <LogOut className="w-4 h-4 mr-2" />
-                    Sign Out
+              <>
+                <Link href="/student" onClick={() => setMobileMenuOpen(false)}>
+                  <Button variant="ghost" className="w-full rounded-full text-white/90 border border-white/20 hover:bg-white/10 hover:text-white transition-all font-sans text-sm font-medium">
+                    I&apos;m a Student
                   </Button>
-                </>
-              )}
-            </nav>
-          )}
+                </Link>
+                <Link href="/booking" onClick={() => setMobileMenuOpen(false)}>
+                  <Button className="w-full rounded-full bg-white/15 hover:bg-white/25 border border-white/30 text-white font-sans text-sm font-semibold transition-all backdrop-blur-sm">
+                    Book a Guide
+                  </Button>
+                </Link>
+              </>
+            )}
+
+            {!session && variant === 'tourist' && (
+              <>
+                <Link href="/" onClick={() => setMobileMenuOpen(false)}>
+                  <Button variant="ghost" className="w-full justify-start rounded-full text-white/90 hover:bg-white/10 hover:text-white transition-all font-sans text-sm font-medium">
+                    <ChevronLeft className="w-4 h-4 mr-2" /> Back to Home
+                  </Button>
+                </Link>
+                <Link href="/booking" onClick={() => setMobileMenuOpen(false)}>
+                  <Button className="w-full rounded-full bg-white/15 hover:bg-white/25 border border-white/30 text-white font-sans text-sm font-semibold transition-all backdrop-blur-sm">
+                    Book a Guide
+                  </Button>
+                </Link>
+              </>
+            )}
+
+            {!session && !studentSession && variant === 'student' && (
+              <>
+                <Link href="/" onClick={() => setMobileMenuOpen(false)}>
+                  <Button variant="ghost" className="w-full justify-start rounded-full text-white/90 hover:bg-white/10 hover:text-white transition-all font-sans text-sm font-medium">
+                    <ChevronLeft className="w-4 h-4 mr-2" /> Back to Home
+                  </Button>
+                </Link>
+                <Link href="/student/signin" onClick={() => setMobileMenuOpen(false)}>
+                  <Button variant="ghost" className="w-full rounded-full text-white/90 border border-white/20 hover:bg-white/10 hover:text-white transition-all font-sans text-sm font-medium">
+                    Sign In
+                  </Button>
+                </Link>
+              </>
+            )}
+
+            {(session || studentSession) && (
+              <>
+                <div className="flex items-center space-x-2 px-3 py-2 bg-white/5 border border-white/20 rounded-full backdrop-blur-sm">
+                  <div className="w-8 h-8 rounded-full bg-white/15 border border-white/30 flex items-center justify-center text-white font-semibold text-sm backdrop-blur-sm">
+                    {session?.user?.name?.charAt(0).toUpperCase() || studentSession?.name?.charAt(0).toUpperCase() || <User className="w-4 h-4" />}
+                  </div>
+                  <span className="text-sm font-medium text-white">
+                    {session?.user?.name || studentSession?.name || studentSession?.email}
+                  </span>
+                </div>
+                {session?.user?.userType === 'tourist' && (
+                  <>
+                    <Link href="/" onClick={() => setMobileMenuOpen(false)}>
+                      <Button variant="ghost" className="w-full justify-start rounded-full text-white/90 hover:bg-white/10 hover:text-white transition-all font-sans text-sm font-medium">
+                        <Home className="w-4 h-4 mr-2" />
+                        Home
+                      </Button>
+                    </Link>
+                    <Link href="/tourist/dashboard" onClick={() => setMobileMenuOpen(false)}>
+                      <Button variant="ghost" className="w-full justify-start rounded-full text-white/90 hover:bg-white/10 hover:text-white transition-all font-sans text-sm font-medium">
+                        <LayoutDashboard className="w-4 h-4 mr-2" />
+                        Dashboard
+                      </Button>
+                    </Link>
+                  </>
+                )}
+                {(session?.user?.userType === 'student' || studentSession) && (
+                  <>
+                    <Link href="/student/dashboard" onClick={() => setMobileMenuOpen(false)}>
+                      <Button variant="ghost" className="w-full justify-start rounded-full text-white/90 hover:bg-white/10 hover:text-white transition-all font-sans text-sm font-medium">
+                        <LayoutDashboard className="w-4 h-4 mr-2" />
+                        Dashboard
+                      </Button>
+                    </Link>
+                    <Link href="/student/profile" onClick={() => setMobileMenuOpen(false)}>
+                      <Button variant="ghost" className="w-full justify-start rounded-full text-white/90 hover:bg-white/10 hover:text-white transition-all font-sans text-sm font-medium">
+                        <UserCircle className="w-4 h-4 mr-2" />
+                        Profile
+                      </Button>
+                    </Link>
+                  </>
+                )}
+                <Button
+                  variant="ghost"
+                  onClick={() => {
+                    setMobileMenuOpen(false)
+                    handleSignOut()
+                  }}
+                  className="w-full justify-start rounded-full hover:bg-red-500/20 hover:text-red-300 text-white/90 transition-all font-sans text-sm font-medium"
+                >
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Sign Out
+                </Button>
+              </>
+            )}
+          </nav>
+        )}
       </div>
     </header>
   )

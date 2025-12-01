@@ -92,9 +92,9 @@ export default function StudentOnboarding() {
         <div className="absolute inset-0 pattern-dots opacity-10" />
 
         <div className="relative z-10 flex items-center justify-center min-h-screen">
-          <div className="text-center glass-card rounded-3xl p-8 shadow-premium animate-fade-in">
+          <div className="text-center glass-card-dark rounded-3xl p-8 shadow-premium animate-fade-in">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[hsl(var(--ui-blue-accent))] mx-auto"></div>
-            <p className="mt-4 text-gray-700 font-medium">Loading...</p>
+            <p className="mt-4 text-white font-medium">Loading...</p>
           </div>
         </div>
       </div>

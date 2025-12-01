@@ -44,7 +44,9 @@
   }
 
   /* Critical heading styles - used in hero section */
-  h1, h2, h3 {
+  h1,
+  h2,
+  h3 {
     @apply tracking-tight;
     font-family: var(--font-playfair), Georgia, serif;
     font-weight: 700;
@@ -59,12 +61,14 @@
 
 /* Critical Utilities - Only styles used above-the-fold */
 @layer utilities {
+
   /* Single critical animation for hero content */
   @keyframes slide-up-fade {
     from {
       opacity: 0;
       transform: translateY(30px);
     }
+
     to {
       opacity: 1;
       transform: translateY(0);
@@ -82,6 +86,7 @@
 
   /* Reduced motion support - accessibility critical */
   @media (prefers-reduced-motion: reduce) {
+
     *,
     *::before,
     *::after {
@@ -91,13 +96,16 @@
     }
   }
 }
+
 @layer utilities {
+
   /* Smooth animations */
   @keyframes fadeIn {
     from {
       opacity: 0;
       transform: translateY(10px);
     }
+
     to {
       opacity: 1;
       transform: translateY(0);
@@ -109,6 +117,7 @@
       opacity: 0;
       transform: translateY(20px);
     }
+
     to {
       opacity: 1;
       transform: translateY(0);
@@ -120,6 +129,7 @@
       opacity: 0;
       transform: translateY(-20px);
     }
+
     to {
       opacity: 1;
       transform: translateY(0);
@@ -131,6 +141,7 @@
       opacity: 0;
       transform: scale(0.95);
     }
+
     to {
       opacity: 1;
       transform: scale(1);
@@ -142,6 +153,7 @@
       opacity: 0;
       transform: translateX(-20px);
     }
+
     to {
       opacity: 1;
       transform: translateX(0);
@@ -153,6 +165,7 @@
       opacity: 0;
       transform: translateX(20px);
     }
+
     to {
       opacity: 1;
       transform: translateX(0);
@@ -160,9 +173,12 @@
   }
 
   @keyframes float {
-    0%, 100% {
+
+    0%,
+    100% {
       transform: translateY(0);
     }
+
     50% {
       transform: translateY(-10px);
     }
@@ -172,42 +188,55 @@
     0% {
       background-position: -1000px 0;
     }
+
     100% {
       background-position: 1000px 0;
     }
   }
 
   @keyframes glow {
-    0%, 100% {
+
+    0%,
+    100% {
       box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
     }
+
     50% {
       box-shadow: 0 0 30px rgba(99, 102, 241, 0.6);
     }
   }
 
   @keyframes pulse-slow {
-    0%, 100% {
+
+    0%,
+    100% {
       opacity: 1;
     }
+
     50% {
       opacity: 0.7;
     }
   }
 
   @keyframes gradient-shift {
-    0%, 100% {
+
+    0%,
+    100% {
       background-position: 0% 50%;
     }
+
     50% {
       background-position: 100% 50%;
     }
   }
 
   @keyframes bounce-soft {
-    0%, 100% {
+
+    0%,
+    100% {
       transform: translateY(0);
     }
+
     50% {
       transform: translateY(-5px);
     }
@@ -217,6 +246,7 @@
     from {
       transform: rotate(0deg);
     }
+
     to {
       transform: rotate(360deg);
     }
@@ -227,6 +257,7 @@
       opacity: 0;
       transform: translateY(30px);
     }
+
     to {
       opacity: 1;
       transform: translateY(0);
@@ -337,6 +368,15 @@
     box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
   }
 
+  .glass-card-dark {
+    background: rgba(15, 10, 30, 0.75);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+    color: white;
+  }
+
   .glass-frosted {
     background: rgba(255, 255, 255, 0.4);
     backdrop-filter: blur(16px) saturate(180%);
@@ -346,6 +386,7 @@
 
   /* Fallback for browsers without backdrop-filter support */
   @supports not (backdrop-filter: blur(10px)) {
+
     .glass,
     .glass-card,
     .glass-frosted {
@@ -380,9 +421,9 @@
 
   .gradient-mesh {
     background: radial-gradient(at 0% 0%, hsl(220 100% 95%) 0px, transparent 50%),
-                radial-gradient(at 100% 0%, hsl(260 100% 95%) 0px, transparent 50%),
-                radial-gradient(at 100% 100%, hsl(220 100% 95%) 0px, transparent 50%),
-                radial-gradient(at 0% 100%, hsl(260 100% 95%) 0px, transparent 50%);
+      radial-gradient(at 100% 0%, hsl(260 100% 95%) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, hsl(220 100% 95%) 0px, transparent 50%),
+      radial-gradient(at 0% 100%, hsl(260 100% 95%) 0px, transparent 50%);
   }
 
   .gradient-mesh-vibrant {
@@ -540,7 +581,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.4) 100%);
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.4) 100%);
     z-index: 1;
     transition: opacity 0.3s ease;
   }
@@ -574,15 +615,15 @@
 
   /* Gradient overlays */
   .gradient-overlay-bottom {
-    background: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.8) 100%);
+    background: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.8) 100%);
   }
 
   .gradient-overlay-top {
-    background: linear-gradient(to top, transparent 0%, rgba(0,0,0,0.8) 100%);
+    background: linear-gradient(to top, transparent 0%, rgba(0, 0, 0, 0.8) 100%);
   }
 
   .gradient-overlay-radial {
-    background: radial-gradient(circle, transparent 0%, rgba(0,0,0,0.6) 100%);
+    background: radial-gradient(circle, transparent 0%, rgba(0, 0, 0, 0.6) 100%);
   }
 
   /* Enhanced card styles */
@@ -597,14 +638,14 @@
 
   /* Subtle patterns */
   .pattern-dots {
-    background-image: radial-gradient(circle, rgba(0,0,0,0.05) 1px, transparent 1px);
+    background-image: radial-gradient(circle, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
     background-size: 20px 20px;
   }
 
   .pattern-grid {
     background-image:
-      linear-gradient(rgba(0,0,0,0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0,0,0,0.03) 1px, transparent 1px);
+      linear-gradient(rgba(0, 0, 0, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 0, 0, 0.03) 1px, transparent 1px);
     background-size: 30px 30px;
   }
 
@@ -669,12 +710,10 @@
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(
-      135deg,
-      hsl(var(--primary) / 0.1) 0%,
-      hsl(var(--secondary) / 0.1) 50%,
-      hsl(var(--accent) / 0.1) 100%
-    );
+    background: linear-gradient(135deg,
+        hsl(var(--primary) / 0.1) 0%,
+        hsl(var(--secondary) / 0.1) 50%,
+        hsl(var(--accent) / 0.1) 100%);
     pointer-events: none;
   }
 
@@ -732,6 +771,7 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
+
     *,
     *::before,
     *::after {
@@ -743,6 +783,7 @@
   }
 
   @media (prefers-contrast: high) {
+
     .glass,
     .glass-card {
       background: rgba(255, 255, 255, 0.95);
