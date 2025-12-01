@@ -59,8 +59,8 @@ export function ServicePreferencesStep({ formData, updateFormData, errors }: Ser
                   'flex items-start gap-4 p-5 rounded-3xl transition-all duration-300 text-left',
                   'border hover:shadow-md',
                   isSelected
-                    ? 'bg-liquid-dark-primary text-white border-liquid-dark-primary shadow-md'
-                    : 'bg-gray-100 text-gray-800 border-gray-400 hover:border-liquid-dark-primary hover:bg-gray-50'
+                    ? 'bg-liquid-dark-primary text-white border-liquid-dark-primary shadow-md active:bg-liquid-dark-primary active:text-white focus:bg-liquid-dark-primary focus:text-white'
+                    : 'bg-gray-100 text-gray-800 border-gray-400 hover:border-liquid-dark-primary hover:bg-gray-50 active:bg-gray-200 active:text-gray-900 focus:bg-gray-100 focus:text-gray-800'
                 )}
               >
                 <div className={cn('h-10 w-10 rounded-full flex items-center justify-center shrink-0',
@@ -89,8 +89,8 @@ export function ServicePreferencesStep({ formData, updateFormData, errors }: Ser
           'w-full flex items-start gap-4 p-5 rounded-3xl transition-all duration-300 text-left',
           'border hover:shadow-md',
           formData.onlineServicesAvailable
-            ? 'bg-liquid-dark-primary text-white border-liquid-dark-primary shadow-md'
-            : 'bg-gray-100 text-gray-800 border-gray-400 hover:border-liquid-dark-primary hover:bg-gray-50'
+            ? 'bg-liquid-dark-primary text-white border-liquid-dark-primary shadow-md active:bg-liquid-dark-primary active:text-white focus:bg-liquid-dark-primary focus:text-white'
+            : 'bg-gray-100 text-gray-800 border-gray-400 hover:border-liquid-dark-primary hover:bg-gray-50 active:bg-gray-200 active:text-gray-900 focus:bg-gray-100 focus:text-gray-800'
         )}
       >
         <div className={cn('h-10 w-10 rounded-full flex items-center justify-center shrink-0',
