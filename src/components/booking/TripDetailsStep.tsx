@@ -104,12 +104,12 @@ export function TripDetailsStep({ data, errors, updateData }: Props) {
         </div>
       </FlowCard>
 
-      {/* Group Type - Pill Selection */}
+      {/* Group Type - Compact Pills */}
       <div className="space-y-4">
         <h3 className="text-sm font-light tracking-wide text-liquid-dark-secondary">
           Who are you traveling with? {errors.groupType && <span className="text-ui-error ml-1">*</span>}
         </h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="flex flex-wrap gap-3">
           {GROUP_TYPES.map((type) => {
             const Icon = type.icon
             const isSelected = data.groupType === type.value
@@ -119,20 +119,19 @@ export function TripDetailsStep({ data, errors, updateData }: Props) {
                 type="button"
                 onClick={() => updateData({ groupType: type.value as any })}
                 className={cn(
-                  'relative px-4 py-6 rounded-full transition-all duration-300',
-                  'flex flex-col items-center gap-2',
-                  'border hover:shadow-md',
+                  'relative px-5 py-2.5 rounded-full transition-all duration-300',
+                  'flex items-center gap-2',
+                  'border-2 hover:shadow-md text-sm font-medium',
                   isSelected
-                    ? 'bg-liquid-dark-primary text-white border-liquid-dark-primary shadow-md scale-105'
-                    : 'bg-white/60 text-gray-600 border-gray-200 hover:border-liquid-dark-primary/30'
+                    ? 'bg-liquid-dark-primary text-white border-liquid-dark-primary shadow-md'
+                    : 'bg-white text-gray-700 border-gray-300 hover:border-liquid-dark-primary/50'
                 )}
               >
+                <Icon className="h-4 w-4" />
+                <span>{type.label}</span>
                 {isSelected && (
-                  <CheckCircle2 className="absolute top-2 right-2 h-4 w-4 animate-scale-in" />
+                  <CheckCircle2 className="h-4 w-4 ml-1" />
                 )}
-                <Icon className="h-5 w-5" />
-                <span className="text-xs font-medium">{type.label}</span>
-                <span className="text-[10px] opacity-70">{type.desc}</span>
               </button>
             )
           })}
@@ -142,12 +141,12 @@ export function TripDetailsStep({ data, errors, updateData }: Props) {
         )}
       </div>
 
-      {/* Time Preference - Pill Selection */}
+      {/* Time Preference - Compact Pills */}
       <div className="space-y-4">
         <h3 className="text-sm font-light tracking-wide text-liquid-dark-secondary">
           Preferred Time of Day {errors.preferredTime && <span className="text-ui-error ml-1">*</span>}
         </h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div className="flex flex-wrap gap-3">
           {TIME_OPTIONS.map((option) => {
             const Icon = option.icon
             const isSelected = data.preferredTime === option.value
@@ -157,21 +156,21 @@ export function TripDetailsStep({ data, errors, updateData }: Props) {
                 type="button"
                 onClick={() => updateData({ preferredTime: option.value as any })}
                 className={cn(
-                  'relative px-6 py-5 rounded-full transition-all duration-300',
-                  'flex items-center gap-3',
-                  'border hover:shadow-md',
+                  'relative px-5 py-2.5 rounded-full transition-all duration-300',
+                  'flex items-center gap-2',
+                  'border-2 hover:shadow-md text-sm font-medium',
                   isSelected
                     ? 'bg-liquid-dark-primary text-white border-liquid-dark-primary shadow-md'
-                    : 'bg-white/60 text-gray-600 border-gray-200 hover:border-liquid-dark-primary/30'
+                    : 'bg-white text-gray-700 border-gray-300 hover:border-liquid-dark-primary/50'
                 )}
               >
-                <Icon className="h-5 w-5 shrink-0" />
-                <div className="text-left">
-                  <div className="text-sm font-medium">{option.label}</div>
-                  <div className="text-xs opacity-70">{option.time}</div>
+                <Icon className="h-4 w-4" />
+                <div className="flex items-center gap-2">
+                  <span>{option.label}</span>
+                  <span className="text-xs opacity-70">({option.time})</span>
                 </div>
                 {isSelected && (
-                  <CheckCircle2 className="ml-auto h-5 w-5 shrink-0 animate-scale-in" />
+                  <CheckCircle2 className="h-4 w-4 ml-1" />
                 )}
               </button>
             )

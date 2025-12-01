@@ -94,7 +94,6 @@ export function BasicProfileStep({ formData, updateFormData, errors, cities }: B
             />
           </div>
 
-          {/* Gender - Pills */}
           <div className="space-y-3">
             <label className="text-sm font-light tracking-wide text-liquid-dark-secondary block">
               Gender {errors.gender && <span className="text-ui-error ml-1">*</span>}
@@ -107,10 +106,10 @@ export function BasicProfileStep({ formData, updateFormData, errors, cities }: B
                   onClick={() => updateFormData({ gender: option as any })}
                   className={cn(
                     'py-3 px-4 rounded-full text-sm font-medium transition-all duration-300',
-                    'border hover:shadow-md',
+                    'border-2 hover:shadow-md',
                     formData.gender === option
                       ? 'bg-liquid-dark-primary text-white border-liquid-dark-primary shadow-md'
-                      : 'bg-white/60 text-gray-600 border-gray-200 hover:border-liquid-dark-primary/30'
+                      : 'bg-white text-gray-700 border-gray-300 hover:border-liquid-dark-primary/50'
                   )}
                 >
                   {option === 'prefer_not_to_say' ? 'Prefer not to say' : option.charAt(0).toUpperCase() + option.slice(1)}

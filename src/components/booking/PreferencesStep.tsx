@@ -191,7 +191,6 @@ export function PreferencesStep({ data, errors, updateData }: Props) {
             )}
           </div>
 
-          {/* Gender Preference - Pills */}
           <div className="space-y-3">
             <label className="text-sm font-light tracking-wide text-liquid-dark-secondary block">
               Gender Preference (Optional)
@@ -208,9 +207,10 @@ export function PreferencesStep({ data, errors, updateData }: Props) {
                   onClick={() => updateData({ preferredGender: option.value as any })}
                   className={cn(
                     'flex-1 py-2.5 px-4 rounded-full text-sm font-medium transition-all duration-300',
+                    'border-2 hover:shadow-md',
                     data.preferredGender === option.value || (!data.preferredGender && option.value === 'no_preference')
-                      ? 'bg-liquid-dark-primary text-white shadow-md'
-                      : 'bg-white/60 text-gray-600 border border-gray-200 hover:border-liquid-dark-primary/30'
+                      ? 'bg-liquid-dark-primary text-white border-liquid-dark-primary shadow-md'
+                      : 'bg-white text-gray-700 border-gray-300 hover:border-liquid-dark-primary/50'
                   )}
                 >
                   {option.label}
@@ -240,10 +240,10 @@ export function PreferencesStep({ data, errors, updateData }: Props) {
                 onClick={() => updateData({ serviceType: type.value as any })}
                 className={cn(
                   'w-full flex items-center gap-4 p-4 rounded-full transition-all duration-300 text-left',
-                  'border hover:shadow-md',
+                  'border-2 hover:shadow-md',
                   isSelected
                     ? 'bg-liquid-dark-primary text-white border-liquid-dark-primary shadow-md'
-                    : 'bg-white/60 text-gray-600 border-gray-200 hover:border-liquid-dark-primary/30'
+                    : 'bg-white text-gray-700 border-gray-300 hover:border-liquid-dark-primary/50'
                 )}
               >
                 <div className={cn('h-10 w-10 rounded-full flex items-center justify-center shrink-0',
@@ -345,10 +345,10 @@ export function PreferencesStep({ data, errors, updateData }: Props) {
                 onClick={() => toggleInterest(interest.value)}
                 className={cn(
                   'flex items-center justify-center gap-2 px-6 py-3 rounded-full transition-all duration-300',
-                  'border hover:shadow-md',
+                  'border-2 hover:shadow-md',
                   isSelected
                     ? 'bg-liquid-dark-primary text-white border-liquid-dark-primary shadow-md'
-                    : 'bg-white/60 text-gray-600 border-gray-200 hover:border-liquid-dark-primary/30'
+                    : 'bg-white text-gray-700 border-gray-300 hover:border-liquid-dark-primary/50'
                 )}
               >
                 <span className="text-sm font-medium">{interest.label}</span>

@@ -42,7 +42,7 @@ const LiquidInput = React.forwardRef<HTMLInputElement, LiquidInputProps>(
                         className={cn(
                             // Base styles - minimal, transparent
                             'w-full bg-transparent px-0 py-3 text-base font-light tracking-wide',
-                            'text-liquid-dark-primary placeholder:text-gray-400',
+                            'text-liquid-dark-primary',
 
                             // Border - single bottom line
                             'border-0 border-b border-gray-300',
@@ -61,6 +61,10 @@ const LiquidInput = React.forwardRef<HTMLInputElement, LiquidInputProps>(
 
                             // Icon padding
                             Icon && 'pl-6',
+
+                            // Hide placeholder when label is floating
+                            (isFocused || hasValue || props.value) && 'placeholder:text-transparent',
+                            !isFocused && !hasValue && !props.value && 'placeholder:text-gray-400',
 
                             className
                         )}

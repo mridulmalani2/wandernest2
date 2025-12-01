@@ -69,8 +69,16 @@ export default function TouristDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-liquid-light to-white">
-      <div className="max-w-7xl mx-auto px-4 py-12">
+    <div className="min-h-screen bg-gradient-to-b from-liquid-light to-white relative">
+      {/* Subtle Background Pattern */}
+      <div
+        className="absolute inset-0 opacity-[0.03] pointer-events-none"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%231a1f3a' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+        }}
+      />
+
+      <div className="max-w-7xl mx-auto px-4 py-12 relative z-10">
         {/* Header */}
         <div className="mb-12">
           <h1 className="text-5xl font-light tracking-tight text-liquid-dark-primary mb-3">
@@ -170,7 +178,7 @@ export default function TouristDashboard() {
                     <div className="flex-1 space-y-3">
                       <div className="flex items-start justify-between">
                         <div>
-                          <h3 className="text-lg font-medium text-liquid-dark-primary mb-1">
+                          <h3 className="text-lg font-medium text-liquid-dark-primary mb-1 capitalize">
                             {booking.city}
                           </h3>
                           {booking.guideName && (
@@ -179,7 +187,7 @@ export default function TouristDashboard() {
                             </p>
                           )}
                         </div>
-                        <span className={`text-xs px-3 py-1 rounded-full border font-medium ${getStatusColor(booking.status)}`}>
+                        <span className={`text-xs px-3 py-1 rounded-full border font-medium capitalize ${getStatusColor(booking.status)}`}>
                           {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
                         </span>
                       </div>
@@ -206,7 +214,10 @@ export default function TouristDashboard() {
                       </div>
                     </div>
 
-                    <button className="px-6 py-2 rounded-full border-2 border-liquid-dark-primary text-liquid-dark-primary hover:bg-liquid-dark-primary hover:text-white transition-all duration-300">
+                    <button
+                      onClick={() => router.push(`/tourist/booking/${booking.id}`)}
+                      className="px-6 py-2 rounded-full border-2 border-liquid-dark-primary text-liquid-dark-primary hover:bg-liquid-dark-primary hover:text-white transition-all duration-300"
+                    >
                       View Details
                     </button>
                   </div>
