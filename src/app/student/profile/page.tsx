@@ -30,7 +30,6 @@ import { AvailabilityEditor } from '@/components/student/AvailabilityEditor';
 import { PrimaryCTAButton } from '@/components/ui/PrimaryCTAButton';
 import { InfoRow, SectionCard, StatCard, SkillChip } from '@/components/student/ProfileComponents';
 import { useRouter } from 'next/navigation';
-import Navigation from '@/components/Navigation';
 
 interface StudentProfile {
   id: string;
@@ -251,9 +250,7 @@ export default function StudentProfilePage() {
   const currentProfile = isEditing ? editedProfile : profile;
 
   return (
-    <>
-      <Navigation variant="student" />
-      <div className="min-h-screen flex flex-col relative overflow-hidden">
+    <div className="min-h-screen flex flex-col relative overflow-hidden">
         {/* Premium Background */}
         <div className="absolute inset-0">
           <Image

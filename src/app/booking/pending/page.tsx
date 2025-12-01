@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Loader2, Clock, CheckCircle2, Mail, Phone, MessageCircle } from 'lucide-react'
+import Navigation from '@/components/Navigation'
 
 interface RequestStatus {
   status: 'PENDING' | 'MATCHED' | 'ACCEPTED' | 'EXPIRED' | 'CANCELLED'
@@ -70,19 +71,25 @@ function PendingContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-12 w-12 animate-spin text-ui-blue-primary" />
-      </div>
+      <>
+        <Navigation variant="tourist" />
+        <div className="min-h-screen flex items-center justify-center">
+          <Loader2 className="h-12 w-12 animate-spin text-ui-blue-primary" />
+        </div>
+      </>
     )
   }
 
   if (error || !status) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4">
-        <Alert variant="destructive" className="max-w-md">
-          <AlertDescription>{error || 'Request not found'}</AlertDescription>
-        </Alert>
-      </div>
+      <>
+        <Navigation variant="tourist" />
+        <div className="min-h-screen flex items-center justify-center p-4">
+          <Alert variant="destructive" className="max-w-md">
+            <AlertDescription>{error || 'Request not found'}</AlertDescription>
+          </Alert>
+        </div>
+      </>
     )
   }
 
@@ -96,7 +103,9 @@ function PendingContent() {
     })
 
     return (
-      <div className="min-h-screen bg-gradient-to-b from-ui-success/10 to-white py-12 px-4">
+      <>
+        <Navigation variant="tourist" />
+        <div className="min-h-screen bg-gradient-to-b from-ui-success/10 to-white py-12 px-4">
         <div className="max-w-3xl mx-auto">
           {/* Success Header */}
           <div className="text-center mb-8">
@@ -252,8 +261,10 @@ function PendingContent() {
 
   if (status.status === 'EXPIRED') {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4">
-        <div className="max-w-md text-center">
+      <>
+        <Navigation variant="tourist" />
+        <div className="min-h-screen flex items-center justify-center p-4">
+          <div className="max-w-md text-center">
           <Clock className="h-16 w-16 text-gray-400 mx-auto mb-4" />
           <h2 className="text-2xl font-bold text-gray-800 mb-2">Request Expired</h2>
           <p className="text-gray-600 mb-6">
@@ -265,12 +276,15 @@ function PendingContent() {
           </Button>
         </div>
       </div>
+      </>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4">
-      <div className="max-w-3xl mx-auto">
+    <>
+      <Navigation variant="tourist" />
+      <div className="min-h-screen bg-gray-50 py-12 px-4">
+        <div className="max-w-3xl mx-auto">
         {/* Success Notification */}
         <div className="mb-8 animate-fade-in-up">
           <Alert className="border-2 border-ui-success bg-gradient-to-br from-ui-success/10 to-ui-success/5 shadow-premium">
@@ -362,6 +376,7 @@ function PendingContent() {
         </div>
       </div>
     </div>
+    </>
   )
 }
 

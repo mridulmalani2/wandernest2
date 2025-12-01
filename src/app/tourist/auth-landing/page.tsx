@@ -4,7 +4,6 @@ import Image from 'next/image';
 import { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import Navigation from '@/components/Navigation';
 import { PrimaryCTAButton } from '@/components/ui/PrimaryCTAButton';
 
 export const dynamic = 'force-dynamic';
@@ -61,8 +60,6 @@ function TouristAuthLandingContent() {
       <div className="absolute inset-0 pattern-dots opacity-10" />
 
       <div className="relative z-10 flex flex-col min-h-screen">
-        <Navigation variant="tourist" showBackButton backHref="/tourist" />
-
         <main className="flex-1 flex items-center justify-center px-4 py-16">
           <div className="glass-card rounded-3xl border-2 border-white/40 p-8 shadow-premium max-w-lg w-full text-center space-y-4">
             {!error ? (

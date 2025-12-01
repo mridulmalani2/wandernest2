@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Loader2, AlertCircle, Info } from 'lucide-react'
 import { PrimaryCTAButton } from '@/components/ui/PrimaryCTAButton'
+import Navigation from '@/components/Navigation'
 
 function SelectGuideContent() {
   const searchParams = useSearchParams()
@@ -244,8 +245,10 @@ function SelectGuideContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex flex-col relative overflow-hidden">
-        <div className="absolute inset-0">
+      <>
+        <Navigation variant="tourist" />
+        <div className="min-h-screen flex flex-col relative overflow-hidden">
+          <div className="absolute inset-0">
           <Image
             src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=1920&q=80"
             alt="Students working together"
@@ -266,13 +269,16 @@ function SelectGuideContent() {
           </div>
         </div>
       </div>
+      </>
     )
   }
 
   if (error) {
     return (
-      <div className="min-h-screen flex flex-col relative overflow-hidden">
-        <div className="absolute inset-0">
+      <>
+        <Navigation variant="tourist" />
+        <div className="min-h-screen flex flex-col relative overflow-hidden">
+          <div className="absolute inset-0">
           <Image
             src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=1920&q=80"
             alt="Students working together"
@@ -319,13 +325,16 @@ function SelectGuideContent() {
           </div>
         </div>
       </div>
+      </>
     )
   }
 
   if (matches.length === 0) {
     return (
-      <div className="min-h-screen flex flex-col relative overflow-hidden">
-        <div className="absolute inset-0">
+      <>
+        <Navigation variant="tourist" />
+        <div className="min-h-screen flex flex-col relative overflow-hidden">
+          <div className="absolute inset-0">
           <Image
             src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=1920&q=80"
             alt="Students working together"
@@ -361,12 +370,15 @@ function SelectGuideContent() {
           </div>
         </div>
       </div>
+      </>
     )
   }
 
   return (
-    <div className="min-h-screen flex flex-col relative overflow-hidden">
-      {/* Background Image with Overlays */}
+    <>
+      <Navigation variant="tourist" />
+      <div className="min-h-screen flex flex-col relative overflow-hidden">
+        {/* Background Image with Overlays */}
       <div className="absolute inset-0" role="img" aria-label="Students working together and networking">
         <Image
           src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=1920&q=80"
@@ -590,6 +602,7 @@ function SelectGuideContent() {
         )}
       </div>
     </div>
+    </>
   )
 }
 

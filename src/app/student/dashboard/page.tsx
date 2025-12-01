@@ -71,9 +71,7 @@ export default function StudentDashboard() {
   };
 
   return (
-    <>
-      <Navigation variant="student" />
-      <div className="min-h-screen bg-gradient-to-b from-liquid-light to-white relative">
+    <div className="min-h-screen bg-gradient-to-b from-liquid-light to-white relative">
         {/* Subtle Background Pattern */}
         <div
           className="absolute inset-0"

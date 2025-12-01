@@ -4,7 +4,6 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { GraduationCap, MessageCircle, Star, AlertTriangle, Send, Users, PartyPopper, MapPin, Calendar, TrendingUp } from 'lucide-react'
-import { DynamicNavigation } from '@/components/DynamicNavigation'
 import Footer from '@/components/Footer'
 import { motion, useScroll, useTransform } from 'framer-motion'
 import { useRef } from 'react'
@@ -36,8 +35,6 @@ export default function TouristLanding() {
       <div className="absolute inset-0 pattern-dots opacity-15" />
 
       <div className="relative z-10 flex flex-col min-h-screen">
-        <DynamicNavigation variant="tourist" />
-
         {/* Hero Section - Optimized for mobile: reduced padding */}
         <main className="flex-1 container mx-auto px-4 py-8 md:py-16">
           <div className="max-w-5xl mx-auto space-y-10 md:space-y-16">

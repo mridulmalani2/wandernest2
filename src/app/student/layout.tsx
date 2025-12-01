@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Navigation from '@/components/Navigation'
 
 export const metadata: Metadata = {
   title: 'For Students - Become a Local Travel Guide',
@@ -29,5 +30,10 @@ export default function StudentLayout({
 }: {
   children: React.ReactNode
 }) {
-  return <>{children}</>
+  return (
+    <>
+      <Navigation variant="student" />
+      {children}
+    </>
+  )
 }

@@ -8,7 +8,6 @@ import { Suspense, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import Navigation from '@/components/Navigation'
 import { PrimaryCTAButton } from '@/components/ui/PrimaryCTAButton'
 
 function TouristSignInContent() {
@@ -51,9 +50,6 @@ function TouristSignInContent() {
 
       {/* Content */}
       <div className="relative z-10 flex flex-col min-h-screen">
-        {/* Header */}
-        <Navigation variant="tourist" showBackButton backHref="/tourist" />
-
         {/* Main Content */}
         <main className="flex-1 flex items-center justify-center px-4 py-16">
           <div className="max-w-md w-full space-y-8 animate-fade-in-up">
