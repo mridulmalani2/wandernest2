@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 
 const NAV_ITEMS = [
   { href: '/admin', label: 'Dashboard', icon: '🏠' },
@@ -15,6 +15,7 @@ const NAV_ITEMS = [
 
 export default function AdminNav() {
   const pathname = usePathname()
+  const [isScrolled, setIsScrolled] = useState(false)
 
   // Mirror the admin token into a same-site cookie on every nav render so
   // middleware and server components consistently see the session.
@@ -25,6 +26,16 @@ export default function AdminNav() {
     const secureFlag = window.location.protocol === 'https:' ? '; Secure' : ''
     document.cookie = `admin-token=${token}; Path=/; SameSite=Lax; Max-Age=${60 * 60 * 8}${secureFlag}`
   }, [pathname])
+
+  // Add scroll detection for shadow effect
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10)
+    }
+
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
 
   const handleLogout = () => {
     window.localStorage.removeItem('adminToken')
@@ -49,12 +60,12 @@ export default function AdminNav() {
   }, [])
 
   return (
-    <nav className="bg-white shadow-sm border-b border-gray-200">
+    <nav className={`border-b border-[var(--nav-border)] bg-[var(--nav-bg)] backdrop-blur-xl sticky top-0 z-50 transition-all duration-300 ${isScrolled ? 'shadow-lg shadow-black/10' : ''}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex space-x-8">
             <div className="flex items-center">
-              <span className="text-xl font-bold text-gray-900">TourWiseCo Admin</span>
+              <span className="text-xl font-bold text-white">TourWiseCo Admin</span>
             </div>
             <div className="hidden sm:flex sm:space-x-8">
               {NAV_ITEMS.map((item) => {
@@ -62,8 +73,8 @@ export default function AdminNav() {
                 const baseClasses =
                   'inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium'
                 const activeClasses = isActive
-                  ? 'border-blue-500 text-gray-900'
-                  : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
+                  ? 'border-white text-white'
+                  : 'border-transparent text-white/70 hover:border-white/50 hover:text-white'
 
                 return (
                   <Link
@@ -81,7 +92,7 @@ export default function AdminNav() {
           <div className="flex items-center">
             <button
               onClick={handleLogout}
-              className="text-gray-500 hover:text-gray-700 text-sm font-medium"
+              className="text-white/70 hover:text-white text-sm font-medium transition-colors"
             >
               Logout
             </button>

@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { FlowCard } from '@/components/ui/FlowCard';
 import { TrendingUp, Calendar, Users, Clock, MapPin, Star } from 'lucide-react';
-import Navigation from '@/components/Navigation';
 import Image from 'next/image';
 
 interface StudentRequest {
@@ -71,9 +70,7 @@ export default function StudentDashboard() {
   };
 
   return (
-    <>
-      <Navigation variant="student" />
-      <div className="min-h-screen bg-gradient-to-b from-liquid-light to-white relative">
+    <div className="min-h-screen bg-gradient-to-b from-liquid-light to-white relative">
         {/* Subtle Background Pattern */}
         <div
           className="absolute inset-0"
@@ -230,6 +227,5 @@ export default function StudentDashboard() {
           </div>
         </div>
       </div>
-    </>
   );
 }

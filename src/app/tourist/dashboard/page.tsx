@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { FlowCard } from '@/components/ui/FlowCard';
 import { TrendingUp, Calendar, MapPin, Users, CheckCircle2, Clock } from 'lucide-react';
-import Navigation from '@/components/Navigation';
 import Image from 'next/image';
 
 interface TouristBooking {
@@ -71,9 +70,7 @@ export default function TouristDashboard() {
   };
 
   return (
-    <>
-      <Navigation variant="tourist" />
-      <div className="min-h-screen bg-gradient-to-b from-liquid-light to-white relative">
+    <div className="min-h-screen bg-gradient-to-b from-liquid-light to-white relative">
         {/* Subtle Background Pattern */}
         <div
           className="absolute inset-0"
@@ -244,6 +241,5 @@ export default function TouristDashboard() {
           </div>
         </div>
       </div>
-    </>
   );
 }
