@@ -150,10 +150,10 @@ function loadConfig(): AppConfig {
   if (!nextAuthUrl) {
     if (isProduction) {
       configWarnings.push(
-        'NEXTAUTH_URL is not set - Vercel can auto-detect this, but explicit is recommended'
+        'NEXTAUTH_URL is not set - Vercel can auto-detect this, but explicit is recommended. Set to your production domain (e.g., https://tourwiseco.com)'
       )
     } else {
-      configWarnings.push('NEXTAUTH_URL is not set - using default')
+      configWarnings.push('NEXTAUTH_URL is not set - using default (http://localhost:3000)')
     }
   } else {
     // Validate NEXTAUTH_URL format
@@ -162,6 +162,12 @@ function loadConfig(): AppConfig {
     }
     if (isProduction && nextAuthUrl.startsWith('http://')) {
       configErrors.push('NEXTAUTH_URL must use https:// in production (not http://)')
+    }
+    // Validate callback URL construction
+    if (isProduction) {
+      const callbackUrl = `${nextAuthUrl}/api/auth/callback/google`
+      console.log('✅ Google OAuth callback URL:', callbackUrl)
+      console.log('   ⚠️  Ensure this EXACT URL is added to Google Cloud Console authorized redirect URIs')
     }
   }
 
@@ -249,7 +255,7 @@ function loadConfig(): AppConfig {
  */
 export function logConfigStatus(): void {
   console.log('\n========================================')
-  console.log('🔧 WanderNest Configuration Status')
+  console.log('🔧 TourWiseCo Configuration Status')
   console.log('========================================')
 
   console.log(`\n📊 Environment: ${config.app.nodeEnv}`)

@@ -2,6 +2,11 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+<<<<<<< HEAD
+=======
+import { useSession } from 'next-auth/react'
+import Image from 'next/image'
+>>>>>>> c2626a4f409d082306e95fee7ca9a168640a3362
 import { Button } from '@/components/ui/button'
 import { TripDetailsStep } from './TripDetailsStep'
 import { PreferencesStep } from './PreferencesStep'
@@ -22,10 +27,10 @@ export type BookingFormData = {
   // Step 2: Preferences
   preferredNationality?: string
   preferredLanguages: string[]
-  preferredGender?: 'male' | 'female' | 'no_preference'
   serviceType: 'itinerary_help' | 'guided_experience' | ''
   interests: string[]
   totalBudget?: number
+  discoveryFeeConsent?: boolean
   callDurationMinutes?: number
   tourDurationHours?: number
 
@@ -46,6 +51,7 @@ const STEPS = [
 
 export function BookingForm() {
   const router = useRouter()
+  const { data: session } = useSession()
   const [currentStep, setCurrentStep] = useState(1)
   const [completedSteps, setCompletedSteps] = useState<number[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -58,11 +64,22 @@ export function BookingForm() {
     preferredLanguages: [],
     serviceType: '',
     interests: [],
+    discoveryFeeConsent: false,
     email: '',
     contactMethod: 'email',
   })
   const [errors, setErrors] = useState<Record<string, string>>({})
 
+<<<<<<< HEAD
+=======
+  // Pre-fill email from session
+  useEffect(() => {
+    if (session?.user?.email) {
+      setFormData((prev) => ({ ...prev, email: session.user.email! }))
+    }
+  }, [session])
+
+>>>>>>> c2626a4f409d082306e95fee7ca9a168640a3362
   const updateFormData = (data: Partial<BookingFormData>) => {
     setFormData((prev) => ({ ...prev, ...data }))
   }
@@ -171,10 +188,10 @@ export function BookingForm() {
           accessibilityNeeds: formData.accessibilityNeeds,
           preferredNationality: formData.preferredNationality,
           preferredLanguages: formData.preferredLanguages,
-          preferredGender: formData.preferredGender,
           serviceType: formData.serviceType,
           interests: formData.interests,
           totalBudget: formData.totalBudget,
+          discoveryFeeConsent: formData.discoveryFeeConsent,
           callDurationMinutes: formData.callDurationMinutes,
           tourDurationHours: formData.tourDurationHours,
           phone: formData.phone,
@@ -220,6 +237,7 @@ export function BookingForm() {
 
       <div className="relative glass-card rounded-3xl border-2 border-white/40 shadow-premium p-5 md:p-8 hover-lift">
         <div className="relative z-10">
+<<<<<<< HEAD
           <div className="animate-fade-in">
             {currentStep === 1 && (
               <TripDetailsStep
@@ -227,6 +245,55 @@ export function BookingForm() {
                 errors={errors}
                 updateData={updateFormData}
               />
+=======
+        {currentStep === 1 && (
+          <TripDetailsStep
+            data={formData}
+            errors={errors}
+            updateData={updateFormData}
+          />
+        )}
+
+        {currentStep === 2 && (
+          <PreferencesStep
+            data={formData}
+            errors={errors}
+            updateData={updateFormData}
+          />
+        )}
+
+        {currentStep === 3 && (
+          <ContactStep
+            data={formData}
+            errors={errors}
+            updateData={updateFormData}
+            isEmailFromSession={!!session?.user?.email}
+          />
+        )}
+
+        {/* Navigation Buttons */}
+        <div className="mt-8 flex justify-between">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleBack}
+            disabled={currentStep === 1 || isSubmitting}
+            className="hover-lift shadow-soft"
+          >
+            Back
+          </Button>
+
+          <PrimaryCTAButton
+            type="button"
+            onClick={handleNext}
+            disabled={isSubmitting}
+            variant="blue"
+          >
+            {currentStep === 3 ? (
+              isSubmitting ? 'Creating Booking...' : 'Create Booking'
+            ) : (
+              'Next'
+>>>>>>> c2626a4f409d082306e95fee7ca9a168640a3362
             )}
 
             {currentStep === 2 && (

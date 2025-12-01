@@ -35,7 +35,6 @@ interface MatchingCriteria {
   city: string
   preferredNationality?: string
   preferredLanguages: string[]
-  preferredGender?: string
   serviceType: string
   interests: string[]
   dates: { start: string; end?: string }
@@ -195,7 +194,6 @@ async function matchStudents(req: NextRequest) {
       city: touristRequest.city,
       preferredNationality: touristRequest.preferredNationality || undefined,
       preferredLanguages: touristRequest.preferredLanguages,
-      preferredGender: touristRequest.preferredGender || undefined,
       serviceType: touristRequest.serviceType,
       interests: touristRequest.interests,
       dates: touristRequest.dates as { start: string; end?: string },
@@ -210,11 +208,6 @@ async function matchStudents(req: NextRequest) {
       availability: {
         some: {},
       },
-    }
-
-    // Apply gender preference filter at DB level
-    if (criteria.preferredGender && criteria.preferredGender !== 'no_preference') {
-      whereClause.gender = criteria.preferredGender
     }
 
     // Try to fetch students matching nationality first
@@ -326,11 +319,14 @@ async function matchStudents(req: NextRequest) {
       })
     }
 
+    // Zero matches is a valid success state - booking was created successfully
     if (candidatePool.length === 0) {
+      console.log(`[matchStudents] No matches found for request ${requestId} in ${criteria.city}`)
       return NextResponse.json({
         success: true,
         matches: [],
-        message: 'No approved students found in this city',
+        hasMatches: false,
+        message: 'No matching guides found yet - request is saved and tourist will be notified when guides become available',
       })
     }
 
@@ -369,8 +365,11 @@ async function matchStudents(req: NextRequest) {
     // Calculate suggested price range based on city
     const suggestedPriceRange = calculateSuggestedPrice(criteria.city, criteria.serviceType)
 
+    console.log(`[matchStudents] Found ${topCandidates.length} matches for request ${requestId}`)
+
     return NextResponse.json({
       success: true,
+      hasMatches: true,
       matches: topCandidates.map((student) => ({
         studentId: student.id,
         maskedId: student.maskedId,
@@ -389,6 +388,8 @@ async function matchStudents(req: NextRequest) {
       })),
       suggestedPriceRange,
       requestId: touristRequest.id,
+      preferredNationality: touristRequest.preferredNationality,
+      preferredLanguages: touristRequest.preferredLanguages,
     })
   } catch (error) {
     if (error instanceof AppError) {
@@ -414,3 +415,6 @@ function maskName(fullName: string | null): string {
   // Show first name + last initial
   return `${parts[0]} ${parts[parts.length - 1][0]}.`
 }
+
+// Export the POST handler (this was missing, causing 404 errors in production)
+export const POST = matchStudents

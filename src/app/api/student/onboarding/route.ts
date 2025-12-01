@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic'
 
 import { NextRequest, NextResponse } from 'next/server';
 import { requireDatabase } from '@/lib/prisma';
+import { getValidStudentSession, readStudentTokenFromRequest } from '@/lib/student-auth';
 import { z } from 'zod';
 import { withErrorHandler, withDatabaseRetry, AppError } from '@/lib/error-handler';
 
@@ -13,7 +14,7 @@ const onboardingSchema = z.object({
 
   // Personal Details
   name: z.string().min(1),
-  dateOfBirth: z.string().transform(str => new Date(str)),
+  dateOfBirth: z.string().min(1).transform(str => new Date(str)),
   gender: z.enum(['male', 'female', 'prefer_not_to_say']),
   nationality: z.string().min(1),
   phoneNumber: z.string().min(1),
@@ -29,9 +30,9 @@ const onboardingSchema = z.object({
 
   // Identity Verification
   studentIdUrl: z.string().min(1),
-  studentIdExpiry: z.string().transform(str => new Date(str)),
+  studentIdExpiry: z.string().min(1).transform(str => new Date(str)),
   governmentIdUrl: z.string().min(1),
-  governmentIdExpiry: z.string().transform(str => new Date(str)),
+  governmentIdExpiry: z.string().min(1).transform(str => new Date(str)),
   selfieUrl: z.string().min(1),
   profilePhotoUrl: z.string().min(1),
   documentsOwnedConfirmation: z.boolean(),
@@ -48,14 +49,14 @@ const onboardingSchema = z.object({
   timezone: z.string().min(1),
   preferredDurations: z.array(z.string()).min(1),
   unavailabilityExceptions: z.array(z.object({
-    date: z.string().transform(str => new Date(str)),
+    date: z.string().min(1).transform(str => new Date(str)),
     reason: z.string().optional(),
   })).optional(),
   availability: z.array(
     z.object({
       dayOfWeek: z.number().min(0).max(6),
-      startTime: z.string(),
-      endTime: z.string(),
+      startTime: z.string().min(1),
+      endTime: z.string().min(1),
       note: z.string().optional(),
     })
   ).min(1),
@@ -83,7 +84,14 @@ function calculateProfileCompleteness(data: Record<string, unknown>): number {
   ];
 
   const arrayFields = ['languages', 'skills', 'interests', 'servicesOffered', 'preferredDurations'];
-  const booleanFields = ['documentsOwnedConfirmation', 'verificationConsent', 'termsAccepted', 'safetyGuidelinesAccepted', 'independentGuideAcknowledged'];
+  const booleanFields = [
+    'documentsOwnedConfirmation',
+    'verificationConsent',
+    'termsAccepted',
+    'safetyGuidelinesAccepted',
+    'independentGuideAcknowledged',
+    'onlineServicesAvailable',
+  ];
 
   let completed = 0;
   const total = requiredFields.length + arrayFields.length + booleanFields.length + 1; // +1 for availability
@@ -102,6 +110,14 @@ async function submitOnboarding(req: NextRequest) {
   // Validate input
   const validatedData = onboardingSchema.parse(body);
 
+  // Validate OTP-backed student session and ensure ownership
+  const sessionToken = readStudentTokenFromRequest(req);
+  const session = await getValidStudentSession(sessionToken);
+
+  if (!session || session.email !== validatedData.email) {
+    throw new AppError(401, 'Unauthorized. Please sign in again.', 'UNAUTHORIZED');
+  }
+
   const db = requireDatabase();
 
 
@@ -114,6 +130,10 @@ async function submitOnboarding(req: NextRequest) {
 
   if (existingStudent) {
     throw new AppError(400, 'A profile with this email already exists', 'EMAIL_EXISTS');
+  }
+
+  if (session.studentId) {
+    throw new AppError(400, 'Profile already linked to this session', 'ALREADY_ONBOARDED');
   }
 
   // Check if googleId is already used (only if provided)
@@ -195,6 +215,15 @@ async function submitOnboarding(req: NextRequest) {
         // System Fields
         status: 'PENDING_APPROVAL',
         profileCompleteness: completeness,
+      },
+    })
+  );
+
+  await withDatabaseRetry(async () =>
+    db.studentSession.update({
+      where: { id: session.id },
+      data: {
+        studentId: student.id,
       },
     })
   );

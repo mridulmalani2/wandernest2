@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { Button } from '@/components/ui/button';
 import { Globe } from 'lucide-react';
 import { PrimaryCTAButton } from '@/components/ui/PrimaryCTAButton';
 
@@ -42,8 +41,8 @@ export default function OnboardingSuccess() {
         </header>
 
         {/* Success Content */}
-        <main className="flex-1 flex items-center justify-center px-4 py-16">
-          <div className="max-w-2xl w-full text-center space-y-8 animate-fade-in-up">
+        <main className="flex-1 flex items-center justify-center px-4 py-12 md:py-16">
+          <div className="max-w-2xl w-full text-center space-y-6 md:space-y-8 animate-fade-in-up">
           {/* Success Icon */}
           <div className="flex justify-center animate-scale-in">
             <div className="w-24 h-24 bg-gradient-to-br from-[hsl(var(--ui-success))] to-[hsl(var(--ui-success))]/80 rounded-full flex items-center justify-center shadow-premium hover:scale-110 transition-transform duration-300">
@@ -65,24 +64,28 @@ export default function OnboardingSuccess() {
 
           {/* Title */}
           <div className="animate-fade-in delay-100">
-            <h2 className="text-4xl font-bold mb-4 text-gray-900 text-shadow">Profile Submitted Successfully!</h2>
-            <p className="text-xl text-gray-700 font-medium">
-              Your application is now under review
-            </p>
+            <div className="inline-block glass-card rounded-3xl px-8 py-6 border-2 border-white/40 shadow-premium">
+              <h2 className="text-4xl md:text-5xl font-bold mb-3 bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 bg-clip-text text-transparent drop-shadow-sm">
+                Profile Submitted Successfully!
+              </h2>
+              <p className="text-xl md:text-2xl text-gray-800 font-semibold drop-shadow-sm">
+                Your application is now under review
+              </p>
+            </div>
           </div>
 
           {/* What's Next */}
-          <div className="glass-card rounded-3xl border-2 border-white/40 shadow-premium p-8 text-left space-y-6 hover-lift animate-fade-in delay-200">
-            <h3 className="text-2xl font-bold text-center">What Happens Next?</h3>
+          <div className="glass-card rounded-3xl border-2 border-white/40 shadow-premium p-8 md:p-10 text-left hover-lift animate-fade-in delay-200">
+            <h3 className="text-2xl md:text-3xl font-bold text-center text-gray-900 mb-8">What Happens Next?</h3>
 
-            <div className="space-y-4">
+            <div className="space-y-6">
               <div className="flex items-start gap-4">
-                <div className="flex-shrink-0 w-10 h-10 gradient-ocean rounded-full flex items-center justify-center shadow-soft">
-                  <span className="text-white font-bold">1</span>
+                <div className="flex-shrink-0 w-12 h-12 gradient-ocean rounded-full flex items-center justify-center shadow-soft">
+                  <span className="text-white font-bold text-lg">1</span>
                 </div>
-                <div>
-                  <h4 className="font-bold mb-1 text-gray-900">Application Review (1-2 Business Days)</h4>
-                  <p className="text-gray-700 text-sm">
+                <div className="flex-1">
+                  <h4 className="font-bold mb-2 text-gray-900 text-lg">Application Review (1-2 Business Days)</h4>
+                  <p className="text-gray-700 leading-relaxed">
                     Our team will verify your student ID and review your cover letter to ensure
                     quality standards.
                   </p>
@@ -90,12 +93,12 @@ export default function OnboardingSuccess() {
               </div>
 
               <div className="flex items-start gap-4">
-                <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-[hsl(var(--ui-purple-accent))] to-[hsl(var(--ui-blue-accent))] rounded-full flex items-center justify-center shadow-soft">
-                  <span className="text-white font-bold">2</span>
+                <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-[hsl(var(--ui-purple-accent))] to-[hsl(var(--ui-blue-accent))] rounded-full flex items-center justify-center shadow-soft">
+                  <span className="text-white font-bold text-lg">2</span>
                 </div>
-                <div>
-                  <h4 className="font-bold mb-1 text-gray-900">Discussion Session</h4>
-                  <p className="text-gray-700 text-sm">
+                <div className="flex-1">
+                  <h4 className="font-bold mb-2 text-gray-900 text-lg">Discussion Session</h4>
+                  <p className="text-gray-700 leading-relaxed">
                     We'll contact you to schedule a brief discussion session where we'll answer
                     your questions and explain what we expect from guides.
                   </p>
@@ -103,12 +106,12 @@ export default function OnboardingSuccess() {
               </div>
 
               <div className="flex items-start gap-4">
-                <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-[hsl(var(--ui-success))] to-[hsl(var(--ui-success))]/80 rounded-full flex items-center justify-center shadow-soft">
-                  <span className="text-white font-bold">3</span>
+                <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-[hsl(var(--ui-success))] to-[hsl(var(--ui-success))]/80 rounded-full flex items-center justify-center shadow-soft">
+                  <span className="text-white font-bold text-lg">3</span>
                 </div>
-                <div>
-                  <h4 className="font-bold mb-1 text-gray-900">Approval & Activation</h4>
-                  <p className="text-gray-700 text-sm">
+                <div className="flex-1">
+                  <h4 className="font-bold mb-2 text-gray-900 text-lg">Approval & Activation</h4>
+                  <p className="text-gray-700 leading-relaxed">
                     Once you're satisfied and we approve your profile, you'll be activated
                     as a guide and can start receiving booking requests!
                   </p>
@@ -118,12 +121,14 @@ export default function OnboardingSuccess() {
           </div>
 
           {/* Important Info */}
-          <div className="glass-frosted bg-gradient-to-br from-[hsl(var(--ui-warning))]/20 to-[hsl(var(--ui-warning))]/30 border-2 border-[hsl(var(--ui-warning))]/60 rounded-3xl p-6 shadow-premium hover-lift animate-fade-in delay-300">
-            <div className="flex items-start gap-3">
-              <div className="text-2xl">📧</div>
-              <div className="text-left">
-                <h3 className="font-bold text-[hsl(var(--ui-warning))]/90 mb-2">Check Your Email</h3>
-                <p className="text-sm text-[hsl(var(--ui-warning))]/80">
+          <div className="glass-card rounded-3xl border-2 border-white/40 shadow-premium p-6 md:p-8 hover-lift animate-fade-in delay-300">
+            <div className="flex items-start gap-4">
+              <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-blue-400 to-purple-400 rounded-full flex items-center justify-center shadow-soft text-2xl">
+                📧
+              </div>
+              <div className="text-left flex-1">
+                <h3 className="font-bold text-gray-900 text-lg mb-2">Check Your Email</h3>
+                <p className="text-gray-700 leading-relaxed">
                   We've sent a confirmation email with next steps. Please check your inbox
                   (and spam folder) for updates from our team.
                 </p>
@@ -133,11 +138,12 @@ export default function OnboardingSuccess() {
 
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4 animate-fade-in delay-400">
-            <Link href="/">
-              <Button variant="outline" size="lg" className="hover-lift shadow-soft">
-                Return to Home
-              </Button>
-            </Link>
+            <PrimaryCTAButton
+              href="/"
+              variant="ghost"
+            >
+              Return to Home
+            </PrimaryCTAButton>
             <PrimaryCTAButton
               href="/student"
               variant="blue"
@@ -147,8 +153,10 @@ export default function OnboardingSuccess() {
           </div>
 
           {/* Support */}
-          <div className="text-sm text-gray-700 font-medium animate-fade-in delay-500">
-            <p>Have questions? Contact us at support@tourwiseco.com</p>
+          <div className="text-gray-800 font-medium animate-fade-in delay-500 pt-2">
+            <p className="text-sm md:text-base">
+              Have questions? Contact us at <span className="font-semibold">support@tourwiseco.com</span>
+            </p>
           </div>
         </div>
       </main>

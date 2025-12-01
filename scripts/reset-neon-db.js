@@ -1,20 +1,37 @@
 /**
  * Complete Database Reset Script for Neon PostgreSQL
  *
- * This script performs a COMPLETE wipe of your Neon database, removing:
+ * ⚠️⚠️⚠️ DEVELOPMENT ONLY - NEVER USE IN PRODUCTION ⚠️⚠️⚠️
+ *
+ * This script performs a COMPLETE wipe of your database, removing:
  * - All tables (including _prisma_migrations)
  * - All enums
  * - All foreign key constraints
  * - All indexes
+ * - ALL USER DATA (students, tourists, bookings, reviews, etc.)
  *
- * USE WITH CAUTION: This will delete ALL data in your database.
+ * DANGER: This will DELETE EVERYTHING in your database!
  *
- * Usage:
- *   node scripts/reset-neon-db.js
+ * SAFE USAGE (Local Development Only):
+ *   1. Set DATABASE_URL to point to your LOCAL or DEV database
+ *   2. Run: npm run db:reset:dev
+ *   3. This sets ALLOW_DB_RESET=true and NODE_ENV=development
+ *
+ * PRODUCTION PROTECTION:
+ *   - This script will EXIT immediately if:
+ *     - NODE_ENV is "production"
+ *     - VERCEL environment variable is set
+ *     - ALLOW_DB_RESET is not explicitly set to "true"
+ *
+ * NEVER:
+ *   - Run this against production Neon database
+ *   - Include this in vercel-build or any CI/CD script
+ *   - Use this to "clean up" production data
  *
  * Prerequisites:
- *   - DATABASE_URL must be set in your environment
- *   - You must have a Neon PostgreSQL database connection
+ *   - DATABASE_URL must point to a LOCAL/DEV database
+ *   - ALLOW_DB_RESET must be set to "true"
+ *   - NODE_ENV must NOT be "production"
  */
 
 const { Client } = require('pg');
@@ -32,6 +49,67 @@ const colors = {
 function log(message, color = colors.reset) {
   console.log(`${color}${message}${colors.reset}`);
 }
+
+// ============================================
+// PRODUCTION SAFETY GUARDS
+// ============================================
+// These checks prevent accidental execution in production environments
+// and ensure the script can only run with explicit, intentional permission.
+
+log('\n🔒 SAFETY CHECK: Verifying this is a safe environment...', colors.cyan);
+
+// Guard 1: Block if running in production environment
+if (process.env.NODE_ENV === 'production') {
+  log('\n❌ BLOCKED: Cannot run in production environment!', colors.red);
+  log('   NODE_ENV is set to "production"', colors.red);
+  log('   This script would DELETE ALL DATA including:', colors.yellow);
+  log('   - All student registrations', colors.yellow);
+  log('   - All tourist requests and bookings', colors.yellow);
+  log('   - All reviews and ratings', colors.yellow);
+  log('   - All admin accounts', colors.yellow);
+  log('\n💡 This script is for LOCAL DEVELOPMENT ONLY', colors.cyan);
+  log('   To reset your local database, run: npm run db:reset:dev', colors.blue);
+  log('\n🚫 Exiting to protect production data.\n', colors.red);
+  process.exit(1);
+}
+
+// Guard 2: Block if running on Vercel
+if (process.env.VERCEL) {
+  log('\n❌ BLOCKED: Cannot run on Vercel!', colors.red);
+  log('   VERCEL environment variable is set', colors.red);
+  log('   This script must NEVER run during Vercel builds or deployments', colors.yellow);
+  log('   Running it would wipe the production database', colors.yellow);
+  log('\n💡 If you need to reset the database:', colors.cyan);
+  log('   1. Use the Neon web console for production', colors.blue);
+  log('   2. Use npm run db:reset:dev for local development', colors.blue);
+  log('\n🚫 Exiting to protect production data.\n', colors.red);
+  process.exit(1);
+}
+
+// Guard 3: Require explicit permission flag
+if (process.env.ALLOW_DB_RESET !== 'true') {
+  log('\n❌ BLOCKED: Missing explicit permission flag!', colors.red);
+  log('   ALLOW_DB_RESET is not set to "true"', colors.red);
+  log('   This safety measure prevents accidental execution', colors.yellow);
+  log('\n💡 To reset your LOCAL database, use the safe wrapper:', colors.cyan);
+  log('   npm run db:reset:dev', colors.blue);
+  log('\n   This will:', colors.cyan);
+  log('   - Set ALLOW_DB_RESET=true', colors.blue);
+  log('   - Set NODE_ENV=development', colors.blue);
+  log('   - Run the reset against your local DATABASE_URL', colors.blue);
+  log('   - Apply migrations after reset', colors.blue);
+  log('\n⚠️  NEVER run this directly without understanding the consequences!', colors.yellow);
+  log('🚫 Exiting to protect your data.\n', colors.red);
+  process.exit(1);
+}
+
+log('✅ Environment checks passed: Development mode confirmed', colors.green);
+log('✅ Permission flag verified: ALLOW_DB_RESET=true', colors.green);
+log('⚠️  Proceeding with database reset...\n', colors.yellow);
+
+// ============================================
+// MAIN RESET FUNCTION
+// ============================================
 
 async function resetDatabase() {
   const databaseUrl = process.env.DATABASE_URL;
@@ -135,6 +213,21 @@ async function resetDatabase() {
       log(`⚠️  Warning: ${tableCount} tables and ${enumCount} enums still exist`, colors.yellow);
     }
 
+    // Step 4: Terminate all other connections to allow clean migration
+    log('\n🔒 Terminating other database connections...', colors.blue);
+    try {
+      await client.query(`
+        SELECT pg_terminate_backend(pid)
+        FROM pg_stat_activity
+        WHERE datname = current_database()
+          AND pid <> pg_backend_pid()
+          AND usename = current_user;
+      `);
+      log('✅ Other connections terminated', colors.green);
+    } catch (terminateError) {
+      log('⚠️  Could not terminate other connections (this is usually OK)', colors.yellow);
+    }
+
     log('\n' + '='.repeat(60), colors.cyan);
     log('✅ DATABASE RESET COMPLETED SUCCESSFULLY', colors.green);
     log('='.repeat(60), colors.cyan);
@@ -154,7 +247,12 @@ async function resetDatabase() {
     process.exit(1);
   } finally {
     await client.end();
-    log('📡 Database connection closed\n', colors.blue);
+    log('📡 Database connection closed', colors.blue);
+
+    // Give the database a moment to fully release locks
+    log('⏱️  Waiting for locks to clear...', colors.blue);
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    log('✅ Ready for migration\n', colors.green);
   }
 }
 

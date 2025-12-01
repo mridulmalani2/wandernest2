@@ -3,9 +3,10 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
-import { Menu, X, User, LogOut, LayoutDashboard, ChevronLeft } from 'lucide-react'
+import { Menu, X, User, LogOut, LayoutDashboard, ChevronLeft, UserCircle, Home } from 'lucide-react'
 import { useSession, signOut } from 'next-auth/react'
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 
 interface NavigationProps {
@@ -16,8 +17,13 @@ interface NavigationProps {
 
 export default function Navigation({ variant = 'default', showBackButton = false, backHref = '/' }: NavigationProps) {
   const { data: session } = useSession()
+  const router = useRouter()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
+  const [studentSession, setStudentSession] = useState<{ email: string; name?: string | null } | null>(null)
+  const isProduction =
+    process.env.NEXT_PUBLIC_VERCEL_ENV === 'production' || process.env.NODE_ENV === 'production'
+  const showAdminNav = isProduction || process.env.NEXT_PUBLIC_SHOW_ADMIN_NAV === 'true'
 
   useEffect(() => {
     const handleScroll = () => {
@@ -29,8 +35,41 @@ export default function Navigation({ variant = 'default', showBackButton = false
   }, [])
 
   const handleSignOut = async () => {
-    await signOut({ callbackUrl: '/' })
+    if (session) {
+      await signOut({ callbackUrl: '/' })
+      return
+    }
+
+    document.cookie = 'student_session_token=; path=/; max-age=0'
+    router.push('/')
   }
+
+  useEffect(() => {
+    // If the student authenticated via OTP (no NextAuth session), fetch their status for nav affordances
+    if (session || variant !== 'student') return
+
+    let isMounted = true
+
+    const loadStudentSession = async () => {
+      try {
+        const res = await fetch('/api/student/auth/session-status')
+        if (!res.ok) return
+
+        const data = await res.json()
+        if (isMounted && data.ok && data.email) {
+          setStudentSession({ email: data.email, name: data.student?.name })
+        }
+      } catch (error) {
+        console.error('Failed to load student session', error)
+      }
+    }
+
+    loadStudentSession()
+
+    return () => {
+      isMounted = false
+    }
+  }, [session, variant])
 
   return (
     <header className={`border-b border-[var(--nav-border)] bg-[var(--nav-bg)] backdrop-blur-xl sticky top-0 z-50 transition-all duration-300 ${
@@ -48,7 +87,7 @@ export default function Navigation({ variant = 'default', showBackButton = false
             >
               <Image
                 src="/images/logo-large.png"
-                alt="WanderNest Logo"
+                alt="TourWiseCo Logo"
                 fill
                 className="object-cover"
                 sizes="40px"
@@ -66,6 +105,13 @@ export default function Navigation({ variant = 'default', showBackButton = false
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-2 lg:gap-3">
+            {showAdminNav && (
+              <Link href="/admin">
+                <Button variant="ghost" className="rounded-full px-4 py-2 h-auto text-white/90 hover:bg-white/10 hover:text-white transition-all font-sans text-sm font-medium">
+                  Admin
+                </Button>
+              </Link>
+            )}
             {showBackButton && (
               <Link href={backHref}>
                 <Button variant="ghost" className="rounded-full px-4 py-2 h-auto text-white/90 hover:bg-white/10 hover:text-white transition-all font-sans text-sm font-medium focus-visible:ring-2 focus-visible:ring-white/30 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent" aria-label="Go back">
@@ -104,7 +150,7 @@ export default function Navigation({ variant = 'default', showBackButton = false
               </>
             )}
 
-            {!session && variant === 'student' && (
+            {!session && !studentSession && variant === 'student' && (
               <>
                 <Link href="/">
                   <Button variant="ghost" className="rounded-full px-4 py-2 h-auto text-white/90 hover:bg-white/10 hover:text-white transition-all duration-200 hover:scale-105 active:scale-95 font-sans text-sm font-medium">
@@ -119,31 +165,47 @@ export default function Navigation({ variant = 'default', showBackButton = false
               </>
             )}
 
-            {session && (
+            {(session || studentSession) && (
               <>
-                {session.user?.userType === 'tourist' && (
-                  <Link href="/tourist/dashboard">
-                    <Button variant="ghost" className="rounded-full px-4 py-2 h-auto text-white/90 hover:bg-white/10 hover:text-white transition-all duration-200 hover:scale-105 active:scale-95 font-sans text-sm font-medium">
-                      <LayoutDashboard className="w-4 h-4 mr-2" />
-                      Dashboard
-                    </Button>
-                  </Link>
+                {session?.user?.userType === 'tourist' && (
+                  <>
+                    <Link href="/">
+                      <Button variant="ghost" className="rounded-full px-4 py-2 h-auto text-white/90 hover:bg-white/10 hover:text-white transition-all duration-200 hover:scale-105 active:scale-95 font-sans text-sm font-medium">
+                        <Home className="w-4 h-4 mr-2" />
+                        Home
+                      </Button>
+                    </Link>
+                    <Link href="/tourist/dashboard">
+                      <Button variant="ghost" className="rounded-full px-4 py-2 h-auto text-white/90 hover:bg-white/10 hover:text-white transition-all duration-200 hover:scale-105 active:scale-95 font-sans text-sm font-medium">
+                        <LayoutDashboard className="w-4 h-4 mr-2" />
+                        Dashboard
+                      </Button>
+                    </Link>
+                  </>
                 )}
-                {session.user?.userType === 'student' && (
-                  <Link href="/student/dashboard">
-                    <Button variant="ghost" className="rounded-full px-4 py-2 h-auto text-white/90 hover:bg-white/10 hover:text-white transition-all duration-200 hover:scale-105 active:scale-95 font-sans text-sm font-medium">
-                      <LayoutDashboard className="w-4 h-4 mr-2" />
-                      Dashboard
-                    </Button>
-                  </Link>
+                {(session?.user?.userType === 'student' || studentSession) && (
+                  <>
+                    <Link href="/student/dashboard">
+                      <Button variant="ghost" className="rounded-full px-4 py-2 h-auto text-white/90 hover:bg-white/10 hover:text-white transition-all duration-200 hover:scale-105 active:scale-95 font-sans text-sm font-medium">
+                        <LayoutDashboard className="w-4 h-4 mr-2" />
+                        Dashboard
+                      </Button>
+                    </Link>
+                    <Link href="/student/profile">
+                      <Button variant="ghost" className="rounded-full px-4 py-2 h-auto text-white/90 hover:bg-white/10 hover:text-white transition-all duration-200 hover:scale-105 active:scale-95 font-sans text-sm font-medium">
+                        <UserCircle className="w-4 h-4 mr-2" />
+                        Profile
+                      </Button>
+                    </Link>
+                  </>
                 )}
                 <div className="flex items-center space-x-2 pl-3 border-l border-white/20">
                   <div className="flex items-center space-x-2">
                     <div className="w-8 h-8 rounded-full bg-white/15 border border-white/30 flex items-center justify-center text-white font-semibold text-sm backdrop-blur-sm transition-transform duration-200 hover:scale-110">
-                      {session.user?.name?.charAt(0).toUpperCase() || <User className="w-4 h-4" />}
+                      {session?.user?.name?.charAt(0).toUpperCase() || studentSession?.name?.charAt(0).toUpperCase() || <User className="w-4 h-4" />}
                     </div>
                     <span className="text-sm font-medium text-white max-w-[120px] truncate">
-                      {session.user?.name}
+                      {session?.user?.name || studentSession?.name || studentSession?.email}
                     </span>
                   </div>
                   <Button
@@ -179,6 +241,13 @@ export default function Navigation({ variant = 'default', showBackButton = false
 
         {mobileMenuOpen && (
           <nav className="md:hidden mt-4 pb-4 space-y-2 border-t border-white/20 pt-4 animate-fade-in-up bg-white/5 backdrop-blur-md rounded-lg shadow-lg">
+            {showAdminNav && (
+              <Link href="/admin" onClick={() => setMobileMenuOpen(false)}>
+                <Button variant="ghost" className="w-full justify-start rounded-full text-white/90 hover:bg-white/10 hover:text-white transition-all font-sans text-sm font-medium">
+                  Admin
+                </Button>
+              </Link>
+            )}
             {showBackButton && (
               <Link href={backHref} onClick={() => setMobileMenuOpen(false)}>
                 <Button variant="ghost" className="w-full justify-start rounded-full text-white/90 hover:bg-white/10 hover:text-white transition-all font-sans text-sm font-medium">
@@ -217,7 +286,7 @@ export default function Navigation({ variant = 'default', showBackButton = false
                 </>
               )}
 
-              {!session && variant === 'student' && (
+              {!session && !studentSession && variant === 'student' && (
                 <>
                   <Link href="/" onClick={() => setMobileMenuOpen(false)}>
                     <Button variant="ghost" className="w-full justify-start rounded-full text-white/90 hover:bg-white/10 hover:text-white transition-all font-sans text-sm font-medium">
@@ -232,31 +301,47 @@ export default function Navigation({ variant = 'default', showBackButton = false
                 </>
               )}
 
-              {session && (
+              {(session || studentSession) && (
                 <>
                   <div className="flex items-center space-x-2 px-3 py-2 bg-white/5 border border-white/20 rounded-full backdrop-blur-sm">
                     <div className="w-8 h-8 rounded-full bg-white/15 border border-white/30 flex items-center justify-center text-white font-semibold text-sm backdrop-blur-sm">
-                      {session.user?.name?.charAt(0).toUpperCase() || <User className="w-4 h-4" />}
+                      {session?.user?.name?.charAt(0).toUpperCase() || studentSession?.name?.charAt(0).toUpperCase() || <User className="w-4 h-4" />}
                     </div>
                     <span className="text-sm font-medium text-white">
-                      {session.user?.name}
+                      {session?.user?.name || studentSession?.name || studentSession?.email}
                     </span>
                   </div>
-                  {session.user?.userType === 'tourist' && (
-                    <Link href="/tourist/dashboard" onClick={() => setMobileMenuOpen(false)}>
-                      <Button variant="ghost" className="w-full justify-start rounded-full text-white/90 hover:bg-white/10 hover:text-white transition-all font-sans text-sm font-medium">
-                        <LayoutDashboard className="w-4 h-4 mr-2" />
-                        Dashboard
-                      </Button>
-                    </Link>
+                  {session?.user?.userType === 'tourist' && (
+                    <>
+                      <Link href="/" onClick={() => setMobileMenuOpen(false)}>
+                        <Button variant="ghost" className="w-full justify-start rounded-full text-white/90 hover:bg-white/10 hover:text-white transition-all font-sans text-sm font-medium">
+                          <Home className="w-4 h-4 mr-2" />
+                          Home
+                        </Button>
+                      </Link>
+                      <Link href="/tourist/dashboard" onClick={() => setMobileMenuOpen(false)}>
+                        <Button variant="ghost" className="w-full justify-start rounded-full text-white/90 hover:bg-white/10 hover:text-white transition-all font-sans text-sm font-medium">
+                          <LayoutDashboard className="w-4 h-4 mr-2" />
+                          Dashboard
+                        </Button>
+                      </Link>
+                    </>
                   )}
-                  {session.user?.userType === 'student' && (
-                    <Link href="/student/dashboard" onClick={() => setMobileMenuOpen(false)}>
-                      <Button variant="ghost" className="w-full justify-start rounded-full text-white/90 hover:bg-white/10 hover:text-white transition-all font-sans text-sm font-medium">
-                        <LayoutDashboard className="w-4 h-4 mr-2" />
-                        Dashboard
-                      </Button>
-                    </Link>
+                  {(session?.user?.userType === 'student' || studentSession) && (
+                    <>
+                      <Link href="/student/dashboard" onClick={() => setMobileMenuOpen(false)}>
+                        <Button variant="ghost" className="w-full justify-start rounded-full text-white/90 hover:bg-white/10 hover:text-white transition-all font-sans text-sm font-medium">
+                          <LayoutDashboard className="w-4 h-4 mr-2" />
+                          Dashboard
+                        </Button>
+                      </Link>
+                      <Link href="/student/profile" onClick={() => setMobileMenuOpen(false)}>
+                        <Button variant="ghost" className="w-full justify-start rounded-full text-white/90 hover:bg-white/10 hover:text-white transition-all font-sans text-sm font-medium">
+                          <UserCircle className="w-4 h-4 mr-2" />
+                          Profile
+                        </Button>
+                      </Link>
+                    </>
                   )}
                   <Button
                     variant="ghost"
