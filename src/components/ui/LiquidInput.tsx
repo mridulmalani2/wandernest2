@@ -62,16 +62,20 @@ const LiquidInput = React.forwardRef<HTMLInputElement, LiquidInputProps>(
                             // Icon padding
                             Icon && 'pl-6',
 
-                            // Hide placeholder when label is floating
+                            // Hide placeholder when label is floating - works for text inputs
                             (isFocused || hasValue || props.value) && 'placeholder:text-transparent',
-                            !isFocused && !hasValue && !props.value && 'placeholder:text-gray-400',
+                            !isFocused && !hasValue && !props.value && 'placeholder:text-transparent',
+
+                            // Force hide date input placeholders (browser default)
+                            type === 'date' && '[&::-webkit-datetime-edit]:opacity-0 focus:[&::-webkit-datetime-edit]:opacity-100',
+                            type === 'date' && hasValue && '[&::-webkit-datetime-edit]:opacity-100',
 
                             className
                         )}
                         ref={ref}
                         onFocus={handleFocus}
                         onBlur={handleBlur}
-                        placeholder={props.placeholder || ' '}
+                        placeholder={type === 'date' ? '' : (props.placeholder || ' ')}
                         {...props}
                     />
 
