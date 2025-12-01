@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { Globe } from 'lucide-react';
 import { PrimaryCTAButton } from '@/components/ui/PrimaryCTAButton';
+import Navigation from '@/components/Navigation';
 
 export default function OnboardingSuccess() {
   return (
@@ -26,19 +26,7 @@ export default function OnboardingSuccess() {
 
       {/* Content */}
       <div className="relative z-10 flex flex-col min-h-screen">
-        {/* Header */}
-        <header className="border-b-2 glass-card border-white/40 shadow-premium animate-fade-in">
-          <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-            <Link href="/" className="flex items-center space-x-2 group">
-              <div className="p-1.5 rounded-lg gradient-ocean text-white group-hover:scale-110 transition-transform duration-300 shadow-soft">
-                <Globe className="w-6 h-6" />
-              </div>
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-[hsl(var(--ui-blue-accent))] to-[hsl(var(--ui-purple-accent))] bg-clip-text text-transparent">
-                TourWiseCo
-              </h1>
-            </Link>
-          </div>
-        </header>
+        <Navigation variant="student" />
 
         {/* Success Content */}
         <main className="flex-1 flex items-center justify-center px-4 py-12 md:py-16">

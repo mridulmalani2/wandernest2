@@ -2,7 +2,6 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import Navigation from '@/components/Navigation'
 import Footer from '@/components/Footer'
 import ModernFAQ from '@/components/student/ModernFAQ'
 import { DollarSign, Clock, Users } from 'lucide-react'
@@ -38,8 +37,6 @@ export default function StudentLandingPage() {
       <div className="absolute inset-0 pattern-grid opacity-10" />
 
       <div className="relative z-10 flex flex-col min-h-screen">
-        <Navigation variant="student" />
-
         {/* Hero Section */}
         <main className="flex-1 container mx-auto px-4 py-20 md:py-24">
           <div className="max-w-6xl mx-auto space-y-20 md:space-y-24">

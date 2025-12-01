@@ -7,7 +7,6 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import Navigation from '@/components/Navigation';
 import { CheckCircle2, Mail, AlertCircle } from 'lucide-react';
 import { PrimaryCTAButton } from '@/components/ui/PrimaryCTAButton';
 import { Input } from '@/components/ui/input';
@@ -186,8 +185,6 @@ function StudentSignInContent() {
 
       {/* Content */}
       <div className="relative z-10 flex flex-col min-h-screen">
-        <Navigation variant="student" showBackButton backHref="/student" />
-
         {/* Main Content */}
         <main className="flex-1 flex items-center justify-center px-4 py-16">
           <div className="max-w-md w-full space-y-8 animate-fade-in-up">

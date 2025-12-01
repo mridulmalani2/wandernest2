@@ -2,6 +2,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { PrimaryCTAButton } from '@/components/ui/PrimaryCTAButton'
+import Navigation from '@/components/Navigation'
 
 export default function SuccessPage({
   searchParams,
@@ -11,8 +12,10 @@ export default function SuccessPage({
   const requestId = searchParams.id
 
   return (
-    <div className="min-h-screen flex flex-col relative overflow-hidden">
-      {/* Background Image with Overlays */}
+    <>
+      <Navigation variant="tourist" />
+      <div className="min-h-screen flex flex-col relative overflow-hidden">
+        {/* Background Image with Overlays */}
       <div className="absolute inset-0" role="img" aria-label="Beautiful celebration scene with confetti">
         <Image
           src="https://images.unsplash.com/photo-1533929736458-ca588d08c8be?w=1920&q=80"
@@ -151,5 +154,6 @@ export default function SuccessPage({
         </div>
       </div>
     </div>
+    </>
   )
 }

@@ -1,4 +1,5 @@
 import GuideSelection from '@/components/GuideSelection'
+import Navigation from '@/components/Navigation'
 
 export default function MatchesPage({
   params
@@ -6,7 +7,9 @@ export default function MatchesPage({
   params: { requestId: string }
 }) {
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <>
+      <Navigation variant="tourist" />
+      <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         <GuideSelection
           requestId={params.requestId}
@@ -16,5 +19,6 @@ export default function MatchesPage({
         />
       </div>
     </div>
+    </>
   )
 }
