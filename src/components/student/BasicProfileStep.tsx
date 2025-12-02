@@ -1,10 +1,11 @@
 'use client';
 
+import * as Popover from '@radix-ui/react-popover';
 import { LiquidInput } from '@/components/ui/LiquidInput';
 import { LiquidSelect } from '@/components/ui/LiquidSelect';
 import { FlowCard } from '@/components/ui/FlowCard';
 import { OnboardingFormData } from './OnboardingWizard';
-import { useState, useRef, useEffect } from 'react';
+import { useState } from 'react';
 import { getUniversityOptionsByCity, type UniversityOption } from '@/config/universityOptions';
 import { User, Calendar, Globe, Phone, Building, GraduationCap, BookOpen, X, Search, ChevronDown, CheckCircle2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -39,18 +40,7 @@ export function BasicProfileStep({ formData, updateFormData, errors, cities }: B
   const [customLanguage, setCustomLanguage] = useState('');
   const [isLanguageOpen, setIsLanguageOpen] = useState(false);
   const [languageSearch, setLanguageSearch] = useState('');
-  const dropdownRef = useRef<HTMLDivElement>(null);
   const campusOptions: UniversityOption[] = formData.city ? getUniversityOptionsByCity(formData.city) : [];
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsLanguageOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
 
   const filteredLanguages = COMMON_LANGUAGES.filter(lang =>
     lang.toLowerCase().includes(languageSearch.toLowerCase())
@@ -374,54 +364,58 @@ export function BasicProfileStep({ formData, updateFormData, errors, cities }: B
           />
 
           {/* Languages - Multi-Select Dropdown */}
-          <div className="space-y-3" ref={dropdownRef}>
+          <div className="space-y-3">
             <label className="text-sm font-light tracking-wide text-liquid-dark-secondary block">
               Languages You Speak {errors.languages && <span className="text-ui-error ml-1">*</span>}
             </label>
 
-            <div className="relative">
-              <div
-                onClick={() => setIsLanguageOpen(!isLanguageOpen)}
-                className={cn(
-                  'w-full min-h-[48px] px-0 py-3 cursor-pointer',
-                  'border-0 border-b border-gray-300 transition-all duration-300',
-                  'flex flex-wrap gap-2 items-center',
-                  isLanguageOpen && 'border-b-2 border-liquid-dark-primary',
-                  errors.languages && 'border-ui-error'
-                )}
-              >
-                {formData.languages.length > 0 ? (
-                  formData.languages.map((language) => (
-                    <span
-                      key={language}
-                      className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-liquid-dark-primary text-white text-sm font-medium shadow-sm"
-                    >
-                      {language}
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          toggleLanguage(language);
-                        }}
-                        className="hover:bg-white/20 rounded-full p-0.5 transition-colors"
-                      >
-                        <X className="h-3 w-3" />
-                      </button>
-                    </span>
-                  ))
-                ) : (
-                  <span className="text-gray-400 font-light">Select languages...</span>
-                )}
-                <ChevronDown
+            <Popover.Root open={isLanguageOpen} onOpenChange={setIsLanguageOpen}>
+              <Popover.Trigger asChild>
+                <div
                   className={cn(
-                    'ml-auto h-4 w-4 text-gray-400 transition-transform duration-200',
-                    isLanguageOpen && 'rotate-180'
+                    'w-full min-h-[48px] px-0 py-3 cursor-pointer',
+                    'border-0 border-b border-gray-300 transition-all duration-300',
+                    'flex flex-wrap gap-2 items-center',
+                    isLanguageOpen && 'border-b-2 border-liquid-dark-primary',
+                    errors.languages && 'border-ui-error'
                   )}
-                />
-              </div>
+                >
+                  {formData.languages.length > 0 ? (
+                    formData.languages.map((language) => (
+                      <span
+                        key={language}
+                        className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-liquid-dark-primary text-white text-sm font-medium shadow-sm"
+                      >
+                        {language}
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleLanguage(language);
+                          }}
+                          className="hover:bg-white/20 rounded-full p-0.5 transition-colors"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </span>
+                    ))
+                  ) : (
+                    <span className="text-gray-400 font-light">Select languages...</span>
+                  )}
+                  <ChevronDown
+                    className={cn(
+                      'ml-auto h-4 w-4 text-gray-400 transition-transform duration-200',
+                      isLanguageOpen && 'rotate-180'
+                    )}
+                  />
+                </div>
+              </Popover.Trigger>
 
-              {isLanguageOpen && (
-                <div className="absolute top-full left-0 w-full mt-2 bg-white rounded-2xl shadow-lg border border-gray-100 z-50 overflow-hidden animate-scale-in">
+              <Popover.Portal>
+                <Popover.Content
+                  className="w-[var(--radix-popover-trigger-width)] bg-white rounded-2xl shadow-lg border border-gray-100 z-50 overflow-hidden animate-scale-in"
+                  sideOffset={5}
+                >
                   <div className="p-3 border-b border-gray-100">
                     <div className="relative">
                       <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -432,6 +426,7 @@ export function BasicProfileStep({ formData, updateFormData, errors, cities }: B
                         value={languageSearch}
                         onChange={(e) => setLanguageSearch(e.target.value)}
                         onClick={(e) => e.stopPropagation()}
+                        autoFocus
                       />
                     </div>
                   </div>
@@ -460,9 +455,9 @@ export function BasicProfileStep({ formData, updateFormData, errors, cities }: B
                       </div>
                     )}
                   </div>
-                </div>
-              )}
-            </div>
+                </Popover.Content>
+              </Popover.Portal>
+            </Popover.Root>
 
             {/* Add Custom Language */}
             <div className="flex gap-2 mt-2">

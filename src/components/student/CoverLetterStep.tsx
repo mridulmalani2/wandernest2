@@ -1,10 +1,11 @@
 'use client';
 
+import * as Popover from '@radix-ui/react-popover';
 import { LiquidInput } from '@/components/ui/LiquidInput';
 import { LiquidSelect } from '@/components/ui/LiquidSelect';
 import { FlowCard } from '@/components/ui/FlowCard';
 import { OnboardingFormData } from './OnboardingWizard';
-import { useState, useRef, useEffect } from 'react';
+import { useState } from 'react';
 import { FileText, X, Search, ChevronDown, CheckCircle2, Sparkles, Lightbulb } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -30,24 +31,9 @@ export function CoverLetterStep({ formData, updateFormData, errors }: CoverLette
 
   const [isInterestOpen, setIsInterestOpen] = useState(false);
   const [interestSearch, setInterestSearch] = useState('');
-  const interestDropdownRef = useRef<HTMLDivElement>(null);
 
   const [isSkillOpen, setIsSkillOpen] = useState(false);
   const [skillSearch, setSkillSearch] = useState('');
-  const skillDropdownRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (interestDropdownRef.current && !interestDropdownRef.current.contains(event.target as Node)) {
-        setIsInterestOpen(false);
-      }
-      if (skillDropdownRef.current && !skillDropdownRef.current.contains(event.target as Node)) {
-        setIsSkillOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
 
   const toggleInterest = (interest: string) => {
     const current = formData.interests || [];
@@ -168,64 +154,69 @@ export function CoverLetterStep({ formData, updateFormData, errors }: CoverLette
           </div>
 
           {/* Interests Dropdown */}
-          <div className="space-y-3" ref={interestDropdownRef}>
+          <div className="space-y-3">
             <label className="text-sm font-light tracking-wide text-white/90 block">
               Your Interests {errors.interests && <span className="text-ui-error ml-1">*</span>}
             </label>
 
-            <div className="relative">
-              <div
-                onClick={() => setIsInterestOpen(!isInterestOpen)}
-                className={cn(
-                  'w-full min-h-[48px] px-0 py-3 cursor-pointer',
-                  'border-0 border-b border-white/20 transition-all duration-300',
-                  'flex flex-wrap gap-2 items-center',
-                  isInterestOpen && 'border-b-2 border-white',
-                  errors.interests && 'border-ui-error'
-                )}
-              >
-                {formData.interests.length > 0 ? (
-                  formData.interests.map((interest) => (
-                    <span
-                      key={interest}
-                      className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-white text-sm font-light backdrop-blur-sm"
-                    >
-                      {interest}
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          toggleInterest(interest);
-                        }}
-                        className="hover:bg-white/20 rounded-full p-0.5 transition-colors"
-                      >
-                        <X className="h-3 w-3" />
-                      </button>
-                    </span>
-                  ))
-                ) : (
-                  <span className="text-white/30 font-light">Select interests...</span>
-                )}
-                <ChevronDown
+            <Popover.Root open={isInterestOpen} onOpenChange={setIsInterestOpen}>
+              <Popover.Trigger asChild>
+                <div
                   className={cn(
-                    'ml-auto h-4 w-4 text-white/50 transition-transform duration-200',
-                    isInterestOpen && 'rotate-180'
+                    'w-full min-h-[48px] px-0 py-3 cursor-pointer',
+                    'border-0 border-b border-white/20 transition-all duration-300',
+                    'flex flex-wrap gap-2 items-center',
+                    isInterestOpen && 'border-b-2 border-white',
+                    errors.interests && 'border-ui-error'
                   )}
-                />
-              </div>
+                >
+                  {formData.interests.length > 0 ? (
+                    formData.interests.map((interest) => (
+                      <span
+                        key={interest}
+                        className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-white text-sm font-light backdrop-blur-sm"
+                      >
+                        {interest}
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleInterest(interest);
+                          }}
+                          className="hover:bg-white/20 rounded-full p-0.5 transition-colors"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </span>
+                    ))
+                  ) : (
+                    <span className="text-white/30 font-light">Select interests...</span>
+                  )}
+                  <ChevronDown
+                    className={cn(
+                      'ml-auto h-4 w-4 text-white/50 transition-transform duration-200',
+                      isInterestOpen && 'rotate-180'
+                    )}
+                  />
+                </div>
+              </Popover.Trigger>
 
-              {isInterestOpen && (
-                <div className="absolute top-full left-0 w-full mt-2 bg-white/10 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 z-50 overflow-hidden animate-scale-in">
-                  <div className="p-3 border-b border-white/10">
+              <Popover.Portal>
+                <Popover.Content
+                  className="w-[var(--radix-popover-trigger-width)] bg-white rounded-2xl shadow-lg border border-gray-100 z-50 overflow-hidden animate-scale-in"
+                  sideOffset={5}
+                >
+                  <div className="p-3 border-b border-gray-100">
                     <div className="relative">
-                      <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-white/50" />
+                      <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                       <input
                         type="text"
                         placeholder="Search interests..."
-                        className="w-full pl-8 pr-3 py-2 text-sm bg-white/5 text-white rounded-xl focus:outline-none placeholder:text-white/30"
+                        className="w-full pl-8 pr-3 py-2 text-sm bg-liquid-light rounded-xl focus:outline-none text-gray-900 placeholder:text-gray-400"
                         value={interestSearch}
                         onChange={(e) => setInterestSearch(e.target.value)}
                         onClick={(e) => e.stopPropagation()}
+                        autoFocus
                       />
                     </div>
                   </div>
@@ -239,19 +230,19 @@ export function CoverLetterStep({ formData, updateFormData, errors }: CoverLette
                           className={cn(
                             'flex items-center justify-between px-3 py-2 rounded-xl cursor-pointer text-sm transition-all',
                             isSelected
-                              ? 'bg-white/20 font-medium text-white'
-                              : 'hover:bg-white/10 text-white/80'
+                              ? 'bg-liquid-dark-primary/10 font-medium text-liquid-dark-primary'
+                              : 'hover:bg-liquid-light text-gray-700'
                           )}
                         >
                           <span>{interest}</span>
-                          {isSelected && <CheckCircle2 className="h-4 w-4 text-white" />}
+                          {isSelected && <CheckCircle2 className="h-4 w-4 text-liquid-dark-primary" />}
                         </div>
                       );
                     })}
                   </div>
-                </div>
-              )}
-            </div>
+                </Popover.Content>
+              </Popover.Portal>
+            </Popover.Root>
 
             {/* Add Custom Interest */}
             <div className="flex gap-2 mt-2">
@@ -273,65 +264,70 @@ export function CoverLetterStep({ formData, updateFormData, errors }: CoverLette
           </div>
 
           {/* Skills Dropdown */}
-          <div className="space-y-3" ref={skillDropdownRef}>
+          <div className="space-y-3">
             <label className="text-sm font-light tracking-wide text-white/90 block flex items-center gap-2">
               <Lightbulb className="h-4 w-4" />
               Your Skills {errors.skills && <span className="text-ui-error ml-1">*</span>}
             </label>
 
-            <div className="relative">
-              <div
-                onClick={() => setIsSkillOpen(!isSkillOpen)}
-                className={cn(
-                  'w-full min-h-[48px] px-0 py-3 cursor-pointer',
-                  'border-0 border-b border-white/20 transition-all duration-300',
-                  'flex flex-wrap gap-2 items-center',
-                  isSkillOpen && 'border-b-2 border-white',
-                  errors.skills && 'border-ui-error'
-                )}
-              >
-                {formData.skills.length > 0 ? (
-                  formData.skills.map((skill) => (
-                    <span
-                      key={skill}
-                      className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-white text-sm font-light backdrop-blur-sm"
-                    >
-                      {skill}
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          toggleSkill(skill);
-                        }}
-                        className="hover:bg-white/20 rounded-full p-0.5 transition-colors"
-                      >
-                        <X className="h-3 w-3" />
-                      </button>
-                    </span>
-                  ))
-                ) : (
-                  <span className="text-white/30 font-light">Select skills...</span>
-                )}
-                <ChevronDown
+            <Popover.Root open={isSkillOpen} onOpenChange={setIsSkillOpen}>
+              <Popover.Trigger asChild>
+                <div
                   className={cn(
-                    'ml-auto h-4 w-4 text-white/50 transition-transform duration-200',
-                    isSkillOpen && 'rotate-180'
+                    'w-full min-h-[48px] px-0 py-3 cursor-pointer',
+                    'border-0 border-b border-white/20 transition-all duration-300',
+                    'flex flex-wrap gap-2 items-center',
+                    isSkillOpen && 'border-b-2 border-white',
+                    errors.skills && 'border-ui-error'
                   )}
-                />
-              </div>
+                >
+                  {formData.skills.length > 0 ? (
+                    formData.skills.map((skill) => (
+                      <span
+                        key={skill}
+                        className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-white text-sm font-light backdrop-blur-sm"
+                      >
+                        {skill}
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleSkill(skill);
+                          }}
+                          className="hover:bg-white/20 rounded-full p-0.5 transition-colors"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </span>
+                    ))
+                  ) : (
+                    <span className="text-white/30 font-light">Select skills...</span>
+                  )}
+                  <ChevronDown
+                    className={cn(
+                      'ml-auto h-4 w-4 text-white/50 transition-transform duration-200',
+                      isSkillOpen && 'rotate-180'
+                    )}
+                  />
+                </div>
+              </Popover.Trigger>
 
-              {isSkillOpen && (
-                <div className="absolute top-full left-0 w-full mt-2 bg-white/10 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 z-50 overflow-hidden animate-scale-in">
-                  <div className="p-3 border-b border-white/10">
+              <Popover.Portal>
+                <Popover.Content
+                  className="w-[var(--radix-popover-trigger-width)] bg-white rounded-2xl shadow-lg border border-gray-100 z-50 overflow-hidden animate-scale-in"
+                  sideOffset={5}
+                >
+                  <div className="p-3 border-b border-gray-100">
                     <div className="relative">
-                      <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-white/50" />
+                      <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                       <input
                         type="text"
                         placeholder="Search skills..."
-                        className="w-full pl-8 pr-3 py-2 text-sm bg-white/5 text-white rounded-xl focus:outline-none placeholder:text-white/30"
+                        className="w-full pl-8 pr-3 py-2 text-sm bg-liquid-light rounded-xl focus:outline-none text-gray-900 placeholder:text-gray-400"
                         value={skillSearch}
                         onChange={(e) => setSkillSearch(e.target.value)}
                         onClick={(e) => e.stopPropagation()}
+                        autoFocus
                       />
                     </div>
                   </div>
@@ -345,19 +341,19 @@ export function CoverLetterStep({ formData, updateFormData, errors }: CoverLette
                           className={cn(
                             'flex items-center justify-between px-3 py-2 rounded-xl cursor-pointer text-sm transition-all',
                             isSelected
-                              ? 'bg-white/20 font-medium text-white'
-                              : 'hover:bg-white/10 text-white/80'
+                              ? 'bg-liquid-dark-primary/10 font-medium text-liquid-dark-primary'
+                              : 'hover:bg-liquid-light text-gray-700'
                           )}
                         >
                           <span>{skill}</span>
-                          {isSelected && <CheckCircle2 className="h-4 w-4 text-white" />}
+                          {isSelected && <CheckCircle2 className="h-4 w-4 text-liquid-dark-primary" />}
                         </div>
                       );
                     })}
                   </div>
-                </div>
-              )}
-            </div>
+                </Popover.Content>
+              </Popover.Portal>
+            </Popover.Root>
 
             {/* Add Custom Skill */}
             <div className="flex gap-2 mt-2">

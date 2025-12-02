@@ -104,11 +104,11 @@ export function LiquidSelect({
                                         key={option.value}
                                         value={option.value}
                                         className={cn(
-                                            'relative flex items-center gap-3 px-3 py-2.5 rounded-xl',
-                                            'text-sm font-light tracking-wide cursor-pointer',
-                                            'transition-colors duration-150 outline-none',
-                                            'hover:bg-liquid-light focus:bg-liquid-light',
-                                            'data-[state=checked]:bg-liquid-dark-primary/5 data-[state=checked]:font-normal',
+                                            'relative flex items-center gap-3 px-3 py-2 rounded-xl',
+                                            'text-sm cursor-pointer transition-all',
+                                            'outline-none',
+                                            'hover:bg-liquid-light text-gray-700',
+                                            'data-[state=checked]:bg-liquid-dark-primary/10 data-[state=checked]:font-medium data-[state=checked]:text-liquid-dark-primary',
                                         )}
                                     >
                                         {OptionIcon && <OptionIcon className="h-4 w-4" />}

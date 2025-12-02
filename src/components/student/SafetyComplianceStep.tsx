@@ -85,11 +85,21 @@ export function SafetyComplianceStep({ formData, updateFormData, errors }: Safet
                 errors.termsAccepted && 'border-ui-error'
               )}
             />
-            <label htmlFor="termsAccepted" className="text-sm font-light cursor-pointer">
-              <p className="text-liquid-dark-secondary">
-                I agree to the <Link href="/terms" className="font-medium text-liquid-dark-primary hover:underline" onClick={(e) => e.stopPropagation()}>Terms of Service</Link> and <Link href="/privacy" className="font-medium text-liquid-dark-primary hover:underline" onClick={(e) => e.stopPropagation()}>Privacy Policy</Link>.
-              </p>
-            </label>
+            <div className="text-sm font-light text-liquid-dark-secondary">
+              <label htmlFor="termsAccepted" className="cursor-pointer">
+                I agree to the{' '}
+              </label>
+              <Link href="/terms" className="font-medium text-liquid-dark-primary hover:underline" onClick={(e) => e.stopPropagation()}>
+                Terms of Service
+              </Link>
+              <label htmlFor="termsAccepted" className="cursor-pointer">
+                {' '}and{' '}
+              </label>
+              <Link href="/privacy" className="font-medium text-liquid-dark-primary hover:underline" onClick={(e) => e.stopPropagation()}>
+                Privacy Policy
+              </Link>
+              .
+            </div>
           </div>
           {errors.termsAccepted && (
             <p className="text-xs font-light text-ui-error flex items-center gap-1">
