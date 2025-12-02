@@ -205,6 +205,7 @@ model TouristRequest {
   contactMethod     String   // email, phone, whatsapp
   meetingPreference String   // hotel_pickup, public_place, virtual
   tripNotes         String?  @db.Text
+  referralEmail     String?
 
   status            RequestStatus @default(PENDING)
   assignedStudentId String?
