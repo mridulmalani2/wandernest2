@@ -47,7 +47,12 @@ export default function Navigation({ variant = 'default', showBackButton = false
       return
     }
 
-    document.cookie = 'student_session_token=; path=/; max-age=0'
+    try {
+      await fetch('/api/student/auth/signout', { method: 'POST' });
+    } catch (error) {
+      console.error('Failed to sign out', error);
+    }
+
     setStudentSession(null)
     router.push('/student/signin')
     router.refresh()
