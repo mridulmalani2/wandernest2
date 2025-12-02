@@ -39,7 +39,7 @@ export default function BookingPage() {
         <Navigation variant="tourist" />
 
         {/* Main Content */}
-        <main className="flex-1 flex items-center justify-center px-4 py-16">
+        <main className="flex-1 flex items-center justify-center px-4 pt-24 pb-16">
           {loading ? (
             <div className="max-w-md w-full space-y-8 animate-fade-in-up">
               <div className="glass-card-dark rounded-3xl border-2 border-white/10 shadow-premium p-12 text-center">

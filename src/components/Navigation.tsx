@@ -74,12 +74,12 @@ export default function Navigation({ variant = 'default', showBackButton = false
   return (
     <header className={`border-b border-[var(--nav-border)] bg-[var(--nav-bg)] backdrop-blur-xl fixed top-0 w-full z-50 transition-all duration-300 ${isScrolled ? 'shadow-lg shadow-black/10' : ''
       }`}>
-      <div className="container mx-auto px-4 py-3 md:py-3.5">
+      <div className="container mx-auto px-4 py-1.5 md:py-2">
         <div className="flex justify-between items-center">
           {/* Logo */}
-          <Link href="/" className="flex items-center space-x-2.5 group">
+          <Link href="/" className="flex items-center space-x-2 group">
             <motion.div
-              className="relative w-10 h-10 rounded-lg overflow-hidden bg-white/5 backdrop-blur-sm border border-white/20"
+              className="relative w-8 h-8 rounded-lg overflow-hidden bg-white/5 backdrop-blur-sm border border-white/20"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               transition={{ type: "spring", stiffness: 400, damping: 20 }}
@@ -89,12 +89,12 @@ export default function Navigation({ variant = 'default', showBackButton = false
                 alt="TourWiseCo Logo"
                 fill
                 className="object-cover"
-                sizes="40px"
+                sizes="32px"
                 priority
               />
             </motion.div>
             <motion.span
-              className="text-xl md:text-2xl font-sans font-semibold text-white tracking-tight"
+              className="text-base md:text-lg font-sans font-semibold text-white tracking-tight"
               whileHover={{ opacity: 0.9 }}
               transition={{ duration: 0.2 }}
             >
@@ -106,15 +106,15 @@ export default function Navigation({ variant = 'default', showBackButton = false
           <nav className="hidden md:flex items-center gap-2 lg:gap-3">
             {showAdminNav && (
               <Link href="/admin">
-                <Button variant="ghost" className="rounded-full px-4 py-2 h-auto text-white/90 hover:bg-white/10 hover:text-white transition-all font-sans text-sm font-medium">
+                <Button variant="ghost" className="rounded-full px-3 py-1 h-auto text-white/90 hover:bg-white/10 hover:text-white transition-all font-sans text-xs font-medium">
                   Admin
                 </Button>
               </Link>
             )}
             {showBackButton && (
               <Link href={backHref}>
-                <Button variant="ghost" className="rounded-full px-4 py-2 h-auto text-white/90 hover:bg-white/10 hover:text-white transition-all font-sans text-sm font-medium focus-visible:ring-2 focus-visible:ring-white/30 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent" aria-label="Go back">
-                  <ChevronLeft className="w-4 h-4 mr-1" /> Back
+                <Button variant="ghost" className="rounded-full px-3 py-1 h-auto text-white/90 hover:bg-white/10 hover:text-white transition-all font-sans text-xs font-medium focus-visible:ring-2 focus-visible:ring-white/30 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent" aria-label="Go back">
+                  <ChevronLeft className="w-3.5 h-3.5 mr-1" /> Back
                 </Button>
               </Link>
             )}
@@ -122,12 +122,12 @@ export default function Navigation({ variant = 'default', showBackButton = false
             {!session && variant === 'default' && (
               <>
                 <Link href="/student">
-                  <Button variant="ghost" className="rounded-full px-4 py-2 h-auto text-white/90 border border-white/20 hover:bg-white/10 hover:text-white transition-all duration-200 hover:scale-105 active:scale-95 font-sans text-sm font-medium">
+                  <Button variant="ghost" className="rounded-full px-3 py-1.5 h-auto text-white/90 border border-white/20 hover:bg-white/10 hover:text-white transition-all duration-200 hover:scale-105 active:scale-95 font-sans text-xs font-medium">
                     I&apos;m a Student
                   </Button>
                 </Link>
                 <Link href="/booking">
-                  <Button className="rounded-full px-5 py-2 h-auto bg-white/15 hover:bg-white/25 border border-white/30 text-white font-sans text-sm font-semibold transition-all duration-200 hover:scale-105 hover:-translate-y-0.5 active:scale-95 backdrop-blur-sm">
+                  <Button className="rounded-full px-4 py-1.5 h-auto bg-white/15 hover:bg-white/25 border border-white/30 text-white font-sans text-xs font-semibold transition-all duration-200 hover:scale-105 hover:-translate-y-0.5 active:scale-95 backdrop-blur-sm">
                     Book a Guide
                   </Button>
                 </Link>
@@ -137,12 +137,12 @@ export default function Navigation({ variant = 'default', showBackButton = false
             {!session && variant === 'tourist' && (
               <>
                 <Link href="/">
-                  <Button variant="ghost" className="rounded-full px-4 py-2 h-auto text-white/90 hover:bg-white/10 hover:text-white transition-all duration-200 hover:scale-105 active:scale-95 font-sans text-sm font-medium">
-                    <ChevronLeft className="w-4 h-4 mr-1" /> Back to Home
+                  <Button variant="ghost" className="rounded-full px-3 py-1.5 h-auto text-white/90 hover:bg-white/10 hover:text-white transition-all duration-200 hover:scale-105 active:scale-95 font-sans text-xs font-medium">
+                    <ChevronLeft className="w-3.5 h-3.5 mr-1" /> Back to Home
                   </Button>
                 </Link>
                 <Link href="/booking">
-                  <Button className="rounded-full px-5 py-2 h-auto bg-white/15 hover:bg-white/25 border border-white/30 text-white font-sans text-sm font-semibold transition-all duration-200 hover:scale-105 hover:-translate-y-0.5 active:scale-95 backdrop-blur-sm">
+                  <Button className="rounded-full px-4 py-1.5 h-auto bg-white/15 hover:bg-white/25 border border-white/30 text-white font-sans text-xs font-semibold transition-all duration-200 hover:scale-105 hover:-translate-y-0.5 active:scale-95 backdrop-blur-sm">
                     Book a Guide
                   </Button>
                 </Link>
