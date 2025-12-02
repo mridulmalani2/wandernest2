@@ -91,7 +91,7 @@ const LiquidInput = React.forwardRef<HTMLInputElement, LiquidInputProps>(
                                 Icon && 'left-6',
 
                                 // Floating animation
-                                isFocused || hasValue || props.value
+                                isFocused || hasValue || props.value || type === 'date'
                                     ? '-top-5 text-xs text-white/80'
                                     : 'top-3 text-base text-white/50',
 

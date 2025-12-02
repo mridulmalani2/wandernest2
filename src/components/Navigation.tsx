@@ -79,7 +79,7 @@ export default function Navigation({ variant = 'default', showBackButton = false
   }, [session, variant])
 
   return (
-    <header className={`border-b border-[var(--nav-border)] bg-[var(--nav-bg)] backdrop-blur-xl fixed top-0 w-full z-50 transition-all duration-300 ${isScrolled ? 'shadow-lg shadow-black/10' : ''
+    <header className={`border-b border-white/10 bg-black/80 backdrop-blur-xl fixed top-0 w-full z-50 transition-all duration-300 ${isScrolled ? 'shadow-lg shadow-black/10' : ''
       }`}>
       <div className="container mx-auto px-4 py-1.5 md:py-2">
         <div className="flex justify-between items-center">
