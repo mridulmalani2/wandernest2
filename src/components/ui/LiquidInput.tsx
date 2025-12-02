@@ -42,16 +42,16 @@ const LiquidInput = React.forwardRef<HTMLInputElement, LiquidInputProps>(
                         className={cn(
                             // Base styles - minimal, transparent
                             'w-full bg-transparent px-0 py-3 text-base font-light tracking-wide',
-                            'text-white',
+                            'text-gray-900',
 
                             // Border - single bottom line
-                            'border-0 border-b border-white/20',
+                            'border-0 border-b border-gray-300',
                             'transition-all duration-300 ease-out',
 
                             // Focus state - gradient underline
                             'focus:outline-none focus:ring-0',
                             'focus:border-b-2',
-                            isFocused && 'border-white',
+                            isFocused && 'border-liquid-dark-primary',
 
                             // Error state
                             error && 'border-ui-error focus:border-ui-error',
@@ -66,11 +66,11 @@ const LiquidInput = React.forwardRef<HTMLInputElement, LiquidInputProps>(
                             label && 'placeholder:text-transparent',
 
                             // Force hide date input placeholders (browser default)
-                            type === 'date' && '[&::-webkit-datetime-edit]:opacity-0 focus:[&::-webkit-datetime-edit]:opacity-100',
-                            type === 'date' && hasValue && '[&::-webkit-datetime-edit]:opacity-100',
+                            // type === 'date' && '[&::-webkit-datetime-edit]:opacity-0 focus:[&::-webkit-datetime-edit]:opacity-100',
+                            // type === 'date' && hasValue && '[&::-webkit-datetime-edit]:opacity-100',
 
                             // Date input specific styling for dark mode
-                            type === 'date' && '[color-scheme:dark]',
+                            // type === 'date' && '[color-scheme:dark]',
 
                             className
                         )}
@@ -92,8 +92,8 @@ const LiquidInput = React.forwardRef<HTMLInputElement, LiquidInputProps>(
 
                                 // Floating animation
                                 isFocused || hasValue || props.value
-                                    ? '-top-5 text-xs text-white/80'
-                                    : 'top-3 text-base text-white/50',
+                                    ? '-top-5 text-xs text-gray-600'
+                                    : 'top-3 text-base text-gray-400',
 
                                 // Error state
                                 error && 'text-ui-error',
