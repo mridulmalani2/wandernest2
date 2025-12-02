@@ -27,8 +27,8 @@ function TouristAuthLandingContent() {
       // USER ROLE IS DETERMINED BY EMAIL DOMAIN (IMMUTABLE)
       // Check if user is actually a tourist based on their email
       if (session.user.userType === 'tourist') {
-        // User is a tourist - proceed to dashboard
-        router.replace('/tourist/dashboard');
+        // User is a tourist - proceed to booking
+        router.replace('/booking');
         return;
       }
 
