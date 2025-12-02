@@ -171,7 +171,7 @@ function StudentSignInContent() {
   const anyError = domainValidationError || emailErrorMessage || urlError;
 
   return (
-    <div className="min-h-screen flex flex-col relative overflow-hidden">
+    <div className="min-h-screen flex flex-col relative overflow-hidden bg-black">
       {/* Background Image with Overlays */}
       <div className="absolute inset-0" role="img" aria-label="Student studying with books and learning materials">
         <Image
@@ -183,10 +183,9 @@ function StudentSignInContent() {
           sizes="100vw"
           className="object-cover"
         />
-        <div className="absolute inset-0 bg-black/25 backdrop-blur-[4px]" />
-        <div className="absolute inset-0 bg-gradient-to-br from-ui-blue-primary/20 via-ui-purple-primary/15 to-ui-purple-accent/20" />
+        <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px]" />
       </div>
-      <div className="absolute inset-0 pattern-grid opacity-15" />
+      <div className="absolute inset-0 pattern-grid opacity-5" />
 
       {/* Content */}
       <div className="relative z-10 flex flex-col min-h-screen">
@@ -200,18 +199,18 @@ function StudentSignInContent() {
                   Student Guide
                 </span>
               </h2>
-              <p className="text-white mt-2 text-shadow">
+              <p className="text-gray-300 mt-2 text-shadow">
                 Use your university email (.edu, .ac.uk, etc.)
               </p>
             </div>
 
             {/* Error Messages */}
             {anyError && (
-              <div className="glass-card bg-ui-error/10 border-2 border-ui-error/30 rounded-2xl p-4 shadow-premium animate-scale-in">
+              <div className="glass-card-dark bg-red-900/20 border-2 border-red-500/20 rounded-2xl p-4 shadow-premium animate-scale-in">
                 <div className="flex items-start gap-3">
-                  <AlertCircle className="w-5 h-5 text-ui-error flex-shrink-0 mt-0.5" />
+                  <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
                   <div className="flex-1">
-                    <p className="text-sm text-ui-error font-semibold">
+                    <p className="text-sm text-red-300 font-semibold">
                       {domainValidationError ||
                         emailErrorMessage ||
                         (urlError === 'EmailSignin'
@@ -225,31 +224,31 @@ function StudentSignInContent() {
 
             {/* Info / success message */}
             {message && (
-              <div className="glass-card bg-emerald-100/95 border-2 border-emerald-400 rounded-2xl p-4 shadow-premium backdrop-blur-md animate-scale-in">
+              <div className="glass-card-dark bg-green-900/20 border-2 border-green-500/20 rounded-2xl p-4 shadow-premium backdrop-blur-md animate-scale-in">
                 <div className="flex items-start gap-2">
-                  <svg className="w-5 h-5 text-emerald-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                  <svg className="w-5 h-5 text-green-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                   </svg>
-                  <p className="text-sm text-emerald-900 font-semibold flex-1">{message}</p>
+                  <p className="text-sm text-green-300 font-semibold flex-1">{message}</p>
                 </div>
               </div>
             )}
 
             {/* Sign In Card */}
-            <div className="glass-card rounded-3xl border-2 border-white/40 p-8 shadow-premium space-y-6">
+            <div className="glass-card-dark rounded-3xl border-2 border-white/10 p-8 shadow-premium space-y-6">
               {step === 'email' ? (
                 <>
                   <form onSubmit={handleEmailSignIn} className="space-y-4">
                     <div>
                       <label
                         htmlFor="email"
-                        className="block text-sm font-semibold text-gray-800 mb-2"
+                        className="block text-sm font-semibold text-gray-300 mb-2"
                       >
                         University Email Address
                       </label>
                       <div className="relative">
                         <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                          <Mail className="h-5 w-5 text-gray-400" />
+                          <Mail className="h-5 w-5 text-gray-500" />
                         </div>
                         <Input
                           id="email"
@@ -263,11 +262,11 @@ function StudentSignInContent() {
                             setMessage(null);
                           }}
                           placeholder="your.email@university.edu"
-                          className="pl-12 h-12 text-base"
+                          className="pl-12 h-12 text-base bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-purple-500/50 focus:ring-purple-500/20"
                           disabled={isSubmitting || isVerifying}
                         />
                       </div>
-                      <p className="text-xs text-gray-700 mt-2 font-medium">
+                      <p className="text-xs text-gray-400 mt-2 font-medium">
                         We'll send a 6-digit verification code to your email.
                       </p>
                     </div>
@@ -284,14 +283,14 @@ function StudentSignInContent() {
                     </PrimaryCTAButton>
                   </form>
 
-                  <div className="text-center text-sm text-gray-700">
+                  <div className="text-center text-sm text-gray-400">
                     <p>
                       By signing in, you agree to our{' '}
-                      <Link href="/terms" className="text-purple-700 hover:underline font-semibold">
+                      <Link href="/terms" className="text-purple-400 hover:underline font-semibold">
                         Terms of Service
                       </Link>{' '}
                       and{' '}
-                      <Link href="/privacy" className="text-purple-700 hover:underline font-semibold">
+                      <Link href="/privacy" className="text-purple-400 hover:underline font-semibold">
                         Privacy Policy
                       </Link>
                     </p>
@@ -300,15 +299,15 @@ function StudentSignInContent() {
               ) : (
                 <div className="space-y-6">
                   <div className="text-center">
-                    <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-3">
-                      <CheckCircle2 className="w-8 h-8 text-green-600" />
+                    <div className="mx-auto w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mb-3">
+                      <CheckCircle2 className="w-8 h-8 text-green-400" />
                     </div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">
+                    <h3 className="text-xl font-bold text-white mb-2">
                       Enter your verification code
                     </h3>
-                    <p className="text-sm text-gray-700 font-medium">
+                    <p className="text-sm text-gray-300 font-medium">
                       We've sent a 6-digit code to{' '}
-                      <span className="font-bold text-purple-700">{email}</span>
+                      <span className="font-bold text-purple-400">{email}</span>
                     </p>
                   </div>
 
@@ -316,7 +315,7 @@ function StudentSignInContent() {
                     <div>
                       <label
                         htmlFor="code"
-                        className="block text-sm font-semibold text-gray-800 mb-2"
+                        className="block text-sm font-semibold text-gray-300 mb-2"
                       >
                         6-digit code
                       </label>
@@ -330,11 +329,11 @@ function StudentSignInContent() {
                           setCode(e.target.value.replace(/\D/g, ''))
                         }
                         placeholder="••••••"
-                        className="text-center tracking-[0.5em] text-2xl font-bold h-14"
+                        className="text-center tracking-[0.5em] text-2xl font-bold h-14 bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-purple-500/50 focus:ring-purple-500/20"
                         disabled={isVerifying || isSubmitting}
                         required
                       />
-                      <p className="text-xs text-gray-700 mt-2 font-medium">
+                      <p className="text-xs text-gray-400 mt-2 font-medium">
                         Code is valid for 10 minutes.
                       </p>
                     </div>
@@ -356,7 +355,7 @@ function StudentSignInContent() {
                       type="button"
                       onClick={handleResend}
                       disabled={isSubmitting || isVerifying}
-                      className="text-purple-700 font-semibold hover:underline disabled:opacity-60 disabled:cursor-not-allowed"
+                      className="text-purple-400 font-semibold hover:underline disabled:opacity-60 disabled:cursor-not-allowed"
                     >
                       Didn't get the code? Resend
                     </button>
@@ -368,7 +367,7 @@ function StudentSignInContent() {
                         setMessage(null);
                         setEmailErrorMessage(null);
                       }}
-                      className="text-gray-700 hover:underline"
+                      className="text-gray-400 hover:underline"
                     >
                       Use a different email
                     </button>
@@ -378,14 +377,14 @@ function StudentSignInContent() {
             </div>
 
             {/* Info Box */}
-            <div className="glass-frosted bg-purple-100/90 border-2 border-purple-300 rounded-2xl p-6 shadow-lg hover-lift backdrop-blur-md">
+            <div className="glass-card-dark bg-purple-900/20 border-2 border-purple-500/20 rounded-2xl p-6 shadow-lg hover-lift backdrop-blur-md">
               <div className="flex items-start space-x-3">
                 <div className="text-3xl">🎓</div>
                 <div>
-                  <h3 className="font-bold text-purple-900 mb-3 text-lg">
+                  <h3 className="font-bold text-purple-300 mb-3 text-lg">
                     What happens next?
                   </h3>
-                  <ul className="list-disc list-inside text-sm text-purple-800 space-y-2 font-medium">
+                  <ul className="list-disc list-inside text-sm text-purple-200 space-y-2 font-medium">
                     <li>Complete your profile and verification</li>
                     <li>Set your availability and preferences</li>
                     <li>Start receiving booking requests</li>
@@ -400,7 +399,7 @@ function StudentSignInContent() {
               <p className="text-white font-medium text-shadow">
                 Looking to book a guide?{' '}
                 <Link
-                  href="/tourist/signin"
+                  href="/booking"
                   className="text-blue-300 hover:text-blue-200 hover:underline font-bold"
                 >
                   Sign in as Tourist
@@ -411,9 +410,9 @@ function StudentSignInContent() {
         </main>
 
         {/* Footer */}
-        <footer className="border-t-2 glass-card border-white/40 mt-16 animate-fade-in">
+        <footer className="border-t-2 glass-card-dark border-white/10 mt-16 animate-fade-in">
           <div className="container mx-auto px-4 py-8 text-center">
-            <p className="text-white font-medium text-shadow">&copy; {new Date().getFullYear()} TourWiseCo. All rights reserved.</p>
+            <p className="text-gray-400 font-medium text-shadow">&copy; {new Date().getFullYear()} TourWiseCo. All rights reserved.</p>
           </div>
         </footer>
       </div>

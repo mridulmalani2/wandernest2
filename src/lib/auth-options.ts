@@ -291,7 +291,7 @@ export const authOptions: NextAuthOptions = {
   adapter: prisma ? (PrismaAdapter(prisma) as any) : undefined,
   providers: providers,
   pages: {
-    signIn: "/tourist/signin",  // Default to tourist signin
+    signIn: "/booking",  // Default to booking page which handles tourist signin
     // Note: We intentionally do NOT set an error page here.
     // This allows NextAuth to append error info to the callbackUrl,
     // which lets student and tourist signin pages handle their own errors.

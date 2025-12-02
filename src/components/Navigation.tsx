@@ -41,7 +41,7 @@ export default function Navigation({ variant = 'default', showBackButton = false
       if (userType === 'student') {
         callbackUrl = '/student/signin';
       } else if (userType === 'tourist') {
-        callbackUrl = '/tourist/signin';
+        callbackUrl = '/booking';
       }
       await signOut({ callbackUrl })
       return
@@ -79,7 +79,7 @@ export default function Navigation({ variant = 'default', showBackButton = false
   }, [session, variant])
 
   return (
-    <header className={`border-b border-white/10 bg-black/80 backdrop-blur-xl fixed top-0 w-full z-50 transition-all duration-300 ${isScrolled ? 'shadow-lg shadow-black/10' : ''
+    <header className={`nav-glass-dark fixed top-0 w-full z-50 transition-all duration-300 ${isScrolled ? 'shadow-lg shadow-black/10' : ''
       }`}>
       <div className="container mx-auto px-4 py-3 md:py-4">
         <div className="flex justify-between items-center">

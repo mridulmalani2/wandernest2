@@ -39,7 +39,7 @@ export function ReviewSubmitStep({ formData, errors }: ReviewSubmitStepProps) {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Personal */}
-        <FlowCard padding="md">
+        <FlowCard padding="md" variant="dark">
           <div className="flex items-center gap-3 mb-4">
             <div className="h-8 w-8 rounded-full bg-white/10 flex items-center justify-center">
               <User className="h-4 w-4 text-white" />
@@ -74,7 +74,7 @@ export function ReviewSubmitStep({ formData, errors }: ReviewSubmitStepProps) {
         </FlowCard>
 
         {/* Academic */}
-        <FlowCard padding="md">
+        <FlowCard padding="md" variant="dark">
           <div className="flex items-center gap-3 mb-4">
             <div className="h-8 w-8 rounded-full bg-white/10 flex items-center justify-center">
               <GraduationCap className="h-4 w-4 text-white" />
@@ -111,7 +111,7 @@ export function ReviewSubmitStep({ formData, errors }: ReviewSubmitStepProps) {
         </FlowCard>
 
         {/* Profile Content */}
-        <FlowCard padding="md" className="md:col-span-2">
+        <FlowCard padding="md" className="md:col-span-2" variant="dark">
           <div className="flex items-center gap-3 mb-4">
             <div className="h-8 w-8 rounded-full bg-white/10 flex items-center justify-center">
               <FileText className="h-4 w-4 text-white" />
@@ -159,7 +159,7 @@ export function ReviewSubmitStep({ formData, errors }: ReviewSubmitStepProps) {
         </FlowCard>
 
         {/* Service */}
-        <FlowCard padding="md">
+        <FlowCard padding="md" variant="dark">
           <div className="flex items-center gap-3 mb-4">
             <div className="h-8 w-8 rounded-full bg-white/10 flex items-center justify-center">
               <Briefcase className="h-4 w-4 text-white" />
@@ -188,7 +188,7 @@ export function ReviewSubmitStep({ formData, errors }: ReviewSubmitStepProps) {
         </FlowCard>
 
         {/* Availability */}
-        <FlowCard padding="md">
+        <FlowCard padding="md" variant="dark">
           <div className="flex items-center gap-3 mb-4">
             <div className="h-8 w-8 rounded-full bg-white/10 flex items-center justify-center">
               <Calendar className="h-4 w-4 text-white" />
@@ -218,7 +218,7 @@ export function ReviewSubmitStep({ formData, errors }: ReviewSubmitStepProps) {
         </FlowCard>
 
         {/* Verification */}
-        <FlowCard padding="md" className="md:col-span-2" variant="subtle">
+        <FlowCard padding="md" className="md:col-span-2" variant="dark">
           <div className="flex items-center gap-3 mb-4">
             <div className="h-8 w-8 rounded-full bg-white/10 flex items-center justify-center">
               <Shield className="h-4 w-4 text-white" />

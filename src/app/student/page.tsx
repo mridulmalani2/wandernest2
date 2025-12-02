@@ -30,7 +30,7 @@ export default function StudentLandingPage() {
           className="object-cover"
         />
         {/* Enhanced dark overlay for better text contrast */}
-        <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" />
+        <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px]" />
         {/* Gradient overlay for visual depth */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/20" />
       </motion.div>
@@ -91,29 +91,29 @@ export default function StudentLandingPage() {
                   </p>
                 </div>
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 max-w-6xl mx-auto">
-                  <div className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-100 hover:border-ui-blue-primary/30 hover:-translate-y-1">
-                    <h3 className="font-bold text-xl mb-4 text-gray-900 group-hover:text-ui-blue-primary transition-colors">
+                  <div className="group glass-card-dark rounded-2xl p-8 shadow-premium hover:shadow-2xl transition-all duration-300 border border-white/10 hover:border-ui-blue-primary/50 hover:-translate-y-1">
+                    <h3 className="font-bold text-xl mb-4 text-white group-hover:text-ui-blue-primary transition-colors">
                       Earn More
                     </h3>
-                    <p className="text-base text-gray-600 leading-relaxed">
+                    <p className="text-base text-gray-300 leading-relaxed">
                       Make significantly more than standard campus jobs with flexible hours
                     </p>
                   </div>
 
-                  <div className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-100 hover:border-ui-purple-primary/30 hover:-translate-y-1">
-                    <h3 className="font-bold text-xl mb-4 text-gray-900 group-hover:text-ui-purple-primary transition-colors">
+                  <div className="group glass-card-dark rounded-2xl p-8 shadow-premium hover:shadow-2xl transition-all duration-300 border border-white/10 hover:border-ui-purple-primary/50 hover:-translate-y-1">
+                    <h3 className="font-bold text-xl mb-4 text-white group-hover:text-ui-purple-primary transition-colors">
                       Fully Flexible
                     </h3>
-                    <p className="text-base text-gray-600 leading-relaxed">
+                    <p className="text-base text-gray-300 leading-relaxed">
                       Choose your own time slots and work around your class schedule
                     </p>
                   </div>
 
-                  <div className="group bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-100 hover:border-ui-success/30 hover:-translate-y-1 md:col-span-2 lg:col-span-1">
-                    <h3 className="font-bold text-xl mb-4 text-gray-900 group-hover:text-ui-success transition-colors">
+                  <div className="group glass-card-dark rounded-2xl p-8 shadow-premium hover:shadow-2xl transition-all duration-300 border border-white/10 hover:border-ui-success/50 hover:-translate-y-1 md:col-span-2 lg:col-span-1">
+                    <h3 className="font-bold text-xl mb-4 text-white group-hover:text-ui-success transition-colors">
                       Cultural Connection
                     </h3>
-                    <p className="text-base text-gray-600 leading-relaxed">
+                    <p className="text-base text-gray-300 leading-relaxed">
                       Meet visitors from your home country and share your culture
                     </p>
                   </div>

@@ -34,7 +34,7 @@ export async function middleware(request: NextRequest) {
   // Admin routes - check for admin token (separate from NextAuth)
   if (pathname.startsWith('/admin') && !pathname.startsWith('/admin/login')) {
     const adminToken = request.cookies.get('admin-token')?.value ||
-                       request.headers.get('authorization')?.replace('Bearer ', '')
+      request.headers.get('authorization')?.replace('Bearer ', '')
 
     if (!adminToken) {
       return NextResponse.redirect(new URL('/admin/login', request.url))
@@ -70,12 +70,12 @@ export async function middleware(request: NextRequest) {
     })
 
     if (!token) {
-      return NextResponse.redirect(new URL('/tourist/signin', request.url))
+      return NextResponse.redirect(new URL('/booking', request.url))
     }
 
     // Verify user is a tourist
     if (token.userType !== 'tourist') {
-      return NextResponse.redirect(new URL('/tourist/signin', request.url))
+      return NextResponse.redirect(new URL('/booking', request.url))
     }
   }
 

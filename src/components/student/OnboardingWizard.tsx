@@ -468,12 +468,12 @@ export function OnboardingWizard({ session }: OnboardingWizardProps) {
   };
 
   return (
-    <div className="min-h-screen flex flex-col relative overflow-hidden">
+    <div className="min-h-screen flex flex-col relative overflow-hidden bg-black">
       {/* Background Image with Overlays */}
       <div className="absolute inset-0" role="img" aria-label="Modern university learning space">
         <Image
-          src="https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1920&q=80"
-          alt="Starry night mountains"
+          src="https://images.unsplash.com/photo-1562774053-701939374585?w=1920&q=80"
+          alt="Modern university lecture hall with natural light"
           fill
           priority
           quality={85}
@@ -481,11 +481,9 @@ export function OnboardingWizard({ session }: OnboardingWizardProps) {
           className="object-cover"
         />
         {/* Dark overlay for text contrast */}
-        <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" />
-        {/* Gradient overlay for visual depth */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--ui-purple-accent))]/10 via-[hsl(var(--ui-blue-primary))]/10 to-[hsl(var(--ui-purple-primary))]/10" />
+        <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px]" />
       </div>
-      <div className="absolute inset-0 pattern-dots opacity-10" />
+      <div className="absolute inset-0 pattern-grid opacity-5" />
 
       {/* Content */}
       <div className="relative z-10 flex flex-col min-h-screen">
@@ -493,10 +491,12 @@ export function OnboardingWizard({ session }: OnboardingWizardProps) {
         <Navigation variant="student" />
 
         {/* Main Content */}
-        <main className="container mx-auto px-4 py-12 flex-1">
-          <div className="max-w-4xl mx-auto mb-8 text-center animate-fade-in-up">
-            <h1 className="text-4xl font-bold mb-4 text-white text-shadow-lg">Become a TourWiseCo Guide</h1>
-            <p className="text-white text-lg text-shadow">
+        <main className="flex-1 px-4 pt-28 pb-16">
+          <div className="max-w-4xl mx-auto text-center mb-10 animate-fade-in-up">
+            <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 text-shadow-lg">
+              Student Guide Application
+            </h1>
+            <p className="text-xl text-gray-300 max-w-2xl mx-auto text-shadow">
               Complete your profile to start connecting with travelers visiting Paris and London
             </p>
           </div>
@@ -567,13 +567,13 @@ export function OnboardingWizard({ session }: OnboardingWizardProps) {
                 )}
 
                 {/* Navigation Buttons */}
-                <div className="mt-8 flex justify-between pt-6 border-t border-gray-100">
+                <div className="mt-8 flex justify-between pt-6 border-t border-white/10">
                   <Button
                     type="button"
                     variant="outline"
                     onClick={handleBack}
                     disabled={currentStep === 1 || isSubmitting}
-                    className="hover-lift shadow-soft bg-white"
+                    className="hover-lift shadow-soft bg-transparent text-white border-white/20 hover:bg-white/10"
                   >
                     Back
                   </Button>
@@ -602,14 +602,14 @@ export function OnboardingWizard({ session }: OnboardingWizardProps) {
             </div>
 
             {/* Marketplace Disclaimer */}
-            <div className="glass-card-dark bg-ui-warning/10 border-2 border-ui-warning/30 rounded-2xl p-4 md:p-6 mt-8 shadow-premium animate-fade-in-up delay-100">
+            <div className="glass-card-dark bg-amber-900/20 border-2 border-amber-500/20 rounded-2xl p-4 md:p-6 mt-8 shadow-premium animate-fade-in-up delay-100">
               <div className="flex items-start gap-3 md:gap-4">
-                <div className="flex-shrink-0 p-3 rounded-xl bg-ui-warning text-white shadow-soft">
+                <div className="flex-shrink-0 p-3 rounded-xl bg-amber-500/20 text-amber-400 shadow-soft">
                   <AlertTriangle className="w-6 h-6" />
                 </div>
                 <div>
-                  <h2 className="font-bold text-amber-100 mb-2 text-lg">Marketplace Notice</h2>
-                  <p className="text-sm text-amber-100/90 leading-relaxed">
+                  <h2 className="font-bold text-amber-300 mb-2 text-lg">Marketplace Notice</h2>
+                  <p className="text-sm text-amber-200/90 leading-relaxed">
                     <strong>TourWiseCo is a connection platform only.</strong> We do not handle payments, guarantee service quality, or assume liability. All services and payments are arranged directly between you and your chosen guide.
                   </p>
                 </div>
@@ -617,7 +617,7 @@ export function OnboardingWizard({ session }: OnboardingWizardProps) {
             </div>
           </div>   {/* Submit Error */}
           {errors.submit && (
-            <div className="mt-4 p-4 glass-frosted bg-gradient-to-br from-ui-error/10 to-ui-error/20 border-2 border-ui-error rounded-2xl text-ui-error text-sm shadow-soft animate-slide-down">
+            <div className="mt-4 p-4 glass-card-dark bg-red-900/20 border-2 border-red-500/20 rounded-2xl text-red-300 text-sm shadow-soft animate-slide-down">
               {errors.submit}
             </div>
           )}

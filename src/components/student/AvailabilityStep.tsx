@@ -94,7 +94,7 @@ export function AvailabilityStep({ formData, updateFormData, errors }: Availabil
       </div>
 
       {/* Add Time Slot */}
-      <FlowCard padding="lg">
+      <FlowCard padding="lg" variant="dark">
         <div className="space-y-4">
           <div className="flex items-center gap-2 text-sm font-light tracking-wide text-white/80">
             <Plus className="h-4 w-4" />
@@ -197,7 +197,7 @@ export function AvailabilityStep({ formData, updateFormData, errors }: Availabil
       </div>
 
       {/* Unavailable Dates */}
-      <FlowCard padding="lg">
+      <FlowCard padding="lg" variant="dark">
         <div className="space-y-4">
           <h3 className="text-sm font-light tracking-wide text-liquid-dark-secondary">
             Unavailable Dates (Optional)

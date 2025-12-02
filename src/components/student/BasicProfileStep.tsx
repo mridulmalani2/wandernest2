@@ -74,7 +74,7 @@ export function BasicProfileStep({ formData, updateFormData, errors, cities }: B
       </div>
 
       {/* Personal Details */}
-      <FlowCard padding="lg">
+      <FlowCard padding="lg" variant="dark">
         <div className="space-y-6">
           <h3 className="text-sm font-light tracking-wide text-white/80 flex items-center gap-2">
             <User className="h-4 w-4" />
@@ -316,7 +316,7 @@ export function BasicProfileStep({ formData, updateFormData, errors, cities }: B
       </FlowCard>
 
       {/* Academic Details */}
-      <FlowCard padding="lg">
+      <FlowCard padding="lg" variant="dark">
         <div className="space-y-6">
           <h3 className="text-sm font-light tracking-wide text-white/80 flex items-center gap-2">
             <GraduationCap className="h-4 w-4" />

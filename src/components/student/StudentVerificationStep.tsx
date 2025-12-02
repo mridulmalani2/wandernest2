@@ -230,7 +230,7 @@ export function StudentVerificationStep({ formData, updateFormData, errors }: St
       </div>
 
       {/* Consent Checkboxes */}
-      <FlowCard padding="lg">
+      <FlowCard padding="lg" variant="dark">
         <div className="space-y-4">
           <div className="flex items-start gap-4">
             <input

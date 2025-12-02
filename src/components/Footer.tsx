@@ -76,7 +76,7 @@ export default function Footer({ variant = 'default' }: FooterProps) {
                 </li>
                 <li>
                   <Link
-                    href="/tourist/signin"
+                    href="/booking"
                     className="text-sm text-white/80 hover:text-white transition-colors duration-200 inline-block hover:translate-x-1 transform"
                   >
                     Sign In

@@ -20,7 +20,7 @@ function TouristAuthLandingContent() {
 
       // No session - return to signin
       if (!session?.user) {
-        router.replace('/tourist/signin');
+        router.replace('/booking');
         return;
       }
 

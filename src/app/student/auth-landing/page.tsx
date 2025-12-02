@@ -57,12 +57,12 @@ function StudentAuthLandingContent() {
           sizes="100vw"
           className="object-cover"
         />
-        <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" />
+        <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
       </div>
 
       {/* Content */}
       <div className="relative z-10 flex min-h-screen items-center justify-center px-4">
-        <div className="glass-card rounded-3xl border-2 border-white/40 p-8 shadow-premium max-w-lg w-full text-center space-y-4">
+        <div className="glass-card-dark rounded-3xl border-2 border-white/10 p-8 shadow-premium max-w-lg w-full text-center space-y-4">
           {!error ? (
             <>
               <h1 className="text-2xl font-semibold text-white text-shadow">

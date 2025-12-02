@@ -59,7 +59,7 @@ export default function MainLanding() {
           sizes="100vw"
           className="object-cover"
         />
-        <div className="absolute inset-0 bg-black/30 backdrop-blur-[4px]" />
+        <div className="absolute inset-0 bg-black/60 backdrop-blur-[4px]" />
         <div className="absolute inset-0 bg-gradient-to-br from-ui-blue-accent/15 via-ui-purple-accent/10 to-ui-purple-primary/15" />
       </div>
       <div className="absolute inset-0 pattern-dots opacity-20" />

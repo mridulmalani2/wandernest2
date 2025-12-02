@@ -26,7 +26,7 @@ export function SafetyComplianceStep({ formData, updateFormData, errors }: Safet
       </div>
 
       {/* Emergency Contact */}
-      <FlowCard padding="lg">
+      <FlowCard padding="lg" variant="dark">
         <div className="space-y-6">
           <div className="flex items-center gap-2 text-sm font-light tracking-wide text-white/80">
             <Phone className="h-4 w-4" />
@@ -71,7 +71,7 @@ export function SafetyComplianceStep({ formData, updateFormData, errors }: Safet
       </FlowCard>
 
       {/* Terms Acceptance */}
-      <FlowCard padding="lg">
+      <FlowCard padding="lg" variant="dark">
         <div className="space-y-6">
           <div className="flex items-start gap-4">
             <input

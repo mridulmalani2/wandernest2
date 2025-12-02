@@ -437,6 +437,24 @@
 
 
   /* Glass morphism effect - Used heavily throughout the app */
+  .glass-card-dark {
+    background: rgba(30, 25, 60, 0.85);
+    /* Dark Purple Tint */
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+    color: white;
+  }
+
+  .nav-glass-dark {
+    background: rgba(30, 25, 60, 0.85);
+    /* Matches glass-card-dark */
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
   .glass-card {
     background: var(--glass-bg);
     backdrop-filter: blur(20px) saturate(200%);

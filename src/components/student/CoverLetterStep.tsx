@@ -87,7 +87,7 @@ export function CoverLetterStep({ formData, updateFormData, errors }: CoverLette
       </div>
 
       {/* Bio */}
-      <FlowCard padding="lg">
+      <FlowCard padding="lg" variant="dark">
         <div className="space-y-3">
           <label className="text-sm font-light tracking-wide text-white/80 block">
             Bio {errors.bio && <span className="text-ui-error ml-1">*</span>}
@@ -116,7 +116,7 @@ export function CoverLetterStep({ formData, updateFormData, errors }: CoverLette
       </FlowCard>
 
       {/* Cover Letter */}
-      <FlowCard padding="lg">
+      <FlowCard padding="lg" variant="dark">
         <div className="space-y-3">
           <label className="text-sm font-light tracking-wide text-white/80 block flex items-center gap-2">
             <FileText className="h-4 w-4" />
