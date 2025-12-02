@@ -7,6 +7,8 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth-options';
 import {
   getValidStudentSession,
   readStudentTokenFromRequest,
@@ -34,29 +36,34 @@ const DAYS_OF_WEEK = [
  */
 export async function GET(request: NextRequest) {
   try {
-    // Authenticate the request via OTP-backed student session
-    const token = readStudentTokenFromRequest(request);
-    const session = await getValidStudentSession(token);
+    let studentEmail: string | null = null;
+    let studentId: string | null = null;
 
-    if (!session) {
+    // 1. Try Custom OTP Session
+    const token = readStudentTokenFromRequest(request);
+    const otpSession = await getValidStudentSession(token);
+
+    if (otpSession) {
+      studentEmail = otpSession.email;
+      studentId = otpSession.studentId;
+    } else {
+      // 2. Try NextAuth Session
+      const nextAuthSession = await getServerSession(authOptions);
+      if (nextAuthSession?.user?.userType === 'student' && nextAuthSession.user.email) {
+        studentEmail = nextAuthSession.user.email;
+      }
+    }
+
+    if (!studentEmail) {
       return NextResponse.json(
         { error: 'Unauthorized - Please sign in' },
         { status: 401 }
       );
     }
 
-    const student = await getStudentFromSession(session);
-
-    if (!student) {
-      return NextResponse.json(
-        { error: 'Student profile not found' },
-        { status: 404 }
-      );
-    }
-
     // Fetch student profile
     const profile = await prisma.student.findUnique({
-      where: { id: student.id },
+      where: studentId ? { id: studentId } : { email: studentEmail },
       select: {
         id: true,
         email: true,
@@ -133,11 +140,23 @@ export async function GET(request: NextRequest) {
  */
 export async function PUT(request: NextRequest) {
   try {
-    // Authenticate the request via OTP-backed student session
-    const token = readStudentTokenFromRequest(request);
-    const session = await getValidStudentSession(token);
+    let studentEmail: string | null = null;
 
-    if (!session) {
+    // 1. Try Custom OTP Session
+    const token = readStudentTokenFromRequest(request);
+    const otpSession = await getValidStudentSession(token);
+
+    if (otpSession) {
+      studentEmail = otpSession.email;
+    } else {
+      // 2. Try NextAuth Session
+      const nextAuthSession = await getServerSession(authOptions);
+      if (nextAuthSession?.user?.userType === 'student' && nextAuthSession.user.email) {
+        studentEmail = nextAuthSession.user.email;
+      }
+    }
+
+    if (!studentEmail) {
       return NextResponse.json(
         { error: 'Unauthorized - Please sign in' },
         { status: 401 }
@@ -148,7 +167,7 @@ export async function PUT(request: NextRequest) {
     const body = await request.json();
 
     // Get the current student
-    const currentStudent = await getStudentFromSession(session);
+    const currentStudent = await prisma.student.findUnique({ where: { email: studentEmail } });
     if (!currentStudent) {
       return NextResponse.json(
         { error: 'Student profile not found' },
@@ -223,7 +242,7 @@ export async function PUT(request: NextRequest) {
 
     // Update the student profile
     const updatedStudent = await prisma.student.update({
-      where: { email: session.email },
+      where: { email: studentEmail },
       data: {
         ...updateData,
         updatedAt: new Date(),
