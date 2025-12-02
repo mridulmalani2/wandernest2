@@ -92,7 +92,7 @@ export function PreferencesStep({ data, errors, updateData }: Props) {
       </div>
 
       {/* Basic Preferences */}
-      <FlowCard padding="lg">
+      <FlowCard padding="lg" className={cn("transition-all duration-200", isLanguageOpen ? "relative z-20" : "")}>
         <div className="space-y-8">
           <LiquidInput
             label="Preferred Guide Nationality (Optional)"
@@ -281,18 +281,22 @@ export function PreferencesStep({ data, errors, updateData }: Props) {
               helperText="How long do you need the guide?"
             />
 
-            <LiquidSlider
-              label="Hourly Rate per Guide"
-              value={[data.hourlyRate || 20]}
-              onValueChange={(values) => handleRateChange(values[0])}
-              min={10}
-              max={100}
-              step={5}
-              recommendedValue={20}
-              formatValue={(v) => `€${v}/hr`}
-            />
+            <div className="space-y-1">
+              <LiquidSlider
+                label="How much would you like to pay per hour?"
+                value={[data.hourlyRate || 20]}
+                onValueChange={(values) => handleRateChange(values[0])}
+                min={10}
+                max={100}
+                step={5}
+                formatValue={(v) => `€${v}/hr`}
+              />
+              <p className="text-xs font-light text-gray-300 text-center">
+                We recommend a 3-4 hour guided walk, with a 20-25 Euro/hour payment.
+              </p>
+            </div>
 
-            <div className="pt-4 text-center">
+            <div className="pt-4 text-center border-t border-white/10 mt-4">
               <div className="text-xs font-light text-gray-300 mb-1">Estimated Total Budget</div>
               <div className="text-3xl font-light text-white">
                 €{data.totalBudget || 0}
@@ -319,15 +323,20 @@ export function PreferencesStep({ data, errors, updateData }: Props) {
               onChange={(e) => handleDurationChange(e.target.value ? parseInt(e.target.value) : undefined)}
             />
 
-            <LiquidSlider
-              label="Total Budget"
-              value={[data.totalBudget || 50]}
-              onValueChange={(values) => updateData({ totalBudget: values[0] })}
-              min={20}
-              max={200}
-              step={5}
-              formatValue={(v) => `€${v}`}
-            />
+            <div className="space-y-1">
+              <LiquidSlider
+                label="How much would you be willing to pay for the consultation + itinerary?"
+                value={[data.totalBudget || 50]}
+                onValueChange={(values) => updateData({ totalBudget: values[0] })}
+                min={20}
+                max={200}
+                step={5}
+                formatValue={(v) => `€${v}`}
+              />
+              <p className="text-xs font-light text-gray-300 text-center">
+                We recommend a 45 minute session to share preferences for the itinerary, with a 20-25 Euro payment.
+              </p>
+            </div>
           </div>
         </FlowCard>
       )}
