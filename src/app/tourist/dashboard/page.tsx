@@ -79,12 +79,12 @@ export default function TouristDashboard() {
           fill
           quality={85}
           sizes="100vw"
-          className="object-cover opacity-[0.08]"
+          className="object-cover opacity-[0.15]"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-white/80 via-white/50 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-b from-white/60 via-white/40 to-transparent" />
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-12 relative z-10">
+      <div className="max-w-7xl mx-auto px-4 pt-24 pb-12 relative z-10">
         {/* Header */}
         <div className="mb-12">
           <h1 className="text-5xl font-light tracking-tight text-black mb-3">
