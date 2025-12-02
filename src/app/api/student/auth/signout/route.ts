@@ -8,7 +8,9 @@ export async function POST() {
         const token = cookieStore.get('student_session_token')?.value;
 
         if (token) {
-            // Optionally invalidate the session in the database
+            // Invalidate the session in the database.
+            // NOTE: This ONLY deletes the session token. The Student record and all associated data
+            // (bookings, profile, etc.) are preserved and will be accessible upon next sign-in.
             await prisma.studentSession.deleteMany({
                 where: { token },
             });
