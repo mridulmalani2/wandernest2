@@ -48,7 +48,9 @@ export default function Navigation({ variant = 'default', showBackButton = false
     }
 
     document.cookie = 'student_session_token=; path=/; max-age=0'
+    setStudentSession(null)
     router.push('/student/signin')
+    router.refresh()
   }
 
   useEffect(() => {

@@ -4,7 +4,7 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { FlowCard } from '@/components/ui/FlowCard';
-import { TrendingUp, Calendar, MapPin, Users, CheckCircle2, Clock } from 'lucide-react';
+import { TrendingUp, Calendar, MapPin, Users, CheckCircle2, Clock, ChevronRight } from 'lucide-react';
 import Image from 'next/image';
 
 interface TouristBooking {
@@ -182,20 +182,15 @@ export default function TouristDashboard() {
                 <FlowCard key={booking.id} padding="md" hover variant="dark" className="group">
                   <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                     <div className="flex-1 space-y-3">
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <h3 className="text-xl font-medium text-white mb-1 capitalize group-hover:text-blue-400 transition-colors">
-                            {booking.city}
-                          </h3>
-                          {booking.guideName && (
-                            <p className="text-sm text-gray-300 font-light">
-                              Guide: {booking.guideName}
-                            </p>
-                          )}
-                        </div>
-                        <span className={`text-xs px-3 py-1 rounded-full border font-medium capitalize ${getStatusColor(booking.status)}`}>
-                          {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
-                        </span>
+                      <div>
+                        <h3 className="text-xl font-medium text-white mb-1 capitalize group-hover:text-blue-400 transition-colors">
+                          {booking.city}
+                        </h3>
+                        {booking.guideName && (
+                          <p className="text-sm text-gray-300 font-light">
+                            Guide: {booking.guideName}
+                          </p>
+                        )}
                       </div>
 
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
@@ -220,19 +215,31 @@ export default function TouristDashboard() {
                       </div>
                     </div>
 
-                    <button
-                      onClick={() => router.push(`/tourist/booking/${booking.id}`)}
-                      className="px-6 py-2 rounded-xl border border-white/20 text-white hover:bg-white hover:text-black transition-all duration-300 text-sm font-medium"
-                    >
-                      View Details
-                    </button>
+                    <div className="flex flex-col items-end gap-3 min-w-[140px]">
+                      <span className={`text-xs px-3 py-1 rounded-full border font-medium capitalize ${getStatusColor(booking.status)}`}>
+                        {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
+                      </span>
+                      <button
+                        onClick={() => {
+                          if (booking.status === 'matched') {
+                            router.push(`/booking/select-guide?requestId=${booking.id}`);
+                          } else {
+                            router.push(`/booking/pending?requestId=${booking.id}`);
+                          }
+                        }}
+                        className="text-sm font-medium text-white hover:text-blue-300 transition-colors flex items-center gap-1 group/btn"
+                      >
+                        View Details
+                        <ChevronRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-1" />
+                      </button>
+                    </div>
                   </div>
                 </FlowCard>
               ))}
             </div>
           )}
         </div>
-      </div>
-    </div>
+      </div >
+    </div >
   );
 }

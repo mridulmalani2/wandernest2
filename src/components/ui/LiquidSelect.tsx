@@ -90,7 +90,7 @@ export function LiquidSelect({
                     <SelectPrimitive.Content
                         className={cn(
                             'relative z-50 max-h-96 min-w-[200px] overflow-hidden',
-                            'bg-white rounded-2xl shadow-lg border border-gray-100',
+                            'glass-card-dark rounded-2xl shadow-premium border border-white/10',
                             'animate-in fade-in-0 zoom-in-95',
                         )}
                         position="popper"
@@ -107,14 +107,14 @@ export function LiquidSelect({
                                             'relative flex items-center gap-3 px-3 py-2 rounded-xl',
                                             'text-sm cursor-pointer transition-all',
                                             'outline-none',
-                                            'hover:bg-liquid-light text-gray-700',
-                                            'data-[state=checked]:bg-liquid-dark-primary/10 data-[state=checked]:font-medium data-[state=checked]:text-liquid-dark-primary',
+                                            'text-gray-300 hover:bg-white/10 hover:text-white',
+                                            'data-[state=checked]:bg-white/20 data-[state=checked]:font-medium data-[state=checked]:text-white',
                                         )}
                                     >
                                         {OptionIcon && <OptionIcon className="h-4 w-4" />}
                                         <SelectPrimitive.ItemText>{option.label}</SelectPrimitive.ItemText>
                                         <SelectPrimitive.ItemIndicator className="ml-auto">
-                                            <Check className="h-4 w-4 text-liquid-dark-primary" />
+                                            <Check className="h-4 w-4 text-white" />
                                         </SelectPrimitive.ItemIndicator>
                                     </SelectPrimitive.Item>
                                 );
