@@ -4,9 +4,9 @@ import { LiquidInput } from '@/components/ui/LiquidInput';
 import { LiquidSelect } from '@/components/ui/LiquidSelect';
 import { FlowCard } from '@/components/ui/FlowCard';
 import { OnboardingFormData } from './OnboardingWizard';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { getUniversityOptionsByCity, type UniversityOption } from '@/config/universityOptions';
-import { User, Calendar, Globe, Phone, Building, GraduationCap, BookOpen, X } from 'lucide-react';
+import { User, Calendar, Globe, Phone, Building, GraduationCap, BookOpen, X, Search, ChevronDown, CheckCircle2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface BasicProfileStepProps {
@@ -36,7 +36,24 @@ const COMMON_LANGUAGES = [
 
 export function BasicProfileStep({ formData, updateFormData, errors, cities }: BasicProfileStepProps) {
   const [customLanguage, setCustomLanguage] = useState('');
+  const [isLanguageOpen, setIsLanguageOpen] = useState(false);
+  const [languageSearch, setLanguageSearch] = useState('');
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const campusOptions: UniversityOption[] = formData.city ? getUniversityOptionsByCity(formData.city) : [];
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsLanguageOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const filteredLanguages = COMMON_LANGUAGES.filter(lang =>
+    lang.toLowerCase().includes(languageSearch.toLowerCase())
+  );
 
   const toggleLanguage = (language: string) => {
     const current = formData.languages || [];
@@ -238,36 +255,99 @@ export function BasicProfileStep({ formData, updateFormData, errors, cities }: B
             icon={GraduationCap}
           />
 
-          {/* Languages - Pills */}
-          <div className="space-y-4">
+          {/* Languages - Multi-Select Dropdown */}
+          <div className="space-y-3" ref={dropdownRef}>
             <label className="text-sm font-light tracking-wide text-liquid-dark-secondary block">
               Languages You Speak {errors.languages && <span className="text-ui-error ml-1">*</span>}
             </label>
 
-            <div className="flex flex-wrap gap-2">
-              {COMMON_LANGUAGES.map((language) => {
-                const isSelected = formData.languages.includes(language);
-                return (
-                  <button
-                    key={language}
-                    type="button"
-                    onClick={() => toggleLanguage(language)}
-                    className={cn(
-                      'px-4 py-2 rounded-full text-sm font-medium transition-all duration-300',
-                      'border-2',
-                      isSelected
-                        ? 'bg-liquid-dark-primary text-white border-liquid-dark-primary shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]'
-                        : 'bg-white text-gray-900 border-gray-300 hover:border-liquid-dark-primary hover:bg-liquid-light hover:shadow-md active:scale-[0.98] active:bg-gray-100'
+            <div className="relative">
+              <div
+                onClick={() => setIsLanguageOpen(!isLanguageOpen)}
+                className={cn(
+                  'w-full min-h-[48px] px-0 py-3 cursor-pointer',
+                  'border-0 border-b border-gray-300 transition-all duration-300',
+                  'flex flex-wrap gap-2 items-center',
+                  isLanguageOpen && 'border-b-2 border-liquid-dark-primary',
+                  errors.languages && 'border-ui-error'
+                )}
+              >
+                {formData.languages.length > 0 ? (
+                  formData.languages.map((language) => (
+                    <span
+                      key={language}
+                      className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-liquid-dark-primary text-white text-sm font-medium shadow-sm"
+                    >
+                      {language}
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleLanguage(language);
+                        }}
+                        className="hover:bg-white/20 rounded-full p-0.5 transition-colors"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </span>
+                  ))
+                ) : (
+                  <span className="text-gray-400 font-light">Select languages...</span>
+                )}
+                <ChevronDown
+                  className={cn(
+                    'ml-auto h-4 w-4 text-gray-400 transition-transform duration-200',
+                    isLanguageOpen && 'rotate-180'
+                  )}
+                />
+              </div>
+
+              {isLanguageOpen && (
+                <div className="absolute top-full left-0 w-full mt-2 bg-white rounded-2xl shadow-lg border border-gray-100 z-50 overflow-hidden animate-scale-in">
+                  <div className="p-3 border-b border-gray-100">
+                    <div className="relative">
+                      <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                      <input
+                        type="text"
+                        placeholder="Search..."
+                        className="w-full pl-8 pr-3 py-2 text-sm bg-liquid-light rounded-xl focus:outline-none"
+                        value={languageSearch}
+                        onChange={(e) => setLanguageSearch(e.target.value)}
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                    </div>
+                  </div>
+                  <div className="max-h-60 overflow-y-auto p-1">
+                    {filteredLanguages.map((language) => {
+                      const isSelected = formData.languages.includes(language);
+                      return (
+                        <div
+                          key={language}
+                          onClick={() => toggleLanguage(language)}
+                          className={cn(
+                            'flex items-center justify-between px-3 py-2 rounded-xl cursor-pointer text-sm transition-all',
+                            isSelected
+                              ? 'bg-liquid-dark-primary/10 font-medium text-liquid-dark-primary'
+                              : 'hover:bg-liquid-light text-gray-700'
+                          )}
+                        >
+                          <span>{language}</span>
+                          {isSelected && <CheckCircle2 className="h-4 w-4 text-liquid-dark-primary" />}
+                        </div>
+                      );
+                    })}
+                    {filteredLanguages.length === 0 && (
+                      <div className="p-3 text-center text-sm text-gray-500">
+                        No languages found
+                      </div>
                     )}
-                  >
-                    {language}
-                  </button>
-                );
-              })}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Add Custom Language */}
-            <div className="flex gap-2">
+            <div className="flex gap-2 mt-2">
               <LiquidInput
                 value={customLanguage}
                 onChange={(e) => setCustomLanguage(e.target.value)}
@@ -284,28 +364,6 @@ export function BasicProfileStep({ formData, updateFormData, errors, cities }: B
               </button>
             </div>
 
-            {/* Selected Languages */}
-            {formData.languages.length > 0 && (
-              <FlowCard padding="sm" variant="subtle">
-                <div className="flex flex-wrap gap-2">
-                  {formData.languages.map((language) => (
-                    <span
-                      key={language}
-                      className="inline-flex items-center gap-1.5 px-3 py-1 bg-white border border-gray-200 text-liquid-dark-primary rounded-full text-sm"
-                    >
-                      {language}
-                      <button
-                        type="button"
-                        onClick={() => toggleLanguage(language)}
-                        className="text-gray-400 hover:text-ui-error transition-colors"
-                      >
-                        <X className="h-3.5 w-3.5" />
-                      </button>
-                    </span>
-                  ))}
-                </div>
-              </FlowCard>
-            )}
             {errors.languages && <p className="text-xs font-light text-ui-error">{errors.languages}</p>}
           </div>
         </div>
