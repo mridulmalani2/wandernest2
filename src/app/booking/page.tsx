@@ -61,21 +61,6 @@ export default function BookingPage() {
                 </p>
               </div>
 
-              {/* Marketplace Disclaimer */}
-              <div className="glass-card-dark bg-ui-warning/10 border-2 border-ui-warning/30 rounded-2xl p-4 shadow-premium animate-scale-in">
-                <div className="flex items-start gap-3">
-                  <AlertTriangle className="w-5 h-5 text-ui-warning flex-shrink-0 mt-0.5" />
-                  <div className="flex-1">
-                    <p className="text-sm font-semibold text-amber-100 mb-1">
-                      Marketplace Notice
-                    </p>
-                    <p className="text-sm text-amber-100/90">
-                      <strong>TourWiseCo is a connection platform only.</strong> We do not handle payments, guarantee service quality, or assume liability. All services and payments are arranged directly between you and your chosen guide.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
               {/* Sign In Card */}
               <div className="glass-card-dark rounded-3xl border-2 border-white/10 p-8 shadow-premium space-y-6">
                 <div className="text-center py-4">
@@ -150,6 +135,21 @@ export default function BookingPage() {
                     Sign in as Student Guide
                   </Link>
                 </p>
+              </div>
+
+              {/* Marketplace Disclaimer */}
+              <div className="glass-card-dark bg-ui-warning/10 border-2 border-ui-warning/30 rounded-2xl p-4 md:p-6 shadow-premium animate-fade-in-up delay-100">
+                <div className="flex items-start gap-3 md:gap-4">
+                  <div className="flex-shrink-0 p-3 rounded-xl bg-ui-warning text-white shadow-soft">
+                    <AlertTriangle className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h2 className="font-bold text-amber-100 mb-2 text-lg">Marketplace Notice</h2>
+                    <p className="text-sm text-amber-100/90 leading-relaxed">
+                      <strong>TourWiseCo is a connection platform only.</strong> We do not handle payments, guarantee service quality, or assume liability. All services and payments are arranged directly between you and your chosen guide.
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
           ) : !isTourist ? (
