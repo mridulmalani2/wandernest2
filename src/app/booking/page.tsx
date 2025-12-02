@@ -19,8 +19,8 @@ export default function BookingPage() {
       {/* Background Image with Overlays */}
       <div className="absolute inset-0" role="img" aria-label="Beautiful travel destination">
         <Image
-          src="https://images.unsplash.com/photo-1613395877344-13d4a8e0d49e?w=1920&q=80"
-          alt="Santorini sunset with blue domes"
+          src="https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1920&q=80"
+          alt="Starry night mountains"
           fill
           priority
           quality={85}
@@ -28,9 +28,9 @@ export default function BookingPage() {
           className="object-cover"
         />
         {/* Dark overlay for text contrast */}
-        <div className="absolute inset-0 bg-black/25 backdrop-blur-[4px]" />
+        <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" />
         {/* Gradient overlay for visual depth */}
-        <div className="absolute inset-0 bg-gradient-to-br from-ui-blue-primary/20 via-ui-purple-primary/15 to-ui-purple-accent/20" />
+        <div className="absolute inset-0 bg-gradient-to-br from-ui-blue-primary/10 via-ui-purple-primary/10 to-ui-purple-accent/10" />
       </div>
       <div className="absolute inset-0 pattern-grid opacity-15" />
 
@@ -229,8 +229,10 @@ export default function BookingPage() {
                 </p>
               </div>
 
+              <BookingForm />
+
               {/* Marketplace Disclaimer */}
-              <div className="glass-card-dark bg-ui-warning/10 border-2 border-ui-warning/30 rounded-2xl p-4 md:p-6 mb-6 md:mb-8 max-w-4xl mx-auto shadow-premium animate-fade-in-up delay-100">
+              <div className="glass-card-dark bg-ui-warning/10 border-2 border-ui-warning/30 rounded-2xl p-4 md:p-6 mt-8 max-w-4xl mx-auto shadow-premium animate-fade-in-up delay-100">
                 <div className="flex items-start gap-3 md:gap-4">
                   <div className="flex-shrink-0 p-3 rounded-xl bg-ui-warning text-white shadow-soft">
                     <AlertTriangle className="w-6 h-6" />
@@ -243,8 +245,6 @@ export default function BookingPage() {
                   </div>
                 </div>
               </div>
-
-              <BookingForm />
             </div>
           )}
         </main>

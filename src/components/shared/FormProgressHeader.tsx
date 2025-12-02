@@ -149,10 +149,10 @@ export function FormProgressHeader({
                         className={cn(
                           'relative w-12 h-12 rounded-full flex items-center justify-center font-semibold text-base transition-all duration-300 focus:outline-none focus:ring-3 focus:ring-white focus:ring-offset-4 focus:ring-offset-transparent z-10',
                           completed && 'bg-ui-blue-primary text-white shadow-md hover:shadow-lg hover:shadow-ui-blue-primary/30',
-                          current && 'bg-white text-ui-blue-primary shadow-xl shadow-white/40 scale-110 ring-4 ring-ui-blue-primary/30',
-                          upcoming && 'bg-white/25 backdrop-blur-sm text-white/70 border border-white/30',
+                          current && 'bg-white/10 backdrop-blur-md text-white border-2 border-white shadow-xl shadow-white/20 scale-110 ring-4 ring-white/10',
+                          upcoming && 'bg-white/5 backdrop-blur-sm text-white/50 border border-white/20',
                           onStepClick && !current && 'hover:scale-105 cursor-pointer hover:shadow-lg',
-                          onStepClick && upcoming && 'hover:bg-white/35 hover:border-white/50',
+                          onStepClick && upcoming && 'hover:bg-white/10 hover:border-white/40',
                           onStepClick && completed && 'hover:shadow-ui-blue-primary/50'
                         )}
                       >

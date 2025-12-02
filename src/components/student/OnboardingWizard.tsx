@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import Navigation from '@/components/Navigation';
 import { FormProgressHeader } from '@/components/shared/FormProgressHeader';
 import { PrimaryCTAButton } from '@/components/ui/PrimaryCTAButton';
+import { AlertTriangle } from 'lucide-react';
 
 // Dynamically import step components to reduce initial bundle size
 // Each step loads only when needed
@@ -471,8 +472,8 @@ export function OnboardingWizard({ session }: OnboardingWizardProps) {
       {/* Background Image with Overlays */}
       <div className="absolute inset-0" role="img" aria-label="Modern university learning space">
         <Image
-          src="https://images.unsplash.com/photo-1562774053-701939374585?w=1920&q=80"
-          alt="Modern university lecture hall with natural light"
+          src="https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1920&q=80"
+          alt="Starry night mountains"
           fill
           priority
           quality={85}
@@ -480,9 +481,9 @@ export function OnboardingWizard({ session }: OnboardingWizardProps) {
           className="object-cover"
         />
         {/* Dark overlay for text contrast */}
-        <div className="absolute inset-0 bg-black/20 backdrop-blur-[4px]" />
+        <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" />
         {/* Gradient overlay for visual depth */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--ui-purple-accent))]/15 via-[hsl(var(--ui-blue-primary))]/10 to-[hsl(var(--ui-purple-primary))]/15" />
+        <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--ui-purple-accent))]/10 via-[hsl(var(--ui-blue-primary))]/10 to-[hsl(var(--ui-purple-primary))]/10" />
       </div>
       <div className="absolute inset-0 pattern-dots opacity-10" />
 
@@ -600,13 +601,26 @@ export function OnboardingWizard({ session }: OnboardingWizardProps) {
               </div>
             </div>
 
-            {/* Submit Error */}
-            {errors.submit && (
-              <div className="mt-4 p-4 glass-frosted bg-gradient-to-br from-ui-error/10 to-ui-error/20 border-2 border-ui-error rounded-2xl text-ui-error text-sm shadow-soft animate-slide-down">
-                {errors.submit}
+            {/* Marketplace Disclaimer */}
+            <div className="glass-card-dark bg-ui-warning/10 border-2 border-ui-warning/30 rounded-2xl p-4 md:p-6 mt-8 shadow-premium animate-fade-in-up delay-100">
+              <div className="flex items-start gap-3 md:gap-4">
+                <div className="flex-shrink-0 p-3 rounded-xl bg-ui-warning text-white shadow-soft">
+                  <AlertTriangle className="w-6 h-6" />
+                </div>
+                <div>
+                  <h2 className="font-bold text-amber-100 mb-2 text-lg">Marketplace Notice</h2>
+                  <p className="text-sm text-amber-100/90 leading-relaxed">
+                    <strong>TourWiseCo is a connection platform only.</strong> We do not handle payments, guarantee service quality, or assume liability. All services and payments are arranged directly between you and your chosen guide.
+                  </p>
+                </div>
               </div>
-            )}
-          </div>
+            </div>
+          </div>   {/* Submit Error */}
+          {errors.submit && (
+            <div className="mt-4 p-4 glass-frosted bg-gradient-to-br from-ui-error/10 to-ui-error/20 border-2 border-ui-error rounded-2xl text-ui-error text-sm shadow-soft animate-slide-down">
+              {errors.submit}
+            </div>
+          )}
         </main>
       </div>
     </div>
