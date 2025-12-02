@@ -81,7 +81,7 @@ export default function Navigation({ variant = 'default', showBackButton = false
   return (
     <header className={`border-b border-white/10 bg-black/80 backdrop-blur-xl fixed top-0 w-full z-50 transition-all duration-300 ${isScrolled ? 'shadow-lg shadow-black/10' : ''
       }`}>
-      <div className="container mx-auto px-4 py-1.5 md:py-2">
+      <div className="container mx-auto px-4 py-3 md:py-4">
         <div className="flex justify-between items-center">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2 group">

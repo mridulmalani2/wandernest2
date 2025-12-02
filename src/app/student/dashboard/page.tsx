@@ -118,7 +118,7 @@ export default function StudentDashboard() {
         />
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-12 relative z-10">
+      <div className="max-w-7xl mx-auto px-4 pt-28 pb-12 relative z-10">
         {/* Header */}
         <div className="mb-12">
           <h1 className="text-5xl font-light tracking-tight text-liquid-dark-primary mb-3">

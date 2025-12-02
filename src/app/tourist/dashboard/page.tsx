@@ -84,7 +84,7 @@ export default function TouristDashboard() {
         <div className="absolute inset-0 bg-gradient-to-b from-white/60 via-white/40 to-transparent" />
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 pt-24 pb-12 relative z-10">
+      <div className="max-w-7xl mx-auto px-4 pt-28 pb-12 relative z-10">
         {/* Header */}
         <div className="mb-12">
           <h1 className="text-5xl font-light tracking-tight text-black mb-3">

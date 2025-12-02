@@ -68,7 +68,7 @@ export default function MainLanding() {
         <Navigation variant="default" />
 
         {/* Hero Section - Asymmetric Layout */}
-        <main className="flex-1 container mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-10 md:pt-28 md:pb-14 lg:pt-32 lg:pb-18">
+        <main className="flex-1 container mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-10 md:pt-28 md:pb-14 lg:pt-32 lg:pb-18">
           <div className="max-w-6xl mx-auto">
             <div className="grid lg:grid-cols-2 gap-7 lg:gap-14 items-center min-h-[calc(100vh-14rem)]">
 
