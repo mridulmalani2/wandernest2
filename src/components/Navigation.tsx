@@ -36,12 +36,19 @@ export default function Navigation({ variant = 'default', showBackButton = false
 
   const handleSignOut = async () => {
     if (session) {
-      await signOut({ callbackUrl: '/' })
+      const userType = session.user?.userType;
+      let callbackUrl = '/';
+      if (userType === 'student') {
+        callbackUrl = '/student/signin';
+      } else if (userType === 'tourist') {
+        callbackUrl = '/tourist/signin';
+      }
+      await signOut({ callbackUrl })
       return
     }
 
     document.cookie = 'student_session_token=; path=/; max-age=0'
-    router.push('/')
+    router.push('/student/signin')
   }
 
   useEffect(() => {

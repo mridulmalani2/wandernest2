@@ -35,13 +35,18 @@ function StudentSignInContent() {
   const [domainValidationError, setDomainValidationError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
 
-  // already logged in as student → redirect
+  // already logged in check
   useEffect(() => {
-    if (session?.user && session.user.userType === 'student') {
-      if (session.user.hasCompletedOnboarding) {
-        router.push('/student/dashboard');
+    if (session?.user) {
+      if (session.user.userType === 'student') {
+        if (session.user.hasCompletedOnboarding) {
+          router.push('/student/dashboard');
+        } else {
+          router.push('/student/onboarding');
+        }
       } else {
-        router.push('/student/onboarding');
+        // Redirect tourists to booking
+        router.push('/booking');
       }
     }
   }, [session, router]);
