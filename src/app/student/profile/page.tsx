@@ -272,7 +272,7 @@ export default function StudentProfilePage() {
         <div className="absolute inset-0 pattern-dots opacity-10" />
 
         {/* Content Container */}
-        <div className="relative z-10 w-full px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+        <div className="relative z-10 w-full px-4 sm:px-6 lg:px-8 pt-28 pb-8 md:pt-36 md:pb-12">
           <div className="max-w-6xl mx-auto space-y-8">
 
             {/* Header Section - Profile Hero */}
@@ -299,14 +299,13 @@ export default function StudentProfilePage() {
                   {/* Right: Edit/Save Actions */}
                   <div className="flex items-center gap-3 flex-shrink-0">
                     {!isEditing ? (
-                      <PrimaryCTAButton
+                      <button
                         onClick={handleEdit}
-                        icon={Edit}
-                        variant="blue"
-                        showArrow
+                        className="group flex items-center gap-2 px-5 py-2 rounded-full bg-white/5 hover:bg-white/10 border border-white/30 hover:border-white/80 backdrop-blur-md transition-all duration-300 text-sm font-medium text-white shadow-sm hover:shadow-md hover:scale-105 active:scale-95"
                       >
-                        Edit Profile
-                      </PrimaryCTAButton>
+                        <Edit className="w-3.5 h-3.5" />
+                        <span>Edit Profile</span>
+                      </button>
                     ) : (
                       <>
                         <Button
