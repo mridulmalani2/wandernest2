@@ -41,34 +41,34 @@ export function ReviewSubmitStep({ formData, errors }: ReviewSubmitStepProps) {
         {/* Personal */}
         <FlowCard padding="md">
           <div className="flex items-center gap-3 mb-4">
-            <div className="h-8 w-8 rounded-full bg-liquid-dark-primary/10 flex items-center justify-center">
-              <User className="h-4 w-4 text-liquid-dark-primary" />
+            <div className="h-8 w-8 rounded-full bg-white/10 flex items-center justify-center">
+              <User className="h-4 w-4 text-white" />
             </div>
-            <h3 className="text-sm font-medium text-liquid-dark-primary">Personal Details</h3>
+            <h3 className="text-sm font-medium text-white">Personal Details</h3>
           </div>
           <div className="space-y-3 text-sm font-light">
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <p className="text-xs text-gray-500">Name</p>
-                <p className="text-liquid-dark-primary">{formData.name}</p>
+                <p className="text-xs text-white/50">Name</p>
+                <p className="text-white">{formData.name}</p>
               </div>
               <div>
-                <p className="text-xs text-gray-500">Nationality</p>
-                <p className="text-liquid-dark-primary">{formData.nationality}</p>
+                <p className="text-xs text-white/50">Nationality</p>
+                <p className="text-white">{formData.nationality}</p>
               </div>
               <div>
-                <p className="text-xs text-gray-500">Gender</p>
-                <p className="text-liquid-dark-primary capitalize">{formData.gender.replace('_', ' ')}</p>
+                <p className="text-xs text-white/50">Gender</p>
+                <p className="text-white capitalize">{formData.gender.replace('_', ' ')}</p>
               </div>
               <div>
-                <p className="text-xs text-gray-500">City</p>
-                <p className="text-liquid-dark-primary">{formData.city}</p>
+                <p className="text-xs text-white/50">City</p>
+                <p className="text-white">{formData.city}</p>
               </div>
             </div>
-            <div className="pt-3 border-t border-gray-100">
-              <p className="text-xs text-gray-500 mb-1">Contact</p>
-              <p className="text-liquid-dark-primary text-xs">{formData.email}</p>
-              <p className="text-liquid-dark-primary text-xs">{formData.phoneNumber}</p>
+            <div className="pt-3 border-t border-white/10">
+              <p className="text-xs text-white/50 mb-1">Contact</p>
+              <p className="text-white text-xs">{formData.email}</p>
+              <p className="text-white text-xs">{formData.phoneNumber}</p>
             </div>
           </div>
         </FlowCard>
@@ -76,32 +76,32 @@ export function ReviewSubmitStep({ formData, errors }: ReviewSubmitStepProps) {
         {/* Academic */}
         <FlowCard padding="md">
           <div className="flex items-center gap-3 mb-4">
-            <div className="h-8 w-8 rounded-full bg-liquid-dark-primary/10 flex items-center justify-center">
-              <GraduationCap className="h-4 w-4 text-liquid-dark-primary" />
+            <div className="h-8 w-8 rounded-full bg-white/10 flex items-center justify-center">
+              <GraduationCap className="h-4 w-4 text-white" />
             </div>
-            <h3 className="text-sm font-medium text-liquid-dark-primary">Academic Profile</h3>
+            <h3 className="text-sm font-medium text-white">Academic Profile</h3>
           </div>
           <div className="space-y-3 text-sm font-light">
             <div>
-              <p className="text-xs text-gray-500">University</p>
-              <p className="text-liquid-dark-primary">{formData.institute}</p>
-              <p className="text-xs text-gray-600">{formData.campus}</p>
+              <p className="text-xs text-white/50">University</p>
+              <p className="text-white">{formData.institute}</p>
+              <p className="text-xs text-white/70">{formData.campus}</p>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <p className="text-xs text-gray-500">Program</p>
-                <p className="text-liquid-dark-primary text-xs">{formData.programDegree}</p>
+                <p className="text-xs text-white/50">Program</p>
+                <p className="text-white text-xs">{formData.programDegree}</p>
               </div>
               <div>
-                <p className="text-xs text-gray-500">Year</p>
-                <p className="text-liquid-dark-primary text-xs">{formData.yearOfStudy}</p>
+                <p className="text-xs text-white/50">Year</p>
+                <p className="text-white text-xs">{formData.yearOfStudy}</p>
               </div>
             </div>
             <div>
-              <p className="text-xs text-gray-500 mb-2">Languages</p>
+              <p className="text-xs text-white/50 mb-2">Languages</p>
               <div className="flex flex-wrap gap-1.5">
                 {formData.languages.map((lang) => (
-                  <span key={lang} className="px-2 py-0.5 bg-liquid-dark-primary/5 text-liquid-dark-primary rounded-full text-xs">
+                  <span key={lang} className="px-2 py-0.5 bg-white/10 text-white rounded-full text-xs border border-white/10">
                     {lang}
                   </span>
                 ))}
@@ -113,24 +113,24 @@ export function ReviewSubmitStep({ formData, errors }: ReviewSubmitStepProps) {
         {/* Profile Content */}
         <FlowCard padding="md" className="md:col-span-2">
           <div className="flex items-center gap-3 mb-4">
-            <div className="h-8 w-8 rounded-full bg-liquid-dark-primary/10 flex items-center justify-center">
-              <FileText className="h-4 w-4 text-liquid-dark-primary" />
+            <div className="h-8 w-8 rounded-full bg-white/10 flex items-center justify-center">
+              <FileText className="h-4 w-4 text-white" />
             </div>
-            <h3 className="text-sm font-medium text-liquid-dark-primary">Profile Content</h3>
+            <h3 className="text-sm font-medium text-white">Profile Content</h3>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm font-light">
             <div className="space-y-3">
               <div>
-                <p className="text-xs text-gray-500 mb-1">Bio</p>
-                <div className="bg-liquid-light/50 p-3 rounded-2xl text-xs max-h-24 overflow-y-auto">
+                <p className="text-xs text-white/50 mb-1">Bio</p>
+                <div className="bg-white/5 p-3 rounded-2xl text-xs max-h-24 overflow-y-auto text-white/90 border border-white/10">
                   {formData.bio}
                 </div>
               </div>
               <div>
-                <p className="text-xs text-gray-500 mb-1">Interests</p>
+                <p className="text-xs text-white/50 mb-1">Interests</p>
                 <div className="flex flex-wrap gap-1.5">
                   {formData.interests.map((interest) => (
-                    <span key={interest} className="px-2 py-0.5 bg-liquid-dark-primary/5 text-liquid-dark-primary rounded-full text-xs">
+                    <span key={interest} className="px-2 py-0.5 bg-white/10 text-white rounded-full text-xs border border-white/10">
                       {interest}
                     </span>
                   ))}
@@ -139,16 +139,16 @@ export function ReviewSubmitStep({ formData, errors }: ReviewSubmitStepProps) {
             </div>
             <div className="space-y-3">
               <div>
-                <p className="text-xs text-gray-500 mb-1">Cover Letter</p>
-                <div className="bg-liquid-light/50 p-3 rounded-2xl text-xs max-h-24 overflow-y-auto">
+                <p className="text-xs text-white/50 mb-1">Cover Letter</p>
+                <div className="bg-white/5 p-3 rounded-2xl text-xs max-h-24 overflow-y-auto text-white/90 border border-white/10">
                   {formData.coverLetter}
                 </div>
               </div>
               <div>
-                <p className="text-xs text-gray-500 mb-1">Skills</p>
+                <p className="text-xs text-white/50 mb-1">Skills</p>
                 <div className="flex flex-wrap gap-1.5">
                   {formData.skills.map((skill) => (
-                    <span key={skill} className="px-2 py-0.5 bg-liquid-dark-primary/5 text-liquid-dark-primary rounded-full text-xs">
+                    <span key={skill} className="px-2 py-0.5 bg-white/10 text-white rounded-full text-xs border border-white/10">
                       {skill}
                     </span>
                   ))}
@@ -161,28 +161,28 @@ export function ReviewSubmitStep({ formData, errors }: ReviewSubmitStepProps) {
         {/* Service */}
         <FlowCard padding="md">
           <div className="flex items-center gap-3 mb-4">
-            <div className="h-8 w-8 rounded-full bg-liquid-dark-primary/10 flex items-center justify-center">
-              <Briefcase className="h-4 w-4 text-liquid-dark-primary" />
+            <div className="h-8 w-8 rounded-full bg-white/10 flex items-center justify-center">
+              <Briefcase className="h-4 w-4 text-white" />
             </div>
-            <h3 className="text-sm font-medium text-liquid-dark-primary">Service Details</h3>
+            <h3 className="text-sm font-medium text-white">Service Details</h3>
           </div>
           <div className="space-y-3 text-sm font-light">
-            <div className="flex justify-between items-center bg-liquid-light p-3 rounded-2xl">
-              <span className="text-gray-600">Hourly Rate</span>
-              <span className="text-xl font-medium text-liquid-dark-primary">€{formData.hourlyRate}</span>
+            <div className="flex justify-between items-center bg-white/5 p-3 rounded-2xl border border-white/10">
+              <span className="text-white/70">Hourly Rate</span>
+              <span className="text-xl font-medium text-white">€{formData.hourlyRate}</span>
             </div>
             <div>
-              <p className="text-xs text-gray-500 mb-2">Services Offered</p>
+              <p className="text-xs text-white/50 mb-2">Services Offered</p>
               {formData.servicesOffered.map((service) => (
-                <div key={service} className="flex items-center gap-2 text-xs mb-1">
-                  <CheckCircle2 className="h-3 w-3 text-liquid-dark-primary" />
+                <div key={service} className="flex items-center gap-2 text-xs mb-1 text-white/90">
+                  <CheckCircle2 className="h-3 w-3 text-white" />
                   <span className="capitalize">{service.replace('-', ' ')}</span>
                 </div>
               ))}
             </div>
-            <div className="pt-2 border-t border-gray-100">
-              <p className="text-xs text-gray-500">Online Services</p>
-              <p className="text-liquid-dark-primary">{formData.onlineServicesAvailable ? 'Available' : 'Not Available'}</p>
+            <div className="pt-2 border-t border-white/10">
+              <p className="text-xs text-white/50">Online Services</p>
+              <p className="text-white">{formData.onlineServicesAvailable ? 'Available' : 'Not Available'}</p>
             </div>
           </div>
         </FlowCard>
@@ -190,24 +190,24 @@ export function ReviewSubmitStep({ formData, errors }: ReviewSubmitStepProps) {
         {/* Availability */}
         <FlowCard padding="md">
           <div className="flex items-center gap-3 mb-4">
-            <div className="h-8 w-8 rounded-full bg-liquid-dark-primary/10 flex items-center justify-center">
-              <Calendar className="h-4 w-4 text-liquid-dark-primary" />
+            <div className="h-8 w-8 rounded-full bg-white/10 flex items-center justify-center">
+              <Calendar className="h-4 w-4 text-white" />
             </div>
-            <h3 className="text-sm font-medium text-liquid-dark-primary">Availability</h3>
+            <h3 className="text-sm font-medium text-white">Availability</h3>
           </div>
           <div className="space-y-3 text-sm font-light">
-            <div className="flex justify-between text-xs text-gray-500">
+            <div className="flex justify-between text-xs text-white/50">
               <span>Timezone: {formData.timezone}</span>
               <span>{formData.availability.length} Slots</span>
             </div>
             <div className="space-y-2 max-h-40 overflow-y-auto">
               {availabilityByDay.map((dayData) => (
-                <div key={dayData.day} className="bg-liquid-light rounded-2xl p-2 border border-gray-100">
-                  <p className="font-medium text-liquid-dark-primary text-xs mb-1">{dayData.day}</p>
+                <div key={dayData.day} className="bg-white/5 rounded-2xl p-2 border border-white/10">
+                  <p className="font-medium text-white text-xs mb-1">{dayData.day}</p>
                   <div className="space-y-0.5">
                     {dayData.slots.map((slot, index) => (
-                      <div key={index} className="flex justify-between text-xs"> <span className="text-gray-600">{slot.startTime} - {slot.endTime}</span>
-                        <span className="text-gray-400">{calculateDuration(slot.startTime, slot.endTime)}</span>
+                      <div key={index} className="flex justify-between text-xs"> <span className="text-white/80">{slot.startTime} - {slot.endTime}</span>
+                        <span className="text-white/50">{calculateDuration(slot.startTime, slot.endTime)}</span>
                       </div>
                     ))}
                   </div>
@@ -220,38 +220,38 @@ export function ReviewSubmitStep({ formData, errors }: ReviewSubmitStepProps) {
         {/* Verification */}
         <FlowCard padding="md" className="md:col-span-2" variant="subtle">
           <div className="flex items-center gap-3 mb-4">
-            <div className="h-8 w-8 rounded-full bg-liquid-dark-primary/10 flex items-center justify-center">
-              <Shield className="h-4 w-4 text-liquid-dark-primary" />
+            <div className="h-8 w-8 rounded-full bg-white/10 flex items-center justify-center">
+              <Shield className="h-4 w-4 text-white" />
             </div>
-            <h3 className="text-sm font-medium text-liquid-dark-primary">Verification & Compliance</h3>
+            <h3 className="text-sm font-medium text-white">Verification & Compliance</h3>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <div className="flex items-center gap-3 bg-white p-3 rounded-2xl border border-gray-100">
-              <div className="h-8 w-8 rounded-full bg-liquid-dark-primary/10 flex items-center justify-center shrink-0">
-                <CheckCircle2 className="h-4 w-4 text-liquid-dark-primary" />
+            <div className="flex items-center gap-3 bg-white/5 p-3 rounded-2xl border border-white/10">
+              <div className="h-8 w-8 rounded-full bg-white/10 flex items-center justify-center shrink-0">
+                <CheckCircle2 className="h-4 w-4 text-white" />
               </div>
               <div className="text-xs">
-                <p className="font-medium text-liquid-dark-primary">Documents</p>
-                <p className="text-gray-500">ID, Student Card, Photo</p>
+                <p className="font-medium text-white">Documents</p>
+                <p className="text-white/50">ID, Student Card, Photo</p>
               </div>
             </div>
-            <div className="flex items-center gap-3 bg-white p-3 rounded-2xl border border-gray-100">
-              <div className="h-8 w-8 rounded-full bg-liquid-dark-primary/10 flex items-center justify-center shrink-0">
-                <CheckCircle2 className="h-4 w-4 text-liquid-dark-primary" />
+            <div className="flex items-center gap-3 bg-white/5 p-3 rounded-2xl border border-white/10">
+              <div className="h-8 w-8 rounded-full bg-white/10 flex items-center justify-center shrink-0">
+                <CheckCircle2 className="h-4 w-4 text-white" />
               </div>
               <div className="text-xs">
-                <p className="font-medium text-liquid-dark-primary">Terms Accepted</p>
-                <p className="text-gray-500">Platform Policies</p>
+                <p className="font-medium text-white">Terms Accepted</p>
+                <p className="text-white/50">Platform Policies</p>
               </div>
             </div>
             {formData.emergencyContactName && (
-              <div className="flex items-center gap-3 bg-white p-3 rounded-2xl border border-gray-100">
-                <div className="h-8 w-8 rounded-full bg-liquid-dark-primary/10 flex items-center justify-center shrink-0">
-                  <CheckCircle2 className="h-4 w-4 text-liquid-dark-primary" />
+              <div className="flex items-center gap-3 bg-white/5 p-3 rounded-2xl border border-white/10">
+                <div className="h-8 w-8 rounded-full bg-white/10 flex items-center justify-center shrink-0">
+                  <CheckCircle2 className="h-4 w-4 text-white" />
                 </div>
                 <div className="text-xs">
-                  <p className="font-medium text-liquid-dark-primary">Emergency Contact</p>
-                  <p className="text-gray-500">Provided</p>
+                  <p className="font-medium text-white">Emergency Contact</p>
+                  <p className="text-white/50">Provided</p>
                 </div>
               </div>
             )}

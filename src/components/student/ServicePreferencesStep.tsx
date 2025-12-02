@@ -150,9 +150,9 @@ export function ServicePreferencesStep({ formData, updateFormData, errors }: Ser
         <div className="flex gap-3 items-start">
           <Info className="h-4 w-4 text-liquid-dark-secondary mt-0.5 shrink-0" />
           <div className="space-y-2 text-xs font-light text-gray-600">
-            <p className="font-medium text-liquid-dark-secondary">Pricing Guidelines</p>
+            <p className="font-medium text-white">Pricing Guidelines</p>
             <ul className="space-y-1">
-              <li>• Average student guide rate: <span className="font-medium text-gray-900">€12-20/hr</span></li>
+              <li>• Average student guide rate: <span className="font-medium text-white">€12-20/hr</span></li>
               <li>• Consider your experience and language skills</li>
               <li>• You can adjust your rate later</li>
               <li>• Platform fee covers insurance and support</li>

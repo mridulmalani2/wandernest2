@@ -58,8 +58,8 @@ export function SafetyComplianceStep({ formData, updateFormData, errors }: Safet
         <div className="flex gap-3 items-start">
           <AlertTriangle className="h-5 w-5 text-liquid-dark-secondary mt-0.5 shrink-0" />
           <div className="space-y-2 text-sm font-light">
-            <p className="font-medium text-liquid-dark-primary">Safety Guidelines</p>
-            <ul className="space-y-1 text-gray-600 text-xs">
+            <p className="font-medium text-white">Safety Guidelines</p>
+            <ul className="space-y-1 text-gray-300 text-xs">
               <li>• Always meet tourists in public places</li>
               <li>• Share your itinerary with a friend/family member</li>
               <li>• Trust your instincts - you can decline any request</li>
