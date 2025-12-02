@@ -70,176 +70,167 @@ export default function TouristDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-liquid-light to-white relative">
-        {/* Subtle Background Pattern */}
-        <div
-          className="absolute inset-0"
-        >
-          <Image
-            src="https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?w=1920&q=80"
-            alt="Vintage compass and travel map"
-            fill
-            quality={85}
-            sizes="100vw"
-            className="object-cover opacity-30"
-          />
-          <div
-            className="absolute inset-0 opacity-[0.03] pointer-events-none"
-            style={{
-              backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%231a1f3a' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-            }}
-          />
+    <div className="min-h-screen bg-white relative">
+      {/* Subtle Background Pattern */}
+      <div className="absolute inset-0 pointer-events-none">
+        <Image
+          src="https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?w=1920&q=80"
+          alt="Vintage compass and travel map"
+          fill
+          quality={85}
+          sizes="100vw"
+          className="object-cover opacity-[0.08]"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-white/80 via-white/50 to-transparent" />
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 py-12 relative z-10">
+        {/* Header */}
+        <div className="mb-12">
+          <h1 className="text-5xl font-light tracking-tight text-black mb-3">
+            Welcome back, {session?.user?.name?.split(' ')[0] || 'Traveler'}
+          </h1>
+          <p className="text-lg font-light text-gray-900">
+            Your trips and bookings at a glance
+          </p>
         </div>
 
-        <div className="max-w-7xl mx-auto px-4 py-12 relative z-10">
-          {/* Header */}
-          <div className="mb-12">
-            <h1 className="text-5xl font-light tracking-tight text-liquid-dark-primary mb-3">
-              Welcome back, {session?.user?.name?.split(' ')[0] || 'Traveler'}
-            </h1>
-            <p className="text-lg font-light text-gray-600">
-              Your trips and bookings at a glance
-            </p>
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
+          <div className="bg-white/80 backdrop-blur-sm border border-gray-100 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all duration-300">
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-900 mb-1">Total Bookings</p>
+                <p className="text-4xl font-light text-black">{stats.total}</p>
+              </div>
+              <div className="h-10 w-10 rounded-full bg-blue-50 flex items-center justify-center">
+                <MapPin className="h-5 w-5 text-blue-600" />
+              </div>
+            </div>
           </div>
 
-          {/* Stats Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
-            <FlowCard padding="lg" hover>
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="text-sm font-light text-gray-600 mb-1">Total Bookings</p>
-                  <p className="text-4xl font-light text-liquid-dark-primary">{stats.total}</p>
-                </div>
-                <div className="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center">
-                  <MapPin className="h-6 w-6 text-blue-600" />
-                </div>
+          <div className="bg-white/80 backdrop-blur-sm border border-gray-100 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all duration-300">
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-900 mb-1">Upcoming</p>
+                <p className="text-4xl font-light text-black">{stats.upcoming}</p>
               </div>
-            </FlowCard>
-
-            <FlowCard padding="lg" hover>
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="text-sm font-light text-gray-600 mb-1">Upcoming</p>
-                  <p className="text-4xl font-light text-liquid-dark-primary">{stats.upcoming}</p>
-                </div>
-                <div className="h-12 w-12 rounded-full bg-green-100 flex items-center justify-center">
-                  <Calendar className="h-6 w-6 text-green-600" />
-                </div>
+              <div className="h-10 w-10 rounded-full bg-green-50 flex items-center justify-center">
+                <Calendar className="h-5 w-5 text-green-600" />
               </div>
-            </FlowCard>
-
-            <FlowCard padding="lg" hover>
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="text-sm font-light text-gray-600 mb-1">Completed</p>
-                  <p className="text-4xl font-light text-liquid-dark-primary">{stats.completed}</p>
-                </div>
-                <div className="h-12 w-12 rounded-full bg-purple-100 flex items-center justify-center">
-                  <CheckCircle2 className="h-6 w-6 text-purple-600" />
-                </div>
-              </div>
-            </FlowCard>
-
-            <FlowCard padding="lg" hover variant="elevated">
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="text-sm font-light text-gray-600 mb-1">Total Spent</p>
-                  <p className="text-4xl font-light text-liquid-dark-primary">€{stats.totalSpent}</p>
-                </div>
-                <div className="h-12 w-12 rounded-full bg-liquid-dark-primary/10 flex items-center justify-center">
-                  <TrendingUp className="h-6 w-6 text-liquid-dark-primary" />
-                </div>
-              </div>
-            </FlowCard>
+            </div>
           </div>
 
-          {/* Bookings List */}
-          <div className="space-y-6">
-            <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-light text-liquid-dark-primary">Your Trips</h2>
+          <div className="bg-white/80 backdrop-blur-sm border border-gray-100 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all duration-300">
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-900 mb-1">Completed</p>
+                <p className="text-4xl font-light text-black">{stats.completed}</p>
+              </div>
+              <div className="h-10 w-10 rounded-full bg-purple-50 flex items-center justify-center">
+                <CheckCircle2 className="h-5 w-5 text-purple-600" />
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white/80 backdrop-blur-sm border border-gray-100 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all duration-300">
+            <div className="flex items-start justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-900 mb-1">Total Spent</p>
+                <p className="text-4xl font-light text-black">€{stats.totalSpent}</p>
+              </div>
+              <div className="h-10 w-10 rounded-full bg-gray-50 flex items-center justify-center">
+                <TrendingUp className="h-5 w-5 text-gray-900" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Bookings List */}
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <h2 className="text-2xl font-light text-black">Your Trips</h2>
+            <button
+              onClick={() => router.push('/tourist/booking')}
+              className="px-6 py-2.5 rounded-xl bg-black text-white hover:bg-gray-900 transition-all duration-300 font-medium text-sm shadow-sm hover:shadow-md"
+            >
+              New Booking
+            </button>
+          </div>
+
+          {bookings.length === 0 ? (
+            <div className="bg-white/60 backdrop-blur-md border border-gray-200 rounded-3xl p-12 text-center">
+              <div className="h-16 w-16 rounded-full bg-gray-50 mx-auto mb-4 flex items-center justify-center">
+                <MapPin className="h-8 w-8 text-gray-400" />
+              </div>
+              <h3 className="text-xl font-medium text-black mb-2">No bookings yet</h3>
+              <p className="text-gray-600 font-light mb-6">
+                Start planning your next adventure
+              </p>
               <button
                 onClick={() => router.push('/tourist/booking')}
-                className="px-6 py-3 rounded-full bg-liquid-dark-primary text-white hover:shadow-md transition-all duration-300"
+                className="px-8 py-3 rounded-xl bg-black text-white hover:bg-gray-900 transition-all duration-300 font-medium shadow-sm hover:shadow-md"
               >
-                New Booking
+                Create Booking
               </button>
             </div>
-
-            {bookings.length === 0 ? (
-              <FlowCard padding="lg">
-                <div className="text-center py-12">
-                  <div className="h-16 w-16 rounded-full bg-liquid-light mx-auto mb-4 flex items-center justify-center">
-                    <MapPin className="h-8 w-8 text-liquid-dark-secondary" />
-                  </div>
-                  <h3 className="text-xl font-medium text-liquid-dark-primary mb-2">No bookings yet</h3>
-                  <p className="text-gray-600 font-light mb-6">
-                    Start planning your next adventure
-                  </p>
-                  <button
-                    onClick={() => router.push('/tourist/booking')}
-                    className="px-8 py-3 rounded-full bg-liquid-dark-primary text-white hover:shadow-md transition-all duration-300"
-                  >
-                    Create Booking
-                  </button>
-                </div>
-              </FlowCard>
-            ) : (
-              <div className="grid grid-cols-1 gap-4">
-                {bookings.map((booking) => (
-                  <FlowCard key={booking.id} padding="lg" hover>
-                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                      <div className="flex-1 space-y-3">
-                        <div className="flex items-start justify-between">
-                          <div>
-                            <h3 className="text-lg font-medium text-liquid-dark-primary mb-1 capitalize">
-                              {booking.city}
-                            </h3>
-                            {booking.guideName && (
-                              <p className="text-sm text-gray-600 font-light">
-                                Guide: {booking.guideName}
-                              </p>
-                            )}
-                          </div>
-                          <span className={`text-xs px-3 py-1 rounded-full border font-medium capitalize ${getStatusColor(booking.status)}`}>
-                            {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
-                          </span>
+          ) : (
+            <div className="grid grid-cols-1 gap-4">
+              {bookings.map((booking) => (
+                <div key={booking.id} className="bg-white/80 backdrop-blur-sm border border-gray-100 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all duration-300 group">
+                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                    <div className="flex-1 space-y-3">
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <h3 className="text-xl font-medium text-black mb-1 capitalize group-hover:text-blue-600 transition-colors">
+                            {booking.city}
+                          </h3>
+                          {booking.guideName && (
+                            <p className="text-sm text-gray-900 font-light">
+                              Guide: {booking.guideName}
+                            </p>
+                          )}
                         </div>
-
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                          <div className="flex items-center gap-2 text-gray-600">
-                            <Calendar className="h-4 w-4 shrink-0" />
-                            <span className="font-light">
-                              {new Date(booking.dates.start).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
-                              {booking.dates.end && ` - ${new Date(booking.dates.end).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}`}
-                            </span>
-                          </div>
-                          <div className="flex items-center gap-2 text-gray-600">
-                            <Users className="h-4 w-4 shrink-0" />
-                            <span className="font-light">{booking.numberOfGuests} {booking.numberOfGuests === 1 ? 'guest' : 'guests'}</span>
-                          </div>
-                          <div className="flex items-center gap-2 text-gray-600">
-                            <Clock className="h-4 w-4 shrink-0" />
-                            <span className="font-light capitalize">{booking.serviceType.replace('_', ' ')}</span>
-                          </div>
-                          <div className="text-lg font-medium text-liquid-dark-primary">
-                            €{booking.totalBudget}
-                          </div>
-                        </div>
+                        <span className={`text-xs px-3 py-1 rounded-full border font-medium capitalize ${getStatusColor(booking.status)}`}>
+                          {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
+                        </span>
                       </div>
 
-                      <button
-                        onClick={() => router.push(`/tourist/booking/${booking.id}`)}
-                        className="px-6 py-2 rounded-full border-2 border-liquid-dark-primary text-liquid-dark-primary hover:bg-liquid-dark-primary hover:text-white transition-all duration-300"
-                      >
-                        View Details
-                      </button>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                        <div className="flex items-center gap-2 text-gray-900">
+                          <Calendar className="h-4 w-4 shrink-0 text-gray-500" />
+                          <span className="font-light">
+                            {new Date(booking.dates.start).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
+                            {booking.dates.end && ` - ${new Date(booking.dates.end).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}`}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2 text-gray-900">
+                          <Users className="h-4 w-4 shrink-0 text-gray-500" />
+                          <span className="font-light">{booking.numberOfGuests} {booking.numberOfGuests === 1 ? 'guest' : 'guests'}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-gray-900">
+                          <Clock className="h-4 w-4 shrink-0 text-gray-500" />
+                          <span className="font-light capitalize">{booking.serviceType.replace('_', ' ')}</span>
+                        </div>
+                        <div className="text-lg font-medium text-black">
+                          €{booking.totalBudget}
+                        </div>
+                      </div>
                     </div>
-                  </FlowCard>
-                ))}
-              </div>
-            )}
-          </div>
+
+                    <button
+                      onClick={() => router.push(`/tourist/booking/${booking.id}`)}
+                      className="px-6 py-2 rounded-xl border border-gray-200 text-black hover:border-black hover:bg-black hover:text-white transition-all duration-300 text-sm font-medium"
+                    >
+                      View Details
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
+    </div>
   );
 }
