@@ -59,12 +59,12 @@ export function ServicePreferencesStep({ formData, updateFormData, errors }: Ser
                   'flex items-start gap-4 p-5 rounded-3xl transition-all duration-300 text-left',
                   'border-2',
                   isSelected
-                    ? 'bg-white text-liquid-dark-primary border-white shadow-lg hover:shadow-xl hover:scale-[1.01] active:scale-[0.99]'
+                    ? 'bg-white text-gray-900 border-white shadow-lg hover:shadow-xl hover:scale-[1.01] active:scale-[0.99]'
                     : 'bg-transparent text-white border-white/20 hover:border-white hover:bg-white/10 hover:shadow-md active:scale-[0.99]'
                 )}
               >
                 <div className={cn('h-10 w-10 rounded-full flex items-center justify-center shrink-0',
-                  isSelected ? 'bg-white/20' : 'bg-liquid-light')}>
+                  isSelected ? 'bg-gray-100' : 'bg-white/10')}>
                   <Icon className="h-5 w-5" />
                 </div>
                 <div className="flex-1">
@@ -89,12 +89,12 @@ export function ServicePreferencesStep({ formData, updateFormData, errors }: Ser
           'w-full flex items-start gap-4 p-5 rounded-3xl transition-all duration-300 text-left',
           'border-2',
           formData.onlineServicesAvailable
-            ? 'bg-white text-liquid-dark-primary border-white shadow-lg hover:shadow-xl hover:scale-[1.01] active:scale-[0.99]'
+            ? 'bg-white text-gray-900 border-white shadow-lg hover:shadow-xl hover:scale-[1.01] active:scale-[0.99]'
             : 'bg-transparent text-white border-white/20 hover:border-white hover:bg-white/10 hover:shadow-md active:scale-[0.99]'
         )}
       >
         <div className={cn('h-10 w-10 rounded-full flex items-center justify-center shrink-0',
-          formData.onlineServicesAvailable ? 'bg-white/20' : 'bg-liquid-light')}>
+          formData.onlineServicesAvailable ? 'bg-gray-100' : 'bg-white/10')}>
           <Globe className="h-5 w-5" />
         </div>
         <div className="flex-1">
