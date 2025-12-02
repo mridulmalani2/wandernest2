@@ -85,10 +85,10 @@ export function AvailabilityStep({ formData, updateFormData, errors }: Availabil
   return (
     <div className="space-y-12 animate-fade-in max-w-4xl mx-auto">
       <div className="text-center space-y-2">
-        <h2 className="text-4xl font-light tracking-tight text-liquid-dark-primary">
+        <h2 className="text-4xl font-light tracking-tight text-white">
           Set Your Availability
         </h2>
-        <p className="text-base font-light text-gray-500 max-w-md mx-auto">
+        <p className="text-base font-light text-white/70 max-w-md mx-auto">
           When are you available to guide?
         </p>
       </div>
@@ -96,7 +96,7 @@ export function AvailabilityStep({ formData, updateFormData, errors }: Availabil
       {/* Add Time Slot */}
       <FlowCard padding="lg">
         <div className="space-y-4">
-          <div className="flex items-center gap-2 text-sm font-light tracking-wide text-liquid-dark-secondary">
+          <div className="flex items-center gap-2 text-sm font-light tracking-wide text-white/80">
             <Plus className="h-4 w-4" />
             Add Time Slot
           </div>
@@ -142,7 +142,7 @@ export function AvailabilityStep({ formData, updateFormData, errors }: Availabil
 
       {/* Weekly Schedule */}
       <div className="space-y-4">
-        <h3 className="text-sm font-light tracking-wide text-liquid-dark-secondary">
+        <h3 className="text-sm font-light tracking-wide text-white/80">
           Weekly Schedule {errors.availability && <span className="text-ui-error ml-1">*</span>}
         </h3>
 
@@ -151,7 +151,7 @@ export function AvailabilityStep({ formData, updateFormData, errors }: Availabil
             {availabilityByDay.filter(d => d.slots.length > 0).map((dayData) => (
               <FlowCard key={dayData.day} padding="md" variant="subtle">
                 <div className="space-y-3">
-                  <h4 className="font-medium text-liquid-dark-primary text-sm">{dayData.day}</h4>
+                  <h4 className="font-medium text-white text-sm">{dayData.day}</h4>
                   <div className="space-y-2">
                     {dayData.slots.map((slot, slotIndex) => {
                       const globalIndex = formData.availability.findIndex(
@@ -160,11 +160,11 @@ export function AvailabilityStep({ formData, updateFormData, errors }: Availabil
                       return (
                         <div
                           key={slotIndex}
-                          className="flex items-center justify-between p-3 bg-white rounded-2xl border border-gray-100 hover:border-liquid-dark-primary/30 transition-all"
+                          className="flex items-center justify-between p-3 bg-transparent rounded-2xl border border-white/20 hover:border-white/50 transition-all"
                         >
                           <div className="flex items-center gap-3 text-sm">
-                            <Clock className="h-4 w-4 text-liquid-dark-secondary" />
-                            <span className="font-medium text-liquid-dark-primary">
+                            <Clock className="h-4 w-4 text-white/80" />
+                            <span className="font-medium text-white">
                               {slot.startTime} - {slot.endTime}
                             </span>
                           </div>

@@ -65,10 +65,10 @@ export function BasicProfileStep({ formData, updateFormData, errors, cities }: B
   return (
     <div className="space-y-12 animate-fade-in max-w-3xl mx-auto">
       <div className="text-center space-y-2">
-        <h2 className="text-4xl font-light tracking-tight text-liquid-dark-primary">
+        <h2 className="text-4xl font-light tracking-tight text-white">
           Basic Profile
         </h2>
-        <p className="text-base font-light text-gray-500 max-w-md mx-auto">
+        <p className="text-base font-light text-white/70 max-w-md mx-auto">
           Let's start with the basics
         </p>
       </div>
@@ -76,7 +76,7 @@ export function BasicProfileStep({ formData, updateFormData, errors, cities }: B
       {/* Personal Details */}
       <FlowCard padding="lg">
         <div className="space-y-6">
-          <h3 className="text-sm font-light tracking-wide text-liquid-dark-secondary flex items-center gap-2">
+          <h3 className="text-sm font-light tracking-wide text-white/80 flex items-center gap-2">
             <User className="h-4 w-4" />
             Personal Details
           </h3>
@@ -103,7 +103,7 @@ export function BasicProfileStep({ formData, updateFormData, errors, cities }: B
           </div>
 
           <div className="space-y-3">
-            <label className="text-sm font-light tracking-wide text-liquid-dark-secondary block">
+            <label className="text-sm font-light tracking-wide text-white/80 block">
               Gender {errors.gender && <span className="text-ui-error ml-1">*</span>}
             </label>
             <div className="grid grid-cols-3 gap-3">
@@ -318,7 +318,7 @@ export function BasicProfileStep({ formData, updateFormData, errors, cities }: B
       {/* Academic Details */}
       <FlowCard padding="lg">
         <div className="space-y-6">
-          <h3 className="text-sm font-light tracking-wide text-liquid-dark-secondary flex items-center gap-2">
+          <h3 className="text-sm font-light tracking-wide text-white/80 flex items-center gap-2">
             <GraduationCap className="h-4 w-4" />
             Academic Details
           </h3>
@@ -365,7 +365,7 @@ export function BasicProfileStep({ formData, updateFormData, errors, cities }: B
 
           {/* Languages - Multi-Select Dropdown */}
           <div className="space-y-3">
-            <label className="text-sm font-light tracking-wide text-liquid-dark-secondary block">
+            <label className="text-sm font-light tracking-wide text-white/80 block">
               Languages You Speak {errors.languages && <span className="text-ui-error ml-1">*</span>}
             </label>
 
@@ -374,9 +374,9 @@ export function BasicProfileStep({ formData, updateFormData, errors, cities }: B
                 <div
                   className={cn(
                     'w-full min-h-[48px] px-0 py-3 cursor-pointer',
-                    'border-0 border-b border-gray-300 transition-all duration-300',
+                    'border-0 border-b border-white/20 transition-all duration-300',
                     'flex flex-wrap gap-2 items-center',
-                    isLanguageOpen && 'border-b-2 border-liquid-dark-primary',
+                    isLanguageOpen && 'border-b-2 border-white',
                     errors.languages && 'border-ui-error'
                   )}
                 >
@@ -400,11 +400,11 @@ export function BasicProfileStep({ formData, updateFormData, errors, cities }: B
                       </span>
                     ))
                   ) : (
-                    <span className="text-gray-400 font-light">Select languages...</span>
+                    <span className="text-white/50 font-light">Select languages...</span>
                   )}
                   <ChevronDown
                     className={cn(
-                      'ml-auto h-4 w-4 text-gray-400 transition-transform duration-200',
+                      'ml-auto h-4 w-4 text-white/50 transition-transform duration-200',
                       isLanguageOpen && 'rotate-180'
                     )}
                   />

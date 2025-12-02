@@ -79,38 +79,38 @@ export function CoverLetterStep({ formData, updateFormData, errors }: CoverLette
     <div className="space-y-12 animate-fade-in max-w-3xl mx-auto">
       <div className="text-center space-y-2">
         <h2 className="text-4xl font-light tracking-tight text-white">
-          Tell Your Story
+          Your Profile
         </h2>
-        <p className="text-base font-light text-gray-300 max-w-md mx-auto">
-          Help travelers get to know you
+        <p className="text-base font-light text-white/70 max-w-md mx-auto">
+          Tell tourists about yourself
         </p>
       </div>
 
       {/* Bio */}
       <FlowCard padding="lg">
         <div className="space-y-3">
-          <label className="text-sm font-light tracking-wide text-white/90 block">
+          <label className="text-sm font-light tracking-wide text-white/80 block">
             Bio {errors.bio && <span className="text-ui-error ml-1">*</span>}
           </label>
           <textarea
             value={formData.bio}
             onChange={(e) => updateFormData({ bio: e.target.value })}
             rows={4}
-            maxLength={500}
-            placeholder="Tell us about yourself, your city, and why you'd make a great guide..."
+            maxLength={300}
+            placeholder="Hi, I'm..."
             className={cn(
-              'w-full bg-transparent px-0 py-2 text-base font-light',
+              'w-full bg-transparent px-4 py-3 text-base font-light tracking-wide',
               'text-white placeholder:text-white/30',
-              'border-0 border-b border-white/20 focus:border-b-2 focus:border-white',
-              'transition-all duration-300 resize-none focus:outline-none',
-              errors.bio && 'border-ui-error focus:border-ui-error'
+              'border border-white/20 rounded-xl',
+              'focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent',
+              'min-h-[120px] resize-none transition-all duration-300',
+              errors.bio && 'border-ui-error focus:ring-ui-error'
             )}
           />
-          <div className="flex justify-between text-xs font-light">
-            <span className={errors.bio ? 'text-ui-error' : 'text-white/50'}>
-              {errors.bio || 'Share your passion for your city'}
+          <div className="flex justify-end">
+            <span className="text-xs text-white/50">
+              {formData.bio.length}/300 characters
             </span>
-            <span className="text-white/50">{formData.bio.length}/500</span>
           </div>
         </div>
       </FlowCard>
@@ -118,9 +118,9 @@ export function CoverLetterStep({ formData, updateFormData, errors }: CoverLette
       {/* Cover Letter */}
       <FlowCard padding="lg">
         <div className="space-y-3">
-          <label className="text-sm font-light tracking-wide text-white/90 block flex items-center gap-2">
+          <label className="text-sm font-light tracking-wide text-white/80 block flex items-center gap-2">
             <FileText className="h-4 w-4" />
-            Cover Letter {errors.coverLetter && <span className="text-ui-error ml-1">*</span>}
+            Bio & Introduction {errors.coverLetter && <span className="text-ui-error ml-1">*</span>}
           </label>
           <textarea
             value={formData.coverLetter}

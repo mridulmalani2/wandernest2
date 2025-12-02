@@ -29,10 +29,10 @@ export function ReviewSubmitStep({ formData, errors }: ReviewSubmitStepProps) {
   return (
     <div className="space-y-8 animate-fade-in max-w-4xl mx-auto">
       <div className="text-center space-y-2">
-        <h2 className="text-4xl font-light tracking-tight text-liquid-dark-primary">
+        <h2 className="text-4xl font-light tracking-tight text-white">
           Review & Submit
         </h2>
-        <p className="text-base font-light text-gray-500">
+        <p className="text-base font-light text-white/70">
           Please verify your information
         </p>
       </div>

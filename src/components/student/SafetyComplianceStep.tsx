@@ -17,10 +17,10 @@ export function SafetyComplianceStep({ formData, updateFormData, errors }: Safet
   return (
     <div className="space-y-12 animate-fade-in max-w-3xl mx-auto">
       <div className="text-center space-y-2">
-        <h2 className="text-4xl font-light tracking-tight text-liquid-dark-primary">
+        <h2 className="text-4xl font-light tracking-tight text-white">
           Safety & Compliance
         </h2>
-        <p className="text-base font-light text-gray-500 max-w-md mx-auto">
+        <p className="text-base font-light text-white/70 max-w-md mx-auto">
           Your safety is our priority
         </p>
       </div>
@@ -28,9 +28,9 @@ export function SafetyComplianceStep({ formData, updateFormData, errors }: Safet
       {/* Emergency Contact */}
       <FlowCard padding="lg">
         <div className="space-y-6">
-          <div className="flex items-center gap-2 text-sm font-light tracking-wide text-liquid-dark-secondary">
+          <div className="flex items-center gap-2 text-sm font-light tracking-wide text-white/80">
             <Phone className="h-4 w-4" />
-            Emergency Contact <span className="text-xs text-gray-400 ml-1">(Optional but recommended)</span>
+            Emergency Contact <span className="text-xs text-white/50 ml-1">(Optional but recommended)</span>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -80,22 +80,22 @@ export function SafetyComplianceStep({ formData, updateFormData, errors }: Safet
               checked={formData.termsAccepted || false}
               onChange={(e) => updateFormData({ termsAccepted: e.target.checked })}
               className={cn(
-                'mt-1 h-5 w-5 rounded border-gray-300 focus:ring-liquid-dark-primary',
-                formData.termsAccepted ? 'text-liquid-dark-primary' : '',
+                'mt-1 h-5 w-5 rounded border-gray-300 focus:ring-white',
+                formData.termsAccepted ? 'text-white' : '',
                 errors.termsAccepted && 'border-ui-error'
               )}
             />
-            <div className="text-sm font-light text-liquid-dark-secondary">
+            <div className="text-sm font-light text-white/80">
               <label htmlFor="termsAccepted" className="cursor-pointer">
                 I agree to the{' '}
               </label>
-              <Link href="/terms" className="font-medium text-liquid-dark-primary hover:underline" onClick={(e) => e.stopPropagation()}>
+              <Link href="/terms" className="font-medium text-white hover:underline" onClick={(e) => e.stopPropagation()}>
                 Terms of Service
               </Link>
               <label htmlFor="termsAccepted" className="cursor-pointer">
                 {' '}and{' '}
               </label>
-              <Link href="/privacy" className="font-medium text-liquid-dark-primary hover:underline" onClick={(e) => e.stopPropagation()}>
+              <Link href="/privacy" className="font-medium text-white hover:underline" onClick={(e) => e.stopPropagation()}>
                 Privacy Policy
               </Link>
               .
@@ -115,14 +115,14 @@ export function SafetyComplianceStep({ formData, updateFormData, errors }: Safet
               checked={formData.safetyGuidelinesAccepted || false}
               onChange={(e) => updateFormData({ safetyGuidelinesAccepted: e.target.checked })}
               className={cn(
-                'mt-1 h-5 w-5 rounded border-gray-300 focus:ring-liquid-dark-primary',
-                formData.safetyGuidelinesAccepted ? 'text-liquid-dark-primary' : '',
+                'mt-1 h-5 w-5 rounded border-gray-300 focus:ring-white',
+                formData.safetyGuidelinesAccepted ? 'text-white' : '',
                 errors.safetyGuidelinesAccepted && 'border-ui-error'
               )}
             />
             <label htmlFor="safetyGuidelinesAccepted" className="text-sm font-light cursor-pointer">
-              <p className="text-liquid-dark-secondary">
-                I have read and agree to the <span className="font-medium text-liquid-dark-primary hover:underline">Safety Guidelines</span> and <span className="font-medium text-liquid-dark-primary hover:underline">Code of Conduct</span>.
+              <p className="text-white/80">
+                I have read and agree to the <span className="font-medium text-white hover:underline">Safety Guidelines</span> and <span className="font-medium text-white hover:underline">Code of Conduct</span>.
               </p>
             </label>
           </div>
@@ -136,11 +136,11 @@ export function SafetyComplianceStep({ formData, updateFormData, errors }: Safet
       </FlowCard>
 
       {/* Disclaimer */}
-      <div className="bg-liquid-light/50 rounded-2xl p-4 flex gap-3 items-start border border-gray-100">
-        <Shield className="h-5 w-5 text-liquid-dark-secondary shrink-0 mt-0.5" />
+      <div className="bg-white/10 rounded-2xl p-4 flex gap-3 items-start border border-white/20">
+        <Shield className="h-5 w-5 text-white/80 shrink-0 mt-0.5" />
         <div className="space-y-1">
-          <h3 className="font-medium text-liquid-dark-primary text-sm">Background Verification</h3>
-          <p className="text-xs font-light text-gray-600 leading-relaxed">
+          <h3 className="font-medium text-white text-sm">Background Verification</h3>
+          <p className="text-xs font-light text-white/70 leading-relaxed">
             Your documents will be verified within 2-3 business days. You'll be notified once your profile is approved and you can start accepting bookings.
           </p>
         </div>

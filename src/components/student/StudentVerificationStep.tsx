@@ -154,10 +154,10 @@ export function StudentVerificationStep({ formData, updateFormData, errors }: St
   return (
     <div className="space-y-12 animate-fade-in max-w-4xl mx-auto">
       <div className="text-center space-y-2">
-        <h2 className="text-4xl font-light tracking-tight text-liquid-dark-primary">
+        <h2 className="text-4xl font-light tracking-tight text-white">
           Identity Verification
         </h2>
-        <p className="text-base font-light text-gray-500 max-w-md mx-auto">
+        <p className="text-base font-light text-white/70 max-w-md mx-auto">
           We need to verify your identity and student status
         </p>
       </div>
@@ -213,7 +213,7 @@ export function StudentVerificationStep({ formData, updateFormData, errors }: St
             icon={ImageIcon}
             error={errors.selfieFile}
           />
-          <p className="text-xs text-gray-500 mt-2">Hold your ID next to your face</p>
+          <p className="text-xs text-white/70 mt-2">Hold your ID next to your face</p>
         </FlowCard>
 
         <FlowCard padding="md">
@@ -225,7 +225,7 @@ export function StudentVerificationStep({ formData, updateFormData, errors }: St
             icon={ImageIcon}
             error={errors.profilePhotoFile}
           />
-          <p className="text-xs text-gray-500 mt-2">This will be shown to tourists</p>
+          <p className="text-xs text-white/70 mt-2">This will be shown to tourists</p>
         </FlowCard>
       </div>
 
@@ -239,12 +239,12 @@ export function StudentVerificationStep({ formData, updateFormData, errors }: St
               checked={formData.documentsOwnedConfirmation || false}
               onChange={(e) => updateFormData({ documentsOwnedConfirmation: e.target.checked })}
               className={cn(
-                'mt-1 h-5 w-5 rounded border-gray-300 focus:ring-liquid-dark-primary',
-                formData.documentsOwnedConfirmation ? 'text-liquid-dark-primary' : '',
+                'mt-1 h-5 w-5 rounded border-gray-300 focus:ring-white',
+                formData.documentsOwnedConfirmation ? 'text-white' : '',
                 errors.documentsOwnedConfirmation && 'border-ui-error'
               )}
             />
-            <label htmlFor="documentsOwned" className="text-sm font-light cursor-pointer text-liquid-dark-secondary">
+            <label htmlFor="documentsOwned" className="text-sm font-light cursor-pointer text-white/80">
               I confirm that all uploaded documents are authentic and belong to me.
             </label>
           </div>
@@ -259,12 +259,12 @@ export function StudentVerificationStep({ formData, updateFormData, errors }: St
               checked={formData.verificationConsent || false}
               onChange={(e) => updateFormData({ verificationConsent: e.target.checked })}
               className={cn(
-                'mt-1 h-5 w-5 rounded border-gray-300 focus:ring-liquid-dark-primary',
-                formData.verificationConsent ? 'text-liquid-dark-primary' : '',
+                'mt-1 h-5 w-5 rounded border-gray-300 focus:ring-white',
+                formData.verificationConsent ? 'text-white' : '',
                 errors.verificationConsent && 'border-ui-error'
               )}
             />
-            <label htmlFor="verificationConsent" className="text-sm font-light cursor-pointer text-liquid-dark-secondary">
+            <label htmlFor="verificationConsent" className="text-sm font-light cursor-pointer text-white/80">
               I consent to background verification and understand documents will be securely stored and used only for verification purposes.
             </label>
           </div>
