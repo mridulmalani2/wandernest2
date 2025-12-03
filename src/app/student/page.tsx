@@ -43,7 +43,7 @@ export default function StudentLandingPage() {
             <div className="text-center space-y-6 md:space-y-8 animate-slide-up-fade">
               <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold leading-tight tracking-tight text-white text-shadow-lg">
                 Earn Money{' '}
-                <span className="text-gradient-vibrant animate-gradient-shift inline-block bg-white/10 px-3 sm:px-4 py-1.5 sm:py-2 rounded-2xl">
+                <span className="bg-gradient-to-r from-purple-300 via-blue-300 to-purple-300 bg-clip-text text-transparent animate-gradient-shift inline-block bg-white/10 px-3 sm:px-4 py-1.5 sm:py-2 rounded-2xl">
                   Sharing Your City
                 </span>
                 <br />

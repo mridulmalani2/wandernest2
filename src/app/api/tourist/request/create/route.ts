@@ -31,7 +31,7 @@ const createBookingSchema = z.object({
   preferredLanguages: z.array(z.string()).min(1, 'At least one language required'),
   serviceType: z.enum(['itinerary_help', 'guided_experience']),
   interests: z.array(z.string()).min(1, 'At least one interest required'),
-  budget: z.number().positive().optional(),
+  budget: z.number().nonnegative().optional(),
 
   // Contact
   phone: z.string().optional(),
