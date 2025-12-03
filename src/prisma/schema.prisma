@@ -409,3 +409,16 @@ model ContactMessage {
   @@index([status])
   @@index([createdAt])
 }
+
+model FileStorage {
+  id        String   @id @default(cuid())
+  filename  String
+  mimeType  String
+  size      Int
+  content   String   @db.Text // Base64 encoded content
+  studentId String?  // Optional link to student who uploaded it
+  
+  createdAt DateTime @default(now())
+
+  @@index([studentId])
+}

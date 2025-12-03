@@ -2,7 +2,7 @@
 export const dynamic = 'force-dynamic'
 
 import { NextRequest, NextResponse } from 'next/server';
-import { put } from '@vercel/blob';
+import { prisma } from '@/lib/prisma';
 import { getValidStudentSession, readStudentTokenFromRequest } from '@/lib/student-auth';
 
 export async function POST(req: NextRequest) {
@@ -47,39 +47,34 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Upload to Vercel Blob Storage
-    // This is the recommended approach for Vercel deployments
-    // - Files are stored in a CDN for fast access
-    // - No database bloat from Base64 encoding
-    // - Automatic optimization and caching
-    const blob = await put(file.name, file, {
-      access: 'public',
-      addRandomSuffix: true, // Prevents filename conflicts
+    // Convert file to base64
+    const buffer = Buffer.from(await file.arrayBuffer());
+    const base64Content = buffer.toString('base64');
+
+    // Store in Neon DB
+    const fileRecord = await prisma.fileStorage.create({
+      data: {
+        filename: file.name,
+        mimeType: file.type,
+        size: file.size,
+        content: base64Content,
+        studentId: session.studentId,
+      },
     });
+
+    // Generate URL for the file
+    // We'll create a new route /api/files/[id] to serve these
+    const fileUrl = `/api/files/${fileRecord.id}`;
 
     return NextResponse.json({
       success: true,
-      url: blob.url, // CDN URL for accessing the file
+      url: fileUrl,
       filename: file.name,
       size: file.size,
       contentType: file.type,
     });
   } catch (error) {
     console.error('File upload error:', error);
-
-    // Provide more specific error messages
-    if (error instanceof Error) {
-      // Check if it's a Vercel Blob configuration error
-      if (error.message.includes('BLOB_READ_WRITE_TOKEN')) {
-        return NextResponse.json(
-          {
-            error: 'File upload service not configured. Please set up Vercel Blob storage.',
-            details: 'Missing BLOB_READ_WRITE_TOKEN environment variable'
-          },
-          { status: 500 }
-        );
-      }
-    }
 
     return NextResponse.json(
       { error: 'Failed to upload file' },
