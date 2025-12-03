@@ -92,6 +92,7 @@ async function sendTransactionalEmail(
     to: string
     subject: string
     html: string
+    replyTo?: string
   },
   context: string
 ): Promise<{ success: boolean; error?: string }> {
@@ -103,6 +104,7 @@ async function sendTransactionalEmail(
         to: options.to,
         subject: options.subject,
         html: options.html,
+        replyTo: options.replyTo || config.email.contactEmail,
       })
 
       if (data.error) {
@@ -135,6 +137,7 @@ async function sendTransactionalEmail(
         to: options.to,
         subject: options.subject,
         html: options.html,
+        replyTo: options.replyTo || config.email.contactEmail,
       })
 
       const failed = result.rejected.concat(result.pending).filter(Boolean)

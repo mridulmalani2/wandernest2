@@ -94,6 +94,7 @@ async function sendEmail(
     to: string
     subject: string
     html: string
+    replyTo?: string
   },
   context: string
 ): Promise<{ success: boolean; error?: string }> {
@@ -105,6 +106,7 @@ async function sendEmail(
         to: options.to,
         subject: options.subject,
         html: options.html,
+        replyTo: options.replyTo || config.email.contactEmail,
       })
 
       if (data.error) {
@@ -137,6 +139,7 @@ async function sendEmail(
         to: options.to,
         subject: options.subject,
         html: options.html,
+        replyTo: options.replyTo || config.email.contactEmail,
       })
 
       if (config.app.isDevelopment) {
