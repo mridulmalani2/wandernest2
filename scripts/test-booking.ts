@@ -28,10 +28,6 @@ async function testBooking() {
         dates: { start: '2025-06-01', end: '2025-06-05' },
         preferredTime: 'morning',
         numberOfGuests: 2,
-        groupType: 'couple', // Note: schema says 'family' | 'friends' | 'solo' | 'business'. 'couple' might fail if enum is strict.
-        // Let's check schema. Schema says: groupType String. Zod says: enum(['family', 'friends', 'solo', 'business']).
-        // Wait, 'couple' is NOT in the Zod enum in the route file I read earlier.
-        // I should use a valid value: 'friends'
         groupType: 'friends',
         accessibilityNeeds: 'None',
         preferredNationality: 'French',
