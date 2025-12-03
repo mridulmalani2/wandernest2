@@ -1,5 +1,6 @@
 import 'server-only'
 import nodemailer from 'nodemailer'
+import { Resend } from 'resend'
 import { config } from '@/lib/config'
 
 /**
@@ -28,20 +29,32 @@ function getBaseUrl(): string {
 }
 
 /**
- * Standalone email transporter for transactional emails ONLY
- * This is separate from the NextAuth email transporter
+ * Email clients initialization
  */
 let transporter: nodemailer.Transporter | null = null
+let resend: Resend | null = null
 
-if (config.email.isConfigured) {
+if (config.email.resendApiKey) {
+  try {
+    resend = new Resend(config.email.resendApiKey)
+    if (config.app.isDevelopment) {
+      console.log('✅ Resend transactional client initialized')
+    }
+  } catch (error) {
+    console.error('❌ Failed to initialize Resend transactional client:', error)
+    resend = null
+  }
+}
+
+if (config.email.host && config.email.user && config.email.pass) {
   try {
     transporter = nodemailer.createTransport({
-      host: config.email.host!,
+      host: config.email.host,
       port: config.email.port,
       secure: config.email.port === 465, // true for 465 (SSL), false for other ports like 587 (STARTTLS)
       auth: {
-        user: config.email.user!,
-        pass: config.email.pass!,
+        user: config.email.user,
+        pass: config.email.pass,
       },
       tls: {
         rejectUnauthorized: config.app.isProduction, // Enforce in production, allow self-signed in dev
@@ -58,7 +71,9 @@ if (config.email.isConfigured) {
     console.error('❌ Failed to initialize transactional email transporter:', error)
     transporter = null
   }
-} else {
+}
+
+if (!resend && !transporter) {
   if (config.app.isDevelopment) {
     console.log('⚠️  Transactional email not configured - using mock mode')
   } else if (config.app.isProduction) {
@@ -80,49 +95,81 @@ async function sendTransactionalEmail(
   },
   context: string
 ): Promise<{ success: boolean; error?: string }> {
-  // Mock mode - log instead of sending
-  if (!transporter) {
-    if (config.app.isDevelopment) {
-      console.log('\n===========================================')
-      console.log(`📧 MOCK TRANSACTIONAL EMAIL - ${context}`)
-      console.log('===========================================')
-      console.log(`To: ${options.to}`)
-      console.log(`Subject: ${options.subject}`)
-      console.log('===========================================\n')
+  // 1. Try Resend first
+  if (resend) {
+    try {
+      const data = await resend.emails.send({
+        from: config.email.from,
+        to: options.to,
+        subject: options.subject,
+        html: options.html,
+      })
+
+      if (data.error) {
+        throw new Error(data.error.message)
+      }
+
+      if (config.app.isDevelopment) {
+        console.log(`✅ Transactional email sent via Resend: ${context}`)
+      }
+
+      return { success: true }
+    } catch (error) {
+      console.error(`❌ Error sending transactional email via Resend (${context}):`, error)
+      // Fallback to SMTP if available?
+      if (!transporter) {
+        return {
+          success: false,
+          error: error instanceof Error ? error.message : 'Unknown Resend error',
+        }
+      }
+      console.log('🔄 Falling back to SMTP...')
     }
-    return { success: true } // Mock sends always "succeed"
   }
 
-  // Production mode - actually send
-  try {
-    const result = await transporter.sendMail({
-      from: config.email.from,
-      to: options.to,
-      subject: options.subject,
-      html: options.html,
-    })
+  // 2. Try SMTP (Nodemailer)
+  if (transporter) {
+    try {
+      const result = await transporter.sendMail({
+        from: config.email.from,
+        to: options.to,
+        subject: options.subject,
+        html: options.html,
+      })
 
-    const failed = result.rejected.concat(result.pending).filter(Boolean)
-    if (failed.length) {
-      console.error('❌ Transactional email failed:', failed.join(', '))
+      const failed = result.rejected.concat(result.pending).filter(Boolean)
+      if (failed.length) {
+        console.error('❌ Transactional email failed:', failed.join(', '))
+        return {
+          success: false,
+          error: `Email delivery failed for: ${failed.join(', ')}`,
+        }
+      }
+
+      if (config.app.isDevelopment) {
+        console.log(`✅ Transactional email sent via SMTP: ${context}`)
+      }
+
+      return { success: true }
+    } catch (error) {
+      console.error(`❌ Error sending transactional email via SMTP (${context}):`, error)
       return {
         success: false,
-        error: `Email delivery failed for: ${failed.join(', ')}`,
+        error: error instanceof Error ? error.message : 'Unknown error',
       }
     }
-
-    if (config.app.isDevelopment) {
-      console.log(`✅ Transactional email sent: ${context}`)
-    }
-
-    return { success: true }
-  } catch (error) {
-    console.error(`❌ Error sending transactional email (${context}):`, error)
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
-    }
   }
+
+  // 3. Mock mode - log instead of sending
+  if (config.app.isDevelopment) {
+    console.log('\n===========================================')
+    console.log(`📧 MOCK TRANSACTIONAL EMAIL - ${context}`)
+    console.log('===========================================')
+    console.log(`To: ${options.to}`)
+    console.log(`Subject: ${options.subject}`)
+    console.log('===========================================\n')
+  }
+  return { success: true } // Mock sends always "succeed"
 }
 
 /**
@@ -217,8 +264,8 @@ export async function sendBookingConfirmation(
                     <!-- Welcome Message -->
                     <p style="margin: 0 0 28px 0; font-size: 17px; line-height: 1.7; color: #1f2937; font-weight: 400;">
                       ${hasMatches
-                        ? '🎉 <strong style="font-weight: 600; color: #111827;">Fantastic news!</strong> Your booking request has been successfully submitted, and we\'ve already found qualified student guides who match your trip preferences. They\'re reviewing your request now!'
-                        : '👋 <strong style="font-weight: 600; color: #111827;">Thank you for choosing TourWiseCo!</strong> Your booking request has been successfully created and saved. While we don\'t have immediate matches yet, rest assured—we\'re actively working to connect you with the perfect local student guide.'}
+      ? '🎉 <strong style="font-weight: 600; color: #111827;">Fantastic news!</strong> Your booking request has been successfully submitted, and we\'ve already found qualified student guides who match your trip preferences. They\'re reviewing your request now!'
+      : '👋 <strong style="font-weight: 600; color: #111827;">Thank you for choosing TourWiseCo!</strong> Your booking request has been successfully created and saved. While we don\'t have immediate matches yet, rest assured—we\'re actively working to connect you with the perfect local student guide.'}
                     </p>
 
                     <!-- Request ID Card -->
@@ -388,8 +435,8 @@ export async function sendBookingConfirmation(
                               <td style="vertical-align: top;">
                                 <p style="margin: 0; font-size: 15px; line-height: 1.7; color: #78350f;">
                                   <strong style="color: #92400e; font-weight: 700;">Pro Tip:</strong> ${hasMatches
-                                    ? 'You\'ll receive an email as soon as a guide accepts your request. Make sure to <strong style="font-weight: 600;">check your inbox regularly</strong> (including spam folder) so you don\'t miss any updates!'
-                                    : 'Your request remains active for <strong style="font-weight: 600;">7 days</strong>. We\'ll notify you immediately when a matching guide becomes available. Meanwhile, feel free to <strong style="font-weight: 600;">check your email regularly</strong> for updates!'}
+      ? 'You\'ll receive an email as soon as a guide accepts your request. Make sure to <strong style="font-weight: 600;">check your inbox regularly</strong> (including spam folder) so you don\'t miss any updates!'
+      : 'Your request remains active for <strong style="font-weight: 600;">7 days</strong>. We\'ll notify you immediately when a matching guide becomes available. Meanwhile, feel free to <strong style="font-weight: 600;">check your email regularly</strong> for updates!'}
                                 </p>
                               </td>
                             </tr>

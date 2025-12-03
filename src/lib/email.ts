@@ -1,5 +1,6 @@
 import 'server-only'
 import nodemailer from 'nodemailer'
+import { Resend } from 'resend'
 import type { Student, TouristRequest } from '@prisma/client'
 import { config } from '@/lib/config'
 import { generateMatchUrls } from '@/lib/auth/tokens'
@@ -8,6 +9,8 @@ import { generateMatchUrls } from '@/lib/auth/tokens'
  * Email system with comprehensive error handling
  *
  * Features:
+ * - Prioritizes Resend for reliable delivery
+ * - Fallback to SMTP if Resend is not configured
  * - Graceful fallback to mock mode when email is not configured
  * - Never crashes the calling code due to email failures
  * - Clear logging of email send status
@@ -29,19 +32,34 @@ function getBaseUrl(): string {
 }
 
 /**
- * Email transporter with configuration validation
+ * Email clients initialization
  */
 let transporter: nodemailer.Transporter | null = null
+let resend: Resend | null = null
 
-if (config.email.isConfigured) {
+if (config.email.resendApiKey) {
+  try {
+    resend = new Resend(config.email.resendApiKey)
+    if (config.app.isDevelopment) {
+      console.log('✅ Resend email client initialized')
+    }
+  } catch (error) {
+    console.error('❌ Failed to initialize Resend client:', error)
+    resend = null
+  }
+}
+
+// Only initialize SMTP if Resend is NOT configured, or as a fallback?
+// For now, let's initialize it if configured, but we'll prioritize Resend in sendEmail.
+if (config.email.host && config.email.user && config.email.pass) {
   try {
     transporter = nodemailer.createTransport({
-      host: config.email.host!,
+      host: config.email.host,
       port: config.email.port,
       secure: false, // Use TLS
       auth: {
-        user: config.email.user!,
-        pass: config.email.pass!,
+        user: config.email.user,
+        pass: config.email.pass,
       },
       // Add timeout to prevent hanging
       connectionTimeout: 10000, // 10 seconds
@@ -49,13 +67,15 @@ if (config.email.isConfigured) {
     })
 
     if (config.app.isDevelopment) {
-      console.log('✅ Email transporter initialized')
+      console.log('✅ SMTP Email transporter initialized')
     }
   } catch (error) {
-    console.error('❌ Failed to initialize email transporter:', error)
+    console.error('❌ Failed to initialize SMTP email transporter:', error)
     transporter = null
   }
-} else {
+}
+
+if (!resend && !transporter) {
   if (config.app.isDevelopment) {
     console.log('⚠️  Email not configured - using mock mode')
   } else if (config.app.isProduction) {
@@ -77,50 +97,82 @@ async function sendEmail(
   },
   context: string
 ): Promise<{ success: boolean; error?: string }> {
-  // Mock mode - log instead of sending
-  if (!transporter) {
-    if (config.app.isDevelopment) {
-      console.log('\n===========================================')
-      console.log(`📧 MOCK EMAIL - ${context}`)
-      console.log('===========================================')
-      console.log(`To: ${options.to}`)
-      console.log(`Subject: ${options.subject}`)
-      console.log('===========================================\n')
-    }
-    return { success: true } // Mock sends always "succeed"
-  }
+  // 1. Try Resend first
+  if (resend) {
+    try {
+      const data = await resend.emails.send({
+        from: config.email.from,
+        to: options.to,
+        subject: options.subject,
+        html: options.html,
+      })
 
-  // Production mode - actually send
-  try {
-    await transporter.sendMail({
-      from: config.email.from,
-      to: options.to,
-      subject: options.subject,
-      html: options.html,
-    })
+      if (data.error) {
+        throw new Error(data.error.message)
+      }
 
-    if (config.app.isDevelopment) {
-      console.log(`✅ Email sent: ${context} to ${options.to}`)
-    }
+      if (config.app.isDevelopment) {
+        console.log(`✅ Email sent via Resend: ${context} to ${options.to}`)
+      }
 
-    return { success: true }
-  } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
-
-    console.error(`❌ Failed to send email: ${context}`)
-    console.error(`   To: ${options.to}`)
-    console.error(`   Error: ${errorMessage}`)
-
-    // Log full error in development
-    if (config.app.isDevelopment) {
-      console.error('   Full error:', error)
-    }
-
-    return {
-      success: false,
-      error: errorMessage,
+      return { success: true }
+    } catch (error) {
+      console.error(`❌ Failed to send email via Resend: ${context}`, error)
+      // Fallback to SMTP if available?
+      if (!transporter) {
+        return {
+          success: false,
+          error: error instanceof Error ? error.message : 'Unknown Resend error',
+        }
+      }
+      console.log('🔄 Falling back to SMTP...')
     }
   }
+
+  // 2. Try SMTP (Nodemailer)
+  if (transporter) {
+    try {
+      await transporter.sendMail({
+        from: config.email.from,
+        to: options.to,
+        subject: options.subject,
+        html: options.html,
+      })
+
+      if (config.app.isDevelopment) {
+        console.log(`✅ Email sent via SMTP: ${context} to ${options.to}`)
+      }
+
+      return { success: true }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+
+      console.error(`❌ Failed to send email via SMTP: ${context}`)
+      console.error(`   To: ${options.to}`)
+      console.error(`   Error: ${errorMessage}`)
+
+      // Log full error in development
+      if (config.app.isDevelopment) {
+        console.error('   Full error:', error)
+      }
+
+      return {
+        success: false,
+        error: errorMessage,
+      }
+    }
+  }
+
+  // 3. Mock mode - log instead of sending
+  if (config.app.isDevelopment) {
+    console.log('\n===========================================')
+    console.log(`📧 MOCK EMAIL - ${context}`)
+    console.log('===========================================')
+    console.log(`To: ${options.to}`)
+    console.log(`Subject: ${options.subject}`)
+    console.log('===========================================\n')
+  }
+  return { success: true } // Mock sends always "succeed"
 }
 export async function sendStudentOtpEmail(toEmail: string, otp: string) {
   const html = `
@@ -208,8 +260,8 @@ export async function sendBookingConfirmation(
                   <td style="padding: 48px 40px;">
                     <p style="margin: 0 0 24px 0; font-size: 16px; line-height: 1.6; color: #374151;">
                       ${hasMatches
-                        ? 'Great news! Your booking request has been successfully submitted and we\'ve found matching student guides who can help with your trip.'
-                        : 'Great news! Your booking request has been successfully created. While we don\'t have immediate matches yet, your request is saved and we\'re actively working to find the perfect student guide for you.'}
+      ? 'Great news! Your booking request has been successfully submitted and we\'ve found matching student guides who can help with your trip.'
+      : 'Great news! Your booking request has been successfully created. While we don\'t have immediate matches yet, your request is saved and we\'re actively working to find the perfect student guide for you.'}
                     </p>
 
                     <!-- Request ID Card -->
@@ -341,8 +393,8 @@ export async function sendBookingConfirmation(
                         <td style="padding: 20px;">
                           <p style="margin: 0; font-size: 14px; line-height: 1.5; color: #92400e;">
                             <strong style="color: #78350f;">💡 Pro Tip:</strong> ${hasMatches
-                              ? 'You\'ll receive an email as soon as a guide accepts your request. Keep an eye on your inbox!'
-                              : 'Your request remains active for 7 days. We\'ll notify you immediately when a matching guide becomes available. Check your email regularly!'}
+      ? 'You\'ll receive an email as soon as a guide accepts your request. Keep an eye on your inbox!'
+      : 'Your request remains active for 7 days. We\'ll notify you immediately when a matching guide becomes available. Check your email regularly!'}
                           </p>
                         </td>
                       </tr>
@@ -392,10 +444,10 @@ export async function sendStudentRequestNotification(
   })
   const endDate = dates.end
     ? new Date(dates.end).toLocaleDateString('en-US', {
-        month: 'long',
-        day: 'numeric',
-        year: 'numeric'
-      })
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric'
+    })
     : null
 
   const acceptUrl = `${getBaseUrl()}/student/requests/${touristRequest.id}/accept`
@@ -657,10 +709,10 @@ export async function sendStudentMatchInvitation(
   })
   const endDate = dates.end
     ? new Date(dates.end).toLocaleDateString('en-US', {
-        month: 'long',
-        day: 'numeric',
-        year: 'numeric'
-      })
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric'
+    })
     : null
 
   // Generate secure accept/decline URLs using signed tokens
@@ -1680,12 +1732,12 @@ export async function sendContactFormEmails(data: {
 
           <p style="color: #6b7280; font-size: 14px; margin-top: 30px;">
             Submitted on ${new Date().toLocaleString('en-US', {
-              month: 'long',
-              day: 'numeric',
-              year: 'numeric',
-              hour: '2-digit',
-              minute: '2-digit'
-            })}
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  })}
           </p>
         </div>
       </body>
