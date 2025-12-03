@@ -59,72 +59,7 @@ export async function GET() {
       }
     }
 
-    // 2. Check for NextAuth Session (Magic Link)
-    const session = await getServerSession(authOptions);
-
-    if (session?.user?.email) {
-      // Check if user is a student
-      if (session.user.userType === 'student') {
-        const student = await prisma.student.findUnique({
-          where: { email: session.user.email },
-        });
-
-        if (student) {
-          // Check if onboarding is complete (e.g. has name and city)
-          if (student.name && student.city) {
-            return NextResponse.json(
-              {
-                ok: true,
-                nextPath: '/student/dashboard',
-                linkedExistingStudent: true,
-                email: session.user.email,
-              },
-              { status: 200 }
-            );
-          } else {
-            // Profile exists but incomplete? Or maybe just treat as onboarding if critical fields missing
-            // User said: "if they have already filled this out once... that should be displayed"
-            // If record exists, they likely started. Let's send to dashboard if basic info is there, or onboarding if not.
-            // Actually, if they have a record, let's assume they are good or the dashboard handles "finish profile".
-            // But the user said "if new user -> create profile... if existing -> dashboard".
-            // Let's stick to: if record exists -> dashboard.
-            return NextResponse.json(
-              {
-                ok: true,
-                nextPath: '/student/dashboard',
-                linkedExistingStudent: true,
-                email: session.user.email,
-              },
-              { status: 200 }
-            );
-          }
-        } else {
-          // No student record -> Onboarding
-          return NextResponse.json(
-            {
-              ok: true,
-              nextPath: '/student/onboarding',
-              isNewStudent: true,
-              email: session.user.email,
-            },
-            { status: 200 }
-          );
-        }
-      } else {
-        // User is tourist but trying to access student flow?
-        // Redirect to tourist dashboard/booking
-        return NextResponse.json(
-          {
-            ok: false,
-            nextPath: '/booking', // or /tourist/dashboard
-            reason: 'WRONG_ROLE',
-          },
-          { status: 200 }
-        );
-      }
-    }
-
-    // No valid session found
+    // 2. No valid session found
     return NextResponse.json(
       { ok: false, nextPath: '/student/signin', reason: 'NO_TOKEN' },
       { status: 200 }

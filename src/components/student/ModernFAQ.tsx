@@ -46,12 +46,12 @@ export default function ModernFAQ() {
 
   return (
     <section className="py-20 animate-fade-in-up delay-700">
-      <div className="max-w-4xl mx-auto">
-        <h2 className="text-4xl md:text-5xl font-bold text-center mb-16 text-white text-shadow-lg">
+      <div className="max-w-3xl mx-auto">
+        <h2 className="text-3xl md:text-4xl font-bold text-center mb-12 text-white text-shadow-lg">
           Common Questions
         </h2>
 
-        <div className="backdrop-blur-md bg-transparent rounded-3xl border border-white/20 shadow-premium overflow-hidden">
+        <div className="backdrop-blur-md bg-white/5 rounded-3xl border border-white/10 shadow-premium overflow-hidden">
           {faqData.map((faq, index) => {
             const isOpen = openIndex === index
             const isLast = index === faqData.length - 1
@@ -66,7 +66,7 @@ export default function ModernFAQ() {
                   onClick={() => toggleFAQ(index)}
                   onKeyDown={(e) => handleKeyDown(e, index)}
                   className={`
-                    w-full text-left px-8 py-7 flex items-center justify-between gap-6 cursor-pointer
+                    w-full text-left px-6 py-5 flex items-center justify-between gap-4 cursor-pointer
                     transition-all duration-300 ease-out
                     focus:outline-none focus-visible:ring-2 focus-visible:ring-white/60 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent
                     ${isOpen ? 'bg-white/5' : 'hover:bg-white/5'}
@@ -76,10 +76,10 @@ export default function ModernFAQ() {
                 >
                   {/* Question Text */}
                   <h3 className={`
-                    text-xl md:text-2xl font-semibold transition-all duration-300
+                    text-lg md:text-xl font-medium transition-all duration-300
                     ${isOpen
-                      ? 'text-white text-shadow-lg'
-                      : 'text-white/95 group-hover:text-white text-shadow'
+                      ? 'text-white text-shadow'
+                      : 'text-white/90 group-hover:text-white'
                     }
                   `}>
                     {faq.question}
@@ -87,10 +87,10 @@ export default function ModernFAQ() {
 
                   {/* Arrow Icon */}
                   <motion.div
-                    className="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center bg-white/10"
+                    className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center bg-white/5 border border-white/10"
                     animate={{
                       rotate: isOpen ? 180 : 0,
-                      backgroundColor: isOpen ? 'rgba(255, 255, 255, 0.2)' : 'rgba(255, 255, 255, 0.1)'
+                      backgroundColor: isOpen ? 'rgba(255, 255, 255, 0.2)' : 'rgba(255, 255, 255, 0.05)'
                     }}
                     transition={{
                       duration: 0.3,
@@ -98,8 +98,8 @@ export default function ModernFAQ() {
                     }}
                   >
                     <ChevronDown
-                      className="w-6 h-6 text-white"
-                      strokeWidth={2.5}
+                      className="w-4 h-4 text-white"
+                      strokeWidth={2}
                     />
                   </motion.div>
                 </button>
@@ -147,9 +147,9 @@ export default function ModernFAQ() {
                         initial={{ y: -10 }}
                         animate={{ y: 0 }}
                         transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-                        className="px-8 pb-7 pt-2"
+                        className="px-6 pb-6 pt-0"
                       >
-                        <p className="text-lg md:text-xl leading-relaxed text-white/90 font-normal">
+                        <p className="text-base md:text-lg leading-relaxed text-white/80 font-light">
                           {faq.answer}
                         </p>
                       </motion.div>
@@ -163,11 +163,11 @@ export default function ModernFAQ() {
 
         {/* Bottom Text */}
         <div className="mt-12 text-center">
-          <p className="text-white/80 text-lg md:text-xl font-normal text-shadow">
+          <p className="text-white/70 text-base md:text-lg font-light">
             Have more questions? We're here to help you get started.{' '}
             <button
               onClick={openContactModal}
-              className="text-white underline hover:text-white/90 transition-colors focus:outline-none focus:ring-2 focus:ring-white/60 focus:ring-offset-2 focus:ring-offset-transparent rounded"
+              className="text-white underline hover:text-white/90 transition-colors focus:outline-none focus:ring-2 focus:ring-white/60 focus:ring-offset-2 focus:ring-offset-transparent rounded font-medium"
             >
               Contact us
             </button>

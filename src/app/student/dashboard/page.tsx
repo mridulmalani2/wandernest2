@@ -31,22 +31,15 @@ export default function StudentDashboard() {
 
       let isAuthenticated = false;
 
-      // 1. Check NextAuth Session
-      if (status === 'authenticated' && session?.user?.userType === 'student') {
-        isAuthenticated = true;
-      }
-
-      // 2. If not authenticated via NextAuth, check Custom Session
-      if (!isAuthenticated) {
-        try {
-          const res = await fetch('/api/student/auth/session-status');
-          const data = await res.json();
-          if (data.ok) {
-            isAuthenticated = true;
-          }
-        } catch (error) {
-          console.error('Session check failed', error);
+      // Check Custom Session via API
+      try {
+        const res = await fetch('/api/student/auth/session-status');
+        const data = await res.json();
+        if (data.ok) {
+          isAuthenticated = true;
         }
+      } catch (error) {
+        console.error('Session check failed', error);
       }
 
       if (!isAuthenticated) {

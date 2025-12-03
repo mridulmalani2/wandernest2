@@ -19,66 +19,54 @@ export default function StudentOnboarding() {
   const [sessionLike, setSessionLike] = useState<SessionLike | null>(null);
 
   useEffect(() => {
-    // Bypass auth for testing
-    setSessionLike({
-      user: {
-        email: 'test@example.com',
-        userType: 'student',
-        name: 'Test User',
-      },
-    });
-    setLoading(false);
-  }, []);
-  /*
-  const init = async () => {
-    try {
-      // ✅ Check our custom OTP session
-      const res = await fetch('/api/student/auth/session-status');
+    const init = async () => {
+      try {
+        // ✅ Check our custom OTP session
+        const res = await fetch('/api/student/auth/session-status');
 
-      if (!res.ok) {
+        if (!res.ok) {
+          router.push('/student/signin');
+          return;
+        }
+
+        const data = await res.json();
+
+        // Not logged in / invalid session → back to signin
+        if (!data.ok) {
+          router.push('/student/signin');
+          return;
+        }
+
+        // If backend already knows onboarding is done → straight to dashboard
+        if (data.hasCompletedOnboarding || data.student?.hasCompletedOnboarding) {
+          router.push('/student/dashboard');
+          return;
+        }
+
+        const email =
+          data.email ??
+          data.student?.email ??
+          null;
+
+        // Create a session-like object for the wizard
+        setSessionLike({
+          user: {
+            email,
+            userType: 'student',
+            name: data.student?.name ?? null,
+          },
+        });
+      } catch (error) {
+        console.error('Error checking onboarding status:', error);
         router.push('/student/signin');
         return;
+      } finally {
+        setLoading(false);
       }
+    };
 
-      const data = await res.json();
-
-      // Not logged in / invalid session → back to signin
-      if (!data.ok) {
-        router.push('/student/signin');
-        return;
-      }
-
-      // If backend already knows onboarding is done → straight to dashboard
-      if (data.hasCompletedOnboarding || data.student?.hasCompletedOnboarding) {
-        router.push('/student/dashboard');
-        return;
-      }
-
-      const email =
-        data.email ??
-        data.student?.email ??
-        null;
-
-      // Hum ek "fake" NextAuth-style session object bana rahe hain
-      // taaki OnboardingWizard ka existing prop `session` reuse ho jaye.
-      setSessionLike({
-        user: {
-          email,
-          userType: 'student',
-          name: data.student?.name ?? null,
-        },
-      });
-    } catch (error) {
-      console.error('Error checking onboarding status:', error);
-      router.push('/student/signin');
-      return;
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  init();
-  */
+    init();
+  }, [router]);
 
   // Loading state - same UI as before
   if (loading) {
