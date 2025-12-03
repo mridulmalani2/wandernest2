@@ -146,7 +146,7 @@ export default function TouristLanding() {
                     <div className="absolute inset-0 bg-black/40"></div>
                   </div>
                   <div className="relative z-10 p-8 h-full backdrop-blur-sm bg-white/10 border border-white/20 rounded-2xl group-hover:bg-white/15 transition-all">
-                    <div className="inline-flex p-4 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-500 text-white mb-6 group-hover:scale-105 transition-all duration-300 shadow-md">
+                    <div className="inline-flex p-4 rounded-2xl bg-white/10 text-white mb-6 group-hover:scale-105 transition-all duration-300 shadow-md border border-white/20">
                       <Star className="w-8 h-8" />
                     </div>
                     <h3 className="text-xl font-bold mb-3 text-white group-hover:text-amber-300 transition-colors">
@@ -354,72 +354,65 @@ export default function TouristLanding() {
               </div>
             </div>
 
-            {/* Marketplace Disclaimer - Enhanced */}
-            <div className="mt-16 max-w-4xl mx-auto animate-fade-in-up delay-800">
-              <div className="relative overflow-hidden backdrop-blur-md bg-gradient-to-br from-amber-50/95 to-yellow-50/95 border-2 border-amber-300/60 rounded-3xl shadow-premium hover:shadow-elevated transition-all duration-300">
-                {/* Decorative Elements */}
-                <div className="absolute -top-24 -right-24 w-48 h-48 bg-amber-300/20 rounded-full blur-3xl"></div>
-                <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-yellow-300/20 rounded-full blur-3xl"></div>
-
-                <div className="relative p-6 md:p-10">
+            {/* Marketplace Disclaimer - Enhanced Glass */}
+            <div className="mt-16 max-w-3xl mx-auto animate-fade-in-up delay-800">
+              <div className="relative overflow-hidden backdrop-blur-md bg-white/5 border border-white/10 rounded-3xl shadow-premium hover:shadow-elevated transition-all duration-300">
+                <div className="relative p-6 md:p-8">
                   <div className="flex flex-col md:flex-row md:items-start gap-6">
                     {/* Icon Section */}
                     <div className="flex-shrink-0">
-                      <div className="relative">
-                        <div className="absolute inset-0 bg-amber-400 rounded-2xl blur-md opacity-50"></div>
-                        <div className="relative p-4 rounded-2xl bg-gradient-to-br from-amber-400 to-yellow-500 text-white shadow-lg">
-                          <AlertTriangle className="w-8 h-8" strokeWidth={2} />
-                        </div>
+                      <div className="p-3 rounded-xl bg-white/10 text-white shadow-lg border border-white/10">
+                        <AlertTriangle className="w-6 h-6" strokeWidth={2} />
                       </div>
                     </div>
 
                     {/* Content Section */}
-                    <div className="flex-1 space-y-5">
+                    <div className="flex-1 space-y-4">
                       {/* Title */}
-                      <div className="space-y-2">
-                        <h2 className="font-bold text-amber-900 text-2xl md:text-3xl">Important Notice</h2>
-                        <div className="h-1 w-20 bg-gradient-to-r from-amber-500 to-yellow-500 rounded-full"></div>
+                      <div>
+                        <h2 className="font-bold text-white text-xl md:text-2xl">Important Notice</h2>
+                        <div className="h-1 w-12 bg-white/20 rounded-full mt-2"></div>
                       </div>
 
                       {/* Main Text */}
                       <div className="space-y-4">
-                        <p className="text-base text-amber-900/90 leading-relaxed font-medium bg-white/50 backdrop-blur-sm px-5 py-4 rounded-2xl border border-amber-200/50">
-                          <strong className="text-amber-950">TourWiseCo is a marketplace connector only.</strong> We facilitate connections between tourists and local student guides but do not:
+                        <p className="text-sm md:text-base text-white/80 leading-relaxed font-light">
+                          <strong className="text-white font-medium">TourWiseCo is a marketplace connector only.</strong> We facilitate connections between tourists and local student guides but do not:
                         </p>
 
                         {/* List of Items */}
                         <div className="grid md:grid-cols-2 gap-3">
-                          <div className="flex items-start gap-3 bg-white/60 backdrop-blur-sm px-4 py-3 rounded-xl border border-amber-200/50 hover:bg-white/80 transition-colors">
-                            <div className="w-6 h-6 rounded-full bg-amber-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                              <span className="text-amber-700 text-sm">✕</span>
+                          <div className="flex items-center gap-3">
+                            <div className="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0 border border-white/10">
+                              <span className="text-white text-xs">✕</span>
                             </div>
-                            <span className="text-sm text-amber-900 font-medium">Handle any payments or financial transactions</span>
+                            <span className="text-sm text-white/70 font-light">Handle any payments</span>
                           </div>
 
-                          <div className="flex items-start gap-3 bg-white/60 backdrop-blur-sm px-4 py-3 rounded-xl border border-amber-200/50 hover:bg-white/80 transition-colors">
-                            <div className="w-6 h-6 rounded-full bg-amber-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                              <span className="text-amber-700 text-sm">✕</span>
+                          <div className="flex items-center gap-3">
+                            <div className="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0 border border-white/10">
+                              <span className="text-white text-xs">✕</span>
                             </div>
-                            <span className="text-sm text-amber-900 font-medium">Guarantee the quality of services provided</span>
+                            <span className="text-sm text-white/70 font-light">Guarantee service quality</span>
                           </div>
 
-                          <div className="flex items-start gap-3 bg-white/60 backdrop-blur-sm px-4 py-3 rounded-xl border border-amber-200/50 hover:bg-white/80 transition-colors">
-                            <div className="w-6 h-6 rounded-full bg-amber-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                              <span className="text-amber-700 text-sm">✕</span>
+                          <div className="flex items-center gap-3">
+                            <div className="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0 border border-white/10">
+                              <span className="text-white text-xs">✕</span>
                             </div>
-                            <span className="text-sm text-amber-900 font-medium">Act as an employer or agency for guides</span>
+                            <span className="text-sm text-white/70 font-light">Act as an employer</span>
                           </div>
 
-                          <div className="flex items-start gap-3 bg-white/60 backdrop-blur-sm px-4 py-3 rounded-xl border border-amber-200/50 hover:bg-white/80 transition-colors">
-                            <div className="w-6 h-6 rounded-full bg-amber-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                              <span className="text-amber-700 text-sm">✕</span>
+                          <div className="flex items-center gap-3">
+                            <div className="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0 border border-white/10">
+                              <span className="text-white text-xs">✕</span>
                             </div>
-                            <span className="text-sm text-amber-900 font-medium">Assume liability for guide-tourist interactions</span>
+                            <span className="text-sm text-white/70 font-light">Assume liability</span>
                           </div>
                         </div>
 
                         {/* Footer Note */}
-                        <p className="text-sm text-amber-900/80 leading-relaxed italic bg-amber-100/50 px-5 py-3 rounded-xl border-l-4 border-amber-500">
+                        <p className="text-xs md:text-sm text-white/60 leading-relaxed italic border-l-2 border-white/20 pl-4">
                           All arrangements, payments, and services are agreed upon directly between you and your guide.
                         </p>
                       </div>
