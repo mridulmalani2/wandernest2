@@ -2,8 +2,7 @@
 export const dynamic = 'force-dynamic'
 
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth-options'
+import { cookies } from 'next/headers'
 import { acceptRequest } from '../accept-request'
 import { requireDatabase } from '@/lib/prisma'
 
@@ -11,18 +10,31 @@ export async function POST(req: NextRequest) {
   try {
     const db = requireDatabase()
 
-    // Get session for authentication
-    const session = await getServerSession(authOptions)
+    // 1. Validate Session
+    const token = cookies().get('student_session_token')?.value
 
-    if (!session?.user?.email) {
+    if (!token) {
       return NextResponse.json(
-        { error: 'Unauthorized. Please sign in.' },
+        { error: 'Unauthorized: No session token' },
         { status: 401 }
       )
     }
 
+    const session = await db.studentSession.findUnique({
+      where: { token },
+    })
+
+    if (!session || session.expiresAt < new Date()) {
+      return NextResponse.json(
+        { error: 'Unauthorized: Invalid or expired session' },
+        { status: 401 }
+      )
+    }
+
+    const studentEmail = session.email
+
     const body = await req.json()
-    const { requestId, studentEmail } = body
+    const { requestId } = body
 
     if (!requestId) {
       return NextResponse.json(
@@ -30,9 +42,6 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       )
     }
-
-    // TODO: Add proper authentication using getServerSession from next-auth
-    // SECURITY: Need to ensure student can only accept requests for themselves
 
     // Find student by email
     const student = await db.student.findUnique({

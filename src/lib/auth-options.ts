@@ -349,9 +349,7 @@ export const authOptions: NextAuthOptions = {
         let isNewUser = false;
 
         try {
-          const existingRecord = userType === 'student'
-            ? await prisma.student.findUnique({ where: { email: user.email }, select: { id: true } })
-            : await prisma.tourist.findUnique({ where: { email: user.email }, select: { id: true } });
+          const existingRecord = await prisma.tourist.findUnique({ where: { email: user.email }, select: { id: true } });
 
           isNewUser = !existingRecord;
 
