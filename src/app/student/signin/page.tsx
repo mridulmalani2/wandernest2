@@ -35,21 +35,21 @@ function StudentSignInContent() {
   const [domainValidationError, setDomainValidationError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
 
-  // already logged in check
+  // Check if already logged in via custom session
   useEffect(() => {
-    if (session?.user) {
-      if (session.user.userType === 'student') {
-        if (session.user.hasCompletedOnboarding) {
-          router.push('/student/dashboard');
-        } else {
-          router.push('/student/onboarding');
+    const checkSession = async () => {
+      try {
+        const res = await fetch('/api/student/auth/session-status');
+        const data = await res.json();
+        if (data.ok && data.nextPath) {
+          router.replace(data.nextPath);
         }
-      } else {
-        // Redirect tourists to booking
-        router.push('/booking');
+      } catch (error) {
+        // Ignore error, just stay on sign-in page
       }
-    }
-  }, [session, router]);
+    };
+    checkSession();
+  }, [router]);
 
   // STEP 1: Email → request OTP
   const handleEmailSignIn = async (e: React.FormEvent) => {

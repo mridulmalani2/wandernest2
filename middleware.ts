@@ -41,25 +41,15 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // Student routes - accept either OTP-backed session cookie or legacy NextAuth token
+  // Student routes - accept ONLY OTP-backed session cookie
   if (pathname.startsWith('/student/dashboard') || pathname.startsWith('/student/onboarding')) {
     const studentSessionToken = request.cookies.get('student_session_token')?.value
 
-    // OTP session present → allow through (server routes will validate expiry/ownership)
     if (!studentSessionToken) {
-      const token = await getToken({
-        req: request,
-        secret: process.env.NEXTAUTH_SECRET
-      })
-
-      if (!token || token.userType !== 'student') {
-        return NextResponse.redirect(new URL('/student/signin', request.url))
-      }
-
-      if (pathname.startsWith('/student/dashboard') && !token.hasCompletedOnboarding) {
-        return NextResponse.redirect(new URL('/student/onboarding', request.url))
-      }
+      return NextResponse.redirect(new URL('/student/signin', request.url))
     }
+    // Note: We don't validate the token here (database access needed). 
+    // The API/Page will handle validation via /api/student/auth/session-status or similar.
   }
 
   // Tourist dashboard - check for NextAuth session with tourist userType
