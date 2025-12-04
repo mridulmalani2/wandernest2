@@ -38,6 +38,13 @@ export async function POST(req: Request) {
       }),
     ])
 
+    console.log('✅ OTP Generated:', {
+      email,
+      code, // Logged for debugging (remove in strict prod if needed, but helpful now)
+      expiresAt: expiresAt.toISOString(),
+      serverTime: new Date().toISOString()
+    });
+
     // Send email in background to prevent timeout
     // The user will receive a success response immediately
     waitUntil(

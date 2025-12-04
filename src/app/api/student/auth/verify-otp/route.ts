@@ -31,6 +31,26 @@ export async function POST(req: Request) {
     })
 
     if (!record) {
+      // Debugging: Find out WHY it failed
+      const debugRecord = await prisma.studentOtp.findFirst({
+        where: { email, code },
+        orderBy: { createdAt: 'desc' }
+      });
+
+      console.log('❌ OTP Verification Failed:', {
+        email,
+        codeProvided: code,
+        serverTime: now.toISOString(),
+        recordFound: !!debugRecord,
+        reason: !debugRecord
+          ? 'Code not found'
+          : debugRecord.used
+            ? 'Code already used'
+            : debugRecord.expiresAt <= now
+              ? `Code expired (Expires: ${debugRecord.expiresAt.toISOString()}, Now: ${now.toISOString()})`
+              : 'Unknown'
+      });
+
       return NextResponse.json(
         { success: false, error: 'Invalid or expired code' },
         { status: 400 }
