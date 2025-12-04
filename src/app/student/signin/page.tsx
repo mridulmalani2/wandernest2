@@ -145,7 +145,7 @@ function StudentSignInContent() {
 
     setIsSubmitting(true);
     try {
-      const res = await fetch('/api/student/otp/request', {
+      const res = await fetch('/api/student/auth/send-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),
