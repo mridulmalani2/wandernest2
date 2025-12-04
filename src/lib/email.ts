@@ -111,6 +111,11 @@ async function sendEmail(
   },
   context: string
 ): Promise<{ success: boolean; error?: string }> {
+  console.log(`🚀 sendEmail called for context: ${context}`);
+  console.log(`   To: ${options.to}`);
+  console.log(`   Resend Client Available: ${!!resend}`);
+  console.log(`   Resend API Key Configured: ${!!config.email.resendApiKey}`);
+
   // 1. Try Resend first
   if (resend) {
     try {
@@ -182,7 +187,8 @@ async function sendEmail(
   }
 
   // 3. Mock mode - log instead of sending
-  if (config.app.isDevelopment) {
+  console.log('⚠️  FALLING BACK TO MOCK EMAIL MODE - NO REAL EMAIL WILL BE SENT');
+  if (config.app.isDevelopment || !config.email.isConfigured) {
     console.log('\n===========================================')
     console.log(`📧 MOCK EMAIL - ${context}`)
     console.log('===========================================')
@@ -190,7 +196,12 @@ async function sendEmail(
     console.log(`Subject: ${options.subject}`)
     console.log('===========================================\n')
   }
-  return { success: true } // Mock sends always "succeed"
+
+  if (config.app.isProduction && !config.email.isConfigured) {
+    return { success: false, error: 'Email not configured in production' };
+  }
+
+  return { success: true } // Mock sends always "succeed" in dev
 }
 
 export async function sendStudentOtpEmail(toEmail: string, otp: string) {

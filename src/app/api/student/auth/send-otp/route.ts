@@ -45,15 +45,18 @@ export async function POST(req: Request) {
       serverTime: new Date().toISOString()
     });
 
-    // Send email in background to prevent timeout
-    // The user will receive a success response immediately
-    waitUntil(
-      sendVerificationEmail(email, code).then(({ success, error }) => {
-        if (!success) {
-          console.error(`Failed to send OTP email to ${email}:`, error)
-        }
-      })
-    )
+    // Send email synchronously for debugging
+    console.log('Attempting to send OTP email to:', email);
+    const emailResult = await sendVerificationEmail(email, code);
+    console.log('Email send result:', emailResult);
+
+    if (!emailResult.success) {
+      console.error(`Failed to send OTP email to ${email}:`, emailResult.error);
+      return NextResponse.json(
+        { success: false, error: 'Failed to send verification email. Please try again.' },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json({ success: true })
   } catch (err) {
