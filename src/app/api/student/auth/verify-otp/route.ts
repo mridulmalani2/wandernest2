@@ -5,7 +5,7 @@ import { cookies } from 'next/headers';
 
 export async function POST(req: Request) {
   try {
-    const { email, code } = await req.json()
+    const { email, code, rememberMe } = await req.json()
 
     if (!email || !code) {
       return NextResponse.json(
@@ -45,7 +45,15 @@ export async function POST(req: Request) {
       },
     })
 
-    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
+    // Determine session duration based on rememberMe preference
+    // Default (unchecked): 24 hours
+    // Remember Me (checked): 30 days
+    const sessionDuration = rememberMe
+      ? 30 * 24 * 60 * 60 * 1000 // 30 days
+      : 24 * 60 * 60 * 1000;     // 24 hours
+
+    const expiresAt = new Date(Date.now() + sessionDuration);
+
     const session = await prisma.studentSession.create({
       data: {
         email,
@@ -61,7 +69,7 @@ export async function POST(req: Request) {
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       path: '/',
-      maxAge: 7 * 24 * 60 * 60,
+      maxAge: sessionDuration / 1000, // Convert to seconds for cookie
     });
 
     return NextResponse.json({ success: true })

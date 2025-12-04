@@ -73,6 +73,9 @@ if (config.email.host && config.email.user && config.email.pass) {
       // Add timeout to prevent hanging
       connectionTimeout: 10000, // 10 seconds
       greetingTimeout: 10000,
+      // Vercel optimization: Force IPv4 to avoid IPv6 timeouts with some providers (like Gmail)
+      family: 4,
+      dnsCache: true,
     })
 
     if (config.app.isDevelopment) {
