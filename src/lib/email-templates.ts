@@ -368,3 +368,124 @@ export const getStudentMatchInvitationHtml = (
   `;
   return BaseEmailLayout(content, 'New Match Opportunity');
 };
+
+/**
+ * Student Confirmation Template
+ * Sent to student when they are assigned to a booking
+ */
+export const getStudentConfirmationHtml = (
+  studentName: string,
+  touristName: string,
+  city: string,
+  dates: string,
+  touristEmail: string,
+  touristPhone?: string,
+  touristWhatsapp?: string
+) => {
+  const content = `
+    <div style="text-align: center;">
+      <div style="width: 64px; height: 64px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 24px; box-shadow: 0 8px 16px rgba(16, 185, 129, 0.2);">
+        <span style="font-size: 32px; line-height: 1;">✅</span>
+      </div>
+
+      <h2 style="margin: 0 0 16px; font-size: 28px; font-weight: 800; color: ${theme.colors.text}; letter-spacing: -0.5px;">
+        Booking Confirmed!
+      </h2>
+      
+      <p style="margin: 0 0 32px; font-size: 16px; line-height: 1.6; color: ${theme.colors.textLight};">
+        Hi <strong>${studentName}</strong>, you have been confirmed as the guide for <strong>${touristName}</strong> in <strong>${city}</strong>.
+      </p>
+
+      <div style="text-align: left; background-color: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 16px; padding: 24px; margin-bottom: 32px;">
+        <h3 style="margin: 0 0 16px; font-size: 18px; font-weight: 700; color: #166534;">
+          📅 Trip Details
+        </h3>
+        <div style="margin-bottom: 12px;">
+            <span style="font-weight: 600; color: #15803d; width: 100px; display: inline-block;">Dates:</span>
+            <span style="color: #14532d;">${dates}</span>
+        </div>
+        <div style="margin-bottom: 12px;">
+            <span style="font-weight: 600; color: #15803d; width: 100px; display: inline-block;">Tourist:</span>
+            <span style="color: #14532d;">${touristName}</span>
+        </div>
+      </div>
+
+      <div style="text-align: left; background-color: #eff6ff; border: 1px solid #bfdbfe; border-radius: 16px; padding: 24px; margin-bottom: 32px;">
+        <h3 style="margin: 0 0 16px; font-size: 18px; font-weight: 700; color: #1e40af;">
+          📞 Tourist Contact Info
+        </h3>
+        <p style="margin: 0 0 12px; font-size: 15px; color: #1e3a8a;">
+          <strong style="display: inline-block; width: 100px;">Email:</strong> <a href="mailto:${touristEmail}" style="color: #2563eb; text-decoration: none;">${touristEmail}</a>
+        </p>
+        ${touristWhatsapp ? `
+        <p style="margin: 0 0 12px; font-size: 15px; color: #1e3a8a;">
+          <strong style="display: inline-block; width: 100px;">WhatsApp:</strong> ${touristWhatsapp}
+        </p>
+        ` : ''}
+        ${touristPhone ? `
+        <p style="margin: 0 0 12px; font-size: 15px; color: #1e3a8a;">
+          <strong style="display: inline-block; width: 100px;">Phone:</strong> ${touristPhone}
+        </p>
+        ` : ''}
+      </div>
+
+      <div style="background-color: #fffbeb; border: 1px solid #fde68a; border-radius: 12px; padding: 16px; text-align: left;">
+        <p style="margin: 0 0 8px; font-weight: 700; color: #92400e; font-size: 14px;">⚠️ Next Steps:</p>
+        <ul style="margin: 0; padding-left: 20px; color: #92400e; font-size: 14px; line-height: 1.5;">
+            <li>Contact the tourist immediately to introduce yourself.</li>
+            <li>Confirm the meeting point and itinerary.</li>
+            <li>Be professional and punctual!</li>
+        </ul>
+      </div>
+    </div>
+  `;
+  return BaseEmailLayout(content, 'Booking Confirmed');
+};
+
+/**
+ * Contact Form Email Template
+ * Sent to admin when a user submits the contact form
+ */
+export const getContactFormEmailHtml = (
+  name: string,
+  email: string,
+  message: string,
+  phone?: string
+) => {
+  const content = `
+    <div style="text-align: left;">
+      <h2 style="margin: 0 0 24px 0; font-size: 24px; font-weight: 700; color: ${theme.colors.text};">
+        New Contact Form Submission
+      </h2>
+      
+      <div style="background-color: #f9fafb; border-radius: 12px; padding: 24px; border: 1px solid ${theme.colors.border};">
+        <div style="margin-bottom: 16px;">
+          <p style="margin: 0 0 4px 0; font-size: 12px; font-weight: 600; color: ${theme.colors.textLight}; text-transform: uppercase;">Name</p>
+          <p style="margin: 0; font-size: 16px; color: ${theme.colors.text}; font-weight: 500;">${name}</p>
+        </div>
+        
+        <div style="margin-bottom: 16px;">
+          <p style="margin: 0 0 4px 0; font-size: 12px; font-weight: 600; color: ${theme.colors.textLight}; text-transform: uppercase;">Email</p>
+          <p style="margin: 0; font-size: 16px; color: ${theme.colors.text}; font-weight: 500;">
+            <a href="mailto:${email}" style="color: ${theme.colors.primary}; text-decoration: none;">${email}</a>
+          </p>
+        </div>
+
+        ${phone ? `
+        <div style="margin-bottom: 16px;">
+          <p style="margin: 0 0 4px 0; font-size: 12px; font-weight: 600; color: ${theme.colors.textLight}; text-transform: uppercase;">Phone</p>
+          <p style="margin: 0; font-size: 16px; color: ${theme.colors.text}; font-weight: 500;">${phone}</p>
+        </div>
+        ` : ''}
+        
+        <div>
+          <p style="margin: 0 0 4px 0; font-size: 12px; font-weight: 600; color: ${theme.colors.textLight}; text-transform: uppercase;">Message</p>
+          <div style="background-color: #ffffff; padding: 16px; border-radius: 8px; border: 1px solid ${theme.colors.border};">
+            <p style="margin: 0; font-size: 15px; line-height: 1.6; color: ${theme.colors.text}; white-space: pre-wrap;">${message}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+  return BaseEmailLayout(content, 'New Contact Message');
+};

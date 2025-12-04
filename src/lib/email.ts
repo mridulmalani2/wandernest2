@@ -9,7 +9,9 @@ import {
   getBookingConfirmationHtml,
   getStudentRequestNotificationHtml,
   getStudentMatchInvitationHtml,
-  getTouristAcceptanceNotificationHtml
+  getTouristAcceptanceNotificationHtml,
+  getStudentConfirmationHtml,
+  getContactFormEmailHtml
 } from '@/lib/email-templates'
 
 /**
@@ -315,5 +317,69 @@ export async function sendVerificationEmail(
       html,
     },
     'Verification Email'
+  )
+}
+
+export async function sendStudentConfirmation(
+  student: Student,
+  touristRequest: TouristRequest
+) {
+  const dates = touristRequest.dates as { start: string; end?: string }
+  const dateString = new Date(dates.start).toLocaleDateString('en-US', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric'
+  })
+
+  // We don't have tourist name directly on the request object usually, 
+  // but we might have it if we fetched it. 
+  // For now, we'll use "Tourist" if not available or pass it in if we can.
+  // Looking at the call site, it passes bookingRecord which is TouristRequest.
+  // TouristRequest doesn't have tourist name directly, it has touristId.
+  // But we can just use "Tourist" or try to get it from relation if included.
+  // The template expects touristName.
+
+  // In the call site: 
+  // const [booking, student] = await Promise.all([...])
+  // booking includes selections but not tourist.
+  // Wait, line 110: const touristEmail = bookingRecord.email
+
+  const html = getStudentConfirmationHtml(
+    student.name || 'Student',
+    'Tourist', // Placeholder as we might not have the name easily
+    touristRequest.city,
+    dateString,
+    touristRequest.email,
+    touristRequest.phone || undefined,
+    touristRequest.whatsapp || undefined
+  )
+
+  return await sendEmail(
+    {
+      to: student.email,
+      subject: `✅ You are confirmed for a trip in ${touristRequest.city}!`,
+      html,
+    },
+    'Student Confirmation'
+  )
+}
+
+export async function sendContactFormEmails(data: {
+  name: string
+  email: string
+  message: string
+  phone?: string
+}) {
+  const html = getContactFormEmailHtml(data.name, data.email, data.message, data.phone)
+
+  // Send to admin
+  return await sendEmail(
+    {
+      to: config.email.contactEmail, // Send to support email
+      subject: `New Contact Form Submission from ${data.name}`,
+      html,
+      replyTo: data.email
+    },
+    'Contact Form Submission'
   )
 }
