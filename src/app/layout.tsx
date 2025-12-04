@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import './critical.css'
 import { Providers } from './providers'
 import { PageTransition } from '@/components/transitions/PageTransition'
+import CookieConsent from '@/components/CookieConsent'
 
 /*
  * Font Configuration:
@@ -84,6 +85,7 @@ export default function RootLayout({
                 {children}
               </PageTransition>
             </div>
+            <CookieConsent />
           </div>
         </Providers>
       </body>
