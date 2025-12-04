@@ -63,7 +63,7 @@ if (config.email.resendApiKey) {
 if (config.email.host && config.email.user && config.email.pass) {
   try {
     transporter = nodemailer.createTransport({
-      host: config.email.host,
+      host: config.email.host as string,
       port: config.email.port,
       secure: false, // Use TLS
       auth: {
@@ -76,7 +76,7 @@ if (config.email.host && config.email.user && config.email.pass) {
       // Vercel optimization: Force IPv4 to avoid IPv6 timeouts with some providers (like Gmail)
       family: 4,
       dnsCache: true,
-    })
+    } as any)
 
     if (config.app.isDevelopment) {
       console.log('✅ SMTP Email transporter initialized')
@@ -311,7 +311,7 @@ export async function sendVerificationEmail(
   email: string,
   code: string
 ) {
-  const html = getOtpEmailHtml(code, 'Verify Your Email', 'Enter this code to continue with your booking')
+  const html = getOtpEmailHtml(code, 'Sign in as Student Guide', 'Enter this code to securely sign in to your account.')
 
   return await sendEmail(
     {
