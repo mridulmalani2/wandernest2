@@ -181,6 +181,32 @@ export function ContactStep({ data, errors, updateData, isEmailFromSession = fal
         </div>
       </FlowCard>
 
+      {/* Referral Section */}
+      <FlowCard padding="lg" variant="subtle">
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <label className="text-sm font-light tracking-wide text-white/90 block">
+              Were you referred by anyone? If yes, please share their email here.
+            </label>
+            <Link href="/referral-policy" target="_blank" className="text-xs font-medium text-ui-blue-primary hover:text-ui-blue-accent transition-colors border border-ui-blue-primary/30 rounded-full px-3 py-1 hover:bg-ui-blue-primary/10">
+              Learn More
+            </Link>
+          </div>
+
+          <LiquidInput
+            type="email"
+            placeholder="referrer@example.com"
+            value={data.referralEmail || ''}
+            onChange={(e) => updateData({ referralEmail: e.target.value })}
+            icon={Mail}
+          />
+
+          <p className="text-xs font-light text-gray-400 italic">
+            Please note: this will work only if you share the email ID that the user has already signed in with once as a tourist or student and has a profile created with us.
+          </p>
+        </div>
+      </FlowCard>
+
       {/* Legal Consent */}
       <FlowCard padding="lg" variant={errors.termsAccepted ? 'elevated' : 'default'}>
         <div className="flex items-start gap-4">

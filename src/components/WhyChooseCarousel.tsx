@@ -169,9 +169,8 @@ export default function WhyChooseCarousel() {
             {features.map((feature, index) => (
               <div
                 key={feature.title}
-                className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${
-                  index === currentIndex ? 'opacity-100' : 'opacity-0 pointer-events-none'
-                }`}
+                className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${index === currentIndex ? 'opacity-100' : 'opacity-0 pointer-events-none'
+                  }`}
               >
                 <Image
                   src={currentFeature.image}
@@ -191,20 +190,19 @@ export default function WhyChooseCarousel() {
             {/* Content Card - Better positioned and styled */}
             <div className="absolute inset-0 flex items-end md:items-center justify-center p-4 md:p-6">
               <div
-                className={`w-full max-w-2xl bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl rounded-2xl md:rounded-3xl p-6 md:p-8 lg:p-10 space-y-4 md:space-y-5 transition-all duration-500 border border-white/40 dark:border-gray-700/40 shadow-xl ${
-                  isTransitioning ? 'opacity-0 scale-95 translate-y-4' : 'opacity-100 scale-100 translate-y-0'
-                }`}
+                className={`w-full max-w-2xl glass-card-dark rounded-2xl md:rounded-3xl p-6 md:p-8 lg:p-10 space-y-4 md:space-y-5 transition-all duration-500 border border-white/10 shadow-premium ${isTransitioning ? 'opacity-0 scale-95 translate-y-4' : 'opacity-100 scale-100 translate-y-0'
+                  }`}
               >
                 {/* Title with accent color bar */}
                 <div className="space-y-3">
                   <div className={`w-16 h-1 rounded-full ${colors.dot}`} />
-                  <h3 className="text-2xl md:text-3xl lg:text-4xl font-serif font-bold text-gray-900 dark:text-white tracking-tight">
+                  <h3 className="text-2xl md:text-3xl lg:text-4xl font-serif font-bold text-white tracking-tight">
                     {currentFeature.title}
                   </h3>
                 </div>
 
                 {/* Description */}
-                <p className="text-sm md:text-base lg:text-lg text-gray-700 dark:text-gray-300 leading-relaxed font-medium">
+                <p className="text-sm md:text-base lg:text-lg text-gray-300 leading-relaxed font-medium">
                   {currentFeature.description}
                 </p>
 
@@ -218,7 +216,7 @@ export default function WhyChooseCarousel() {
                       <span className={`mr-3 font-bold text-xl flex-shrink-0 ${colors.check}`}>
                         ✓
                       </span>
-                      <span className="text-sm md:text-base text-gray-800 dark:text-gray-200 leading-relaxed font-medium">
+                      <span className="text-sm md:text-base text-gray-300 leading-relaxed font-medium">
                         {bullet}
                       </span>
                     </li>
@@ -231,19 +229,19 @@ export default function WhyChooseCarousel() {
             <button
               onClick={prevSlide}
               disabled={isTransitioning}
-              className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 p-2 md:p-3 rounded-full bg-white/95 dark:bg-gray-900/95 backdrop-blur-md shadow-xl hover:bg-white dark:hover:bg-gray-800 transition-all duration-300 hover:scale-105 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white border border-white/40 dark:border-gray-700/40"
+              className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 p-2 md:p-3 rounded-full glass-card-dark shadow-premium hover:bg-white/10 transition-all duration-300 hover:scale-105 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white border border-white/10"
               aria-label="Previous feature"
             >
-              <ChevronLeft className="w-5 h-5 md:w-6 md:h-6 text-gray-900 dark:text-white" />
+              <ChevronLeft className="w-5 h-5 md:w-6 md:h-6 text-white" />
             </button>
 
             <button
               onClick={nextSlide}
               disabled={isTransitioning}
-              className="absolute right-3 md:right-4 top-1/2 -translate-y-1/2 p-2 md:p-3 rounded-full bg-white/95 dark:bg-gray-900/95 backdrop-blur-md shadow-xl hover:bg-white dark:hover:bg-gray-800 transition-all duration-300 hover:scale-105 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white border border-white/40 dark:border-gray-700/40"
+              className="absolute right-3 md:right-4 top-1/2 -translate-y-1/2 p-2 md:p-3 rounded-full glass-card-dark shadow-premium hover:bg-white/10 transition-all duration-300 hover:scale-105 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white border border-white/10"
               aria-label="Next feature"
             >
-              <ChevronRight className="w-5 h-5 md:w-6 md:h-6 text-gray-900 dark:text-white" />
+              <ChevronRight className="w-5 h-5 md:w-6 md:h-6 text-white" />
             </button>
           </div>
         </div>
@@ -258,18 +256,16 @@ export default function WhyChooseCarousel() {
                 key={feature.title}
                 onClick={() => goToSlide(index)}
                 disabled={isTransitioning}
-                className={`group transition-all duration-300 focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2 rounded-full ${
-                  index === currentIndex ? 'w-10 md:w-12' : 'w-2.5 md:w-3'
-                }`}
+                className={`group transition-all duration-300 focus-visible:outline-2 focus-visible:outline-white focus-visible:outline-offset-2 rounded-full ${index === currentIndex ? 'w-10 md:w-12' : 'w-2.5 md:w-3'
+                  }`}
                 aria-label={`Go to ${feature.title}`}
                 aria-current={isActive ? 'true' : 'false'}
               >
                 <div
-                  className={`h-2.5 md:h-3 rounded-full transition-all duration-300 ${
-                    index === currentIndex
+                  className={`h-2.5 md:h-3 rounded-full transition-all duration-300 ${index === currentIndex
                       ? `${dotColors.dotActive} shadow-md`
                       : 'bg-white/70 hover:bg-white/90 hover:scale-110'
-                  }`}
+                    }`}
                 />
               </button>
             )

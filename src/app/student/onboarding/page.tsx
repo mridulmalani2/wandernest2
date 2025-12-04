@@ -48,8 +48,7 @@ export default function StudentOnboarding() {
           data.student?.email ??
           null;
 
-        // Hum ek "fake" NextAuth-style session object bana rahe hain
-        // taaki OnboardingWizard ka existing prop `session` reuse ho jaye.
+        // Create a session-like object for the wizard
         setSessionLike({
           user: {
             email,
@@ -72,7 +71,7 @@ export default function StudentOnboarding() {
   // Loading state - same UI as before
   if (loading) {
     return (
-      <div className="min-h-screen flex flex-col relative overflow-hidden">
+      <div className="min-h-screen flex flex-col relative overflow-hidden bg-black">
         {/* Background Image with Overlays */}
         <div className="absolute inset-0" role="img" aria-label="Modern university learning space">
           <Image
@@ -85,15 +84,13 @@ export default function StudentOnboarding() {
             className="object-cover"
           />
           {/* Dark overlay for text contrast */}
-          <div className="absolute inset-0 bg-black/20 backdrop-blur-[4px]" />
-          {/* Gradient overlay for visual depth */}
-          <div className="absolute inset-0 bg-gradient-to-br from-[hsl(var(--ui-purple-accent))]/15 via-[hsl(var(--ui-blue-primary))]/10 to-[hsl(var(--ui-purple-primary))]/15" />
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px]" />
         </div>
-        <div className="absolute inset-0 pattern-dots opacity-10" />
+        <div className="absolute inset-0 pattern-dots opacity-5" />
 
         <div className="relative z-10 flex items-center justify-center min-h-screen">
           <div className="text-center glass-card-dark rounded-3xl p-8 shadow-premium animate-fade-in">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[hsl(var(--ui-blue-accent))] mx-auto"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-400 mx-auto"></div>
             <p className="mt-4 text-white font-medium">Loading...</p>
           </div>
         </div>

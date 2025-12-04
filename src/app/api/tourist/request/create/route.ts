@@ -31,13 +31,14 @@ const createBookingSchema = z.object({
   preferredLanguages: z.array(z.string()).min(1, 'At least one language required'),
   serviceType: z.enum(['itinerary_help', 'guided_experience']),
   interests: z.array(z.string()).min(1, 'At least one interest required'),
-  budget: z.number().positive().optional(),
+  budget: z.number().nonnegative().optional(),
 
   // Contact
   phone: z.string().optional(),
   whatsapp: z.string().optional(),
   contactMethod: z.enum(['email', 'phone', 'whatsapp']),
   tripNotes: z.string().optional(),
+  referralEmail: z.string().email('Invalid referral email').optional().or(z.literal('')),
 });
 
 /**
@@ -109,6 +110,7 @@ async function createTouristRequest(req: NextRequest) {
           contactMethod: validatedData.contactMethod,
           meetingPreference: 'public_place', // Default value
           tripNotes: validatedData.tripNotes,
+          referralEmail: validatedData.referralEmail || null,
 
           status: 'PENDING',
           expiresAt,
@@ -162,6 +164,7 @@ async function createTouristRequest(req: NextRequest) {
       contactMethod: validatedData.contactMethod,
       meetingPreference: 'public_place',
       tripNotes: validatedData.tripNotes,
+      referralEmail: validatedData.referralEmail || null,
 
       status: 'PENDING',
       expiresAt,

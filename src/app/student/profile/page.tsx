@@ -253,7 +253,7 @@ export default function StudentProfilePage() {
   return (
     <>
       <Navigation variant="student" />
-      <div className="min-h-screen flex flex-col relative overflow-hidden">
+      <div className="min-h-screen flex flex-col relative overflow-hidden bg-black">
         {/* Premium Background */}
         <div className="absolute inset-0">
           <Image
@@ -266,22 +266,20 @@ export default function StudentProfilePage() {
             className="object-cover"
           />
           {/* Dark overlay for contrast */}
-          <div className="absolute inset-0 bg-black/20 backdrop-blur-[4px]" />
-          {/* Gradient overlay for brand colors */}
-          <div className="absolute inset-0 bg-gradient-to-br from-ui-purple-accent/15 via-ui-blue-primary/10 to-ui-purple-primary/15" />
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px]" />
         </div>
         {/* Dot pattern */}
         <div className="absolute inset-0 pattern-dots opacity-10" />
 
         {/* Content Container */}
-        <div className="relative z-10 w-full px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+        <div className="relative z-10 w-full px-4 sm:px-6 lg:px-8 pt-28 pb-8 md:pt-36 md:pb-12">
           <div className="max-w-6xl mx-auto space-y-8">
 
             {/* Header Section - Profile Hero */}
             <motion.div
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="glass-card rounded-3xl shadow-premium border border-white/60 backdrop-blur-lg overflow-hidden"
+              className="glass-card-dark rounded-3xl shadow-premium border border-white/10 backdrop-blur-lg overflow-hidden"
             >
               {/* Subtle gradient background accent */}
               <div className="absolute inset-0 bg-gradient-to-br from-ui-blue-accent/5 via-transparent to-ui-purple-accent/5 pointer-events-none" />
@@ -290,10 +288,10 @@ export default function StudentProfilePage() {
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-5 md:gap-8">
                   {/* Left: Title & Subtitle */}
                   <div className="flex-1 min-w-0">
-                    <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold bg-gradient-to-r from-ui-blue-accent via-ui-purple-accent to-ui-purple-primary bg-clip-text text-transparent mb-2">
+                    <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-2">
                       Your Profile
                     </h1>
-                    <p className="text-gray-600/90 text-base sm:text-lg leading-relaxed font-medium">
+                    <p className="text-gray-300 text-base sm:text-lg leading-relaxed font-medium">
                       Manage your information and availability
                     </p>
                   </div>
@@ -301,21 +299,20 @@ export default function StudentProfilePage() {
                   {/* Right: Edit/Save Actions */}
                   <div className="flex items-center gap-3 flex-shrink-0">
                     {!isEditing ? (
-                      <PrimaryCTAButton
+                      <button
                         onClick={handleEdit}
-                        icon={Edit}
-                        variant="blue"
-                        showArrow
+                        className="group flex items-center gap-2 px-5 py-2 rounded-full bg-white/5 hover:bg-white/10 border border-white/30 hover:border-white/80 backdrop-blur-md transition-all duration-300 text-sm font-medium text-white shadow-sm hover:shadow-md hover:scale-105 active:scale-95"
                       >
-                        Edit Profile
-                      </PrimaryCTAButton>
+                        <Edit className="w-3.5 h-3.5" />
+                        <span>Edit Profile</span>
+                      </button>
                     ) : (
                       <>
                         <Button
                           onClick={handleCancel}
                           variant="outline"
                           disabled={isSaving}
-                          className="border-2 border-gray-300 hover:border-gray-400 bg-white/80 backdrop-blur transition-colors"
+                          className="border-2 border-white/20 hover:border-white/40 bg-white/10 backdrop-blur transition-colors text-white hover:bg-white/20"
                         >
                           <X className="w-4 h-4 mr-2" />
                           Cancel
@@ -344,13 +341,13 @@ export default function StudentProfilePage() {
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
-                  className="glass-card rounded-2xl p-5 border border-green-200/60 bg-gradient-to-br from-green-50 to-green-100/50 backdrop-blur-lg shadow-premium"
+                  className="glass-card-dark rounded-2xl p-5 border border-green-500/20 bg-green-900/20 backdrop-blur-lg shadow-premium"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
-                      <CheckCircle className="w-5 h-5 text-green-600" />
+                    <div className="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center">
+                      <CheckCircle className="w-5 h-5 text-green-400" />
                     </div>
-                    <p className="text-green-800 font-semibold">{successMessage}</p>
+                    <p className="text-green-300 font-semibold">{successMessage}</p>
                   </div>
                 </motion.div>
               )}
@@ -360,13 +357,13 @@ export default function StudentProfilePage() {
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
-                  className="glass-card rounded-2xl p-5 border border-red-200/60 bg-gradient-to-br from-red-50 to-red-100/50 backdrop-blur-lg shadow-premium"
+                  className="glass-card-dark rounded-2xl p-5 border border-red-500/20 bg-red-900/20 backdrop-blur-lg shadow-premium"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
-                      <AlertCircle className="w-5 h-5 text-red-600" />
+                    <div className="w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center">
+                      <AlertCircle className="w-5 h-5 text-red-400" />
                     </div>
-                    <p className="text-red-800 font-medium">{error}</p>
+                    <p className="text-red-300 font-medium">{error}</p>
                   </div>
                 </motion.div>
               )}

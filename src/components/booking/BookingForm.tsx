@@ -38,6 +38,7 @@ export type BookingFormData = {
   contactMethod: 'email' | 'phone' | 'whatsapp' | 'sms' | ''
   tripNotes?: string
   termsAccepted?: boolean
+  referralEmail?: string
 }
 
 const STEPS = [
@@ -67,6 +68,7 @@ export function BookingForm() {
     preferredGender: 'no_preference',
     hourlyRate: 20, // Default recommended rate
     totalBudget: 0,
+    referralEmail: '',
   })
   const [errors, setErrors] = useState<Record<string, string>>({})
 
@@ -194,6 +196,7 @@ export function BookingForm() {
           whatsapp: formData.whatsapp,
           contactMethod: formData.contactMethod,
           tripNotes: formData.tripNotes,
+          referralEmail: formData.referralEmail,
         }),
       })
 

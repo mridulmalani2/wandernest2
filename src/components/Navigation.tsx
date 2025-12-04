@@ -41,14 +41,21 @@ export default function Navigation({ variant = 'default', showBackButton = false
       if (userType === 'student') {
         callbackUrl = '/student/signin';
       } else if (userType === 'tourist') {
-        callbackUrl = '/tourist/signin';
+        callbackUrl = '/booking';
       }
       await signOut({ callbackUrl })
       return
     }
 
-    document.cookie = 'student_session_token=; path=/; max-age=0'
+    try {
+      await fetch('/api/student/auth/signout', { method: 'POST' });
+    } catch (error) {
+      console.error('Failed to sign out', error);
+    }
+
+    setStudentSession(null)
     router.push('/student/signin')
+    router.refresh()
   }
 
   useEffect(() => {
@@ -79,9 +86,9 @@ export default function Navigation({ variant = 'default', showBackButton = false
   }, [session, variant])
 
   return (
-    <header className={`border-b border-[var(--nav-border)] bg-[var(--nav-bg)] backdrop-blur-xl fixed top-0 w-full z-50 transition-all duration-300 ${isScrolled ? 'shadow-lg shadow-black/10' : ''
+    <header className={`nav-glass-dark fixed top-0 w-full z-50 transition-all duration-300 ${isScrolled ? 'shadow-lg shadow-black/10' : ''
       }`}>
-      <div className="container mx-auto px-4 py-1.5 md:py-2">
+      <div className="container mx-auto px-4 py-3 md:py-4">
         <div className="flex justify-between items-center">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2 group">

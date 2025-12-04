@@ -7,28 +7,29 @@ import { requireDatabase } from '@/lib/prisma'
 import { cache } from '@/lib/cache'
 import { CACHE_TTL } from '@/lib/constants'
 import { withErrorHandler, AppError } from '@/lib/error-handler'
+import { cookies } from 'next/headers'
 
 async function getStudentDashboard(req: NextRequest) {
   const db = requireDatabase()
 
-  // Get student identifier from query parameters (email or ID)
-  const { searchParams } = new URL(req.url)
-  const studentEmail = searchParams.get('email')
-  const studentId = searchParams.get('id')
+  // 1. Validate Session
+  const token = cookies().get('student_session_token')?.value
 
-  // TODO: Add proper authentication using getServerSession from next-auth
-  // SECURITY: Need to ensure user can only access their own dashboard
-  // For now, proceeding without session validation to unblock build
-
-  if (!studentEmail && !studentId) {
-    throw new AppError(400, 'Student email or ID is required', 'MISSING_IDENTIFIER')
+  if (!token) {
+    throw new AppError(401, 'Unauthorized: No session token', 'UNAUTHORIZED')
   }
 
-  // Fetch the student record
-  const student = await db.student.findFirst({
-    where: studentEmail
-      ? { email: studentEmail }
-      : { id: studentId as string },
+  const session = await db.studentSession.findUnique({
+    where: { token },
+  })
+
+  if (!session || session.expiresAt < new Date()) {
+    throw new AppError(401, 'Unauthorized: Invalid or expired session', 'UNAUTHORIZED')
+  }
+
+  // 2. Fetch Student Record using Session Email
+  const student = await db.student.findUnique({
+    where: { email: session.email },
   })
 
   if (!student) {

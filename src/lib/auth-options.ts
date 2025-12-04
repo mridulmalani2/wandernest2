@@ -90,11 +90,13 @@ if (config.email.isConfigured) {
         })
 
         try {
-          console.log('📧 Attempting to send magic link email...')
-          console.log('   To:', email)
-          console.log('   From:', provider.from)
-          console.log('   SMTP Host:', config.email.host)
-          console.log('   SMTP Port:', config.email.port)
+          if (config.app.isDevelopment) {
+            console.log('📧 Attempting to send magic link email...')
+            console.log('   To:', email)
+            console.log('   From:', provider.from)
+            console.log('   SMTP Host:', config.email.host)
+            console.log('   SMTP Port:', config.email.port)
+          }
 
           const result = await transport.sendMail({
             to: email,
@@ -291,7 +293,7 @@ export const authOptions: NextAuthOptions = {
   adapter: prisma ? (PrismaAdapter(prisma) as any) : undefined,
   providers: providers,
   pages: {
-    signIn: "/tourist/signin",  // Default to tourist signin
+    signIn: "/booking",  // Default to booking page which handles tourist signin
     // Note: We intentionally do NOT set an error page here.
     // This allows NextAuth to append error info to the callbackUrl,
     // which lets student and tourist signin pages handle their own errors.
@@ -330,35 +332,26 @@ export const authOptions: NextAuthOptions = {
         }
 
         // ====================================================================
-        // AUTHENTICATION POLICY - IMMUTABLE EMAIL-BASED ROLE ASSIGNMENT
+        // AUTHENTICATION POLICY - TOURISTS ONLY
         // ====================================================================
-        // User role is determined SOLELY by email domain and is IMMUTABLE:
-        // - .edu, .ac.uk, .edu.au, etc. → Student (forever)
-        // - All other emails → Tourist (forever)
-        //
-        // Once a user's role is set based on their email, it cannot be changed.
-        // This ensures data integrity and prevents confusion with role-switching.
+        // NextAuth is now exclusively for Tourists.
+        // Students must use the dedicated Student Sign-In page (OTP-based).
         // ====================================================================
 
-        if (!prisma) {
-          console.error('❌ Auth: Database not available - cannot create user records')
-          return false
+        if (isStudentEmail(user.email)) {
+          console.log('🚫 Auth: Student email detected in NextAuth flow. Blocking sign-in.', user.email);
+          // Return false to deny access. 
+          // Ideally we'd redirect to /student/signin but NextAuth callbacks are limited.
+          return false;
         }
 
-        // IMPORTANT: The PrismaAdapter automatically creates User + Account records
-        // before this callback runs. We only update the userType field here.
-        // The user.id will be set by the adapter.
-
-        // Determine user type IMMUTABLY based on email domain
-        const userType: 'student' | 'tourist' = isStudentEmail(user.email) ? 'student' : 'tourist';
+        const userType = 'tourist';
 
         // Check if this is a new user by checking for existing role-specific record
         let isNewUser = false;
 
         try {
-          const existingRecord = userType === 'student'
-            ? await prisma.student.findUnique({ where: { email: user.email }, select: { id: true } })
-            : await prisma.tourist.findUnique({ where: { email: user.email }, select: { id: true } });
+          const existingRecord = await prisma.tourist.findUnique({ where: { email: user.email }, select: { id: true } });
 
           isNewUser = !existingRecord;
 
@@ -393,60 +386,32 @@ export const authOptions: NextAuthOptions = {
           }
         }
 
-        // Create or update role-specific record based on email domain
-        // User will ONLY have ONE record (Student OR Tourist, never both)
+        // Create or update Tourist record
         try {
-          if (userType === 'student') {
-            const student = await prisma.student.upsert({
-              where: { email: user.email },
-              create: {
-                email: user.email,
-                name: user.name,
-                googleId: account?.provider === 'google' ? account.providerAccountId : null,
-                emailVerified: true,
-                profilePhotoUrl: user.image,
-              },
-              update: {
-                name: user.name || undefined,
-                ...(account?.provider === 'google' && { googleId: account.providerAccountId }),
-                emailVerified: true,
-                profilePhotoUrl: user.image || undefined,
-              },
-            });
+          const tourist = await prisma.tourist.upsert({
+            where: { email: user.email },
+            create: {
+              email: user.email,
+              name: user.name,
+              image: user.image,
+              googleId: account?.provider === 'google' ? account.providerAccountId : null,
+            },
+            update: {
+              name: user.name || undefined,
+              image: user.image || undefined,
+              ...(account?.provider === 'google' && { googleId: account.providerAccountId }),
+            },
+          });
 
-            if (config.app.isDevelopment) {
-              console.log(`✅ Auth: ${isNewUser ? 'Created' : 'Updated'} Student record:`, {
-                studentId: student.id,
-                email: user.email,
-                isNewUser
-              })
-            }
-          } else {
-            const tourist = await prisma.tourist.upsert({
-              where: { email: user.email },
-              create: {
-                email: user.email,
-                name: user.name,
-                image: user.image,
-                googleId: account?.provider === 'google' ? account.providerAccountId : null,
-              },
-              update: {
-                name: user.name || undefined,
-                image: user.image || undefined,
-                ...(account?.provider === 'google' && { googleId: account.providerAccountId }),
-              },
-            });
-
-            if (config.app.isDevelopment) {
-              console.log(`✅ Auth: ${isNewUser ? 'Created' : 'Updated'} Tourist record:`, {
-                touristId: tourist.id,
-                email: user.email,
-                isNewUser
-              })
-            }
+          if (config.app.isDevelopment) {
+            console.log(`✅ Auth: ${isNewUser ? 'Created' : 'Updated'} Tourist record:`, {
+              touristId: tourist.id,
+              email: user.email,
+              isNewUser
+            })
           }
         } catch (error) {
-          console.error('⚠️  Auth: Error creating/updating role-specific record:', error)
+          console.error('⚠️  Auth: Error creating/updating Tourist record:', error)
           // Log but continue - we want to allow sign-in even if this fails
         }
 

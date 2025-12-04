@@ -33,17 +33,17 @@ export function ServicePreferencesStep({ formData, updateFormData, errors }: Ser
   return (
     <div className="space-y-12 animate-fade-in max-w-3xl mx-auto">
       <div className="text-center space-y-2">
-        <h2 className="text-4xl font-light tracking-tight text-liquid-dark-primary">
+        <h2 className="text-4xl font-light tracking-tight text-white">
           Service Preferences
         </h2>
-        <p className="text-base font-light text-gray-500 max-w-md mx-auto">
+        <p className="text-base font-light text-white/70 max-w-md mx-auto">
           Define what you want to offer
         </p>
       </div>
 
       {/* Services */}
       <div className="space-y-4">
-        <label className="text-sm font-light tracking-wide text-liquid-dark-secondary block">
+        <label className="text-sm font-light tracking-wide text-white/80 block">
           Select Services {errors.servicesOffered && <span className="text-ui-error ml-1">*</span>}
         </label>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -59,12 +59,12 @@ export function ServicePreferencesStep({ formData, updateFormData, errors }: Ser
                   'flex items-start gap-4 p-5 rounded-3xl transition-all duration-300 text-left',
                   'border-2',
                   isSelected
-                    ? 'bg-liquid-dark-primary text-white border-liquid-dark-primary shadow-lg hover:shadow-xl hover:scale-[1.01] active:scale-[0.99]'
-                    : 'bg-white text-gray-900 border-gray-300 hover:border-liquid-dark-primary hover:bg-liquid-light hover:shadow-md active:scale-[0.99] active:bg-gray-100'
+                    ? 'bg-white text-gray-900 border-white shadow-lg hover:shadow-xl hover:scale-[1.01] active:scale-[0.99]'
+                    : 'bg-transparent text-white border-white/20 hover:border-white hover:bg-white/10 hover:shadow-md active:scale-[0.99]'
                 )}
               >
                 <div className={cn('h-10 w-10 rounded-full flex items-center justify-center shrink-0',
-                  isSelected ? 'bg-white/20' : 'bg-liquid-light')}>
+                  isSelected ? 'bg-gray-100' : 'bg-white/10')}>
                   <Icon className="h-5 w-5" />
                 </div>
                 <div className="flex-1">
@@ -89,12 +89,12 @@ export function ServicePreferencesStep({ formData, updateFormData, errors }: Ser
           'w-full flex items-start gap-4 p-5 rounded-3xl transition-all duration-300 text-left',
           'border-2',
           formData.onlineServicesAvailable
-            ? 'bg-liquid-dark-primary text-white border-liquid-dark-primary shadow-lg hover:shadow-xl hover:scale-[1.01] active:scale-[0.99]'
-            : 'bg-white text-gray-900 border-gray-300 hover:border-liquid-dark-primary hover:bg-liquid-light hover:shadow-md active:scale-[0.99] active:bg-gray-100'
+            ? 'bg-white text-gray-900 border-white shadow-lg hover:shadow-xl hover:scale-[1.01] active:scale-[0.99]'
+            : 'bg-transparent text-white border-white/20 hover:border-white hover:bg-white/10 hover:shadow-md active:scale-[0.99]'
         )}
       >
         <div className={cn('h-10 w-10 rounded-full flex items-center justify-center shrink-0',
-          formData.onlineServicesAvailable ? 'bg-white/20' : 'bg-liquid-light')}>
+          formData.onlineServicesAvailable ? 'bg-gray-100' : 'bg-white/10')}>
           <Globe className="h-5 w-5" />
         </div>
         <div className="flex-1">
@@ -105,9 +105,9 @@ export function ServicePreferencesStep({ formData, updateFormData, errors }: Ser
       </button>
 
       {/* Pricing */}
-      <FlowCard padding="lg">
+      <FlowCard padding="lg" variant="dark">
         <div className="space-y-6">
-          <div className="flex items-center gap-2 text-sm font-light tracking-wide text-liquid-dark-secondary">
+          <div className="flex items-center gap-2 text-sm font-light tracking-wide text-white/80">
             <DollarSign className="h-4 w-4" />
             Set Your Rate
           </div>
@@ -125,16 +125,16 @@ export function ServicePreferencesStep({ formData, updateFormData, errors }: Ser
           <FlowCard padding="sm" variant="subtle">
             <div className="space-y-2 text-sm">
               <div className="flex justify-between font-light">
-                <span className="text-gray-600">Your Rate:</span>
-                <span className="text-liquid-dark-primary font-medium">€{formData.hourlyRate || 0}</span>
+                <span className="text-white/60">Your Rate:</span>
+                <span className="text-white font-medium">€{formData.hourlyRate || 0}</span>
               </div>
-              <div className="flex justify-between text-xs text-gray-400">
+              <div className="flex justify-between text-xs text-white/40">
                 <span>Platform Fee (15%):</span>
                 <span>-€{((parseInt(formData.hourlyRate) || 0) * 0.15).toFixed(2)}</span>
               </div>
-              <div className="flex justify-between pt-2 border-t border-gray-200 font-medium">
-                <span className="text-liquid-dark-primary">You Earn:</span>
-                <span className="text-liquid-dark-primary">€{((parseInt(formData.hourlyRate) || 0) * 0.85).toFixed(2)}/hr</span>
+              <div className="flex justify-between pt-2 border-t border-white/10 font-medium">
+                <span className="text-white">You Earn:</span>
+                <span className="text-white">€{((parseInt(formData.hourlyRate) || 0) * 0.85).toFixed(2)}/hr</span>
               </div>
             </div>
           </FlowCard>
@@ -149,7 +149,7 @@ export function ServicePreferencesStep({ formData, updateFormData, errors }: Ser
       <FlowCard padding="md" variant="subtle">
         <div className="flex gap-3 items-start">
           <Info className="h-4 w-4 text-liquid-dark-secondary mt-0.5 shrink-0" />
-          <div className="space-y-2 text-xs font-light text-gray-600">
+          <div className="space-y-2 text-xs font-light text-white/70">
             <p className="font-medium text-white">Pricing Guidelines</p>
             <ul className="space-y-1">
               <li>• Average student guide rate: <span className="font-medium text-white">€12-20/hr</span></li>

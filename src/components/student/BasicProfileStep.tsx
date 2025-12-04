@@ -1,13 +1,15 @@
 'use client';
 
+import * as Popover from '@radix-ui/react-popover';
 import { LiquidInput } from '@/components/ui/LiquidInput';
 import { LiquidSelect } from '@/components/ui/LiquidSelect';
 import { FlowCard } from '@/components/ui/FlowCard';
 import { OnboardingFormData } from './OnboardingWizard';
-import { useState, useRef, useEffect } from 'react';
+import { useState } from 'react';
 import { getUniversityOptionsByCity, type UniversityOption } from '@/config/universityOptions';
 import { User, Calendar, Globe, Phone, Building, GraduationCap, BookOpen, X, Search, ChevronDown, CheckCircle2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { COUNTRIES } from '@/config/countries';
 
 interface BasicProfileStepProps {
   formData: OnboardingFormData;
@@ -38,18 +40,7 @@ export function BasicProfileStep({ formData, updateFormData, errors, cities }: B
   const [customLanguage, setCustomLanguage] = useState('');
   const [isLanguageOpen, setIsLanguageOpen] = useState(false);
   const [languageSearch, setLanguageSearch] = useState('');
-  const dropdownRef = useRef<HTMLDivElement>(null);
   const campusOptions: UniversityOption[] = formData.city ? getUniversityOptionsByCity(formData.city) : [];
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsLanguageOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
 
   const filteredLanguages = COMMON_LANGUAGES.filter(lang =>
     lang.toLowerCase().includes(languageSearch.toLowerCase())
@@ -74,18 +65,18 @@ export function BasicProfileStep({ formData, updateFormData, errors, cities }: B
   return (
     <div className="space-y-12 animate-fade-in max-w-3xl mx-auto">
       <div className="text-center space-y-2">
-        <h2 className="text-4xl font-light tracking-tight text-liquid-dark-primary">
+        <h2 className="text-4xl font-light tracking-tight text-white">
           Basic Profile
         </h2>
-        <p className="text-base font-light text-gray-500 max-w-md mx-auto">
+        <p className="text-base font-light text-white/70 max-w-md mx-auto">
           Let's start with the basics
         </p>
       </div>
 
       {/* Personal Details */}
-      <FlowCard padding="lg">
+      <FlowCard padding="lg" variant="dark">
         <div className="space-y-6">
-          <h3 className="text-sm font-light tracking-wide text-liquid-dark-secondary flex items-center gap-2">
+          <h3 className="text-sm font-light tracking-wide text-white/80 flex items-center gap-2">
             <User className="h-4 w-4" />
             Personal Details
           </h3>
@@ -112,7 +103,7 @@ export function BasicProfileStep({ formData, updateFormData, errors, cities }: B
           </div>
 
           <div className="space-y-3">
-            <label className="text-sm font-light tracking-wide text-liquid-dark-secondary block">
+            <label className="text-sm font-light tracking-wide text-white/80 block">
               Gender {errors.gender && <span className="text-ui-error ml-1">*</span>}
             </label>
             <div className="grid grid-cols-3 gap-3">
@@ -137,14 +128,131 @@ export function BasicProfileStep({ formData, updateFormData, errors, cities }: B
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <LiquidInput
-              label="Nationality"
-              value={formData.nationality}
-              onChange={(e) => updateFormData({ nationality: e.target.value })}
-              placeholder="e.g., Indian, French"
-              error={errors.nationality}
-              icon={Globe}
-            />
+            <div className="space-y-2">
+              <LiquidSelect
+                label="Nationality"
+                value={COUNTRIES.includes(formData.nationality) ? formData.nationality : (formData.nationality ? 'other' : '')}
+                onValueChange={(value) => {
+                  if (value === 'other') {
+                    updateFormData({ nationality: '' });
+                  } else {
+                    updateFormData({ nationality: value });
+                  }
+                }}
+                placeholder="Select your nationality"
+                options={[
+                  ...COUNTRIES.map(c => ({ value: c, label: c })),
+                  { value: 'other', label: 'Other' }
+                ]}
+                error={errors.nationality}
+                icon={Globe}
+              />
+              {(!COUNTRIES.includes(formData.nationality) && formData.nationality !== '') || (formData.nationality === '' && !COUNTRIES.includes(formData.nationality)) ? (
+                // This logic is getting complicated. Let's simplify:
+                // If it's NOT in the list, we assume it's 'other' or custom.
+                // But wait, if it's empty, it could be unselected.
+                // Let's use a local state or just check if it's in the list.
+                // If user selects 'other', we set it to '' (empty string) but we need to show the input.
+                // If user selects a country, we set it to that country.
+                // So if it is NOT in COUNTRIES, we show the input?
+                // But initially it is empty.
+                // Let's assume if it is NOT in COUNTRIES, we show the input, UNLESS it is strictly empty AND the user hasn't selected 'other' yet?
+                // Actually, simpler: If the value passed to Select is 'other' (which happens if it's not in list but not empty, OR if we explicitly track 'other'), show input.
+                // But here we mapped `formData.nationality ? 'other' : ''` for unknown values.
+                // So if `formData.nationality` is "Martian", Select sees "other".
+                // And we should show the input with value "Martian".
+                // If `formData.nationality` is "", Select sees "".
+                // If user selects "other", `formData.nationality` becomes "". Select sees "".
+                // This is the problem. If user selects "other", we clear the value, so Select sees "", so it deselects "other".
+                // We need a way to persist "other" selection even if value is empty.
+                // But `LiquidSelect` is controlled.
+
+                // Alternative: If user selects 'other', set value to 'Other' (temporary string)? No, that would be a valid nationality.
+                // Let's just check if it's NOT in COUNTRIES.
+                // If it's not in countries, show the input.
+                // But if it's empty?
+                // If it's empty, we might just show the select.
+                // But if user clicks "Other", we want to show input.
+                // Maybe we can check if `formData.nationality` is NOT in COUNTRIES.
+                // If it is NOT in COUNTRIES, we show the input.
+                // But initially it is empty (not in countries). We don't want to show input initially.
+                // We only want to show input if user explicitly selected 'other' OR if they already have a custom value.
+
+                // Let's use a local state `isCustomNationality`?
+                // Or just check: `!COUNTRIES.includes(formData.nationality) && formData.nationality !== ''`.
+                // But what if user clicks "Other"? We set it to ''. Then the condition fails.
+                // We should set it to 'Other' temporarily? Or use a separate state.
+
+                // Let's try this:
+                // If user selects 'other', set `nationality` to 'Other'.
+                // Then in input, if value is 'Other', show placeholder?
+                // No, 'Other' is a valid word.
+
+                // Let's use a local state for "show custom input".
+                // But `BasicProfileStep` re-renders.
+
+                // Let's just use the `LiquidInput` when `!COUNTRIES.includes(formData.nationality)`.
+                // And if it is empty?
+                // If it is empty, we show the Select.
+                // If user selects 'other', we set `nationality` to 'Custom'.
+                // Then the input shows 'Custom'. User deletes it and types.
+                // If user types, it updates.
+                // If user clears it, it becomes empty.
+                // If it becomes empty, does it go back to Select?
+                // Yes, if we use `!COUNTRIES.includes`.
+
+                // Let's try:
+                // If `!COUNTRIES.includes(formData.nationality)` AND `formData.nationality !== ''`.
+                // But how to trigger it?
+                // When user selects 'other', set `nationality` to 'Custom'.
+                // Then input appears with value 'Custom'. User clears it. Value becomes ''. Input disappears.
+                // That's annoying.
+
+                // Better:
+                // Always show Select.
+                // If `!COUNTRIES.includes(formData.nationality)` (and not empty), show Input BELOW it?
+                // Or replace it?
+
+                // Let's follow the pattern used for Campus/Institute in the same file (lines 181-200).
+                // It checks `formData.campus === 'other'`.
+                // So we should store 'other' in `nationality`?
+                // But `nationality` is the final value.
+                // For Campus, `campus` is a separate field from `institute` (which is the actual text?).
+                // No, `institute` is the text. `campus` is the selection.
+                // Here we only have `nationality`.
+
+                // Let's use a local state `showCustomNationality`.
+
+                <div className="space-y-2">
+                  <LiquidSelect
+                    label="Nationality"
+                    value={COUNTRIES.includes(formData.nationality) ? formData.nationality : (formData.nationality ? 'other' : '')}
+                    onValueChange={(value) => {
+                      if (value === 'other') {
+                        updateFormData({ nationality: 'Other' }); // Set a temp value to trigger custom mode
+                      } else {
+                        updateFormData({ nationality: value });
+                      }
+                    }}
+                    placeholder="Select your nationality"
+                    options={[
+                      ...COUNTRIES.map(c => ({ value: c, label: c })),
+                      { value: 'other', label: 'Other' }
+                    ]}
+                    error={errors.nationality}
+                    icon={Globe}
+                  />
+                  {!COUNTRIES.includes(formData.nationality) && formData.nationality !== '' && (
+                    <LiquidInput
+                      value={formData.nationality === 'Other' ? '' : formData.nationality}
+                      onChange={(e) => updateFormData({ nationality: e.target.value })}
+                      placeholder="Enter your nationality"
+                      autoFocus
+                    />
+                  )}
+                </div>
+              ) : null}
+            </div>
 
             <LiquidInput
               label="Phone Number"
@@ -208,9 +316,9 @@ export function BasicProfileStep({ formData, updateFormData, errors, cities }: B
       </FlowCard>
 
       {/* Academic Details */}
-      <FlowCard padding="lg">
+      <FlowCard padding="lg" variant="dark">
         <div className="space-y-6">
-          <h3 className="text-sm font-light tracking-wide text-liquid-dark-secondary flex items-center gap-2">
+          <h3 className="text-sm font-light tracking-wide text-white/80 flex items-center gap-2">
             <GraduationCap className="h-4 w-4" />
             Academic Details
           </h3>
@@ -256,54 +364,58 @@ export function BasicProfileStep({ formData, updateFormData, errors, cities }: B
           />
 
           {/* Languages - Multi-Select Dropdown */}
-          <div className="space-y-3" ref={dropdownRef}>
-            <label className="text-sm font-light tracking-wide text-liquid-dark-secondary block">
+          <div className="space-y-3">
+            <label className="text-sm font-light tracking-wide text-white/80 block">
               Languages You Speak {errors.languages && <span className="text-ui-error ml-1">*</span>}
             </label>
 
-            <div className="relative">
-              <div
-                onClick={() => setIsLanguageOpen(!isLanguageOpen)}
-                className={cn(
-                  'w-full min-h-[48px] px-0 py-3 cursor-pointer',
-                  'border-0 border-b border-gray-300 transition-all duration-300',
-                  'flex flex-wrap gap-2 items-center',
-                  isLanguageOpen && 'border-b-2 border-liquid-dark-primary',
-                  errors.languages && 'border-ui-error'
-                )}
-              >
-                {formData.languages.length > 0 ? (
-                  formData.languages.map((language) => (
-                    <span
-                      key={language}
-                      className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-liquid-dark-primary text-white text-sm font-medium shadow-sm"
-                    >
-                      {language}
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          toggleLanguage(language);
-                        }}
-                        className="hover:bg-white/20 rounded-full p-0.5 transition-colors"
-                      >
-                        <X className="h-3 w-3" />
-                      </button>
-                    </span>
-                  ))
-                ) : (
-                  <span className="text-gray-400 font-light">Select languages...</span>
-                )}
-                <ChevronDown
+            <Popover.Root open={isLanguageOpen} onOpenChange={setIsLanguageOpen}>
+              <Popover.Trigger asChild>
+                <div
                   className={cn(
-                    'ml-auto h-4 w-4 text-gray-400 transition-transform duration-200',
-                    isLanguageOpen && 'rotate-180'
+                    'w-full min-h-[48px] px-0 py-3 cursor-pointer',
+                    'border-0 border-b border-white/20 transition-all duration-300',
+                    'flex flex-wrap gap-2 items-center',
+                    isLanguageOpen && 'border-b-2 border-white',
+                    errors.languages && 'border-ui-error'
                   )}
-                />
-              </div>
+                >
+                  {formData.languages.length > 0 ? (
+                    formData.languages.map((language) => (
+                      <span
+                        key={language}
+                        className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-liquid-dark-primary text-white text-sm font-medium shadow-sm"
+                      >
+                        {language}
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleLanguage(language);
+                          }}
+                          className="hover:bg-white/20 rounded-full p-0.5 transition-colors"
+                        >
+                          <X className="h-3 w-3" />
+                        </button>
+                      </span>
+                    ))
+                  ) : (
+                    <span className="text-white/50 font-light">Select languages...</span>
+                  )}
+                  <ChevronDown
+                    className={cn(
+                      'ml-auto h-4 w-4 text-white/50 transition-transform duration-200',
+                      isLanguageOpen && 'rotate-180'
+                    )}
+                  />
+                </div>
+              </Popover.Trigger>
 
-              {isLanguageOpen && (
-                <div className="absolute top-full left-0 w-full mt-2 bg-white rounded-2xl shadow-lg border border-gray-100 z-50 overflow-hidden animate-scale-in">
+              <Popover.Portal>
+                <Popover.Content
+                  className="w-[var(--radix-popover-trigger-width)] bg-white rounded-2xl shadow-lg border border-gray-100 z-50 overflow-hidden animate-scale-in"
+                  sideOffset={5}
+                >
                   <div className="p-3 border-b border-gray-100">
                     <div className="relative">
                       <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -314,6 +426,7 @@ export function BasicProfileStep({ formData, updateFormData, errors, cities }: B
                         value={languageSearch}
                         onChange={(e) => setLanguageSearch(e.target.value)}
                         onClick={(e) => e.stopPropagation()}
+                        autoFocus
                       />
                     </div>
                   </div>
@@ -342,9 +455,9 @@ export function BasicProfileStep({ formData, updateFormData, errors, cities }: B
                       </div>
                     )}
                   </div>
-                </div>
-              )}
-            </div>
+                </Popover.Content>
+              </Popover.Portal>
+            </Popover.Root>
 
             {/* Add Custom Language */}
             <div className="flex gap-2 mt-2">

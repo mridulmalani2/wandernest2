@@ -66,11 +66,11 @@ const LiquidInput = React.forwardRef<HTMLInputElement, LiquidInputProps>(
                             label && 'placeholder:text-transparent',
 
                             // Force hide date input placeholders (browser default)
-                            type === 'date' && '[&::-webkit-datetime-edit]:opacity-0 focus:[&::-webkit-datetime-edit]:opacity-100',
-                            type === 'date' && hasValue && '[&::-webkit-datetime-edit]:opacity-100',
+                            // type === 'date' && '[&::-webkit-datetime-edit]:opacity-0 focus:[&::-webkit-datetime-edit]:opacity-100',
+                            // type === 'date' && hasValue && '[&::-webkit-datetime-edit]:opacity-100',
 
                             // Date input specific styling for dark mode
-                            type === 'date' && '[color-scheme:dark]',
+                            // type === 'date' && '[color-scheme:dark]',
 
                             className
                         )}
@@ -91,7 +91,7 @@ const LiquidInput = React.forwardRef<HTMLInputElement, LiquidInputProps>(
                                 Icon && 'left-6',
 
                                 // Floating animation
-                                isFocused || hasValue || props.value
+                                isFocused || hasValue || props.value || type === 'date'
                                     ? '-top-5 text-xs text-white/80'
                                     : 'top-3 text-base text-white/50',
 

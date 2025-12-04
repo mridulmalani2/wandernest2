@@ -2,9 +2,9 @@
 
 import * as React from 'react';
 import * as SelectPrimitive from '@radix-ui/react-select';
-import { Check, ChevronDown, ChevronUp } from 'lucide-react';
+import { Check, ChevronDown, ChevronUp, LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { LucideIcon } from 'lucide-react';
+
 
 export interface LiquidSelectProps {
     label?: string;
@@ -67,8 +67,8 @@ export function LiquidSelect({
                         // Disabled
                         'disabled:opacity-50 disabled:cursor-not-allowed',
 
-                        // Icon padding
-                        Icon && 'pl-6',
+                        // Icon padding - removed to fix alignment with LiquidInput
+                        // Icon && 'pl-6',
 
                         // Layout
                         'flex items-center justify-between gap-2'
@@ -90,7 +90,7 @@ export function LiquidSelect({
                     <SelectPrimitive.Content
                         className={cn(
                             'relative z-50 max-h-96 min-w-[200px] overflow-hidden',
-                            'bg-white rounded-2xl shadow-lg border border-gray-100',
+                            'glass-card-dark rounded-2xl shadow-premium border border-white/10',
                             'animate-in fade-in-0 zoom-in-95',
                         )}
                         position="popper"
@@ -104,17 +104,17 @@ export function LiquidSelect({
                                         key={option.value}
                                         value={option.value}
                                         className={cn(
-                                            'relative flex items-center gap-3 px-3 py-2.5 rounded-xl',
-                                            'text-sm font-light tracking-wide cursor-pointer',
-                                            'transition-colors duration-150 outline-none',
-                                            'hover:bg-liquid-light focus:bg-liquid-light',
-                                            'data-[state=checked]:bg-liquid-dark-primary/5 data-[state=checked]:font-normal',
+                                            'relative flex items-center gap-3 px-3 py-2 rounded-xl',
+                                            'text-sm cursor-pointer transition-all',
+                                            'outline-none',
+                                            'text-gray-300 hover:bg-white/10 hover:text-white',
+                                            'data-[state=checked]:bg-white/20 data-[state=checked]:font-medium data-[state=checked]:text-white',
                                         )}
                                     >
                                         {OptionIcon && <OptionIcon className="h-4 w-4" />}
                                         <SelectPrimitive.ItemText>{option.label}</SelectPrimitive.ItemText>
                                         <SelectPrimitive.ItemIndicator className="ml-auto">
-                                            <Check className="h-4 w-4 text-liquid-dark-primary" />
+                                            <Check className="h-4 w-4 text-white" />
                                         </SelectPrimitive.ItemIndicator>
                                     </SelectPrimitive.Item>
                                 );

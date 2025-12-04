@@ -15,7 +15,7 @@ export default function BookingPage() {
   const isTourist = session?.user?.userType === 'tourist'
 
   return (
-    <div className="min-h-screen flex flex-col relative overflow-hidden">
+    <div className="min-h-screen flex flex-col relative overflow-hidden bg-black">
       {/* Background Image with Overlays */}
       <div className="absolute inset-0" role="img" aria-label="Beautiful travel destination">
         <Image
@@ -28,22 +28,20 @@ export default function BookingPage() {
           className="object-cover"
         />
         {/* Dark overlay for text contrast */}
-        <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" />
-        {/* Gradient overlay for visual depth */}
-        <div className="absolute inset-0 bg-gradient-to-br from-ui-blue-primary/10 via-ui-purple-primary/10 to-ui-purple-accent/10" />
+        <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px]" />
       </div>
-      <div className="absolute inset-0 pattern-grid opacity-15" />
+      <div className="absolute inset-0 pattern-grid opacity-5" />
 
       <div className="relative z-10 flex flex-col min-h-screen">
         {/* Header */}
         <Navigation variant="tourist" />
 
         {/* Main Content */}
-        <main className="flex-1 flex items-center justify-center px-4 pt-24 pb-16">
+        <main className="flex-1 flex items-center justify-center px-4 pt-28 pb-16">
           {loading ? (
             <div className="max-w-md w-full space-y-8 animate-fade-in-up">
               <div className="glass-card-dark rounded-3xl border-2 border-white/10 shadow-premium p-12 text-center">
-                <Loader2 className="h-12 w-12 animate-spin text-ui-blue-primary mx-auto mb-4" />
+                <Loader2 className="h-12 w-12 animate-spin text-blue-400 mx-auto mb-4" />
                 <p className="text-white font-medium">Loading...</p>
               </div>
             </div>
@@ -56,36 +54,21 @@ export default function BookingPage() {
                     Local Guide
                   </span>
                 </h2>
-                <p className="text-white mt-2 text-shadow">
+                <p className="text-gray-300 mt-2 text-shadow">
                   Sign in to connect with local student guides
                 </p>
-              </div>
-
-              {/* Marketplace Disclaimer */}
-              <div className="glass-card-dark bg-ui-warning/10 border-2 border-ui-warning/30 rounded-2xl p-4 shadow-premium animate-scale-in">
-                <div className="flex items-start gap-3">
-                  <AlertTriangle className="w-5 h-5 text-ui-warning flex-shrink-0 mt-0.5" />
-                  <div className="flex-1">
-                    <p className="text-sm font-semibold text-amber-100 mb-1">
-                      Marketplace Notice
-                    </p>
-                    <p className="text-sm text-amber-100/90">
-                      <strong>TourWiseCo is a connection platform only.</strong> We do not handle payments, guarantee service quality, or assume liability. All services and payments are arranged directly between you and your chosen guide.
-                    </p>
-                  </div>
-                </div>
               </div>
 
               {/* Sign In Card */}
               <div className="glass-card-dark rounded-3xl border-2 border-white/10 p-8 shadow-premium space-y-6">
                 <div className="text-center py-4">
                   <div className="mb-4">
-                    <div className="mx-auto w-16 h-16 bg-ui-blue-primary/20 rounded-full flex items-center justify-center">
-                      <LogIn className="w-8 h-8 text-ui-blue-primary" />
+                    <div className="mx-auto w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center">
+                      <LogIn className="w-8 h-8 text-blue-400" />
                     </div>
                   </div>
                   <h3 className="text-xl font-bold text-white mb-2">Sign In to Book</h3>
-                  <p className="text-gray-200 mb-6">
+                  <p className="text-gray-300 mb-6">
                     To create a booking request and connect with local student guides,
                     sign in with your Google account.
                   </p>
@@ -100,14 +83,14 @@ export default function BookingPage() {
                   </PrimaryCTAButton>
                 </div>
 
-                <div className="text-center text-sm text-gray-300">
+                <div className="text-center text-sm text-gray-400">
                   <p>
                     By signing in, you agree to our{' '}
-                    <Link href="/terms" className="text-ui-blue-primary hover:underline">
+                    <Link href="/terms" className="text-blue-400 hover:underline">
                       Terms of Service
                     </Link>{' '}
                     and{' '}
-                    <Link href="/privacy" className="text-ui-blue-primary hover:underline">
+                    <Link href="/privacy" className="text-blue-400 hover:underline">
                       Privacy Policy
                     </Link>
                   </p>
@@ -150,6 +133,21 @@ export default function BookingPage() {
                     Sign in as Student Guide
                   </Link>
                 </p>
+              </div>
+
+              {/* Marketplace Disclaimer */}
+              <div className="glass-card-dark bg-ui-warning/10 border-2 border-ui-warning/30 rounded-2xl p-4 md:p-6 shadow-premium animate-fade-in-up delay-100">
+                <div className="flex items-start gap-3 md:gap-4">
+                  <div className="flex-shrink-0 p-3 rounded-xl bg-ui-warning text-white shadow-soft">
+                    <AlertTriangle className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h2 className="font-bold text-amber-100 mb-2 text-lg">Marketplace Notice</h2>
+                    <p className="text-sm text-amber-100/90 leading-relaxed">
+                      <strong>TourWiseCo is a connection platform only.</strong> We do not handle payments, guarantee service quality, or assume liability. All services and payments are arranged directly between you and your chosen guide.
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
           ) : !isTourist ? (

@@ -73,8 +73,8 @@ function PendingContent() {
     return (
       <>
         <Navigation variant="tourist" />
-        <div className="min-h-screen flex items-center justify-center">
-          <Loader2 className="h-12 w-12 animate-spin text-ui-blue-primary" />
+        <div className="min-h-screen flex items-center justify-center bg-black">
+          <Loader2 className="h-12 w-12 animate-spin text-blue-400" />
         </div>
       </>
     )
@@ -84,8 +84,8 @@ function PendingContent() {
     return (
       <>
         <Navigation variant="tourist" />
-        <div className="min-h-screen flex items-center justify-center p-4">
-          <Alert variant="destructive" className="max-w-md">
+        <div className="min-h-screen flex items-center justify-center p-4 bg-black">
+          <Alert variant="destructive" className="max-w-md glass-card-dark border-red-500/20 bg-red-900/20 text-red-300">
             <AlertDescription>{error || 'Request not found'}</AlertDescription>
           </Alert>
         </div>
@@ -105,53 +105,53 @@ function PendingContent() {
     return (
       <>
         <Navigation variant="tourist" />
-        <div className="min-h-screen bg-gradient-to-b from-ui-success/10 to-white py-12 px-4">
+        <div className="min-h-screen bg-black py-12 px-4">
           <div className="max-w-3xl mx-auto">
             {/* Success Header */}
             <div className="text-center mb-8">
-              <div className="inline-flex items-center justify-center w-20 h-20 bg-ui-success rounded-full mb-4">
-                <CheckCircle2 className="h-12 w-12 text-white" />
+              <div className="inline-flex items-center justify-center w-20 h-20 bg-green-500/20 rounded-full mb-4">
+                <CheckCircle2 className="h-12 w-12 text-green-400" />
               </div>
-              <h1 className="text-4xl font-bold text-gray-900 mb-2">
+              <h1 className="text-4xl font-bold text-white mb-2">
                 Your Guide Has Accepted!
               </h1>
-              <p className="text-lg text-gray-600">
+              <p className="text-lg text-gray-300">
                 Get ready for an amazing experience in {status.city}
               </p>
             </div>
 
             {/* Student Details Card */}
-            <Card className="mb-6 border-2 border-ui-success">
+            <Card className="mb-6 border-2 border-green-500/20 glass-card-dark">
               <CardContent className="p-6">
-                <h2 className="text-2xl font-bold text-ui-success mb-4">
+                <h2 className="text-2xl font-bold text-green-400 mb-4">
                   Your Student Guide
                 </h2>
 
                 <div className="space-y-3">
                   <div>
-                    <p className="text-sm text-gray-600">Name</p>
-                    <p className="text-lg font-semibold text-gray-900">{student.name}</p>
+                    <p className="text-sm text-gray-400">Name</p>
+                    <p className="text-lg font-semibold text-white">{student.name}</p>
                   </div>
 
                   <div>
-                    <p className="text-sm text-gray-600">University</p>
-                    <p className="text-lg text-gray-900">{student.institute}</p>
+                    <p className="text-sm text-gray-400">University</p>
+                    <p className="text-lg text-white">{student.institute}</p>
                   </div>
 
                   <div>
-                    <p className="text-sm text-gray-600">From</p>
-                    <p className="text-lg text-gray-900">{student.nationality}</p>
+                    <p className="text-sm text-gray-400">From</p>
+                    <p className="text-lg text-white">{student.nationality}</p>
                   </div>
 
                   <div>
-                    <p className="text-sm text-gray-600">Languages</p>
-                    <p className="text-lg text-gray-900">{student.languages.join(', ')}</p>
+                    <p className="text-sm text-gray-400">Languages</p>
+                    <p className="text-lg text-white">{student.languages.join(', ')}</p>
                   </div>
 
                   {student.averageRating && (
                     <div>
-                      <p className="text-sm text-gray-600">Rating</p>
-                      <p className="text-lg text-gray-900">
+                      <p className="text-sm text-gray-400">Rating</p>
+                      <p className="text-lg text-white">
                         {student.averageRating.toFixed(1)}/5 ({student.tripsHosted} trips
                         hosted)
                       </p>
@@ -162,20 +162,20 @@ function PendingContent() {
             </Card>
 
             {/* Contact Information */}
-            <Card className="mb-6 bg-ui-blue-primary/10 border-ui-blue-accent">
+            <Card className="mb-6 bg-blue-900/20 border-blue-500/20 glass-card-dark">
               <CardContent className="p-6">
-                <h3 className="text-xl font-bold text-ui-blue-primary mb-4">
+                <h3 className="text-xl font-bold text-blue-400 mb-4">
                   Contact Information
                 </h3>
 
                 <div className="space-y-3">
                   <div className="flex items-center gap-3">
-                    <Mail className="h-5 w-5 text-ui-blue-primary" />
+                    <Mail className="h-5 w-5 text-blue-400" />
                     <div>
-                      <p className="text-sm text-gray-600">Email</p>
+                      <p className="text-sm text-gray-400">Email</p>
                       <a
                         href={`mailto:${student.email}`}
-                        className="text-ui-blue-primary hover:underline font-medium"
+                        className="text-blue-400 hover:underline font-medium"
                       >
                         {student.email}
                       </a>
@@ -184,12 +184,12 @@ function PendingContent() {
 
                   {student.phone && (
                     <div className="flex items-center gap-3">
-                      <Phone className="h-5 w-5 text-ui-blue-primary" />
+                      <Phone className="h-5 w-5 text-blue-400" />
                       <div>
-                        <p className="text-sm text-gray-600">Phone</p>
+                        <p className="text-sm text-gray-400">Phone</p>
                         <a
                           href={`tel:${student.phone}`}
-                          className="text-ui-blue-primary hover:underline font-medium"
+                          className="text-blue-400 hover:underline font-medium"
                         >
                           {student.phone}
                         </a>
@@ -199,14 +199,14 @@ function PendingContent() {
 
                   {student.whatsapp && (
                     <div className="flex items-center gap-3">
-                      <MessageCircle className="h-5 w-5 text-ui-blue-primary" />
+                      <MessageCircle className="h-5 w-5 text-blue-400" />
                       <div>
-                        <p className="text-sm text-gray-600">WhatsApp</p>
+                        <p className="text-sm text-gray-400">WhatsApp</p>
                         <a
                           href={`https://wa.me/${student.whatsapp.replace(/[^0-9]/g, '')}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-ui-blue-primary hover:underline font-medium"
+                          className="text-blue-400 hover:underline font-medium"
                         >
                           {student.whatsapp}
                         </a>
@@ -218,10 +218,10 @@ function PendingContent() {
             </Card>
 
             {/* Next Steps */}
-            <Card className="mb-6">
+            <Card className="mb-6 glass-card-dark border-white/10">
               <CardContent className="p-6">
-                <h3 className="text-xl font-bold text-gray-900 mb-4">Next Steps</h3>
-                <ol className="list-decimal list-inside space-y-2 text-gray-700">
+                <h3 className="text-xl font-bold text-white mb-4">Next Steps</h3>
+                <ol className="list-decimal list-inside space-y-2 text-gray-300">
                   <li>Reach out to your guide within the next 24-48 hours</li>
                   <li>Confirm the exact meeting point and time for {startDate}</li>
                   <li>Discuss and agree on the final payment amount and method</li>
@@ -232,8 +232,8 @@ function PendingContent() {
             </Card>
 
             {/* Important Notice */}
-            <Alert className="mb-6 border-ui-warning bg-ui-warning/10">
-              <AlertDescription className="text-sm text-ui-warning">
+            <Alert className="mb-6 border-amber-500/20 bg-amber-900/20 glass-card-dark">
+              <AlertDescription className="text-sm text-amber-300">
                 <strong>Important:</strong> TourWiseCo is a connector platform only. All
                 payments and service arrangements are made directly between you and the
                 student guide. We recommend meeting in public places for safety.
@@ -244,7 +244,7 @@ function PendingContent() {
             <div className="text-center">
               <Button
                 onClick={() => router.push('/tourist/dashboard')}
-                className="bg-ui-blue-primary hover:bg-ui-blue-accent"
+                className="bg-blue-600 hover:bg-blue-700 text-white"
               >
                 View My Requests
               </Button>
@@ -264,15 +264,15 @@ function PendingContent() {
     return (
       <>
         <Navigation variant="tourist" />
-        <div className="min-h-screen flex items-center justify-center p-4">
+        <div className="min-h-screen flex items-center justify-center p-4 bg-black">
           <div className="max-w-md text-center">
-            <Clock className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-gray-800 mb-2">Request Expired</h2>
-            <p className="text-gray-600 mb-6">
+            <Clock className="h-16 w-16 text-gray-500 mx-auto mb-4" />
+            <h2 className="text-2xl font-bold text-white mb-2">Request Expired</h2>
+            <p className="text-gray-300 mb-6">
               Unfortunately, no guide accepted your request within the time window. You can
               try creating a new request with different criteria or dates.
             </p>
-            <Button onClick={() => router.push('/booking')} className="bg-ui-blue-primary">
+            <Button onClick={() => router.push('/booking')} className="bg-blue-600 hover:bg-blue-700 text-white">
               Create New Request
             </Button>
           </div>
@@ -284,13 +284,13 @@ function PendingContent() {
   return (
     <>
       <Navigation variant="tourist" />
-      <div className="min-h-screen bg-gray-50 py-12 px-4">
+      <div className="min-h-screen bg-black py-12 px-4">
         <div className="max-w-3xl mx-auto">
           {/* Success Notification */}
           <div className="mb-8 animate-fade-in-up">
-            <Alert className="border-2 border-ui-success bg-gradient-to-br from-ui-success/10 to-ui-success/5 shadow-premium">
-              <CheckCircle2 className="h-5 w-5 text-ui-success" />
-              <AlertDescription className="text-ui-success font-medium">
+            <Alert className="border-2 border-green-500/20 bg-green-900/20 shadow-premium glass-card-dark">
+              <CheckCircle2 className="h-5 w-5 text-green-400" />
+              <AlertDescription className="text-green-300 font-medium">
                 <strong>Booking Request Initiated!</strong> Your request has been sent to {status.selectionsCount} guide
                 {status.selectionsCount > 1 ? 's' : ''}. Check your email for further details and updates.
               </AlertDescription>
@@ -299,23 +299,23 @@ function PendingContent() {
 
           {/* Waiting Header */}
           <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-20 h-20 bg-ui-blue-primary/20 rounded-full mb-4">
-              <Clock className="h-12 w-12 text-ui-blue-primary animate-pulse" />
+            <div className="inline-flex items-center justify-center w-20 h-20 bg-blue-500/20 rounded-full mb-4">
+              <Clock className="h-12 w-12 text-blue-400 animate-pulse" />
             </div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">
+            <h1 className="text-4xl font-bold text-white mb-2">
               Waiting for Response
             </h1>
-            <p className="text-lg text-gray-600">
+            <p className="text-lg text-gray-300">
               We'll notify you as soon as a guide accepts
             </p>
           </div>
 
           {/* Status Card */}
-          <Card className="mb-6">
+          <Card className="mb-6 glass-card-dark border-white/10">
             <CardContent className="p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Request Details</h2>
+              <h2 className="text-xl font-bold text-white mb-4">Request Details</h2>
 
-              <div className="space-y-3 text-gray-700">
+              <div className="space-y-3 text-gray-300">
                 <div className="flex justify-between">
                   <span className="font-medium">Destination:</span>
                   <span>{status.city}</span>
@@ -326,7 +326,7 @@ function PendingContent() {
                 </div>
                 <div className="flex justify-between">
                   <span className="font-medium">Status:</span>
-                  <span className="px-3 py-1 bg-ui-warning/20 text-ui-warning rounded-full text-sm font-medium">
+                  <span className="px-3 py-1 bg-amber-900/20 text-amber-300 rounded-full text-sm font-medium">
                     Waiting for acceptance
                   </span>
                 </div>
@@ -347,8 +347,8 @@ function PendingContent() {
           </Card>
 
           {/* Info Alert */}
-          <Alert className="mb-6 border-ui-blue-accent bg-ui-blue-primary/10">
-            <AlertDescription className="text-sm text-ui-blue-primary">
+          <Alert className="mb-6 border-blue-500/20 bg-blue-900/20 glass-card-dark">
+            <AlertDescription className="text-sm text-blue-300">
               <strong>How it works:</strong> Your request was sent to multiple student guides.
               The first one to accept will be assigned to you. You'll receive an email
               notification as soon as a guide accepts. This page will automatically update.
@@ -357,13 +357,13 @@ function PendingContent() {
 
           {/* Refresh Button */}
           <div className="text-center">
-            <p className="text-sm text-gray-500 mb-4">
+            <p className="text-sm text-gray-400 mb-4">
               Page auto-refreshes every 10 seconds
             </p>
             <Button
               onClick={fetchStatus}
               variant="outline"
-              className="mr-4"
+              className="mr-4 bg-transparent text-white border-white/20 hover:bg-white/10"
             >
               <Loader2 className="mr-2 h-4 w-4" />
               Refresh Now
@@ -371,6 +371,7 @@ function PendingContent() {
             <Button
               onClick={() => router.push('/tourist/dashboard')}
               variant="outline"
+              className="bg-transparent text-white border-white/20 hover:bg-white/10"
             >
               View Dashboard
             </Button>

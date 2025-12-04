@@ -4,7 +4,7 @@ import * as React from 'react';
 import { cn } from '@/lib/utils';
 
 export interface FlowCardProps extends React.HTMLAttributes<HTMLDivElement> {
-    variant?: 'default' | 'elevated' | 'subtle';
+    variant?: 'default' | 'elevated' | 'subtle' | 'dark';
     padding?: 'none' | 'sm' | 'md' | 'lg';
     hover?: boolean;
 }
@@ -33,6 +33,10 @@ const FlowCard = React.forwardRef<HTMLDivElement, FlowCardProps>(
                         'bg-white/5',
                         'border border-transparent',
                         'shadow-none',
+                    ],
+                    variant === 'dark' && [
+                        'glass-card-dark',
+                        'shadow-premium',
                     ],
 
                     // Padding

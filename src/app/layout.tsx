@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import './critical.css'
 import { Providers } from './providers'
 import { PageTransition } from '@/components/transitions/PageTransition'
+import CookieConsent from '@/components/CookieConsent'
 
 /*
  * Font Configuration:
@@ -77,13 +78,14 @@ export default function RootLayout({
       <body className="font-sans">
         <Providers>
           <div className="min-h-screen relative">
-            {/* Light mode gradient background */}
-            <div className="fixed inset-0 z-0 bg-gradient-to-br from-slate-50 via-blue-50/50 to-purple-50/50 transition-colors duration-300" />
+            {/* Dark mode gradient background */}
+            <div className="fixed inset-0 z-0 bg-gradient-to-br from-black via-gray-900 to-slate-900 transition-colors duration-300" />
             <div className="relative z-10">
               <PageTransition>
                 {children}
               </PageTransition>
             </div>
+            <CookieConsent />
           </div>
         </Providers>
       </body>
