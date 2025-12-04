@@ -5,21 +5,13 @@ import Image from 'next/image'
 import Footer from '@/components/Footer'
 import ModernFAQ from '@/components/student/ModernFAQ'
 import { DollarSign, Clock, Users } from 'lucide-react'
-import { motion, useScroll, useTransform } from 'framer-motion'
-import { useRef } from 'react'
+import { motion } from 'framer-motion'
 import { PrimaryCTAButton } from '@/components/ui/PrimaryCTAButton'
 
 export default function StudentLandingPage() {
-  const heroRef = useRef<HTMLDivElement>(null)
-  const { scrollYProgress } = useScroll({
-    target: heroRef,
-    offset: ['start start', 'end start']
-  })
-  const y = useTransform(scrollYProgress, [0, 1], [0, 150])
-
   return (
-    <div ref={heroRef} className="min-h-screen flex flex-col relative overflow-hidden">
-      <motion.div className="absolute inset-0" style={{ y }}>
+    <div className="min-h-screen flex flex-col relative overflow-hidden">
+      <div className="absolute inset-0">
         <Image
           src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=1920&q=80"
           alt="Students collaborating on campus"
@@ -31,7 +23,7 @@ export default function StudentLandingPage() {
         />
         <div className="absolute inset-0 bg-black/50 backdrop-blur-[2px]" />
         <div className="absolute inset-0 bg-gradient-to-br from-ui-purple-primary/20 via-ui-blue-primary/15 to-black/40" />
-      </motion.div>
+      </div>
       <div className="absolute inset-0 pattern-dots opacity-15" />
 
       <div className="relative z-10 flex flex-col min-h-screen">
@@ -43,7 +35,7 @@ export default function StudentLandingPage() {
             <div className="text-center space-y-6 md:space-y-8 animate-slide-up-fade">
               <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold leading-tight tracking-tight text-white text-shadow-lg">
                 Earn Money{' '}
-                <span className="text-gradient-vibrant animate-gradient-shift inline-block bg-white/10 px-3 sm:px-4 py-1.5 sm:py-2 rounded-2xl">
+                <span className="bg-gradient-to-r from-purple-300 via-blue-300 to-purple-300 bg-clip-text text-transparent animate-gradient-shift inline-block bg-white/10 px-3 sm:px-4 py-1.5 sm:py-2 rounded-2xl">
                   Sharing Your City
                 </span>
                 <br />
@@ -91,7 +83,7 @@ export default function StudentLandingPage() {
                     <div className="absolute inset-0 bg-black/50"></div>
                   </div>
                   <div className="relative z-10 p-8 h-full backdrop-blur-sm bg-white/10 border border-white/20 rounded-2xl group-hover:bg-white/15 transition-all">
-                    <div className="inline-flex p-4 rounded-2xl bg-gradient-to-br from-green-500 to-emerald-600 text-white mb-6 group-hover:scale-105 transition-all duration-300 shadow-md">
+                    <div className="inline-flex p-4 rounded-2xl bg-white/10 text-white mb-6 group-hover:scale-105 transition-all duration-300 shadow-md border border-white/20">
                       <DollarSign className="w-8 h-8" />
                     </div>
                     <h3 className="text-xl font-bold mb-3 text-white group-hover:text-green-300 transition-colors">
@@ -117,7 +109,7 @@ export default function StudentLandingPage() {
                     <div className="absolute inset-0 bg-black/50"></div>
                   </div>
                   <div className="relative z-10 p-8 h-full backdrop-blur-sm bg-white/10 border border-white/20 rounded-2xl group-hover:bg-white/15 transition-all">
-                    <div className="inline-flex p-4 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white mb-6 group-hover:scale-105 transition-all duration-300 shadow-md">
+                    <div className="inline-flex p-4 rounded-2xl bg-white/10 text-white mb-6 group-hover:scale-105 transition-all duration-300 shadow-md border border-white/20">
                       <Clock className="w-8 h-8" />
                     </div>
                     <h3 className="text-xl font-bold mb-3 text-white group-hover:text-blue-300 transition-colors">
@@ -143,7 +135,7 @@ export default function StudentLandingPage() {
                     <div className="absolute inset-0 bg-black/50"></div>
                   </div>
                   <div className="relative z-10 p-8 h-full backdrop-blur-sm bg-white/10 border border-white/20 rounded-2xl group-hover:bg-white/15 transition-all">
-                    <div className="inline-flex p-4 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-600 text-white mb-6 group-hover:scale-105 transition-all duration-300 shadow-md">
+                    <div className="inline-flex p-4 rounded-2xl bg-white/10 text-white mb-6 group-hover:scale-105 transition-all duration-300 shadow-md border border-white/20">
                       <Users className="w-8 h-8" />
                     </div>
                     <h3 className="text-xl font-bold mb-3 text-white group-hover:text-purple-300 transition-colors">
@@ -224,72 +216,65 @@ export default function StudentLandingPage() {
             {/* FAQ Section */}
             <ModernFAQ />
 
-            {/* Student Commitment / Disclaimer (Matching Tourist Style) */}
-            <div className="mt-16 max-w-4xl mx-auto animate-fade-in-up delay-800">
-              <div className="relative overflow-hidden backdrop-blur-md bg-gradient-to-br from-purple-50/95 to-blue-50/95 border-2 border-purple-300/60 rounded-3xl shadow-premium hover:shadow-elevated transition-all duration-300">
-                {/* Decorative Elements */}
-                <div className="absolute -top-24 -right-24 w-48 h-48 bg-purple-300/20 rounded-full blur-3xl"></div>
-                <div className="absolute -bottom-24 -left-24 w-48 h-48 bg-blue-300/20 rounded-full blur-3xl"></div>
-
-                <div className="relative p-6 md:p-10">
+            {/* Student Guide Commitment - Enhanced Glass */}
+            <div className="mt-16 max-w-3xl mx-auto animate-fade-in-up delay-800">
+              <div className="relative overflow-hidden backdrop-blur-md bg-white/5 border border-white/10 rounded-3xl shadow-premium hover:shadow-elevated transition-all duration-300">
+                <div className="relative p-6 md:p-8">
                   <div className="flex flex-col md:flex-row md:items-start gap-6">
                     {/* Icon Section */}
                     <div className="flex-shrink-0">
-                      <div className="relative">
-                        <div className="absolute inset-0 bg-purple-400 rounded-2xl blur-md opacity-50"></div>
-                        <div className="relative p-4 rounded-2xl bg-gradient-to-br from-purple-400 to-blue-500 text-white shadow-lg">
-                          <Users className="w-8 h-8" strokeWidth={2} />
-                        </div>
+                      <div className="p-3 rounded-xl bg-white/10 text-white shadow-lg border border-white/10">
+                        <Users className="w-6 h-6" strokeWidth={2} />
                       </div>
                     </div>
 
                     {/* Content Section */}
-                    <div className="flex-1 space-y-5">
+                    <div className="flex-1 space-y-4">
                       {/* Title */}
-                      <div className="space-y-2">
-                        <h2 className="font-bold text-purple-900 text-2xl md:text-3xl">Student Guide Commitment</h2>
-                        <div className="h-1 w-20 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full"></div>
+                      <div>
+                        <h2 className="font-bold text-white text-xl md:text-2xl">Student Guide Commitment</h2>
+                        <div className="h-1 w-12 bg-white/20 rounded-full mt-2"></div>
                       </div>
 
                       {/* Main Text */}
                       <div className="space-y-4">
-                        <p className="text-base text-purple-900/90 leading-relaxed font-medium bg-white/50 backdrop-blur-sm px-5 py-4 rounded-2xl border border-purple-200/50">
-                          <strong className="text-purple-950">As a TourWiseCo guide, you are your own boss.</strong> We connect you with tourists, but you are responsible for:
+                        <p className="text-sm md:text-base text-white/80 leading-relaxed font-light">
+                          <strong className="text-white font-medium">As a TourWiseCo guide, you are your own boss.</strong> We connect you with tourists, but you are responsible for:
                         </p>
 
                         {/* List of Items */}
                         <div className="grid md:grid-cols-2 gap-3">
-                          <div className="flex items-start gap-3 bg-white/60 backdrop-blur-sm px-4 py-3 rounded-xl border border-purple-200/50 hover:bg-white/80 transition-colors">
-                            <div className="w-6 h-6 rounded-full bg-purple-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                              <span className="text-purple-700 text-sm">✓</span>
+                          <div className="flex items-center gap-3">
+                            <div className="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0 border border-white/10">
+                              <span className="text-white text-xs">✓</span>
                             </div>
-                            <span className="text-sm text-purple-900 font-medium">Setting your own rates and schedule</span>
+                            <span className="text-sm text-white/70 font-light">Setting your own rates and schedule</span>
                           </div>
 
-                          <div className="flex items-start gap-3 bg-white/60 backdrop-blur-sm px-4 py-3 rounded-xl border border-purple-200/50 hover:bg-white/80 transition-colors">
-                            <div className="w-6 h-6 rounded-full bg-purple-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                              <span className="text-purple-700 text-sm">✓</span>
+                          <div className="flex items-center gap-3">
+                            <div className="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0 border border-white/10">
+                              <span className="text-white text-xs">✓</span>
                             </div>
-                            <span className="text-sm text-purple-900 font-medium">Delivering a safe and authentic experience</span>
+                            <span className="text-sm text-white/70 font-light">Delivering a safe and authentic experience</span>
                           </div>
 
-                          <div className="flex items-start gap-3 bg-white/60 backdrop-blur-sm px-4 py-3 rounded-xl border border-purple-200/50 hover:bg-white/80 transition-colors">
-                            <div className="w-6 h-6 rounded-full bg-purple-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                              <span className="text-purple-700 text-sm">✓</span>
+                          <div className="flex items-center gap-3">
+                            <div className="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0 border border-white/10">
+                              <span className="text-white text-xs">✓</span>
                             </div>
-                            <span className="text-sm text-purple-900 font-medium">Handling payments directly with tourists</span>
+                            <span className="text-sm text-white/70 font-light">Handling payments directly with tourists</span>
                           </div>
 
-                          <div className="flex items-start gap-3 bg-white/60 backdrop-blur-sm px-4 py-3 rounded-xl border border-purple-200/50 hover:bg-white/80 transition-colors">
-                            <div className="w-6 h-6 rounded-full bg-purple-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                              <span className="text-purple-700 text-sm">✓</span>
+                          <div className="flex items-center gap-3">
+                            <div className="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0 border border-white/10">
+                              <span className="text-white text-xs">✓</span>
                             </div>
-                            <span className="text-sm text-purple-900 font-medium">Maintaining your student verification status</span>
+                            <span className="text-sm text-white/70 font-light">Maintaining your student verification status</span>
                           </div>
                         </div>
 
                         {/* Footer Note */}
-                        <p className="text-sm text-purple-900/80 leading-relaxed italic bg-purple-100/50 px-5 py-3 rounded-xl border-l-4 border-purple-500">
+                        <p className="text-xs md:text-sm text-white/60 leading-relaxed italic border-l-2 border-white/20 pl-4">
                           TourWiseCo takes 0% commission from your earnings. You keep 100% of what you charge.
                         </p>
                       </div>

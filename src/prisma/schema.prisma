@@ -8,6 +8,7 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+
   // Connection pooling for serverless is handled via the DATABASE_URL connection string
   // For Vercel Postgres, use the POSTGRES_PRISMA_URL which includes ?pgbouncer=true
   // Example: postgresql://user:pass@host:port/db?pgbouncer=true&connection_limit=1
@@ -408,4 +409,17 @@ model ContactMessage {
   @@index([email])
   @@index([status])
   @@index([createdAt])
+}
+
+model FileStorage {
+  id        String   @id @default(cuid())
+  filename  String
+  mimeType  String
+  size      Int
+  content   String   @db.Text // Base64 encoded content
+  studentId String?  // Optional link to student who uploaded it
+  
+  createdAt DateTime @default(now())
+
+  @@index([studentId])
 }

@@ -13,7 +13,7 @@ interface TouristBooking {
   dates: { start: string; end: string };
   numberOfGuests: number;
   serviceType: string;
-  totalBudget: number;
+  budget: number | null;
   status: 'pending' | 'matched' | 'confirmed' | 'completed';
   guideName?: string;
   createdAt: string;
@@ -56,7 +56,7 @@ export default function TouristDashboard() {
     completed: bookings.filter(b => b.status === 'completed').length,
     totalSpent: bookings
       .filter(b => b.status === 'completed')
-      .reduce((sum, b) => sum + b.totalBudget, 0)
+      .reduce((sum, b) => sum + (b.budget || 0), 0)
   };
 
   const getStatusColor = (status: string) => {
@@ -210,7 +210,7 @@ export default function TouristDashboard() {
                           <span className="font-light capitalize">{booking.serviceType.replace('_', ' ')}</span>
                         </div>
                         <div className="text-lg font-medium text-white">
-                          €{booking.totalBudget}
+                          {booking.budget ? `€${booking.budget}` : 'Price TBD'}
                         </div>
                       </div>
                     </div>

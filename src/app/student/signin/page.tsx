@@ -28,6 +28,7 @@ function StudentSignInContent() {
   const [email, setEmail] = useState('');
   const [step, setStep] = useState<Step>('email');
   const [code, setCode] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
 
   const [isSubmitting, setIsSubmitting] = useState(false); // email submit
   const [isVerifying, setIsVerifying] = useState(false); // otp verify
@@ -113,7 +114,7 @@ function StudentSignInContent() {
       const res = await fetch('/api/student/auth/verify-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, code }),
+        body: JSON.stringify({ email, code, rememberMe }),
       });
 
       const data = await res.json();
@@ -145,7 +146,7 @@ function StudentSignInContent() {
 
     setIsSubmitting(true);
     try {
-      const res = await fetch('/api/student/otp/request', {
+      const res = await fetch('/api/student/auth/send-otp', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),
@@ -336,6 +337,19 @@ function StudentSignInContent() {
                       <p className="text-xs text-gray-400 mt-2 font-medium">
                         Code is valid for 10 minutes.
                       </p>
+                    </div>
+
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        id="rememberMe"
+                        checked={rememberMe}
+                        onChange={(e) => setRememberMe(e.target.checked)}
+                        className="w-4 h-4 rounded border-white/20 bg-white/5 text-purple-500 focus:ring-purple-500/50 focus:ring-offset-0"
+                      />
+                      <label htmlFor="rememberMe" className="text-sm text-gray-300 select-none cursor-pointer">
+                        Stay signed in on this device
+                      </label>
                     </div>
 
                     <PrimaryCTAButton

@@ -90,11 +90,13 @@ if (config.email.isConfigured) {
         })
 
         try {
-          console.log('📧 Attempting to send magic link email...')
-          console.log('   To:', email)
-          console.log('   From:', provider.from)
-          console.log('   SMTP Host:', config.email.host)
-          console.log('   SMTP Port:', config.email.port)
+          if (config.app.isDevelopment) {
+            console.log('📧 Attempting to send magic link email...')
+            console.log('   To:', email)
+            console.log('   From:', provider.from)
+            console.log('   SMTP Host:', config.email.host)
+            console.log('   SMTP Port:', config.email.port)
+          }
 
           const result = await transport.sendMail({
             to: email,

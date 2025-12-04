@@ -67,8 +67,8 @@ export function LiquidSelect({
                         // Disabled
                         'disabled:opacity-50 disabled:cursor-not-allowed',
 
-                        // Icon padding
-                        Icon && 'pl-6',
+                        // Icon padding - removed to fix alignment with LiquidInput
+                        // Icon && 'pl-6',
 
                         // Layout
                         'flex items-center justify-between gap-2'

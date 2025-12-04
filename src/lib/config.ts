@@ -23,7 +23,8 @@ export interface AppConfig {
     user: string | null
     pass: string | null
     from: string
-    contactEmail: string  // Where contact form submissions are sent
+    contactEmail: string
+    resendApiKey: string | null
     isConfigured: boolean
   }
   auth: {
@@ -101,12 +102,15 @@ function loadConfig(): AppConfig {
   const emailUser = process.env.EMAIL_USER || null
   const emailPass = process.env.EMAIL_PASS || null
   const emailFrom = process.env.EMAIL_FROM || 'TourWiseCo <noreply@tourwiseco.com>'
-  const contactEmail = process.env.CONTACT_EMAIL || emailFrom  // Where contact form submissions go
-  const isEmailConfigured = !!(emailHost && emailUser && emailPass)
+  const contactEmail = process.env.CONTACT_EMAIL || emailFrom
+  const resendApiKey = process.env.RESEND_API_KEY || null
+
+  // Configured if Resend is set OR SMTP is set
+  const isEmailConfigured = !!resendApiKey || !!(emailHost && emailUser && emailPass)
 
   if (!isEmailConfigured && isProduction) {
     configWarnings.push(
-      'Email is not configured (EMAIL_HOST, EMAIL_USER, EMAIL_PASS) - emails will be logged but not sent'
+      'Email is not configured (RESEND_API_KEY or SMTP) - emails will be logged but not sent'
     )
   }
 
@@ -216,6 +220,7 @@ function loadConfig(): AppConfig {
       pass: emailPass,
       from: emailFrom,
       contactEmail: contactEmail,
+      resendApiKey: resendApiKey,
       isConfigured: isEmailConfigured,
     },
     auth: {
