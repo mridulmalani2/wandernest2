@@ -106,6 +106,7 @@ async function sendEmail(
     to: string
     subject: string
     html: string
+    text?: string
     replyTo?: string
   },
   context: string
@@ -118,6 +119,7 @@ async function sendEmail(
         to: options.to,
         subject: options.subject,
         html: options.html,
+        text: options.text || '', // Resend might require text? Or it's optional. Better to provide empty string if missing? No, let's check docs. It's optional.
         replyTo: options.replyTo || config.email.contactEmail,
       })
 
@@ -151,6 +153,7 @@ async function sendEmail(
         to: options.to,
         subject: options.subject,
         html: options.html,
+        text: options.text,
         replyTo: options.replyTo || config.email.contactEmail,
       })
 
@@ -192,12 +195,14 @@ async function sendEmail(
 
 export async function sendStudentOtpEmail(toEmail: string, otp: string) {
   const html = getOtpEmailHtml(otp)
+  const text = `Your TourWiseCo verification code is: ${otp}\n\nThis code expires in 10 minutes. If you didn't request this code, you can safely ignore this email.`
 
   return await sendEmail(
     {
       to: toEmail,
       subject: 'Your TourWiseCo sign-in code',
       html,
+      text,
     },
     'Student OTP Email'
   )
@@ -312,12 +317,14 @@ export async function sendVerificationEmail(
   code: string
 ) {
   const html = getOtpEmailHtml(code, 'Sign in as Student Guide', 'Enter this code to securely sign in to your account.')
+  const text = `Sign in as Student Guide\n\nEnter this code to securely sign in to your account:\n\n${code}\n\nThis code expires in 10 minutes. If you didn't request this code, you can safely ignore this email.`
 
   return await sendEmail(
     {
       to: email,
       subject: 'Verification Code',
       html,
+      text,
     },
     'Verification Email'
   )

@@ -487,8 +487,7 @@ export function OnboardingWizard({ session }: OnboardingWizardProps) {
 
       {/* Content */}
       <div className="relative z-10 flex flex-col min-h-screen">
-        {/* Header */}
-        <Navigation variant="student" />
+        {/* Header - Navigation is handled by layout */}
 
         {/* Main Content */}
         <main className="flex-1 px-4 pt-28 pb-16">
