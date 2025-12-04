@@ -52,7 +52,7 @@ export default function MainLanding() {
         <Navigation variant="default" />
 
         {/* Hero Section - Asymmetric Layout */}
-        <main className="flex-1 container mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-10 md:pt-28 md:pb-14 lg:pt-32 lg:pb-18">
+        <main className="flex-1 container mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-8 md:pt-24 md:pb-12 lg:pt-28 lg:pb-16">
           <div className="max-w-6xl mx-auto">
             <div className="grid lg:grid-cols-2 gap-7 lg:gap-14 items-center min-h-[calc(100vh-14rem)]">
 
@@ -60,7 +60,7 @@ export default function MainLanding() {
               <div className="space-y-7 lg:space-y-9 animate-slide-in-left">
                 {/* Headline - Left-aligned Serif */}
                 <div className="space-y-3">
-                  <h1 className="hero-text-enter text-[2.7rem] sm:text-[3.375rem] lg:text-[4rem] xl:text-[5.4rem] font-serif font-bold leading-[1.05] tracking-tight text-white text-shadow-lg">
+                  <h1 className="hero-text-enter text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-serif font-bold leading-[1.05] tracking-tight text-white text-shadow-lg">
                     Experience Authentic Travel
                     <span className="block mt-2 lg:mt-3">
                       with Local Student Guides
@@ -68,7 +68,7 @@ export default function MainLanding() {
                   </h1>
 
                   {/* Subheadline - Modern Sans-serif */}
-                  <p className="hero-subtext-enter text-base sm:text-lg lg:text-xl text-stone-100 leading-relaxed font-light max-w-xl">
+                  <p className="hero-subtext-enter text-sm sm:text-base lg:text-lg text-stone-100 leading-relaxed font-light max-w-xl">
                     Connect with verified university students in Paris and London who will show you their city
                     through a local&apos;s eyes. Get personalized recommendations and authentic
                     experiences.
@@ -98,7 +98,7 @@ export default function MainLanding() {
               </div>
 
               {/* Right Column - Floating Layered Image Collage */}
-              <div className="relative h-[450px] md:h-[540px] lg:h-[630px]">
+              <div className="relative h-[400px] md:h-[480px] lg:h-[560px]">
                 {/* Image 1 - Back layer */}
                 <div className="image-layer-1 absolute top-[10%] left-[5%] w-[65%] h-[45%] rounded-3xl overflow-hidden shadow-2xl">
                   <div className="relative w-full h-full">
