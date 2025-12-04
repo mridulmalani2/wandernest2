@@ -5,21 +5,13 @@ import Image from 'next/image'
 import Footer from '@/components/Footer'
 import ModernFAQ from '@/components/student/ModernFAQ'
 import { DollarSign, Clock, Users } from 'lucide-react'
-import { motion, useScroll, useTransform } from 'framer-motion'
-import { useRef } from 'react'
+import { motion } from 'framer-motion'
 import { PrimaryCTAButton } from '@/components/ui/PrimaryCTAButton'
 
 export default function StudentLandingPage() {
-  const heroRef = useRef<HTMLDivElement>(null)
-  const { scrollYProgress } = useScroll({
-    target: heroRef,
-    offset: ['start start', 'end start']
-  })
-  const y = useTransform(scrollYProgress, [0, 1], [0, 150])
-
   return (
-    <div ref={heroRef} className="min-h-screen flex flex-col relative overflow-hidden">
-      <motion.div className="absolute inset-0" style={{ y }}>
+    <div className="min-h-screen flex flex-col relative overflow-hidden">
+      <div className="absolute inset-0">
         <Image
           src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=1920&q=80"
           alt="Students collaborating on campus"
@@ -31,7 +23,7 @@ export default function StudentLandingPage() {
         />
         <div className="absolute inset-0 bg-black/50 backdrop-blur-[2px]" />
         <div className="absolute inset-0 bg-gradient-to-br from-ui-purple-primary/20 via-ui-blue-primary/15 to-black/40" />
-      </motion.div>
+      </div>
       <div className="absolute inset-0 pattern-dots opacity-15" />
 
       <div className="relative z-10 flex flex-col min-h-screen">

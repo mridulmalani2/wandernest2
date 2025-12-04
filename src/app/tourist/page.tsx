@@ -5,21 +5,13 @@ import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { GraduationCap, MessageCircle, Star, AlertTriangle, Send, Users, PartyPopper, MapPin, Calendar, TrendingUp } from 'lucide-react'
 import Footer from '@/components/Footer'
-import { motion, useScroll, useTransform } from 'framer-motion'
-import { useRef } from 'react'
+import { motion } from 'framer-motion'
 import { PrimaryCTAButton } from '@/components/ui/PrimaryCTAButton'
 
 export default function TouristLanding() {
-  const heroRef = useRef<HTMLDivElement>(null)
-  const { scrollYProgress } = useScroll({
-    target: heroRef,
-    offset: ['start start', 'end start']
-  })
-  const y = useTransform(scrollYProgress, [0, 1], [0, 150])
-
   return (
-    <div ref={heroRef} className="min-h-screen flex flex-col relative overflow-hidden">
-      <motion.div className="absolute inset-0" style={{ y }}>
+    <div className="min-h-screen flex flex-col relative overflow-hidden">
+      <div className="absolute inset-0">
         <Image
           src="https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=1920&q=80"
           alt="Beautiful London Thames River with iconic architecture"
@@ -31,7 +23,7 @@ export default function TouristLanding() {
         />
         <div className="absolute inset-0 bg-black/30 backdrop-blur-[4px]" />
         <div className="absolute inset-0 bg-gradient-to-br from-ui-blue-primary/20 via-ui-blue-accent/15 to-ui-purple-primary/20" />
-      </motion.div>
+      </div>
       <div className="absolute inset-0 pattern-dots opacity-15" />
 
       <div className="relative z-10 flex flex-col min-h-screen">

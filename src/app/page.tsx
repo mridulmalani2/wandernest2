@@ -10,7 +10,6 @@ import StudentCTA from '@/components/cta/StudentCTA'
 import { getWebsiteStructuredData, getOrganizationStructuredData } from '@/lib/structuredData'
 import { PrimaryCTAButton } from '@/components/ui/PrimaryCTAButton'
 import dynamic from 'next/dynamic'
-import { useEffect, useState } from 'react'
 
 // Lazy load WhyChooseCarousel - only when component is in view
 const WhyChooseCarousel = dynamic(() => import('@/components/WhyChooseCarousel'), {
@@ -21,21 +20,6 @@ const WhyChooseCarousel = dynamic(() => import('@/components/WhyChooseCarousel')
 export default function MainLanding() {
   const structuredData = getWebsiteStructuredData()
   const organizationData = getOrganizationStructuredData()
-  const [scrollY, setScrollY] = useState(0)
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrollY(window.scrollY)
-    }
-
-    window.addEventListener('scroll', handleScroll, { passive: true })
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
-
-  // Simple parallax effect using inline style
-  const parallaxStyle = {
-    transform: `translateY(${Math.min(scrollY * 0.5, 150)}px)`
-  }
 
   return (
     <div className="min-h-screen flex flex-col relative overflow-hidden">
@@ -49,7 +33,7 @@ export default function MainLanding() {
       />
 
       {/* Parallax Background */}
-      <div className="absolute inset-0" style={parallaxStyle}>
+      <div className="absolute inset-0">
         <Image
           src="https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=1920&q=80"
           alt="Beautiful Paris cityscape with Eiffel Tower"
