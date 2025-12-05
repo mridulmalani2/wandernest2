@@ -8,9 +8,16 @@ import { requireDatabase } from '@/lib/prisma'
  * POST /api/matches/select
  * Save tourist's guide selections
  */
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth-options'
+
 export async function POST(request: NextRequest) {
-  const prisma = requireDatabase()
   try {
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
     const db = requireDatabase()
 
     const body = await request.json()
@@ -27,6 +34,11 @@ export async function POST(request: NextRequest) {
     const touristRequest = await db.touristRequest.findUnique({
       where: { id: requestId }
     })
+
+    // Verify ownership
+    if (touristRequest && (touristRequest.email !== session.user.email)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
 
     if (!touristRequest) {
       return NextResponse.json(
@@ -65,7 +77,7 @@ export async function POST(request: NextRequest) {
       message: 'Guides selected successfully'
     })
   } catch (error) {
-    console.error('Error saving selections:', error)
+    console.error('Error saving selections:', error instanceof Error ? error.message : 'Unknown error')
     return NextResponse.json(
       { error: 'Failed to save guide selections' },
       { status: 500 }

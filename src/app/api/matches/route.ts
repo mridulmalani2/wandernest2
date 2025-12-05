@@ -13,8 +13,16 @@ import { CACHE_TTL } from '@/lib/constants'
  * POST /api/matches
  * Find matching guides for a tourist request
  */
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth-options'
+
 export async function POST(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
     const db = requireDatabase()
 
     const body = await request.json()
@@ -32,6 +40,10 @@ export async function POST(request: NextRequest) {
     const touristRequest = await db.touristRequest.findUnique({
       where: { id: requestId }
     })
+
+    if (touristRequest && (touristRequest.email !== session.user.email)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
 
     if (!touristRequest) {
       return NextResponse.json(
@@ -65,11 +77,11 @@ export async function POST(request: NextRequest) {
       count: anonymizedMatches.length
     }, {
       headers: {
-        'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600',
+        'Cache-Control': 'private, max-age=300, stale-while-revalidate=600',
       },
     })
   } catch (error) {
-    console.error('Error finding matches:', error)
+    console.error('Error finding matches:', error instanceof Error ? error.message : 'Unknown error')
     return NextResponse.json(
       { error: 'Failed to find matches' },
       { status: 500 }

@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
       data: review,
     }, { status: 201 })
   } catch (error: unknown) {
-    console.error('Error creating review:', error)
+    console.error('Error creating review:', error instanceof Error ? error.message : 'Unknown error')
     return NextResponse.json({
       success: false,
       error: error instanceof Error ? error.message : "An error occurred",

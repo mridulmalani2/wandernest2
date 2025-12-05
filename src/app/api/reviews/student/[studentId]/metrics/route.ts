@@ -34,10 +34,10 @@ export async function GET(
       },
     })
   } catch (error: unknown) {
-    console.error('Error fetching metrics:', error)
+    console.error('Error fetching metrics:', error instanceof Error ? error.message : 'Unknown error')
     return NextResponse.json({
       success: false,
-      error: error instanceof Error ? error.message : "An error occurred",
+      error: 'Failed to fetch metrics',
     }, { status: 500 })
   }
 }
