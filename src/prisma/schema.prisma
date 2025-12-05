@@ -121,12 +121,12 @@ model Student {
   reports           Report[]
 
   createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  updatedAt         DateTime @updatedAt @default(now())
 
   @@index([city])
   @@index([nationality])
   @@index([status])
-  @@index([email])
+  // email index removed as it is unique
   @@index([city, status])
   @@index([status, averageRating])
   @@index([email, status])
@@ -168,10 +168,9 @@ model Tourist {
   requests          TouristRequest[]
 
   createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  updatedAt         DateTime @updatedAt @default(now())
 
-  @@index([email])
-  @@index([googleId])
+  // email and googleId indices removed as they are unique
 }
 
 model TouristRequest {
@@ -290,9 +289,9 @@ model Admin {
   isActive          Boolean  @default(true)
 
   createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  updatedAt         DateTime @updatedAt @default(now())
 
-  @@index([email])
+  // email index removed as it is unique
   @@index([role])
 }
 
@@ -319,7 +318,7 @@ model TouristSession {
   createdAt         DateTime @default(now())
 
   @@index([email])
-  @@index([token])
+  // token index removed as it is unique
 }
 
 model StudentSession {
@@ -333,7 +332,7 @@ model StudentSession {
   createdAt         DateTime @default(now())
 
   @@index([email])
-  @@index([token])
+  // token index removed as it is unique
   @@index([studentId])
 }
 
@@ -382,11 +381,12 @@ model User {
   accounts      Account[]
   sessions      Session[]
 
-  @@index([email])
+  // email index removed as it is unique
   @@index([touristId])
 }
 
 model VerificationToken {
+  id         String   @id @default(cuid())
   identifier String
   token      String   @unique
   expires    DateTime
