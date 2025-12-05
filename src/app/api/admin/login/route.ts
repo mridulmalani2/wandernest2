@@ -8,35 +8,39 @@ import { withErrorHandler, withDatabaseRetry, AppError } from '@/lib/error-handl
 
 const FALLBACK_ADMIN = {
   id: 'env-admin',
-  email: process.env.ADMIN_EMAIL || 'mridulmalani',
-  password: process.env.ADMIN_PASSWORD || 'travelbuddy16',
-  name: process.env.ADMIN_NAME || 'Mridul Malani',
+  email: process.env.ADMIN_EMAIL,
+  password: process.env.ADMIN_PASSWORD,
+  name: process.env.ADMIN_NAME || 'Admin',
   role: 'SUPER_ADMIN' as const,
 }
 
 async function ensureDefaultAdminSeeded() {
+  if (!FALLBACK_ADMIN.email || !FALLBACK_ADMIN.password) {
+    console.warn('Skipping default admin seeding: ADMIN_EMAIL or ADMIN_PASSWORD not set')
+    return
+  }
+
   const db = requireDatabase()
 
-  const passwordHash = await hashPassword(FALLBACK_ADMIN.password)
-
-  return withDatabaseRetry(() =>
-    db.admin.upsert({
+  return withDatabaseRetry(async () => {
+    const existingAdmin = await db.admin.findUnique({
       where: { email: FALLBACK_ADMIN.email },
-      update: {
-        passwordHash,
-        name: FALLBACK_ADMIN.name,
-        role: 'SUPER_ADMIN',
-        isActive: true,
-      },
-      create: {
-        email: FALLBACK_ADMIN.email,
-        passwordHash,
-        name: FALLBACK_ADMIN.name,
-        role: 'SUPER_ADMIN',
-        isActive: true,
-      },
     })
-  )
+
+    if (!existingAdmin) {
+      const passwordHash = await hashPassword(FALLBACK_ADMIN.password!)
+      await db.admin.create({
+        data: {
+          email: FALLBACK_ADMIN.email!,
+          passwordHash,
+          name: FALLBACK_ADMIN.name,
+          role: 'SUPER_ADMIN',
+          isActive: true,
+        },
+      })
+      console.log('Seeded default admin account')
+    }
+  })
 }
 
 function createAdminResponse(admin: { id: string; email: string; name: string; role: string }) {
@@ -76,6 +80,10 @@ async function adminLogin(request: NextRequest) {
 
   // Allow a fallback path when the database is unreachable so the admin can still sign in
   if (!canUseDatabase) {
+    if (!FALLBACK_ADMIN.email || !FALLBACK_ADMIN.password) {
+      throw new AppError(503, 'Database unavailable and no fallback admin configured', 'SERVICE_UNAVAILABLE')
+    }
+
     const isValidFallback =
       normalizedIdentifier.toLowerCase() === FALLBACK_ADMIN.email.toLowerCase() &&
       (await verifyPassword(password, await hashPassword(FALLBACK_ADMIN.password)))
@@ -84,7 +92,12 @@ async function adminLogin(request: NextRequest) {
       throw new AppError(401, 'Invalid credentials', 'INVALID_CREDENTIALS')
     }
 
-    return createAdminResponse(FALLBACK_ADMIN)
+    return createAdminResponse({
+      id: FALLBACK_ADMIN.id,
+      email: FALLBACK_ADMIN.email!,
+      name: FALLBACK_ADMIN.name,
+      role: FALLBACK_ADMIN.role,
+    })
   }
 
   const db = requireDatabase()

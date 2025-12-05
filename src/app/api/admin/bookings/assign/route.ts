@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
   const authResult = await verifyAdmin(request)
 
   if (!authResult.authorized) {
-    return NextResponse.json({ error: authResult.error || 'Unauthorized' }, { status: 401 })
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   const prisma = requireDatabase()
@@ -90,12 +90,23 @@ export async function POST(request: NextRequest) {
       })
 
       if (!wasAccepted || previousAssignmentId !== studentId) {
+        // Increment for new student
         await tx.student.update({
           where: { id: studentId },
           data: {
             tripsHosted: { increment: 1 },
           },
         })
+
+        // Decrement for previous student if applicable
+        if (wasAccepted && previousAssignmentId && previousAssignmentId !== studentId) {
+          await tx.student.update({
+            where: { id: previousAssignmentId },
+            data: {
+              tripsHosted: { decrement: 1 },
+            },
+          })
+        }
       }
 
       return updatedSelection

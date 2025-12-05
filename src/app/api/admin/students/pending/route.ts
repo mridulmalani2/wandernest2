@@ -13,12 +13,12 @@ export async function GET(request: NextRequest) {
 
   if (!authResult.authorized) {
     return NextResponse.json(
-      { error: authResult.error || 'Unauthorized' },
+      { error: 'Unauthorized' },
       { status: 401 }
     )
   }
 
-  const prisma = requireDatabase()
+
 
   try {
     const db = requireDatabase()

@@ -13,7 +13,7 @@ async function approveStudent(request: NextRequest) {
   const authResult = await verifyAdmin(request)
 
   if (!authResult.authorized) {
-    throw new AppError(401, authResult.error || 'Unauthorized', 'AUTH_FAILED')
+    throw new AppError(401, 'Unauthorized', 'AUTH_FAILED')
   }
 
   const body = await request.json()
@@ -27,30 +27,33 @@ async function approveStudent(request: NextRequest) {
     throw new AppError(400, 'Invalid action. Must be "approve" or "reject"', 'INVALID_ACTION')
   }
 
+  if (typeof studentId !== 'string' || studentId.trim().length === 0) {
+    throw new AppError(400, 'Invalid Student ID', 'INVALID_INPUT')
+  }
+
   const db = requireDatabase()
 
-  // Find student with retry logic
-  const student = await withDatabaseRetry(async () =>
-    db.student.findUnique({
-      where: { id: studentId },
-    })
-  )
-
-  if (!student) {
-    throw new AppError(404, 'Student not found', 'STUDENT_NOT_FOUND')
-  }
-
-  if (student.status !== 'PENDING_APPROVAL') {
-    throw new AppError(400, 'Student is not pending approval', 'INVALID_STATUS')
-  }
-
-  // Update student status with retry logic
+  // Execute atomically to prevent race conditions
   const updatedStudent = await withDatabaseRetry(async () =>
-    db.student.update({
-      where: { id: studentId },
-      data: {
-        status: action === 'approve' ? 'APPROVED' : 'SUSPENDED',
-      },
+    db.$transaction(async (tx) => {
+      const student = await tx.student.findUnique({
+        where: { id: studentId },
+      })
+
+      if (!student) {
+        throw new AppError(404, 'Student not found', 'STUDENT_NOT_FOUND')
+      }
+
+      if (student.status !== 'PENDING_APPROVAL') {
+        throw new AppError(400, 'Student is not pending approval', 'INVALID_STATUS')
+      }
+
+      return tx.student.update({
+        where: { id: studentId },
+        data: {
+          status: action === 'approve' ? 'APPROVED' : 'SUSPENDED',
+        },
+      })
     })
   )
 
