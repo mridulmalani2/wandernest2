@@ -1,7 +1,7 @@
 // Visual: Using design system border radii, shadows, and typography for consistency
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import Image from 'next/image'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 
@@ -83,12 +83,33 @@ export default function WhyChooseCarousel() {
   const [touchStart, setTouchStart] = useState(0)
   const [touchEnd, setTouchEnd] = useState(0)
 
+  // Use a ref to store the timeout ID so we can clear it on unmount
+  const transitionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Setup cleanup for the timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (transitionTimeoutRef.current) {
+        clearTimeout(transitionTimeoutRef.current);
+      }
+    };
+  }, []);
+
   const goToSlide = useCallback((index: number) => {
-    if (isTransitioning) return
-    setIsTransitioning(true)
-    setCurrentIndex(index)
-    setTimeout(() => setIsTransitioning(false), 600)
-  }, [isTransitioning])
+    if (isTransitioning) return;
+
+    setIsTransitioning(true);
+    setCurrentIndex(index);
+
+    if (transitionTimeoutRef.current) {
+      clearTimeout(transitionTimeoutRef.current);
+    }
+
+    transitionTimeoutRef.current = setTimeout(() => {
+      setIsTransitioning(false);
+      transitionTimeoutRef.current = null;
+    }, 600);
+  }, [isTransitioning]);
 
   const nextSlide = useCallback(() => {
     const newIndex = (currentIndex + 1) % features.length
@@ -101,15 +122,19 @@ export default function WhyChooseCarousel() {
   }, [currentIndex, goToSlide])
 
   // Handle touch events for mobile swipe
-  const handleTouchStart = (e: React.TouchEvent) => {
-    setTouchStart(e.targetTouches[0].clientX)
-  }
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    if (e.targetTouches && e.targetTouches.length > 0) {
+      setTouchStart(e.targetTouches[0].clientX)
+    }
+  }, [])
 
-  const handleTouchMove = (e: React.TouchEvent) => {
-    setTouchEnd(e.targetTouches[0].clientX)
-  }
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    if (e.targetTouches && e.targetTouches.length > 0) {
+      setTouchEnd(e.targetTouches[0].clientX)
+    }
+  }, [])
 
-  const handleTouchEnd = () => {
+  const handleTouchEnd = useCallback(() => {
     if (!touchStart || !touchEnd) return
 
     const distance = touchStart - touchEnd
@@ -125,7 +150,7 @@ export default function WhyChooseCarousel() {
 
     setTouchStart(0)
     setTouchEnd(0)
-  }
+  }, [touchStart, touchEnd, nextSlide, prevSlide])
 
   // Keyboard navigation
   useEffect(() => {
@@ -173,8 +198,8 @@ export default function WhyChooseCarousel() {
                   }`}
               >
                 <Image
-                  src={currentFeature.image}
-                  alt={currentFeature.imageAlt}
+                  src={feature.image}
+                  alt={feature.imageAlt}
                   fill
                   loading={index === 0 ? 'eager' : 'lazy'}
                   quality={85}
@@ -263,8 +288,8 @@ export default function WhyChooseCarousel() {
               >
                 <div
                   className={`h-2.5 md:h-3 rounded-full transition-all duration-300 ${index === currentIndex
-                      ? `${dotColors.dotActive} shadow-md`
-                      : 'bg-white/70 hover:bg-white/90 hover:scale-110'
+                    ? `${dotColors.dotActive} shadow-md`
+                    : 'bg-white/70 hover:bg-white/90 hover:scale-110'
                     }`}
                 />
               </button>
