@@ -99,7 +99,7 @@ async function sendTransactionalEmail(
   // 1. Try Resend first
   if (resend) {
     try {
-      const data = await resend.emails.send({
+      const { data, error } = await resend.emails.send({
         from: config.email.from,
         to: options.to,
         subject: options.subject,
@@ -107,12 +107,13 @@ async function sendTransactionalEmail(
         replyTo: options.replyTo || config.email.contactEmail,
       })
 
-      if (data.error) {
-        throw new Error(data.error.message)
+      if (error) {
+        throw new Error(error.message)
       }
 
       if (config.app.isDevelopment) {
         console.log(`✅ Transactional email sent via Resend: ${context}`)
+        console.log('   Message ID:', data?.id)
       }
 
       return { success: true }

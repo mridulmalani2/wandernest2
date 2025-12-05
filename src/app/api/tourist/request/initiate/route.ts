@@ -62,7 +62,19 @@ export async function POST(req: NextRequest) {
     )
 
     // Send verification email
-    await sendVerificationEmail(validatedData.email, verificationCode)
+    // Send verification email
+    const emailResult = await sendVerificationEmail(validatedData.email, verificationCode)
+
+    if (!emailResult.success) {
+      console.error('Failed to send verification email:', emailResult.error)
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Failed to send verification email. Please try again.',
+        },
+        { status: 500 }
+      )
+    }
 
     // Return success with email (no requestId yet - will be created after verification)
     return NextResponse.json(

@@ -121,21 +121,22 @@ async function sendEmail(
   // 1. Try Resend first
   if (resend) {
     try {
-      const data = await resend.emails.send({
+      const { data, error } = await resend.emails.send({
         from: config.email.from,
         to: options.to,
         subject: options.subject,
         html: options.html,
-        text: options.text || '', // Resend might require text? Or it's optional. Better to provide empty string if missing? No, let's check docs. It's optional.
+        text: options.text || undefined,
         replyTo: options.replyTo || config.email.contactEmail,
       })
 
-      if (data.error) {
-        throw new Error(data.error.message)
+      if (error) {
+        throw new Error(error.message)
       }
 
       if (config.app.isDevelopment) {
         console.log(`✅ Email sent via Resend: ${context} to ${options.to}`)
+        console.log('   Message ID:', data?.id)
       }
 
       return { success: true }
