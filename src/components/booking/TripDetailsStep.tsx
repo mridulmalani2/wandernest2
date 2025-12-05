@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { LiquidInput } from '@/components/ui/LiquidInput'
 import { LiquidSelect } from '@/components/ui/LiquidSelect'
 import { FlowCard } from '@/components/ui/FlowCard'
-import { BookingFormData } from './BookingForm'
+import type { BookingFormData } from './BookingForm'
 import { MapPin, Calendar, Users, Briefcase, Sun, Moon, User, CheckCircle2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -18,10 +18,18 @@ export function TripDetailsStep({ data, errors, updateData }: Props) {
   const [cities, setCities] = useState<{ value: string; label: string }[]>([])
 
   useEffect(() => {
-    fetch('/api/cities')
+    const controller = new AbortController()
+
+    fetch('/api/cities', { signal: controller.signal })
       .then((res) => res.json())
       .then((data) => setCities(data.cities))
-      .catch((err) => console.error('Error fetching cities:', err))
+      .catch((err) => {
+        if (err.name !== 'AbortError') {
+          console.error('Error fetching cities:', err)
+        }
+      })
+
+    return () => controller.abort()
   }, [])
 
   const today = new Date().toISOString().split('T')[0]

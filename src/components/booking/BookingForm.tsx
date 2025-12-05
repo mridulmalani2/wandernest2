@@ -73,54 +73,60 @@ export function BookingForm() {
   const [errors, setErrors] = useState<Record<string, string>>({})
 
   // Pre-fill email from session
+  // Pre-fill email from session
   useEffect(() => {
-    if (session?.user?.email) {
+    if (session?.user?.email && !formData.email) {
       setFormData((prev) => ({ ...prev, email: session.user.email! }))
     }
-  }, [session])
+  }, [session, formData.email])
 
   const updateFormData = (data: Partial<BookingFormData>) => {
     setFormData((prev) => ({ ...prev, ...data }))
   }
 
-  const validateStep = (step: number): boolean => {
+  const getStepErrors = (step: number, data: BookingFormData): Record<string, string> => {
     const newErrors: Record<string, string> = {}
 
     if (step === 1) {
-      if (!formData.city) newErrors.city = 'City is required'
-      if (!formData.dates.start) newErrors.dates = 'Start date is required'
-      if (!formData.preferredTime) newErrors.preferredTime = 'Time preference is required'
-      if (formData.numberOfGuests < 1 || formData.numberOfGuests > 10) {
+      if (!data.city) newErrors.city = 'City is required'
+      if (!data.dates.start) newErrors.dates = 'Start date is required'
+      if (!data.preferredTime) newErrors.preferredTime = 'Time preference is required'
+      if (data.numberOfGuests < 1 || data.numberOfGuests > 10) {
         newErrors.numberOfGuests = 'Guest count must be between 1 and 10'
       }
-      if (!formData.groupType) newErrors.groupType = 'Group type is required'
+      if (!data.groupType) newErrors.groupType = 'Group type is required'
     }
 
     if (step === 2) {
-      if (formData.preferredLanguages.length === 0) {
+      if (data.preferredLanguages.length === 0) {
         newErrors.preferredLanguages = 'At least one language is required'
       }
-      if (!formData.serviceType) newErrors.serviceType = 'Service type is required'
-      if (formData.interests.length === 0) {
+      if (!data.serviceType) newErrors.serviceType = 'Service type is required'
+      if (data.interests.length === 0) {
         newErrors.interests = 'At least one interest is required'
       }
     }
 
     if (step === 3) {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-      if (!formData.email) {
+      if (!data.email) {
         newErrors.email = 'Email is required'
-      } else if (!emailRegex.test(formData.email)) {
+      } else if (!emailRegex.test(data.email)) {
         newErrors.email = 'Invalid email address'
       }
-      if (!formData.contactMethod) {
+      if (!data.contactMethod) {
         newErrors.contactMethod = 'Contact method is required'
       }
-      if (!formData.termsAccepted) {
+      if (!data.termsAccepted) {
         newErrors.termsAccepted = 'You must accept the terms and conditions'
       }
     }
 
+    return newErrors
+  }
+
+  const validateStep = (step: number): boolean => {
+    const newErrors = getStepErrors(step, formData)
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
@@ -153,21 +159,20 @@ export function BookingForm() {
   }
 
   const handleSubmit = async () => {
-    let allValid = true
     const allErrors: Record<string, string> = {}
 
     for (let step = 1; step <= 3; step++) {
-      const stepValid = validateStep(step)
-      if (!stepValid) {
-        allValid = false
-        Object.assign(allErrors, errors)
-      }
+      const stepErrors = getStepErrors(step, formData)
+      Object.assign(allErrors, stepErrors)
     }
 
-    if (!allValid) {
+    if (Object.keys(allErrors).length > 0) {
       setErrors({
+        ...allErrors,
         submit: 'Please complete all required fields in all sections before submitting.',
       })
+      // If there are errors, ensure we navigate to the first step with errors or stay on current if appropriate.
+      // For now, simpler to just show the errors.
       return
     }
 
