@@ -7,13 +7,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth-options';
-import {
-  getValidStudentSession,
-  readStudentTokenFromRequest,
-  getStudentFromSession,
-} from '@/lib/student-auth';
+import { withStudent } from '@/lib/api-wrappers';
 
 export const dynamic = 'force-dynamic';
 
@@ -34,101 +28,70 @@ const DAYS_OF_WEEK = [
  *
  * @returns Student profile data or 401/404 error
  */
-export async function GET(request: NextRequest) {
-  try {
-    let studentEmail: string | null = null;
-    let studentId: string | null = null;
+export const GET = withStudent(async (request, studentAuth) => {
+  const { email: studentEmail, id: studentId } = studentAuth;
 
-    // 1. Try Custom OTP Session
-    const token = readStudentTokenFromRequest(request);
-    const otpSession = await getValidStudentSession(token);
-
-    if (otpSession) {
-      studentEmail = otpSession.email;
-      studentId = otpSession.studentId;
-    } else {
-      // 2. Try NextAuth Session
-      const nextAuthSession = await getServerSession(authOptions);
-      if (nextAuthSession?.user?.userType === 'student' && nextAuthSession.user.email) {
-        studentEmail = nextAuthSession.user.email;
-      }
-    }
-
-    if (!studentEmail) {
-      return NextResponse.json(
-        { error: 'Unauthorized - Please sign in' },
-        { status: 401 }
-      );
-    }
-
-    // Fetch student profile
-    const profile = await prisma.student.findUnique({
-      where: studentId ? { id: studentId } : { email: studentEmail },
-      select: {
-        id: true,
-        email: true,
-        name: true,
-        dateOfBirth: true,
-        gender: true,
-        nationality: true,
-        phoneNumber: true,
-        city: true,
-        campus: true,
-        institute: true,
-        programDegree: true,
-        yearOfStudy: true,
-        expectedGraduation: true,
-        profilePhotoUrl: true,
-        bio: true,
-        skills: true,
-        preferredGuideStyle: true,
-        coverLetter: true,
-        interests: true,
-        servicesOffered: true,
-        hourlyRate: true,
-        onlineServicesAvailable: true,
-        timezone: true,
-        preferredDurations: true,
-        availability: {
-          select: {
-            id: true,
-            dayOfWeek: true,
-            startTime: true,
-            endTime: true,
-            note: true,
-          },
+  // Fetch student profile
+  const profile = await prisma.student.findUnique({
+    where: studentId ? { id: studentId } : { email: studentEmail },
+    select: {
+      id: true,
+      email: true,
+      name: true,
+      dateOfBirth: true,
+      gender: true,
+      nationality: true,
+      phoneNumber: true,
+      city: true,
+      campus: true,
+      institute: true,
+      programDegree: true,
+      yearOfStudy: true,
+      expectedGraduation: true,
+      profilePhotoUrl: true,
+      bio: true,
+      skills: true,
+      preferredGuideStyle: true,
+      coverLetter: true,
+      interests: true,
+      servicesOffered: true,
+      hourlyRate: true,
+      onlineServicesAvailable: true,
+      timezone: true,
+      preferredDurations: true,
+      availability: {
+        select: {
+          id: true,
+          dayOfWeek: true,
+          startTime: true,
+          endTime: true,
+          note: true,
         },
-        unavailabilityExceptions: true,
-        emergencyContactName: true,
-        emergencyContactPhone: true,
-        status: true,
-        profileCompleteness: true,
-        tripsHosted: true,
-        averageRating: true,
-        createdAt: true,
-        updatedAt: true,
       },
-    });
+      unavailabilityExceptions: true,
+      emergencyContactName: true,
+      emergencyContactPhone: true,
+      status: true,
+      profileCompleteness: true,
+      tripsHosted: true,
+      averageRating: true,
+      createdAt: true,
+      updatedAt: true,
+    },
+  });
 
-    if (!profile) {
-      return NextResponse.json(
-        { error: 'Student profile not found' },
-        { status: 404 }
-      );
-    }
-
-    return NextResponse.json({
-      success: true,
-      student: profile,
-    });
-  } catch (error) {
-    console.error('Error fetching student profile:', error);
+  if (!profile) {
     return NextResponse.json(
-      { error: 'Failed to fetch profile' },
-      { status: 500 }
+      { error: 'Student profile not found' },
+      { status: 404 }
     );
   }
-}
+
+  return NextResponse.json({
+    success: true,
+    student: profile,
+  });
+});
 
 /**
  * PUT /api/student/profile
@@ -138,31 +101,10 @@ export async function GET(request: NextRequest) {
  * @body Partial student profile fields to update
  * @returns Updated student profile or error
  */
-export async function PUT(request: NextRequest) {
+export const PUT = withStudent(async (request, studentAuth) => {
+  const { email: studentEmail } = studentAuth;
+
   try {
-    let studentEmail: string | null = null;
-
-    // 1. Try Custom OTP Session
-    const token = readStudentTokenFromRequest(request);
-    const otpSession = await getValidStudentSession(token);
-
-    if (otpSession) {
-      studentEmail = otpSession.email;
-    } else {
-      // 2. Try NextAuth Session
-      const nextAuthSession = await getServerSession(authOptions);
-      if (nextAuthSession?.user?.userType === 'student' && nextAuthSession.user.email) {
-        studentEmail = nextAuthSession.user.email;
-      }
-    }
-
-    if (!studentEmail) {
-      return NextResponse.json(
-        { error: 'Unauthorized - Please sign in' },
-        { status: 401 }
-      );
-    }
-
     // Parse request body
     const body = await request.json();
 
@@ -315,9 +257,6 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    return NextResponse.json(
-      { error: 'Failed to update profile' },
-      { status: 500 }
-    );
+    throw error; // Let the wrapper handle other errors
   }
-}
+});

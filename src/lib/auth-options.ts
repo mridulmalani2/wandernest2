@@ -145,6 +145,11 @@ if (config.email.isConfigured) {
 }
 
 // Email HTML template
+/**
+ * Generates the HTML email template for magic link sign-in.
+ * @param params - Object containing url, host, and email
+ * @returns HTML string for the email
+ */
 function html({ url, host, email }: { url: string; host: string; email: string }) {
   const escapedEmail = email.replace(/</g, '&lt;').replace(/>/g, '&gt;')
   const escapedHost = host.replace(/</g, '&lt;').replace(/>/g, '&gt;')

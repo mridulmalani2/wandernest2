@@ -9,6 +9,12 @@ const globalForRedis = globalThis as unknown as {
 
 // Get or create Redis client singleton
 // Connection is lazy (deferred until first use) for better serverless performance
+/**
+ * Get or create the Redis client singleton
+ * Uses a global variable to maintain the connection across hot reloads in development
+ * and serverless function invocations where possible.
+ * @returns Redis | null - The Redis client instance or null if REDIS_URL is not set
+ */
 function getRedisClient(): Redis | null {
   // Skip Redis if no URL is configured
   if (!process.env.REDIS_URL) {
@@ -81,6 +87,8 @@ export const redis = getRedisClient()
 /**
  * Ensure Redis connection is established
  * Handles lazy connection gracefully with timeout
+ * @param client - The Redis client instance
+ * @returns Promise<boolean> - True if connected, false otherwise
  */
 async function ensureRedisConnection(client: Redis): Promise<boolean> {
   try {
@@ -157,6 +165,13 @@ async function withRedis<T>(
  * using the TouristSession model which already supports verification codes
  */
 
+/**
+ * Store verification code with automatic Redis/Database fallback
+ * @param email - The email address to associate with the code
+ * @param code - The verification code to store
+ * @param data - Additional data to store with the code
+ * @returns Promise<void>
+ */
 export async function storeVerificationCode(email: string, code: string, data: any): Promise<void> {
   await withRedis(
     // Redis operation
@@ -192,6 +207,11 @@ export async function storeVerificationCode(email: string, code: string, data: a
   )
 }
 
+/**
+ * Retrieve verification data for an email
+ * @param email - The email address to retrieve data for
+ * @returns Promise<any | null> - The stored data or null if not found/expired
+ */
 export async function getVerificationData(email: string): Promise<any | null> {
   return await withRedis(
     // Redis operation
@@ -225,6 +245,11 @@ export async function getVerificationData(email: string): Promise<any | null> {
   )
 }
 
+/**
+ * Delete verification code for an email
+ * @param email - The email address to delete code for
+ * @returns Promise<void>
+ */
 export async function deleteVerificationCode(email: string): Promise<void> {
   await withRedis(
     // Redis operation
@@ -243,6 +268,11 @@ export async function deleteVerificationCode(email: string): Promise<void> {
   )
 }
 
+/**
+ * Increment the attempt counter for a verification code
+ * @param email - The email address to increment attempts for
+ * @returns Promise<number> - The new attempt count
+ */
 export async function incrementVerificationAttempts(email: string): Promise<number> {
   return await withRedis(
     // Redis operation

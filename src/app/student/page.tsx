@@ -1,11 +1,9 @@
-'use client'
-
 import Link from 'next/link'
 import Image from 'next/image'
 import Footer from '@/components/Footer'
-import ModernFAQ from '@/components/student/ModernFAQ'
+import FAQAccordion from '@/components/shared/FAQAccordion'
+import { studentFAQs } from '@/lib/faq/data'
 import { DollarSign, Clock, Users } from 'lucide-react'
-import { motion } from 'framer-motion'
 import { PrimaryCTAButton } from '@/components/ui/PrimaryCTAButton'
 
 export default function StudentLandingPage() {
@@ -214,7 +212,7 @@ export default function StudentLandingPage() {
             </div>
 
             {/* FAQ Section */}
-            <ModernFAQ />
+            <FAQAccordion faqs={studentFAQs} className="py-20 animate-fade-in-up delay-700" />
 
             {/* Student Guide Commitment - Enhanced Glass */}
             <div className="mt-16 max-w-3xl mx-auto animate-fade-in-up delay-800">

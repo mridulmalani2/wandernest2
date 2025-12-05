@@ -17,6 +17,13 @@ const WhyChooseCarousel = dynamic(() => import('@/components/WhyChooseCarousel')
   ssr: false
 })
 
+/**
+ * Main Landing Page Component
+ * 
+ * Displays the hero section with asymmetric layout, parallax background,
+ * and entry points for both Tourists and Students.
+ * Includes SEO structured data and lazy-loaded components for performance.
+ */
 export default function MainLanding() {
   const structuredData = getWebsiteStructuredData()
   const organizationData = getOrganizationStructuredData()

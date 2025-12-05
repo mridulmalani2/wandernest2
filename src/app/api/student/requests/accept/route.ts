@@ -2,7 +2,7 @@
 export const dynamic = 'force-dynamic'
 
 import { NextRequest, NextResponse } from 'next/server'
-import { cookies } from 'next/headers'
+import { verifyStudent } from '@/lib/api-auth'
 import { acceptRequest } from '../accept-request'
 import { requireDatabase } from '@/lib/prisma'
 
@@ -10,28 +10,14 @@ export async function POST(req: NextRequest) {
   try {
     const db = requireDatabase()
 
-    // 1. Validate Session
-    const token = cookies().get('student_session_token')?.value
-
-    if (!token) {
+    const authResult = await verifyStudent(req)
+    if (!authResult.authorized || !authResult.student) {
       return NextResponse.json(
-        { error: 'Unauthorized: No session token' },
+        { error: authResult.error || 'Unauthorized' },
         { status: 401 }
       )
     }
-
-    const session = await db.studentSession.findUnique({
-      where: { token },
-    })
-
-    if (!session || session.expiresAt < new Date()) {
-      return NextResponse.json(
-        { error: 'Unauthorized: Invalid or expired session' },
-        { status: 401 }
-      )
-    }
-
-    const studentEmail = session.email
+    const { email: studentEmail } = authResult.student
 
     const body = await req.json()
     const { requestId } = body

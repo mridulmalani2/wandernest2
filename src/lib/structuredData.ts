@@ -9,6 +9,11 @@ const getBaseUrl = () => {
     : (process.env.NEXT_PUBLIC_BASE_URL || 'https://tourwiseco.vercel.app');
 };
 
+/**
+ * Generates JSON-LD structured data for the website.
+ * Used for SEO to help search engines understand the site content.
+ * @returns WebSite structured data object
+ */
 export const getWebsiteStructuredData = () => ({
   '@context': 'https://schema.org',
   '@type': 'WebSite',
@@ -22,6 +27,11 @@ export const getWebsiteStructuredData = () => ({
   },
 })
 
+/**
+ * Generates JSON-LD structured data for the organization.
+ * Includes logo, URL, and description.
+ * @returns Organization structured data object
+ */
 export const getOrganizationStructuredData = () => ({
   '@context': 'https://schema.org',
   '@type': 'Organization',

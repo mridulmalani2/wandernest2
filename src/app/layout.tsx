@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import './critical.css'
+import './globals.css'
 import { Providers } from './providers'
 import { PageTransition } from '@/components/transitions/PageTransition'
 import CookieConsent from '@/components/CookieConsent'

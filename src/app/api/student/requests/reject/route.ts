@@ -3,13 +3,23 @@ export const dynamic = 'force-dynamic'
 
 import { NextRequest, NextResponse } from 'next/server'
 import { requireDatabase } from '@/lib/prisma'
+import { verifyStudent } from '@/lib/api-auth'
 
 export async function POST(req: NextRequest) {
   try {
     const db = requireDatabase()
 
+    const authResult = await verifyStudent(req)
+    if (!authResult.authorized || !authResult.student) {
+      return NextResponse.json(
+        { error: authResult.error || 'Unauthorized' },
+        { status: 401 }
+      )
+    }
+    const { email: studentEmail } = authResult.student
+
     const body = await req.json()
-    const { requestId, studentEmail } = body
+    const { requestId } = body
 
     if (!requestId) {
       return NextResponse.json(

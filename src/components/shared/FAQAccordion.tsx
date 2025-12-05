@@ -145,12 +145,13 @@ export default function FAQAccordion({
       </div>
 
       {/* Contact Us Link */}
-      <div className="mt-8 text-center">
-        <p className="text-gray-800 text-base">
+      {/* Contact Us Link */}
+      <div className="mt-12 text-center">
+        <p className="text-white/70 text-base md:text-lg font-light">
           Still have questions?{' '}
           <button
             onClick={openContactModal}
-            className="text-ui-blue-primary underline hover:text-ui-blue-primary/80 transition-colors focus:outline-none focus:ring-2 focus:ring-ui-blue-primary focus:ring-offset-2 rounded"
+            className="text-white underline hover:text-white/90 transition-colors focus:outline-none focus:ring-2 focus:ring-white/60 focus:ring-offset-2 focus:ring-offset-transparent rounded font-medium"
           >
             Contact us
           </button>

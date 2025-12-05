@@ -28,6 +28,11 @@ export interface AuthenticatedRequest extends NextRequest {
 }
 
 // API route helper to verify admin authentication (Node.js runtime only)
+/**
+ * Verify that the request is from an authenticated admin
+ * @param request - The incoming NextRequest
+ * @returns Object containing authorization status and admin data or error
+ */
 export async function verifyAdmin(request: NextRequest): Promise<{ authorized: boolean; admin?: { id: string; email: string; role: string; isActive: boolean }; error?: string }> {
   try {
     const authHeader = request.headers.get('authorization')
@@ -65,6 +70,11 @@ export async function verifyAdmin(request: NextRequest): Promise<{ authorized: b
 }
 
 // API route helper to verify tourist authentication (Node.js runtime only)
+/**
+ * Verify that the request is from an authenticated tourist
+ * @param request - The incoming NextRequest
+ * @returns Object containing authorization status and tourist data or error
+ */
 export async function verifyTourist(request: NextRequest): Promise<{ authorized: boolean; tourist?: { email: string }; error?: string }> {
   try {
     const authHeader = request.headers.get('authorization')
@@ -94,5 +104,47 @@ export async function verifyTourist(request: NextRequest): Promise<{ authorized:
     return { authorized: true, tourist: { email: session.email } }
   } catch (error) {
     return { authorized: false, error: 'Authentication failed' }
+  }
+}
+
+/**
+ * Verify that the request is from an authenticated student
+ * Checks both custom OTP session and NextAuth session
+ * @param request - The incoming NextRequest
+ * @returns Object containing authorization status and student data (email, id if available) or error
+ */
+export async function verifyStudent(request: NextRequest): Promise<{ authorized: boolean; student?: { email: string; id?: string | null }; error?: string }> {
+  try {
+    // Dynamic import to avoid circular dependencies if any, and ensure server-only
+    const { getValidStudentSession, readStudentTokenFromRequest } = await import('@/lib/student-auth');
+    const { getServerSession } = await import('next-auth');
+    const { authOptions } = await import('@/lib/auth-options');
+
+    let studentEmail: string | null = null;
+    let studentId: string | null = null;
+
+    // 1. Try Custom OTP Session
+    const token = readStudentTokenFromRequest(request);
+    const otpSession = await getValidStudentSession(token);
+
+    if (otpSession) {
+      studentEmail = otpSession.email;
+      studentId = otpSession.studentId;
+    } else {
+      // 2. Try NextAuth Session
+      const nextAuthSession = await getServerSession(authOptions);
+      if (nextAuthSession?.user?.userType === 'student' && nextAuthSession.user.email) {
+        studentEmail = nextAuthSession.user.email;
+      }
+    }
+
+    if (!studentEmail) {
+      return { authorized: false, error: 'Unauthorized - Please sign in' };
+    }
+
+    return { authorized: true, student: { email: studentEmail, id: studentId } };
+  } catch (error) {
+    console.error('Error in verifyStudent:', error);
+    return { authorized: false, error: 'Authentication failed' };
   }
 }

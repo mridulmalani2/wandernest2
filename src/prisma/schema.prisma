@@ -11,7 +11,7 @@ datasource db {
 
   // Connection pooling for serverless is handled via the DATABASE_URL connection string
   // For Vercel Postgres, use the POSTGRES_PRISMA_URL which includes ?pgbouncer=true
-  // Example: postgresql://user:pass@host:port/db?pgbouncer=true&connection_limit=1
+  // Example: postgresql://USER:PASSWORD@HOST:PORT/DATABASE?pgbouncer=true&connection_limit=1
 }
 
 // ============================================
