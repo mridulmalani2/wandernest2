@@ -25,12 +25,18 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   static getDerivedStateFromError(error: Error): State {
-    return { hasError: true, error };
+    // Only store the error object in development to avoid leaking stack traces in production state
+    return {
+      hasError: true,
+      error: process.env.NODE_ENV === 'development' ? error : null
+    };
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    // Log error to console (in production, this could send to error tracking service)
-    console.error('ErrorBoundary caught an error:', error, errorInfo);
+    // Log error to console only in development
+    if (process.env.NODE_ENV === 'development') {
+      console.error('ErrorBoundary caught an error:', error, errorInfo);
+    }
 
     // Call optional error handler
     if (this.props.onError) {

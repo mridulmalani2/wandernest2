@@ -105,7 +105,7 @@ export function AvailabilityStep({ formData, updateFormData, errors }: Availabil
             <LiquidSelect
               label="Day"
               value={selectedDay.toString()}
-              onValueChange={(value) => setSelectedDay(parseInt(value))}
+              onValueChange={(value) => setSelectedDay(parseInt(value, 10))}
               options={DAYS_OF_WEEK.map((day, i) => ({ value: i.toString(), label: day }))}
               icon={Calendar}
             />
@@ -157,9 +157,10 @@ export function AvailabilityStep({ formData, updateFormData, errors }: Availabil
                       const globalIndex = formData.availability.findIndex(
                         s => s.dayOfWeek === dayData.dayIndex && s.startTime === slot.startTime && s.endTime === slot.endTime
                       );
+                      const slotKey = `${dayData.day}-${slot.startTime}-${slot.endTime}-${slotIndex}`;
                       return (
                         <div
-                          key={slotIndex}
+                          key={slotKey}
                           className="flex items-center justify-between p-3 bg-transparent rounded-2xl border border-white/20 hover:border-white/50 transition-all"
                         >
                           <div className="flex items-center gap-3 text-sm">

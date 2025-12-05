@@ -1,6 +1,5 @@
 'use client';
 
-import { LiquidInput } from '@/components/ui/LiquidInput';
 import { LiquidSlider } from '@/components/ui/LiquidSlider';
 import { FlowCard } from '@/components/ui/FlowCard';
 import { OnboardingFormData } from './OnboardingWizard';
@@ -49,7 +48,7 @@ export function ServicePreferencesStep({ formData, updateFormData, errors }: Ser
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {SERVICE_OPTIONS.map((service) => {
             const Icon = service.icon;
-            const isSelected = formData.servicesOffered.includes(service.id);
+            const isSelected = (formData.servicesOffered || []).includes(service.id);
             return (
               <button
                 key={service.id}
@@ -114,7 +113,7 @@ export function ServicePreferencesStep({ formData, updateFormData, errors }: Ser
 
           <LiquidSlider
             label="Hourly Rate (€)"
-            value={[parseInt(formData.hourlyRate) || 15]}
+            value={[parseInt(formData.hourlyRate, 10) || 15]}
             onValueChange={(values) => updateFormData({ hourlyRate: values[0].toString() })}
             min={0}
             max={50}
@@ -130,11 +129,11 @@ export function ServicePreferencesStep({ formData, updateFormData, errors }: Ser
               </div>
               <div className="flex justify-between text-xs text-white/40">
                 <span>Platform Fee (15%):</span>
-                <span>-€{((parseInt(formData.hourlyRate) || 0) * 0.15).toFixed(2)}</span>
+                <span>-€{((parseInt(formData.hourlyRate, 10) || 0) * 0.15).toFixed(2)}</span>
               </div>
               <div className="flex justify-between pt-2 border-t border-white/10 font-medium">
                 <span className="text-white">You Earn:</span>
-                <span className="text-white">€{((parseInt(formData.hourlyRate) || 0) * 0.85).toFixed(2)}/hr</span>
+                <span className="text-white">€{((parseInt(formData.hourlyRate, 10) || 0) * 0.85).toFixed(2)}/hr</span>
               </div>
             </div>
           </FlowCard>

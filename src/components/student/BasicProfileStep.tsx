@@ -56,8 +56,13 @@ export function BasicProfileStep({ formData, updateFormData, errors, cities }: B
   };
 
   const addCustomLanguage = () => {
-    if (customLanguage.trim() && !formData.languages.includes(customLanguage.trim())) {
-      updateFormData({ languages: [...formData.languages, customLanguage.trim()] });
+    const newVal = customLanguage.trim();
+    if (newVal) {
+      const current = formData.languages || [];
+      // Case-insensitive check
+      if (!current.some(l => l.toLowerCase() === newVal.toLowerCase())) {
+        updateFormData({ languages: [...current, newVal] });
+      }
       setCustomLanguage('');
     }
   };
@@ -102,8 +107,8 @@ export function BasicProfileStep({ formData, updateFormData, errors, cities }: B
             />
           </div>
 
-          <div className="space-y-3">
-            <label className="text-sm font-light tracking-wide text-white/80 block">
+          <div className="space-y-3" role="radiogroup" aria-labelledby="gender-label">
+            <label id="gender-label" className="text-sm font-light tracking-wide text-white/80 block">
               Gender {errors.gender && <span className="text-ui-error ml-1">*</span>}
             </label>
             <div className="grid grid-cols-3 gap-3">
@@ -111,6 +116,8 @@ export function BasicProfileStep({ formData, updateFormData, errors, cities }: B
                 <button
                   key={option}
                   type="button"
+                  role="radio"
+                  aria-checked={formData.gender === option}
                   onClick={() => updateFormData({ gender: option as any })}
                   className={cn(
                     'py-3 px-4 rounded-full text-sm font-medium transition-all duration-300',
@@ -147,111 +154,14 @@ export function BasicProfileStep({ formData, updateFormData, errors, cities }: B
                 error={errors.nationality}
                 icon={Globe}
               />
-              {(!COUNTRIES.includes(formData.nationality) && formData.nationality !== '') || (formData.nationality === '' && !COUNTRIES.includes(formData.nationality)) ? (
-                // This logic is getting complicated. Let's simplify:
-                // If it's NOT in the list, we assume it's 'other' or custom.
-                // But wait, if it's empty, it could be unselected.
-                // Let's use a local state or just check if it's in the list.
-                // If user selects 'other', we set it to '' (empty string) but we need to show the input.
-                // If user selects a country, we set it to that country.
-                // So if it is NOT in COUNTRIES, we show the input?
-                // But initially it is empty.
-                // Let's assume if it is NOT in COUNTRIES, we show the input, UNLESS it is strictly empty AND the user hasn't selected 'other' yet?
-                // Actually, simpler: If the value passed to Select is 'other' (which happens if it's not in list but not empty, OR if we explicitly track 'other'), show input.
-                // But here we mapped `formData.nationality ? 'other' : ''` for unknown values.
-                // So if `formData.nationality` is "Martian", Select sees "other".
-                // And we should show the input with value "Martian".
-                // If `formData.nationality` is "", Select sees "".
-                // If user selects "other", `formData.nationality` becomes "". Select sees "".
-                // This is the problem. If user selects "other", we clear the value, so Select sees "", so it deselects "other".
-                // We need a way to persist "other" selection even if value is empty.
-                // But `LiquidSelect` is controlled.
-
-                // Alternative: If user selects 'other', set value to 'Other' (temporary string)? No, that would be a valid nationality.
-                // Let's just check if it's NOT in COUNTRIES.
-                // If it's not in countries, show the input.
-                // But if it's empty?
-                // If it's empty, we might just show the select.
-                // But if user clicks "Other", we want to show input.
-                // Maybe we can check if `formData.nationality` is NOT in COUNTRIES.
-                // If it is NOT in COUNTRIES, we show the input.
-                // But initially it is empty (not in countries). We don't want to show input initially.
-                // We only want to show input if user explicitly selected 'other' OR if they already have a custom value.
-
-                // Let's use a local state `isCustomNationality`?
-                // Or just check: `!COUNTRIES.includes(formData.nationality) && formData.nationality !== ''`.
-                // But what if user clicks "Other"? We set it to ''. Then the condition fails.
-                // We should set it to 'Other' temporarily? Or use a separate state.
-
-                // Let's try this:
-                // If user selects 'other', set `nationality` to 'Other'.
-                // Then in input, if value is 'Other', show placeholder?
-                // No, 'Other' is a valid word.
-
-                // Let's use a local state for "show custom input".
-                // But `BasicProfileStep` re-renders.
-
-                // Let's just use the `LiquidInput` when `!COUNTRIES.includes(formData.nationality)`.
-                // And if it is empty?
-                // If it is empty, we show the Select.
-                // If user selects 'other', we set `nationality` to 'Custom'.
-                // Then the input shows 'Custom'. User deletes it and types.
-                // If user types, it updates.
-                // If user clears it, it becomes empty.
-                // If it becomes empty, does it go back to Select?
-                // Yes, if we use `!COUNTRIES.includes`.
-
-                // Let's try:
-                // If `!COUNTRIES.includes(formData.nationality)` AND `formData.nationality !== ''`.
-                // But how to trigger it?
-                // When user selects 'other', set `nationality` to 'Custom'.
-                // Then input appears with value 'Custom'. User clears it. Value becomes ''. Input disappears.
-                // That's annoying.
-
-                // Better:
-                // Always show Select.
-                // If `!COUNTRIES.includes(formData.nationality)` (and not empty), show Input BELOW it?
-                // Or replace it?
-
-                // Let's follow the pattern used for Campus/Institute in the same file (lines 181-200).
-                // It checks `formData.campus === 'other'`.
-                // So we should store 'other' in `nationality`?
-                // But `nationality` is the final value.
-                // For Campus, `campus` is a separate field from `institute` (which is the actual text?).
-                // No, `institute` is the text. `campus` is the selection.
-                // Here we only have `nationality`.
-
-                // Let's use a local state `showCustomNationality`.
-
-                <div className="space-y-2">
-                  <LiquidSelect
-                    label="Nationality"
-                    value={COUNTRIES.includes(formData.nationality) ? formData.nationality : (formData.nationality ? 'other' : '')}
-                    onValueChange={(value) => {
-                      if (value === 'other') {
-                        updateFormData({ nationality: 'Other' }); // Set a temp value to trigger custom mode
-                      } else {
-                        updateFormData({ nationality: value });
-                      }
-                    }}
-                    placeholder="Select your nationality"
-                    options={[
-                      ...COUNTRIES.map(c => ({ value: c, label: c })),
-                      { value: 'other', label: 'Other' }
-                    ]}
-                    error={errors.nationality}
-                    icon={Globe}
-                  />
-                  {!COUNTRIES.includes(formData.nationality) && formData.nationality !== '' && (
-                    <LiquidInput
-                      value={formData.nationality === 'Other' ? '' : formData.nationality}
-                      onChange={(e) => updateFormData({ nationality: e.target.value })}
-                      placeholder="Enter your nationality"
-                      autoFocus
-                    />
-                  )}
-                </div>
-              ) : null}
+              {(!COUNTRIES.includes(formData.nationality) && formData.nationality !== '') && (
+                <LiquidInput
+                  value={formData.nationality === 'Other' ? '' : formData.nationality}
+                  onChange={(e) => updateFormData({ nationality: e.target.value })}
+                  placeholder="Enter your nationality"
+                  autoFocus
+                />
+              )}
             </div>
 
             <LiquidInput
@@ -394,6 +304,7 @@ export function BasicProfileStep({ formData, updateFormData, errors, cities }: B
                             toggleLanguage(language);
                           }}
                           className="hover:bg-white/20 rounded-full p-0.5 transition-colors"
+                          aria-label={`Remove ${language}`}
                         >
                           <X className="h-3 w-3" />
                         </button>
@@ -465,7 +376,12 @@ export function BasicProfileStep({ formData, updateFormData, errors, cities }: B
                 value={customLanguage}
                 onChange={(e) => setCustomLanguage(e.target.value)}
                 placeholder="Add another language"
-                onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addCustomLanguage())}
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    addCustomLanguage();
+                  }
+                }}
                 containerClassName="flex-1"
               />
               <button

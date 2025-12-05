@@ -187,12 +187,14 @@ export function OnboardingWizard({ session }: OnboardingWizardProps) {
 
   const updateFormData = (data: Partial<OnboardingFormData>) => {
     setFormData((prev) => ({ ...prev, ...data }));
-    // Clear errors for updated fields
-    const newErrors = { ...errors };
-    Object.keys(data).forEach((key) => {
-      delete newErrors[key];
+    // Clear errors for updated fields safely
+    setErrors((prevErrors) => {
+      const newErrors = { ...prevErrors };
+      Object.keys(data).forEach((key) => {
+        delete newErrors[key];
+      });
+      return newErrors;
     });
-    setErrors(newErrors);
   };
 
   const validateStep = (step: number): boolean => {
@@ -288,7 +290,8 @@ export function OnboardingWizard({ session }: OnboardingWizardProps) {
       if (formData.servicesOffered.length === 0) {
         newErrors.servicesOffered = 'At least one service must be selected';
       }
-      if (!formData.hourlyRate || parseFloat(formData.hourlyRate) <= 0) {
+      const rate = parseFloat(formData.hourlyRate);
+      if (!formData.hourlyRate || isNaN(rate) || rate <= 0) {
         newErrors.hourlyRate = 'Valid hourly rate is required';
       }
     }
@@ -322,12 +325,24 @@ export function OnboardingWizard({ session }: OnboardingWizardProps) {
   };
 
   const handleBack = () => {
+    setErrors({});
     setCurrentStep((prev) => Math.max(prev - 1, 1));
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleStepClick = (stepId: number) => {
-    // Allow navigation to any step without validation
+    // Only allow navigation if moving back or if intermediate steps are completed/valid
+    if (stepId > currentStep) {
+      // Check if all steps before the target are completed
+      for (let i = currentStep; i < stepId; i++) {
+        if (!validateStep(i)) {
+          // Stop at the first invalid step
+          return;
+        }
+      }
+    }
+    // If valid or moving back, clean errors and move
+    setErrors({});
     setCurrentStep(stepId);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -392,9 +407,9 @@ export function OnboardingWizard({ session }: OnboardingWizardProps) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          // Authentication
-          email: session.user.email,
-          googleId: session.user.id,
+          // Authentication - removed client-side session IDs to rely on server-side session
+          // email: session.user.email,
+          // googleId: session.user.id,
 
           // Personal Details
           name: formData.name,
@@ -452,6 +467,9 @@ export function OnboardingWizard({ session }: OnboardingWizardProps) {
       });
 
       if (!response.ok) {
+        if (response.status === 401) {
+          throw new Error('Session expired. Please sign in again.');
+        }
         const errorData = await response.json();
         throw new Error(errorData.error || 'Failed to submit onboarding');
       }

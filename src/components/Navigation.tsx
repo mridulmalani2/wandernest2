@@ -43,19 +43,18 @@ export default function Navigation({ variant = 'default', showBackButton = false
       } else if (userType === 'tourist') {
         callbackUrl = '/booking';
       }
-      await signOut({ callbackUrl })
-      return
-    }
+      await signOut({ callbackUrl, redirect: true })
+    } else {
+      try {
+        await fetch('/api/student/auth/signout', { method: 'POST' });
+      } catch (error) {
+        console.error('Failed to sign out', error);
+      }
 
-    try {
-      await fetch('/api/student/auth/signout', { method: 'POST' });
-    } catch (error) {
-      console.error('Failed to sign out', error);
+      setStudentSession(null)
+      router.push('/student/signin')
+      router.refresh()
     }
-
-    setStudentSession(null)
-    router.push('/student/signin')
-    router.refresh()
   }
 
   useEffect(() => {
@@ -215,7 +214,7 @@ export default function Navigation({ variant = 'default', showBackButton = false
                 <div className="flex items-center space-x-2 pl-3 border-l border-white/20">
                   <div className="flex items-center space-x-2">
                     <div className="w-8 h-8 rounded-full bg-white/15 border border-white/30 flex items-center justify-center text-white font-semibold text-sm backdrop-blur-sm transition-transform duration-200 hover:scale-110">
-                      {session?.user?.name?.charAt(0).toUpperCase() || studentSession?.name?.charAt(0).toUpperCase() || <User className="w-4 h-4" />}
+                      {(session?.user?.name || studentSession?.name)?.charAt(0)?.toUpperCase() || <User className="w-4 h-4" />}
                     </div>
                     <span className="text-sm font-medium text-white max-w-[120px] truncate">
                       {session?.user?.name || studentSession?.name || studentSession?.email}
@@ -318,7 +317,7 @@ export default function Navigation({ variant = 'default', showBackButton = false
               <>
                 <div className="flex items-center space-x-2 px-3 py-2 bg-white/5 border border-white/20 rounded-full backdrop-blur-sm">
                   <div className="w-8 h-8 rounded-full bg-white/15 border border-white/30 flex items-center justify-center text-white font-semibold text-sm backdrop-blur-sm">
-                    {session?.user?.name?.charAt(0).toUpperCase() || studentSession?.name?.charAt(0).toUpperCase() || <User className="w-4 h-4" />}
+                    {(session?.user?.name || studentSession?.name)?.charAt(0)?.toUpperCase() || <User className="w-4 h-4" />}
                   </div>
                   <span className="text-sm font-medium text-white">
                     {session?.user?.name || studentSession?.name || studentSession?.email}

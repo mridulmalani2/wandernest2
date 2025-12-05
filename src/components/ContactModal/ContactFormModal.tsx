@@ -116,9 +116,10 @@ export function ContactFormModal({ open, onOpenChange }: ContactFormModalProps) 
       }, 2000)
     } catch (error) {
       console.error('Error submitting form:', error)
-      setErrors({
-        submit: error instanceof Error ? error.message : 'Failed to submit form. Please try again.',
-      })
+      setErrors(prev => ({
+        ...prev,
+        submit: 'Failed to submit form. Please try again.',
+      }))
     } finally {
       setIsSubmitting(false)
     }
@@ -129,19 +130,19 @@ export function ContactFormModal({ open, onOpenChange }: ContactFormModalProps) 
     if (selectedFile) {
       // Validate file size (5MB max)
       if (selectedFile.size > 5 * 1024 * 1024) {
-        setErrors({ ...errors, file: 'File size must be less than 5MB' })
+        setErrors(prev => ({ ...prev, file: 'File size must be less than 5MB' }))
         return
       }
 
       // Validate file type
-      const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'application/pdf']
+      const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf']
       if (!validTypes.includes(selectedFile.type)) {
-        setErrors({ ...errors, file: 'Only images and PDFs are allowed' })
+        setErrors(prev => ({ ...prev, file: 'Only images and PDFs are allowed' }))
         return
       }
 
       setFile(selectedFile)
-      setErrors({ ...errors, file: '' })
+      setErrors(prev => ({ ...prev, file: '' }))
     }
   }
 
@@ -174,7 +175,10 @@ export function ContactFormModal({ open, onOpenChange }: ContactFormModalProps) 
                 id="name"
                 type="text"
                 value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                onChange={(e) => {
+                  const val = e.target.value
+                  setFormData(prev => ({ ...prev, name: val }))
+                }}
                 className={errors.name ? 'border-destructive' : ''}
                 placeholder="Your name"
               />
@@ -192,7 +196,10 @@ export function ContactFormModal({ open, onOpenChange }: ContactFormModalProps) 
                 id="email"
                 type="email"
                 value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                onChange={(e) => {
+                  const val = e.target.value
+                  setFormData(prev => ({ ...prev, email: val }))
+                }}
                 className={errors.email ? 'border-destructive' : ''}
                 placeholder="your@email.com"
               />
@@ -208,7 +215,10 @@ export function ContactFormModal({ open, onOpenChange }: ContactFormModalProps) 
                 id="phone"
                 type="tel"
                 value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                onChange={(e) => {
+                  const val = e.target.value
+                  setFormData(prev => ({ ...prev, phone: val }))
+                }}
                 placeholder="+1 (555) 123-4567"
               />
             </div>
@@ -221,7 +231,10 @@ export function ContactFormModal({ open, onOpenChange }: ContactFormModalProps) 
               <Textarea
                 id="message"
                 value={formData.message}
-                onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                onChange={(e) => {
+                  const val = e.target.value
+                  setFormData(prev => ({ ...prev, message: val }))
+                }}
                 className={errors.message ? 'border-destructive' : ''}
                 placeholder="Tell us how we can help..."
                 rows={5}
@@ -237,7 +250,7 @@ export function ContactFormModal({ open, onOpenChange }: ContactFormModalProps) 
               <Input
                 id="file"
                 type="file"
-                accept="image/*,application/pdf"
+                accept="image/jpeg,image/png,image/webp,application/pdf"
                 onChange={handleFileChange}
                 className={errors.file ? 'border-destructive' : ''}
               />

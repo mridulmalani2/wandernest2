@@ -65,7 +65,7 @@ const accentColors = {
 };
 
 export function StatCard({ label, value, icon: Icon, accentColor }: StatCardProps) {
-  const colors = accentColors[accentColor];
+  const colors = accentColors[accentColor] || accentColors.blue;
 
   return (
     <motion.div

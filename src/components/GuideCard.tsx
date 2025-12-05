@@ -109,9 +109,9 @@ export default function GuideCard({ guide, isSelected, onSelect }: GuideCardProp
       <div className="mb-3">
         <p className="text-xs text-muted-foreground uppercase tracking-wide font-medium">Languages</p>
         <div className="flex flex-wrap gap-2 mt-1">
-          {guide.languages.map((lang, index) => (
+          {guide.languages.map((lang) => (
             <motion.span
-              key={index}
+              key={lang}
               className="px-2 py-1 bg-primary/10 text-primary text-sm rounded-md border border-primary/20"
             >
               {lang}
@@ -158,12 +158,7 @@ export default function GuideCard({ guide, isSelected, onSelect }: GuideCardProp
         </motion.div>
       )}
 
-      {/* Score (for debugging - can be removed in production) */}
-      {guide.score !== undefined && (
-        <div className="mt-2 text-xs text-muted-foreground/60">
-          Match Score: {guide.score}
-        </div>
-      )}
+
 
       {/* Selection indicator overlay */}
       {isSelected && (

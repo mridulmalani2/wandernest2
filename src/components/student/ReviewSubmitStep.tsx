@@ -226,34 +226,19 @@ export function ReviewSubmitStep({ formData, errors }: ReviewSubmitStepProps) {
             <h3 className="text-sm font-medium text-white">Verification & Compliance</h3>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <div className="flex items-center gap-3 bg-white/5 p-3 rounded-2xl border border-white/10">
-              <div className="h-8 w-8 rounded-full bg-white/10 flex items-center justify-center shrink-0">
-                <CheckCircle2 className="h-4 w-4 text-white" />
-              </div>
-              <div className="text-xs">
-                <p className="font-medium text-white">Documents</p>
-                <p className="text-white/50">ID, Student Card, Photo</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3 bg-white/5 p-3 rounded-2xl border border-white/10">
-              <div className="h-8 w-8 rounded-full bg-white/10 flex items-center justify-center shrink-0">
-                <CheckCircle2 className="h-4 w-4 text-white" />
-              </div>
-              <div className="text-xs">
-                <p className="font-medium text-white">Terms Accepted</p>
-                <p className="text-white/50">Platform Policies</p>
-              </div>
-            </div>
+            <VerificationTile
+              title="Documents"
+              subtitle="ID, Student Card, Photo"
+            />
+            <VerificationTile
+              title="Terms Accepted"
+              subtitle="Platform Policies"
+            />
             {formData.emergencyContactName && (
-              <div className="flex items-center gap-3 bg-white/5 p-3 rounded-2xl border border-white/10">
-                <div className="h-8 w-8 rounded-full bg-white/10 flex items-center justify-center shrink-0">
-                  <CheckCircle2 className="h-4 w-4 text-white" />
-                </div>
-                <div className="text-xs">
-                  <p className="font-medium text-white">Emergency Contact</p>
-                  <p className="text-white/50">Provided</p>
-                </div>
-              </div>
+              <VerificationTile
+                title="Emergency Contact"
+                subtitle="Provided"
+              />
             )}
           </div>
         </FlowCard>
@@ -265,6 +250,20 @@ export function ReviewSubmitStep({ formData, errors }: ReviewSubmitStepProps) {
           <p className="text-sm font-light">{errors.submit}</p>
         </div>
       )}
+    </div>
+  );
+}
+
+function VerificationTile({ title, subtitle }: { title: string; subtitle: string }) {
+  return (
+    <div className="flex items-center gap-3 bg-white/5 p-3 rounded-2xl border border-white/10">
+      <div className="h-8 w-8 rounded-full bg-white/10 flex items-center justify-center shrink-0">
+        <CheckCircle2 className="h-4 w-4 text-white" />
+      </div>
+      <div className="text-xs">
+        <p className="font-medium text-white">{title}</p>
+        <p className="text-white/50">{subtitle}</p>
+      </div>
     </div>
   );
 }

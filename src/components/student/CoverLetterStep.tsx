@@ -54,15 +54,17 @@ export function CoverLetterStep({ formData, updateFormData, errors }: CoverLette
   };
 
   const addCustomInterest = () => {
-    if (customInterest.trim() && !formData.interests.includes(customInterest.trim())) {
-      updateFormData({ interests: [...formData.interests, customInterest.trim()] });
+    const interests = formData.interests || [];
+    if (customInterest.trim() && !interests.includes(customInterest.trim())) {
+      updateFormData({ interests: [...interests, customInterest.trim()] });
       setCustomInterest('');
     }
   };
 
   const addCustomSkill = () => {
-    if (customSkill.trim() && !formData.skills.includes(customSkill.trim())) {
-      updateFormData({ skills: [...formData.skills, customSkill.trim()] });
+    const skills = formData.skills || [];
+    if (customSkill.trim() && !skills.includes(customSkill.trim())) {
+      updateFormData({ skills: [...skills, customSkill.trim()] });
       setCustomSkill('');
     }
   };
@@ -170,8 +172,8 @@ export function CoverLetterStep({ formData, updateFormData, errors }: CoverLette
                     errors.interests && 'border-ui-error'
                   )}
                 >
-                  {formData.interests.length > 0 ? (
-                    formData.interests.map((interest) => (
+                  {(formData.interests || []).length > 0 ? (
+                    (formData.interests || []).map((interest) => (
                       <span
                         key={interest}
                         className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-white text-sm font-light backdrop-blur-sm"
@@ -184,6 +186,8 @@ export function CoverLetterStep({ formData, updateFormData, errors }: CoverLette
                             toggleInterest(interest);
                           }}
                           className="hover:bg-white/20 rounded-full p-0.5 transition-colors"
+                          aria-label={`Remove ${interest}`}
+                          title={`Remove ${interest}`}
                         >
                           <X className="h-3 w-3" />
                         </button>
@@ -250,7 +254,12 @@ export function CoverLetterStep({ formData, updateFormData, errors }: CoverLette
                 value={customInterest}
                 onChange={(e) => setCustomInterest(e.target.value)}
                 placeholder="Add custom interest"
-                onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addCustomInterest())}
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    addCustomInterest();
+                  }
+                }}
                 containerClassName="flex-1"
               />
               <button
@@ -281,8 +290,8 @@ export function CoverLetterStep({ formData, updateFormData, errors }: CoverLette
                     errors.skills && 'border-ui-error'
                   )}
                 >
-                  {formData.skills.length > 0 ? (
-                    formData.skills.map((skill) => (
+                  {(formData.skills || []).length > 0 ? (
+                    (formData.skills || []).map((skill) => (
                       <span
                         key={skill}
                         className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-white text-sm font-light backdrop-blur-sm"
@@ -295,6 +304,8 @@ export function CoverLetterStep({ formData, updateFormData, errors }: CoverLette
                             toggleSkill(skill);
                           }}
                           className="hover:bg-white/20 rounded-full p-0.5 transition-colors"
+                          aria-label={`Remove ${skill}`}
+                          title={`Remove ${skill}`}
                         >
                           <X className="h-3 w-3" />
                         </button>
@@ -361,7 +372,12 @@ export function CoverLetterStep({ formData, updateFormData, errors }: CoverLette
                 value={customSkill}
                 onChange={(e) => setCustomSkill(e.target.value)}
                 placeholder="Add custom skill"
-                onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addCustomSkill())}
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    addCustomSkill();
+                  }
+                }}
                 containerClassName="flex-1"
               />
               <button

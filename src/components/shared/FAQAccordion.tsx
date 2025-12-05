@@ -4,7 +4,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
-import type { FAQ } from "@/lib/faq/data";
+import { type FAQ } from "@/lib/faq/data";
 import { useContactModal } from '@/components/ContactModal/ContactModalProvider';
 
 interface FAQAccordionProps {
@@ -60,12 +60,14 @@ export default function FAQAccordion({
                 aria-expanded={isOpen}
                 aria-controls={`faq-answer-${idx}`}
               >
-                <h3 className={`
+                <h3
+                  id={`faq-question-${idx}`}
+                  className={`
                   text-lg md:text-xl font-semibold transition-all duration-300
                   ${isOpen
-                    ? 'text-white text-shadow-lg'
-                    : 'text-white/95 group-hover:text-white text-shadow'
-                  }
+                      ? 'text-white text-shadow-lg'
+                      : 'text-white/95 group-hover:text-white text-shadow'
+                    }
                 `}>
                   {item.question}
                 </h3>
