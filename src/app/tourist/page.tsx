@@ -86,7 +86,7 @@ export default function TouristLanding() {
                     <div className="absolute inset-0 bg-black/40"></div>
                   </div>
                   <div className="relative z-10 p-8 h-full backdrop-blur-sm bg-white/10 border border-white/20 rounded-2xl group-hover:bg-white/15 transition-all">
-                    <div className="inline-flex p-4 rounded-2xl bg-gradient-to-br from-ui-blue-primary to-ui-blue-accent text-white mb-6 group-hover:scale-105 transition-all duration-300 shadow-md">
+                    <div className="inline-flex p-4 rounded-2xl bg-white/10 text-white mb-6 group-hover:scale-105 transition-all duration-300 shadow-md border border-white/20">
                       <GraduationCap className="w-8 h-8" />
                     </div>
                     <h3 className="text-xl font-bold mb-3 text-white group-hover:text-ui-blue-accent transition-colors">
@@ -112,7 +112,7 @@ export default function TouristLanding() {
                     <div className="absolute inset-0 bg-black/40"></div>
                   </div>
                   <div className="relative z-10 p-8 h-full backdrop-blur-sm bg-white/10 border border-white/20 rounded-2xl group-hover:bg-white/15 transition-all">
-                    <div className="inline-flex p-4 rounded-2xl bg-gradient-to-br from-ui-purple-primary to-ui-purple-accent text-white mb-6 group-hover:scale-105 transition-all duration-300 shadow-md">
+                    <div className="inline-flex p-4 rounded-2xl bg-white/10 text-white mb-6 group-hover:scale-105 transition-all duration-300 shadow-md border border-white/20">
                       <MessageCircle className="w-8 h-8" />
                     </div>
                     <h3 className="text-xl font-bold mb-3 text-white group-hover:text-ui-purple-accent transition-colors">
