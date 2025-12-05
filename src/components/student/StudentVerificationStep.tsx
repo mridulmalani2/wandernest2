@@ -21,27 +21,60 @@ export function StudentVerificationStep({ formData, updateFormData, errors }: St
     profilePhoto: false
   });
 
+  const [uploadErrors, setUploadErrors] = useState<Record<string, string>>({});
+
+  const validateFile = (file: File): string | null => {
+    const MAX_SIZE = 10 * 1024 * 1024; // 10MB
+    const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+
+    if (file.size > MAX_SIZE) {
+      return 'File size must be less than 10MB';
+    }
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      return 'Only JPG, PNG, and WebP files are allowed';
+    }
+    return null;
+  };
+
   const handleFileChange = useCallback((field: string, file: File | null) => {
     if (!file) return;
+
+    const error = validateFile(file);
+    if (error) {
+      setUploadErrors(prev => ({ ...prev, [field]: error }));
+      return;
+    }
+    setUploadErrors(prev => {
+      const newErrors = { ...prev };
+      delete newErrors[field];
+      return newErrors;
+    });
 
     const reader = new FileReader();
     reader.onloadend = () => {
       const preview = reader.result as string;
-
-      switch (field) {
-        case 'studentId':
-          updateFormData({ studentIdFile: file, studentIdPreview: preview });
-          break;
-        case 'governmentId':
-          updateFormData({ governmentIdFile: file, governmentIdPreview: preview });
-          break;
-        case 'selfie':
-          updateFormData({ selfieFile: file, selfiePreview: preview });
-          break;
-        case 'profilePhoto':
-          updateFormData({ profilePhotoFile: file, profilePhotoPreview: preview });
-          break;
+      if (typeof preview === 'string' && preview.startsWith('data:image/')) {
+        switch (field) {
+          case 'studentId':
+            updateFormData({ studentIdFile: file, studentIdPreview: preview });
+            break;
+          case 'governmentId':
+            updateFormData({ governmentIdFile: file, governmentIdPreview: preview });
+            break;
+          case 'selfie':
+            updateFormData({ selfieFile: file, selfiePreview: preview });
+            break;
+          case 'profilePhoto':
+            updateFormData({ profilePhotoFile: file, profilePhotoPreview: preview });
+            break;
+        }
       }
+    };
+    reader.onerror = () => {
+      setUploadErrors(prev => ({ ...prev, [field]: 'Failed to read file' }));
+    };
+    reader.onabort = () => {
+      setUploadErrors(prev => ({ ...prev, [field]: 'File reading aborted' }));
     };
     reader.readAsDataURL(file);
   }, [updateFormData]);
@@ -59,97 +92,32 @@ export function StudentVerificationStep({ formData, updateFormData, errors }: St
     e.preventDefault();
     setDragStates(prev => ({ ...prev, [field]: false }));
     const file = e.dataTransfer.files[0];
-    if (file && file.type.startsWith('image/')) {
+    if (file) {
       handleFileChange(field, file);
     }
   };
 
-  const FileUploadCard = ({
-    field,
-    label,
-    preview,
-    file,
-    icon: Icon = FileText,
-    error
-  }: {
-    field: string;
-    label: string;
-    preview?: string;
-    file?: File | null;
-    icon?: any;
-    error?: string;
-  }) => (
-    <div className="space-y-2">
-      <label className="text-sm font-light tracking-wide text-liquid-dark-secondary block">
-        {label} {error && <span className="text-ui-error ml-1">*</span>}
-      </label>
-      <div
-        onDragOver={(e) => handleDragOver(e, field)}
-        onDragLeave={() => handleDragLeave(field)}
-        onDrop={(e) => handleDrop(e, field)}
-        className={cn(
-          'relative rounded-2xl border-2 border-dashed transition-all duration-300',
-          dragStates[field as keyof typeof dragStates] && 'border-liquid-dark-primary bg-liquid-dark-primary/5',
-          error && 'border-ui-error',
-          !error && !dragStates[field as keyof typeof dragStates] && 'border-gray-300 hover:border-liquid-dark-primary/50'
-        )}
-      >
-        {preview ? (
-          <div className="relative group">
-            <img src={preview} alt={label} className="w-full h-48 object-cover rounded-2xl" />
-            <button
-              type="button"
-              onClick={() => {
-                switch (field) {
-                  case 'studentId':
-                    updateFormData({ studentIdFile: null, studentIdPreview: '' });
-                    break;
-                  case 'governmentId':
-                    updateFormData({ governmentIdFile: null, governmentIdPreview: '' });
-                    break;
-                  case 'selfie':
-                    updateFormData({ selfieFile: null, selfiePreview: '' });
-                    break;
-                  case 'profilePhoto':
-                    updateFormData({ profilePhotoFile: null, profilePhotoPreview: '' });
-                    break;
-                }
-              }}
-              className="absolute top-2 right-2 p-2 rounded-full bg-white/90 hover:bg-white shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
-            >
-              <X className="h-4 w-4 text-gray-600" />
-            </button>
-            <div className="absolute bottom-2 left-2 bg-liquid-dark-primary/90 text-white px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1">
-              <CheckCircle2 className="h-3 w-3" />
-              Uploaded
-            </div>
-          </div>
-        ) : (
-          <label className="flex flex-col items-center justify-center h-48 cursor-pointer">
-            <div className="h-12 w-12 rounded-full bg-liquid-light flex items-center justify-center mb-3">
-              <Icon className="h-6 w-6 text-liquid-dark-secondary" />
-            </div>
-            <p className="text-sm font-medium text-liquid-dark-primary mb-1">
-              Drop file here or click to upload
-            </p>
-            <p className="text-xs text-gray-500">PNG, JPG up to 10MB</p>
-            <input
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={(e) => handleFileChange(field, e.target.files?.[0] || null)}
-            />
-          </label>
-        )}
-      </div>
-      {error && (
-        <p className="text-xs font-light text-ui-error flex items-center gap-1">
-          <AlertCircle className="h-3 w-3" />
-          {error}
-        </p>
-      )}
-    </div>
-  );
+  const handleRemove = (field: string) => {
+    switch (field) {
+      case 'studentId':
+        updateFormData({ studentIdFile: null, studentIdPreview: '' });
+        break;
+      case 'governmentId':
+        updateFormData({ governmentIdFile: null, governmentIdPreview: '' });
+        break;
+      case 'selfie':
+        updateFormData({ selfieFile: null, selfiePreview: '' });
+        break;
+      case 'profilePhoto':
+        updateFormData({ profilePhotoFile: null, profilePhotoPreview: '' });
+        break;
+    }
+    setUploadErrors(prev => {
+      const newErrors = { ...prev };
+      delete newErrors[field];
+      return newErrors;
+    });
+  };
 
   return (
     <div className="space-y-12 animate-fade-in max-w-4xl mx-auto">
@@ -171,7 +139,13 @@ export function StudentVerificationStep({ formData, updateFormData, errors }: St
             preview={formData.studentIdPreview}
             file={formData.studentIdFile}
             icon={FileText}
-            error={errors.studentIdFile}
+            error={errors.studentIdFile || uploadErrors.studentId}
+            isDragging={dragStates.studentId}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+            onRemove={handleRemove}
+            onFileChange={handleFileChange}
           />
           <div className="mt-4">
             <LiquidInput
@@ -191,7 +165,13 @@ export function StudentVerificationStep({ formData, updateFormData, errors }: St
             preview={formData.governmentIdPreview}
             file={formData.governmentIdFile}
             icon={FileText}
-            error={errors.governmentIdFile}
+            error={errors.governmentIdFile || uploadErrors.governmentId}
+            isDragging={dragStates.governmentId}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+            onRemove={handleRemove}
+            onFileChange={handleFileChange}
           />
           <div className="mt-4">
             <LiquidInput
@@ -211,7 +191,13 @@ export function StudentVerificationStep({ formData, updateFormData, errors }: St
             preview={formData.selfiePreview}
             file={formData.selfieFile}
             icon={ImageIcon}
-            error={errors.selfieFile}
+            error={errors.selfieFile || uploadErrors.selfie}
+            isDragging={dragStates.selfie}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+            onRemove={handleRemove}
+            onFileChange={handleFileChange}
           />
           <p className="text-xs text-white/70 mt-2">Hold your ID next to your face</p>
         </FlowCard>
@@ -223,7 +209,13 @@ export function StudentVerificationStep({ formData, updateFormData, errors }: St
             preview={formData.profilePhotoPreview}
             file={formData.profilePhotoFile}
             icon={ImageIcon}
-            error={errors.profilePhotoFile}
+            error={errors.profilePhotoFile || uploadErrors.profilePhoto}
+            isDragging={dragStates.profilePhoto}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+            onRemove={handleRemove}
+            onFileChange={handleFileChange}
           />
           <p className="text-xs text-white/70 mt-2">This will be shown to tourists</p>
         </FlowCard>
@@ -284,6 +276,95 @@ export function StudentVerificationStep({ formData, updateFormData, errors }: St
           </p>
         </div>
       </div>
+    </div>
+  );
+}
+
+interface FileUploadCardProps {
+  field: string;
+  label: string;
+  preview?: string;
+  file?: File | null;
+  icon?: any;
+  error?: string;
+  isDragging: boolean;
+  onDragOver: (e: React.DragEvent, field: string) => void;
+  onDragLeave: (field: string) => void;
+  onDrop: (e: React.DragEvent, field: string) => void;
+  onRemove: (field: string) => void;
+  onFileChange: (field: string, file: File | null) => void;
+}
+
+function FileUploadCard({
+  field,
+  label,
+  preview,
+  file,
+  icon: Icon = FileText,
+  error,
+  isDragging,
+  onDragOver,
+  onDragLeave,
+  onDrop,
+  onRemove,
+  onFileChange
+}: FileUploadCardProps) {
+  return (
+    <div className="space-y-2">
+      <label className="text-sm font-light tracking-wide text-liquid-dark-secondary block">
+        {label} {error && <span className="text-ui-error ml-1">*</span>}
+      </label>
+      <div
+        onDragOver={(e) => onDragOver(e, field)}
+        onDragLeave={() => onDragLeave(field)}
+        onDrop={(e) => onDrop(e, field)}
+        className={cn(
+          'relative rounded-2xl border-2 border-dashed transition-all duration-300',
+          isDragging && 'border-liquid-dark-primary bg-liquid-dark-primary/5',
+          error && 'border-ui-error',
+          !error && !isDragging && 'border-gray-300 hover:border-liquid-dark-primary/50'
+        )}
+      >
+        {preview ? (
+          <div className="relative group">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={preview} alt={label} className="w-full h-48 object-cover rounded-2xl" />
+            <button
+              type="button"
+              onClick={() => onRemove(field)}
+              className="absolute top-2 right-2 p-2 rounded-full bg-white/90 hover:bg-white shadow-lg opacity-0 group-hover:opacity-100 transition-opacity"
+            >
+              <X className="h-4 w-4 text-gray-600" />
+            </button>
+            <div className="absolute bottom-2 left-2 bg-liquid-dark-primary/90 text-white px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1">
+              <CheckCircle2 className="h-3 w-3" />
+              Uploaded
+            </div>
+          </div>
+        ) : (
+          <label className="flex flex-col items-center justify-center h-48 cursor-pointer">
+            <div className="h-12 w-12 rounded-full bg-liquid-light flex items-center justify-center mb-3">
+              <Icon className="h-6 w-6 text-liquid-dark-secondary" />
+            </div>
+            <p className="text-sm font-medium text-liquid-dark-primary mb-1">
+              Drop file here or click to upload
+            </p>
+            <p className="text-xs text-gray-500">PNG, JPG, WebP up to 10MB</p>
+            <input
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              className="hidden"
+              onChange={(e) => onFileChange(field, e.target.files?.[0] || null)}
+            />
+          </label>
+        )}
+      </div>
+      {error && (
+        <p className="text-xs font-light text-ui-error flex items-center gap-1">
+          <AlertCircle className="h-3 w-3" />
+          {error}
+        </p>
+      )}
     </div>
   );
 }

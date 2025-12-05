@@ -23,7 +23,6 @@ export default function Navigation({ variant = 'default', showBackButton = false
   const [studentSession, setStudentSession] = useState<{ email: string; name?: string | null } | null>(null)
   const isProduction =
     process.env.NEXT_PUBLIC_VERCEL_ENV === 'production' || process.env.NODE_ENV === 'production'
-  const showAdminNav = isProduction || process.env.NEXT_PUBLIC_SHOW_ADMIN_NAV === 'true'
 
   useEffect(() => {
     const handleScroll = () => {
@@ -117,13 +116,7 @@ export default function Navigation({ variant = 'default', showBackButton = false
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-2 lg:gap-3">
-            {showAdminNav && (
-              <Link href="/admin">
-                <Button variant="ghost" className="rounded-full px-3 py-1 h-auto text-white/90 hover:bg-white/10 hover:text-white transition-all font-sans text-xs font-medium">
-                  Admin
-                </Button>
-              </Link>
-            )}
+
             {showBackButton && (
               <Link href={backHref}>
                 <Button variant="ghost" className="rounded-full px-3 py-1 h-auto text-white/90 hover:bg-white/10 hover:text-white transition-all font-sans text-xs font-medium focus-visible:ring-2 focus-visible:ring-white/30 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent" aria-label="Go back">
@@ -253,13 +246,7 @@ export default function Navigation({ variant = 'default', showBackButton = false
 
         {mobileMenuOpen && (
           <nav className="md:hidden mt-4 pb-4 space-y-2 border-t border-white/20 pt-4 animate-fade-in-up bg-white/5 backdrop-blur-md rounded-lg shadow-lg">
-            {showAdminNav && (
-              <Link href="/admin" onClick={() => setMobileMenuOpen(false)}>
-                <Button variant="ghost" className="w-full justify-start rounded-full text-white/90 hover:bg-white/10 hover:text-white transition-all font-sans text-sm font-medium">
-                  Admin
-                </Button>
-              </Link>
-            )}
+
             {showBackButton && (
               <Link href={backHref} onClick={() => setMobileMenuOpen(false)}>
                 <Button variant="ghost" className="w-full justify-start rounded-full text-white/90 hover:bg-white/10 hover:text-white transition-all font-sans text-sm font-medium">

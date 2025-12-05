@@ -291,7 +291,8 @@ export async function sendStudentMatchInvitation(
 export async function sendTouristAcceptanceNotification(
   touristEmail: string,
   student: Student,
-  touristRequest: TouristRequest
+  touristRequest: TouristRequest,
+  touristName?: string
 ) {
   const dates = touristRequest.dates as { start: string; end?: string }
   const startDate = new Date(dates.start).toLocaleDateString('en-US', {
@@ -301,7 +302,7 @@ export async function sendTouristAcceptanceNotification(
   })
 
   const html = getTouristAcceptanceNotificationHtml(
-    'Tourist', // We might not have tourist name easily available here
+    touristName || 'Tourist',
     student.name || 'Student Guide',
     touristRequest.city,
     startDate,
@@ -347,7 +348,8 @@ export async function sendVerificationEmail(
 
 export async function sendStudentConfirmation(
   student: Student,
-  touristRequest: TouristRequest
+  touristRequest: TouristRequest,
+  touristName?: string
 ) {
   const dates = touristRequest.dates as { start: string; end?: string }
   const dateString = new Date(dates.start).toLocaleDateString('en-US', {
@@ -371,7 +373,7 @@ export async function sendStudentConfirmation(
 
   const html = getStudentConfirmationHtml(
     student.name || 'Student',
-    'Tourist', // Placeholder as we might not have the name easily
+    touristName || 'Tourist',
     touristRequest.city,
     dateString,
     touristRequest.email,

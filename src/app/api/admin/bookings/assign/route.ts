@@ -60,17 +60,17 @@ export async function POST(request: NextRequest) {
 
       const updatedSelection = existingSelection
         ? await tx.requestSelection.update({
-            where: { id: existingSelection.id },
-            data: { status: 'accepted', acceptedAt: new Date() },
-          })
+          where: { id: existingSelection.id },
+          data: { status: 'accepted', acceptedAt: new Date() },
+        })
         : await tx.requestSelection.create({
-            data: {
-              requestId,
-              studentId,
-              status: 'accepted',
-              acceptedAt: new Date(),
-            },
-          })
+          data: {
+            requestId,
+            studentId,
+            status: 'accepted',
+            acceptedAt: new Date(),
+          },
+        })
 
       await tx.requestSelection.updateMany({
         where: {
@@ -103,15 +103,20 @@ export async function POST(request: NextRequest) {
 
     const [studentRecord, bookingRecord] = await Promise.all([
       prisma.student.findUnique({ where: { id: studentId } }),
-      prisma.touristRequest.findUnique({ where: { id: requestId } }),
+      prisma.touristRequest.findUnique({
+        where: { id: requestId },
+        include: { tourist: true }
+      }),
     ])
 
     if (studentRecord && bookingRecord) {
       const touristEmail = bookingRecord.email
+      // @ts-ignore - tourist relation is included but not in default type
+      const touristName = bookingRecord.tourist?.name || 'Tourist'
 
       await Promise.all([
-        sendTouristAcceptanceNotification(touristEmail, studentRecord, bookingRecord),
-        sendStudentConfirmation(studentRecord, bookingRecord),
+        sendTouristAcceptanceNotification(touristEmail, studentRecord, bookingRecord, touristName),
+        sendStudentConfirmation(studentRecord, bookingRecord, touristName),
       ])
     }
 
