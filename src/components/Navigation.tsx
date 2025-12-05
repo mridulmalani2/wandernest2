@@ -128,12 +128,12 @@ export default function Navigation({ variant = 'default', showBackButton = false
             {!session && variant === 'default' && (
               <>
                 <Link href="/student">
-                  <Button variant="ghost" className="rounded-full px-3 py-1.5 h-auto text-white/90 border border-white/20 hover:bg-white/10 hover:text-white transition-all duration-200 hover:scale-105 active:scale-95 font-sans text-xs font-medium">
+                  <Button variant="ghost" className="rounded-full px-4 py-2 h-auto text-white/90 border border-white/20 hover:bg-white/10 hover:text-white transition-all duration-200 hover:scale-105 active:scale-95 font-sans text-sm font-medium">
                     I&apos;m a Student
                   </Button>
                 </Link>
                 <Link href="/booking">
-                  <Button className="rounded-full px-4 py-1.5 h-auto bg-white/15 hover:bg-white/25 border border-white/30 text-white font-sans text-xs font-semibold transition-all duration-200 hover:scale-105 hover:-translate-y-0.5 active:scale-95 backdrop-blur-sm">
+                  <Button className="rounded-full px-4 py-2 h-auto bg-white/15 hover:bg-white/25 border border-white/30 text-white font-sans text-sm font-semibold transition-all duration-200 hover:scale-105 hover:-translate-y-0.5 active:scale-95 backdrop-blur-sm">
                     Book a Guide
                   </Button>
                 </Link>
@@ -143,12 +143,12 @@ export default function Navigation({ variant = 'default', showBackButton = false
             {!session && variant === 'tourist' && (
               <>
                 <Link href="/">
-                  <Button variant="ghost" className="rounded-full px-3 py-1.5 h-auto text-white/90 hover:bg-white/10 hover:text-white transition-all duration-200 hover:scale-105 active:scale-95 font-sans text-xs font-medium">
+                  <Button variant="ghost" className="rounded-full px-4 py-2 h-auto text-white/90 hover:bg-white/10 hover:text-white transition-all duration-200 hover:scale-105 active:scale-95 font-sans text-sm font-medium">
                     <ChevronLeft className="w-3.5 h-3.5 mr-1" /> Back to Home
                   </Button>
                 </Link>
                 <Link href="/booking">
-                  <Button className="rounded-full px-4 py-1.5 h-auto bg-white/15 hover:bg-white/25 border border-white/30 text-white font-sans text-xs font-semibold transition-all duration-200 hover:scale-105 hover:-translate-y-0.5 active:scale-95 backdrop-blur-sm">
+                  <Button className="rounded-full px-4 py-2 h-auto bg-white/15 hover:bg-white/25 border border-white/30 text-white font-sans text-sm font-semibold transition-all duration-200 hover:scale-105 hover:-translate-y-0.5 active:scale-95 backdrop-blur-sm">
                     Book a Guide
                   </Button>
                 </Link>
