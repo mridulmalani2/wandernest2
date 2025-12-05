@@ -24,15 +24,7 @@ export async function GET() {
   }
 
   // In development, log the status for debugging
-  if (config.app.isDevelopment) {
-    console.log('🔍 Provider Status Check:', {
-      email: providerStatus.providers.email,
-      google: providerStatus.providers.google,
-      emailHost: config.email.host ? '✅ Set' : '❌ Not set',
-      emailUser: config.email.user ? '✅ Set' : '❌ Not set',
-      emailPass: config.email.pass ? '✅ Set' : '❌ Not set',
-    })
-  }
+
 
   return NextResponse.json(providerStatus)
 }

@@ -90,10 +90,13 @@ function convertFromDatabase(dbAvailability: StudentAvailability[]): DayAvailabi
 function isDatabaseFormat(value: any): boolean {
   if (!Array.isArray(value) || value.length === 0) return false;
   const first = value[0];
-  return typeof first === 'object' &&
-         'dayOfWeek' in first &&
-         'startTime' in first &&
-         'endTime' in first;
+  return (
+    first !== null &&
+    typeof first === 'object' &&
+    'dayOfWeek' in first &&
+    'startTime' in first &&
+    'endTime' in first
+  );
 }
 
 /**
@@ -102,10 +105,13 @@ function isDatabaseFormat(value: any): boolean {
 function isUIFormat(value: any): boolean {
   if (!Array.isArray(value) || value.length === 0) return false;
   const first = value[0];
-  return typeof first === 'object' &&
-         'day' in first &&
-         'available' in first &&
-         'slots' in first;
+  return (
+    first !== null &&
+    typeof first === 'object' &&
+    'day' in first &&
+    'available' in first &&
+    'slots' in first
+  );
 }
 
 /**
@@ -163,40 +169,61 @@ export const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({
   }, [availability, isInitialized, disabled, onChange]);
 
   const toggleDayAvailability = (dayIndex: number) => {
-    const updated = [...availability];
-    updated[dayIndex].available = !updated[dayIndex].available;
+    setAvailability((prev) =>
+      prev.map((day, index) => {
+        if (index !== dayIndex) return day;
 
-    // If disabling, clear slots
-    if (!updated[dayIndex].available) {
-      updated[dayIndex].slots = [];
-    } else if (updated[dayIndex].slots.length === 0) {
-      // If enabling and no slots, add default slot
-      updated[dayIndex].slots = [{ start: '09:00', end: '17:00' }];
-    }
+        const newAvailable = !day.available;
+        let newSlots = day.slots;
 
-    setAvailability(updated);
+        // If enabling and no slots, add default slot. If disabling, clear slots.
+        if (newAvailable && day.slots.length === 0) {
+          newSlots = [{ start: '09:00', end: '17:00' }];
+        } else if (!newAvailable) {
+          newSlots = [];
+        }
+
+        return {
+          ...day,
+          available: newAvailable,
+          slots: newSlots,
+        };
+      })
+    );
   };
 
   const addTimeSlot = (dayIndex: number) => {
-    const updated = [...availability];
-    const lastSlot = updated[dayIndex].slots[updated[dayIndex].slots.length - 1];
-    const newStart = lastSlot ? lastSlot.end : '09:00';
-    const newEnd = '17:00';
+    setAvailability((prev) =>
+      prev.map((day, index) => {
+        if (index !== dayIndex) return day;
 
-    updated[dayIndex].slots.push({ start: newStart, end: newEnd });
-    setAvailability(updated);
+        const lastSlot = day.slots[day.slots.length - 1];
+        const newStart = lastSlot ? lastSlot.end : '09:00';
+        const newEnd = '17:00';
+
+        return {
+          ...day,
+          slots: [...day.slots, { start: newStart, end: newEnd }],
+        };
+      })
+    );
   };
 
   const removeTimeSlot = (dayIndex: number, slotIndex: number) => {
-    const updated = [...availability];
-    updated[dayIndex].slots.splice(slotIndex, 1);
+    setAvailability((prev) =>
+      prev.map((day, index) => {
+        if (index !== dayIndex) return day;
 
-    // If no slots left, disable the day
-    if (updated[dayIndex].slots.length === 0) {
-      updated[dayIndex].available = false;
-    }
+        const newSlots = day.slots.filter((_, sIndex) => sIndex !== slotIndex);
+        const newAvailable = newSlots.length > 0; // If no slots left, disable day
 
-    setAvailability(updated);
+        return {
+          ...day,
+          slots: newSlots,
+          available: day.available && newSlots.length === 0 ? false : day.available,
+        };
+      })
+    );
   };
 
   const updateTimeSlot = (
@@ -205,9 +232,19 @@ export const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({
     field: 'start' | 'end',
     value: string
   ) => {
-    const updated = [...availability];
-    updated[dayIndex].slots[slotIndex][field] = value;
-    setAvailability(updated);
+    setAvailability((prev) =>
+      prev.map((day, index) => {
+        if (index !== dayIndex) return day;
+
+        return {
+          ...day,
+          slots: day.slots.map((slot, sIndex) => {
+            if (sIndex !== slotIndex) return slot;
+            return { ...slot, [field]: value };
+          }),
+        };
+      })
+    );
   };
 
   return (
@@ -231,11 +268,10 @@ export const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: dayIndex * 0.05 }}
-            className={`border rounded-lg p-4 transition-all ${
-              dayAvail.available
+            className={`border rounded-lg p-4 transition-all ${dayAvail.available
                 ? 'border-ui-blue-primary bg-ui-blue-primary/5'
                 : 'border-gray-200 bg-white'
-            }`}
+              }`}
           >
             {/* Day Header */}
             <div className="flex items-center justify-between mb-3">
@@ -248,9 +284,8 @@ export const AvailabilityEditor: React.FC<AvailabilityEditorProps> = ({
                 />
                 <Label
                   htmlFor={`day-${dayIndex}`}
-                  className={`text-base font-medium cursor-pointer ${
-                    dayAvail.available ? 'text-ui-blue-primary' : 'text-gray-700'
-                  }`}
+                  className={`text-base font-medium cursor-pointer ${dayAvail.available ? 'text-ui-blue-primary' : 'text-gray-700'
+                    }`}
                 >
                   <Calendar className="w-4 h-4 inline mr-2" />
                   {dayAvail.day}

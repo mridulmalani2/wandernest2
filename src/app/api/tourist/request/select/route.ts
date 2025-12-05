@@ -33,7 +33,8 @@ async function selectStudents(req: NextRequest) {
   const body = await req.json()
   const validatedData = selectSchema.parse(body)
 
-  const { requestId, selectedStudentIds } = validatedData
+  const { requestId, selectedStudentIds: rawStudentIds } = validatedData
+  const selectedStudentIds = Array.from(new Set(rawStudentIds))
 
   // Get the tourist request
   const touristRequest = await withDatabaseRetry(async () =>
@@ -91,7 +92,7 @@ async function selectStudents(req: NextRequest) {
           data: {
             requestId,
             studentId,
-            status: 'pending',
+            status: 'PENDING',
           },
         })
       ),

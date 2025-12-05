@@ -2,6 +2,8 @@
 export const dynamic = 'force-dynamic'
 
 import { NextRequest, NextResponse } from 'next/server'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth-options'
 import { requireDatabase } from '@/lib/prisma'
 
 export async function GET(req: NextRequest) {
@@ -32,6 +34,28 @@ export async function GET(req: NextRequest) {
       return NextResponse.json(
         { success: false, error: 'Request not found' },
         { status: 404 }
+      )
+    }
+
+    // SECURITY: Authorize access
+    // Only the creator (Tourist) or an Admin should see full status
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.email) {
+      return NextResponse.json(
+        { success: false, error: 'Unauthorized' },
+        { status: 401 }
+      )
+    }
+
+    // Verify ownership
+    // Note: session.user.email is reliable.
+    // If we wanted to be stricter, we'd check touristId if available in schema vs session.
+    if (touristRequest.email !== session.user.email) {
+      // Allow admins or maybe the assigned student?
+      // For now, strictly restrict to owner to fix IDOR.
+      return NextResponse.json(
+        { success: false, error: 'Access denied' },
+        { status: 403 }
       )
     }
 

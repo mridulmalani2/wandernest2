@@ -56,10 +56,10 @@ export function FormProgressHeader({
           </div>
           <div className="text-right">
             <p className="text-sm font-semibold text-white">
-              {steps[currentStep - 1]?.name}
+              {steps[Math.max(0, currentStep - 1)]?.name}
             </p>
             <p className="text-xs text-white/70">
-              {steps[currentStep - 1]?.description}
+              {steps[Math.max(0, currentStep - 1)]?.description}
             </p>
           </div>
         </div>
@@ -217,7 +217,7 @@ export function FormProgressHeader({
                 ? "bg-gradient-to-r from-teal-400 via-teal-500 to-teal-600 shadow-teal-500/20"
                 : "bg-gradient-to-r from-ui-blue-primary via-ui-purple-primary to-ui-purple-accent shadow-ui-blue-primary/20"
             )}
-            style={{ width: `${((currentStep - 1) / (steps.length - 1)) * 100}%` }}
+            style={{ width: `${((currentStep - 1) / (Math.max(steps.length, 2) - 1)) * 100}%` }}
           />
         </div>
       </div>

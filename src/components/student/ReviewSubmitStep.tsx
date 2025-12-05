@@ -226,20 +226,19 @@ export function ReviewSubmitStep({ formData, errors }: ReviewSubmitStepProps) {
             <h3 className="text-sm font-medium text-white">Verification & Compliance</h3>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <VerificationTile
-              title="Documents"
-              subtitle="ID, Student Card, Photo"
-            />
-            <VerificationTile
-              title="Terms Accepted"
-              subtitle="Platform Policies"
-            />
-            {formData.emergencyContactName && (
-              <VerificationTile
-                title="Emergency Contact"
-                subtitle="Provided"
-              />
-            )}
+            {[
+              { title: 'Documents', subtitle: 'ID, Student Card, Photo', condition: true },
+              { title: 'Terms Accepted', subtitle: 'Platform Policies', condition: true },
+              { title: 'Emergency Contact', subtitle: 'Provided', condition: !!formData.emergencyContactName }
+            ]
+              .filter(item => item.condition)
+              .map((item, index) => (
+                <VerificationTile
+                  key={index}
+                  title={item.title}
+                  subtitle={item.subtitle}
+                />
+              ))}
           </div>
         </FlowCard>
       </div>

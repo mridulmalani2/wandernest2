@@ -11,7 +11,7 @@ import { withErrorHandler, withDatabaseRetry, AppError } from '@/lib/error-handl
  * GET /api/tourist/bookings
  * Fetch all bookings for the authenticated tourist
  */
-async function getTouristBookings(request: NextRequest) {
+async function getTouristBookings() {
   // Get session from NextAuth
   const session = await getServerSession(authOptions);
 

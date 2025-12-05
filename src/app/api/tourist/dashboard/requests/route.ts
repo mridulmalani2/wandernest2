@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
 
   if (!authResult.authorized) {
     return NextResponse.json(
-      { error: authResult.error || 'Unauthorized' },
+      { error: 'Unauthorized' },
       { status: 401 }
     )
   }
@@ -58,7 +58,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ requests })
   } catch (error) {
-    console.error('Error fetching tourist requests:', error)
+    console.error('Error fetching tourist requests:', error instanceof Error ? error.message : 'Unknown error')
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
