@@ -37,14 +37,26 @@ const buttonVariants = cva(
 
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {
+  VariantProps<typeof buttonVariants> {
   asChild?: boolean
   disableMotion?: boolean
 }
 
+import { Slot } from '@radix-ui/react-slot'
+
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, disableMotion = false, ...props }, ref) => {
+  ({ className, variant, size, asChild = false, disableMotion = false, ...props }, ref) => {
     const buttonClassName = cn(buttonVariants({ variant, size, className }))
+
+    if (asChild) {
+      return (
+        <Slot
+          className={buttonClassName}
+          ref={ref}
+          {...props}
+        />
+      )
+    }
 
     if (disableMotion) {
       return (
@@ -56,10 +68,8 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       )
     }
 
-    const MotionButton = motion.button as any
-
     return (
-      <MotionButton
+      <motion.button
         className={buttonClassName}
         ref={ref}
         whileHover={{
@@ -71,7 +81,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           scale: 0.97,
           transition: { duration: 0.1 }
         }}
-        {...props}
+        {...(props as HTMLMotionProps<"button">)}
       />
     )
   }

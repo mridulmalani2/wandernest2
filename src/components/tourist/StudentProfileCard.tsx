@@ -45,16 +45,18 @@ export function StudentProfileCard({
 
   return (
     <Card
-      className={`relative transition-all duration-300 hover-lift-lg cursor-pointer group ${
-        isSelected
+      className={`relative transition-all duration-300 hover-lift-lg cursor-pointer group ${isSelected
           ? 'ring-4 ring-ui-blue-primary shadow-glow-blue bg-gradient-to-br from-ui-blue-primary/10 to-white'
           : 'shadow-premium hover:shadow-elevated bg-white border-2 border-gray-100 hover:border-ui-blue-secondary'
-      }`}
+        }`}
       onClick={() => onToggleSelect(student.studentId)}
     >
       <CardContent className="p-6">
         {/* Selection Checkbox */}
-        <div className="absolute top-4 right-4">
+        <div
+          className="absolute top-4 right-4"
+          onClick={(e) => e.stopPropagation()}
+        >
           <Checkbox
             checked={isSelected}
             onCheckedChange={() => onToggleSelect(student.studentId)}
@@ -105,7 +107,7 @@ export function StudentProfileCard({
               <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
               <span className="text-xs font-semibold">Rating</span>
             </div>
-            {student.averageRating ? (
+            {student.averageRating != null ? (
               <p className="text-lg font-bold text-gray-900">
                 {student.averageRating.toFixed(1)}/5
                 <span className="text-xs text-gray-600 ml-1 font-medium">
@@ -161,7 +163,7 @@ export function StudentProfileCard({
             </p>
             <ul className="space-y-1.5">
               {student.matchReasons.slice(0, 3).map((reason, index) => (
-                <li key={index} className="text-sm text-ui-blue-accent flex items-start font-medium">
+                <li key={`${reason}-${index}`} className="text-sm text-ui-blue-accent flex items-start font-medium">
                   <span className="mr-2 text-ui-blue-primary">•</span>
                   <span>{reason}</span>
                 </li>
