@@ -35,10 +35,11 @@ export function ContactStep({ data, errors, updateData, isEmailFromSession = fal
   }
 
   const handlePhoneChange = (phone: string) => {
-    updateData({ phone })
+    const updates: Partial<BookingFormData> = { phone }
     if (useWhatsApp) {
-      updateData({ whatsapp: phone })
+      updates.whatsapp = phone
     }
+    updateData(updates)
   }
 
   return (
@@ -72,26 +73,13 @@ export function ContactStep({ data, errors, updateData, isEmailFromSession = fal
             <label className="text-sm font-light tracking-wide text-white/90 block">
               Phone Number <span className="text-xs text-white/50 ml-1">(Optional)</span>
             </label>
-            <div className="flex gap-3">
-              <input
-                type="text"
-                placeholder="+1"
-                defaultValue="+1"
-                className={cn(
-                  'w-20 text-center bg-transparent px-2 py-3 text-base font-light text-white',
-                  'border-0 border-b border-white/20 focus:border-b-2 focus:border-white',
-                  'transition-all duration-300 focus:outline-none'
-                )}
-              />
-              <LiquidInput
-                type="tel"
-                placeholder="123-456-7890"
-                value={data.phone || ''}
-                onChange={(e) => handlePhoneChange(e.target.value)}
-                icon={Phone}
-                containerClassName="flex-1"
-              />
-            </div>
+            <LiquidInput
+              type="tel"
+              placeholder="+1 123-456-7890"
+              value={data.phone || ''}
+              onChange={(e) => handlePhoneChange(e.target.value)}
+              icon={Phone}
+            />
           </div>
 
           {data.phone && (
@@ -188,7 +176,7 @@ export function ContactStep({ data, errors, updateData, isEmailFromSession = fal
             <label className="text-sm font-light tracking-wide text-white/90 block">
               Were you referred by anyone? If yes, please share their email here.
             </label>
-            <Link href="/referral-policy" target="_blank" className="text-xs font-medium text-ui-blue-primary hover:text-ui-blue-accent transition-colors border border-ui-blue-primary/30 rounded-full px-3 py-1 hover:bg-ui-blue-primary/10">
+            <Link href="/referral-policy" target="_blank" rel="noopener noreferrer" className="text-xs font-medium text-ui-blue-primary hover:text-ui-blue-accent transition-colors border border-ui-blue-primary/30 rounded-full px-3 py-1 hover:bg-ui-blue-primary/10">
               Learn More
             </Link>
           </div>
@@ -222,15 +210,18 @@ export function ContactStep({ data, errors, updateData, isEmailFromSession = fal
               errors.termsAccepted && 'border-ui-error'
             )}
           />
-          <label htmlFor="termsConsent" className="text-sm font-light cursor-pointer space-y-2">
+          <div className="text-sm font-light space-y-2">
             <p className="text-white/90">
-              I agree to the <Link href="/terms" className="font-medium text-white hover:underline" onClick={(e) => e.stopPropagation()}>Terms of Service</Link> and <Link href="/privacy" className="font-medium text-white hover:underline" onClick={(e) => e.stopPropagation()}>Privacy Policy</Link>.
+              <label htmlFor="termsConsent" className="cursor-pointer">I agree to the </label>
+              <Link href="/terms" className="font-medium text-white hover:underline" onClick={(e) => e.stopPropagation()}>Terms of Service</Link>
+              <label htmlFor="termsConsent" className="cursor-pointer"> and </label>
+              <Link href="/privacy" className="font-medium text-white hover:underline" onClick={(e) => e.stopPropagation()}>Privacy Policy</Link>.
             </p>
             <div className="bg-white/10 p-3 rounded-xl border border-white/10 text-xs text-gray-300">
               <strong className="text-white block mb-1">Disclaimer:</strong>
               TourWiseCo is a marketplace connector only and does not handle payments, guarantee service quality, or assume liability for guide interactions.
             </div>
-          </label>
+          </div>
         </div>
         {errors.termsAccepted && (
           <p className="text-xs font-light text-ui-error mt-3 flex items-center gap-1">
@@ -241,7 +232,7 @@ export function ContactStep({ data, errors, updateData, isEmailFromSession = fal
       </FlowCard>
 
       {/* Privacy Notice */}
-      <div className="bg-white/5 rounded-2xl p-4 flex gap-3 items-start border border-white/10">
+      <FlowCard variant="subtle" padding="sm" className="flex gap-3 items-start border border-white/10">
         <Shield className="h-5 w-5 text-white/70 shrink-0 mt-0.5" />
         <div className="space-y-1">
           <h3 className="font-medium text-white text-sm">Privacy Guarantee</h3>
@@ -249,7 +240,7 @@ export function ContactStep({ data, errors, updateData, isEmailFromSession = fal
             Your contact information will only be shared with your matched guide after you accept their proposal.
           </p>
         </div>
-      </div>
+      </FlowCard>
     </div>
   )
 }
