@@ -1,25 +1,48 @@
 // Design System: Modern card component with cohesive border radius and shadows
 'use client';
 
-import * as React from "react"
-import { motion } from "framer-motion"
+import React, { forwardRef } from 'react'
+import { motion, HTMLMotionProps } from 'framer-motion'
 
-interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
+interface CardProps extends HTMLMotionProps<'div'> {
+  variant?: 'default' | 'elevated' | 'subtle' | 'ghost'
+  padding?: 'none' | 'sm' | 'md' | 'lg'
   disableMotion?: boolean
-  hoverScale?: number
-  hoverY?: number
 }
 
-const Card = React.forwardRef<HTMLDivElement, CardProps>(
-  ({ className, disableMotion = false, hoverScale = 1.02, hoverY = -4, ...props }, ref) => {
-    const cardClassName = `rounded-xl border border-border/50 bg-card/80 backdrop-blur-sm text-card-foreground shadow-soft ${className || ''}`
+const Card = forwardRef<HTMLDivElement, CardProps>(
+  (
+    {
+      className,
+      variant = 'default',
+      padding = 'md',
+      disableMotion = false,
+      ...props
+    },
+    ref
+  ) => {
+    const variants = {
+      default: 'bg-glass-card border-white/10 text-card-foreground shadow-soft',
+      elevated: 'bg-glass-card-dark border-white/10 text-card-foreground shadow-premium backdrop-blur-xl',
+      subtle: 'bg-white/5 border-white/5 text-card-foreground',
+      ghost: 'bg-transparent border-transparent text-card-foreground hover:bg-white/5',
+    }
+
+    const paddings = {
+      none: 'p-0',
+      sm: 'p-3',
+      md: 'p-6',
+      lg: 'p-8',
+    }
+
+    const cardClassName = `relative rounded-3xl border ${variants[variant]} ${paddings[padding]} ${className || ''}`
 
     if (disableMotion) {
       return (
         <div
           ref={ref}
           className={`${cardClassName} hover:shadow-premium transition-all duration-300`}
-          {...props}
+          {...(props as React.HTMLAttributes<HTMLDivElement>)}
         />
       )
     }
@@ -29,8 +52,8 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
         ref={ref}
         className={`${cardClassName} hover:shadow-premium`}
         whileHover={{
-          scale: hoverScale,
-          y: hoverY,
+          scale: 1.02,
+          y: -4,
           transition: { duration: 0.3, ease: [0.22, 1, 0.36, 1] }
         }}
         transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
@@ -41,7 +64,7 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
 )
 Card.displayName = "Card"
 
-const CardHeader = React.forwardRef<
+const CardHeader = forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => (
@@ -53,7 +76,7 @@ const CardHeader = React.forwardRef<
 ))
 CardHeader.displayName = "CardHeader"
 
-const CardTitle = React.forwardRef<
+const CardTitle = forwardRef<
   HTMLParagraphElement,
   React.HTMLAttributes<HTMLHeadingElement>
 >(({ className, ...props }, ref) => (
@@ -65,7 +88,7 @@ const CardTitle = React.forwardRef<
 ))
 CardTitle.displayName = "CardTitle"
 
-const CardDescription = React.forwardRef<
+const CardDescription = forwardRef<
   HTMLParagraphElement,
   React.HTMLAttributes<HTMLParagraphElement>
 >(({ className, ...props }, ref) => (
@@ -77,7 +100,7 @@ const CardDescription = React.forwardRef<
 ))
 CardDescription.displayName = "CardDescription"
 
-const CardContent = React.forwardRef<
+const CardContent = forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => (
@@ -85,7 +108,7 @@ const CardContent = React.forwardRef<
 ))
 CardContent.displayName = "CardContent"
 
-const CardFooter = React.forwardRef<
+const CardFooter = forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => (

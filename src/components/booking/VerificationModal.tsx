@@ -32,6 +32,9 @@ export function VerificationModal({ email, formData, onSuccess, onClose }: Props
   }, [])
 
   const handleChange = (index: number, value: string) => {
+    // Only allow digits
+    if (!/^\d*$/.test(value)) return
+
     if (value.length > 1) {
       // Handle paste
       const pastedCode = value.slice(0, 6).split('')
@@ -91,15 +94,15 @@ export function VerificationModal({ email, formData, onSuccess, onClose }: Props
         onSuccess(data.requestId)
       } else {
         if (data.action === 'regenerate') {
-          setError(data.error + ' Please request a new code.')
+          setError('Code expired. Please request a new one.')
           setAttemptsRemaining(0)
         } else if (data.attemptsRemaining !== undefined) {
           setAttemptsRemaining(data.attemptsRemaining)
-          setError(`${data.error}. ${data.attemptsRemaining} attempts remaining.`)
+          setError(`Incorrect code. ${data.attemptsRemaining} attempts remaining.`)
           setCode(['', '', '', '', '', ''])
           inputRefs.current[0]?.focus()
         } else {
-          setError(data.error || 'Verification failed')
+          setError('Verification failed. Please check your code.')
         }
       }
     } catch (error) {
@@ -155,7 +158,7 @@ export function VerificationModal({ email, formData, onSuccess, onClose }: Props
                 ref={(el) => { inputRefs.current[index] = el }}
                 type="text"
                 inputMode="numeric"
-                maxLength={6}
+                maxLength={1}
                 value={digit}
                 onChange={(e) => handleChange(index, e.target.value)}
                 onKeyDown={(e) => handleKeyDown(index, e)}

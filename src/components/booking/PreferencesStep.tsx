@@ -110,16 +110,26 @@ export function PreferencesStep({ data, errors, updateData }: Props) {
             <div className="relative">
               <div
                 onClick={() => setIsLanguageOpen(!isLanguageOpen)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault()
+                    setIsLanguageOpen(!isLanguageOpen)
+                  }
+                }}
+                role="combobox"
+                aria-expanded={isLanguageOpen}
+                aria-haspopup="listbox"
+                tabIndex={0}
                 className={cn(
-                  'w-full min-h-[48px] px-0 py-3 cursor-pointer',
+                  'w-full min-h-[48px] px-0 py-3 cursor-pointer focus:outline-none focus:border-white',
                   'border-0 border-b border-white/20 transition-all duration-300',
                   'flex flex-wrap gap-2 items-center',
                   isLanguageOpen && 'border-b-2 border-white',
                   errors.preferredLanguages && 'border-ui-error'
                 )}
               >
-                {data.preferredLanguages.length > 0 ? (
-                  data.preferredLanguages.map((langValue) => {
+                {(data.preferredLanguages || []).length > 0 ? (
+                  (data.preferredLanguages || []).map((langValue) => {
                     const langLabel = LANGUAGE_OPTIONS.find(l => l.value === langValue)?.label || langValue
                     return (
                       <span
@@ -151,7 +161,10 @@ export function PreferencesStep({ data, errors, updateData }: Props) {
               </div>
 
               {isLanguageOpen && (
-                <div className="absolute top-full left-0 w-full mt-2 bg-white rounded-2xl shadow-lg border border-gray-100 z-50 overflow-hidden animate-scale-in">
+                <div
+                  className="absolute top-full left-0 w-full mt-2 bg-white rounded-2xl shadow-lg border border-gray-100 z-50 overflow-hidden animate-scale-in"
+                  role="listbox"
+                >
                   <div className="p-3 border-b border-gray-100">
                     <div className="relative">
                       <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -167,11 +180,13 @@ export function PreferencesStep({ data, errors, updateData }: Props) {
                   </div>
                   <div className="max-h-60 overflow-y-auto p-1">
                     {filteredLanguages.map((language) => {
-                      const isSelected = data.preferredLanguages.includes(language.value)
+                      const isSelected = (data.preferredLanguages || []).includes(language.value)
                       return (
                         <div
                           key={language.value}
                           onClick={() => toggleLanguage(language.value)}
+                          role="option"
+                          aria-selected={isSelected}
                           className={cn(
                             'flex items-center justify-between px-3 py-2 rounded-xl cursor-pointer text-sm transition-all',
                             isSelected

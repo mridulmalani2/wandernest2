@@ -20,6 +20,7 @@ export default function GuideSelection({
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [successMsg, setSuccessMsg] = useState<string | null>(null)
+  const [retryCount, setRetryCount] = useState(0)
 
   useEffect(() => {
     const controller = new AbortController()
@@ -55,7 +56,7 @@ export default function GuideSelection({
     return () => {
       controller.abort()
     }
-  }, [requestId])
+  }, [requestId, retryCount])
 
   const handleGuideSelect = (guideId: string) => {
     setSelectedGuides(prev => {
@@ -139,7 +140,7 @@ export default function GuideSelection({
       >
         <p className="text-destructive font-medium">{error}</p>
         <motion.button
-          onClick={fetchMatches}
+          onClick={() => setRetryCount(c => c + 1)}
           className="mt-4 px-4 py-2 bg-destructive text-destructive-foreground rounded-lg shadow-soft"
           whileHover={{ scale: 1.05, boxShadow: '0 10px 40px -10px rgba(0, 0, 0, 0.15)' }}
           whileTap={{ scale: 0.95 }}
