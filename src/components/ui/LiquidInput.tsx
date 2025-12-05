@@ -13,7 +13,7 @@ export interface LiquidInputProps extends React.InputHTMLAttributes<HTMLInputEle
 }
 
 const LiquidInput = React.forwardRef<HTMLInputElement, LiquidInputProps>(
-    ({ className, label, error, helperText, icon: Icon, containerClassName, type, ...props }, ref) => {
+    ({ className, label, error, helperText, icon: Icon, containerClassName, type, placeholder, ...props }, ref) => {
         const [isFocused, setIsFocused] = React.useState(false);
         const [hasValue, setHasValue] = React.useState(false);
         const id = React.useId();
@@ -65,19 +65,12 @@ const LiquidInput = React.forwardRef<HTMLInputElement, LiquidInputProps>(
                             // Always hide placeholder when we have a label (prevents overlap)
                             label && 'placeholder:text-transparent',
 
-                            // Force hide date input placeholders (browser default)
-                            // type === 'date' && '[&::-webkit-datetime-edit]:opacity-0 focus:[&::-webkit-datetime-edit]:opacity-100',
-                            // type === 'date' && hasValue && '[&::-webkit-datetime-edit]:opacity-100',
-
-                            // Date input specific styling for dark mode
-                            // type === 'date' && '[color-scheme:dark]',
-
                             className
                         )}
                         ref={ref}
                         onFocus={handleFocus}
                         onBlur={handleBlur}
-                        placeholder={type === 'date' || label ? '' : (props.placeholder || ' ')}
+                        placeholder={type === 'date' || label ? '' : (placeholder || ' ')}
                         {...props}
                     />
 
