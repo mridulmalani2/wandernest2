@@ -94,23 +94,18 @@ const BasicProfileStep = dynamic(() =>
 - Reduced bandwidth usage
 - Improved Core Web Vitals scores
 
-### 4. JWT Secret Handling ✅
+### 4. Security Audits & Fixes ✅
 
-**Issue**: Build failing due to missing `JWT_SECRET` at build time
-**Solution**: Modified auth.ts to use runtime validation:
-```typescript
-function getJWTSecret(): string {
-  const secret = process.env.JWT_SECRET
-  if (!secret) {
-    // Use placeholder for build, validate at runtime
-    if (process.env.NODE_ENV === 'production' && typeof window === 'undefined') {
-      throw new Error('JWT_SECRET required')
-    }
-    return 'build-time-placeholder-secret'
-  }
-  return secret
-}
-```
+**Issue 1**: Insecure JWT Secret Placeholder
+- **Problem**: Previous build configuration used `'build-time-placeholder-secret'` when `JWT_SECRET` was missing variables.
+- **Fix**: Removed the fallback completely in `src/lib/auth.ts`. The build will now explicitly fail if `JWT_SECRET` is not set in the environment, preventing accidental deployments with weak security.
+
+**Issue 2**: Legacy Code Cleanup
+- **Problem**: Old P2P/WebRTC code from the previous multiplayer architecture remained in the codebase.
+- **Fix**: 
+  - Verified removal of `SimplePeer` and manual WebRTC signal handling.
+  - Confirmed deletion of unused API routes related to old signaling mechanisms.
+  - `middleware.ts` updated to route strictly to new endpoints.
 
 ## Performance Metrics Estimated
 

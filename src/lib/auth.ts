@@ -6,13 +6,7 @@ import bcryptjs from 'bcryptjs'
 function getJWTSecret(): string {
   const secret = process.env.JWT_SECRET
   if (!secret) {
-    // During build time, use a placeholder to avoid build errors
-    // At runtime, this will throw if not set
-    if (process.env.NODE_ENV === 'production' && typeof window === 'undefined') {
-      throw new Error('JWT_SECRET environment variable is required but not set')
-    }
-    // Return placeholder for build time
-    return 'build-time-placeholder-secret'
+    throw new Error('JWT_SECRET environment variable is required but not set')
   }
   return secret
 }
