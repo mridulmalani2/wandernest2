@@ -71,7 +71,7 @@ async function createTouristRequest(req: NextRequest) {
   const validatedData = createBookingSchema.parse(body);
 
   // Ensure database is available (throws clear error if not)
-  const prisma = requireDatabase();
+
 
   // Create the TouristRequest
   const expiresAt = new Date();
@@ -79,104 +79,58 @@ async function createTouristRequest(req: NextRequest) {
 
   let touristRequest: any;
 
-  if (db) {
-    // Database is available - use Prisma
-    touristRequest = await withDatabaseRetry(async () =>
-      db.touristRequest.create({
-        data: {
-          // Link to tourist
-          touristId: touristId,
-          email: session.user.email,
-          emailVerified: true, // Already verified via Google OAuth
+  // Database is available - use Prisma
+  touristRequest = await withDatabaseRetry(async () =>
+    db.touristRequest.create({
+      data: {
+        // Link to tourist
+        touristId: touristId,
+        email: session.user.email,
+        emailVerified: true, // Already verified via Google OAuth
 
-          // Trip Details
-          city: validatedData.city,
-          dates: validatedData.dates,
-          preferredTime: validatedData.preferredTime,
-          numberOfGuests: validatedData.numberOfGuests,
-          groupType: validatedData.groupType,
-          accessibilityNeeds: validatedData.accessibilityNeeds,
+        // Trip Details
+        city: validatedData.city,
+        dates: validatedData.dates,
+        preferredTime: validatedData.preferredTime,
+        numberOfGuests: validatedData.numberOfGuests,
+        groupType: validatedData.groupType,
+        accessibilityNeeds: validatedData.accessibilityNeeds,
 
-          // Preferences
-          preferredNationality: validatedData.preferredNationality,
-          preferredLanguages: validatedData.preferredLanguages,
-          serviceType: validatedData.serviceType,
-          interests: validatedData.interests,
-          budget: validatedData.budget,
+        // Preferences
+        preferredNationality: validatedData.preferredNationality,
+        preferredLanguages: validatedData.preferredLanguages,
+        serviceType: validatedData.serviceType,
+        interests: validatedData.interests,
+        budget: validatedData.budget,
 
-          // Contact
-          phone: validatedData.phone,
-          whatsapp: validatedData.whatsapp,
-          contactMethod: validatedData.contactMethod,
-          meetingPreference: 'public_place', // Default value
-          tripNotes: validatedData.tripNotes,
-          referralEmail: validatedData.referralEmail || null,
+        // Contact
+        phone: validatedData.phone,
+        whatsapp: validatedData.whatsapp,
+        contactMethod: validatedData.contactMethod,
+        meetingPreference: 'public_place', // Default value
+        tripNotes: validatedData.tripNotes,
+        referralEmail: validatedData.referralEmail || null,
 
-          status: 'PENDING',
-          expiresAt,
-        },
-      })
-    );
+        status: 'PENDING',
+        expiresAt,
+      },
+    })
+  );
 
-    // Send booking confirmation email to tourist
-    // Matching will be handled separately via admin dashboard
-    console.log(`[createTouristRequest] Sending booking confirmation email to ${session.user.email}`)
-    const emailResult = await sendBookingConfirmation(
-      session.user.email,
-      touristRequest.id,
-      { matchesFound: 0 } // No automatic matching - admin will handle matching later
-    )
+  // Send booking confirmation email to tourist
+  // Matching will be handled separately via admin dashboard
+  console.log(`[createTouristRequest] Sending booking confirmation email`)
+  const emailResult = await sendBookingConfirmation(
+    session.user.email,
+    touristRequest.id,
+    { matchesFound: 0 } // No automatic matching - admin will handle matching later
+  )
 
-    if (emailResult.success) {
-      console.log(`[createTouristRequest] ✅ Booking confirmation email sent successfully`)
-    } else {
-      console.warn('⚠️  Failed to send booking confirmation email:', emailResult.error)
-      // Continue anyway - email failure should not block booking creation
-    }
+  if (emailResult.success) {
+    console.log(`[createTouristRequest] ✅ Booking confirmation email sent successfully`)
   } else {
-    // Database not available - use in-memory storage for demo
-    const requestId = `demo-request-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-
-    touristRequest = {
-      id: requestId,
-      touristId: touristId,
-      email: session.user.email,
-      emailVerified: true,
-
-      // Trip Details
-      city: validatedData.city,
-      dates: validatedData.dates,
-      preferredTime: validatedData.preferredTime,
-      numberOfGuests: validatedData.numberOfGuests,
-      groupType: validatedData.groupType,
-      accessibilityNeeds: validatedData.accessibilityNeeds,
-
-      // Preferences
-      preferredNationality: validatedData.preferredNationality,
-      preferredLanguages: validatedData.preferredLanguages,
-      serviceType: validatedData.serviceType,
-      interests: validatedData.interests,
-      budget: validatedData.budget,
-
-      // Contact
-      phone: validatedData.phone,
-      whatsapp: validatedData.whatsapp,
-      contactMethod: validatedData.contactMethod,
-      meetingPreference: 'public_place',
-      tripNotes: validatedData.tripNotes,
-      referralEmail: validatedData.referralEmail || null,
-
-      status: 'PENDING',
-      expiresAt,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-
-    // Store in memory
-    demoRequests.set(requestId, touristRequest);
-
-    console.log(`[DEMO MODE] Created tourist request: ${requestId}`);
-    console.log(`[DEMO MODE] Stored ${demoRequests.size} requests in memory`);
+    console.warn('⚠️  Failed to send booking confirmation email:', emailResult.error)
+    // Continue anyway - email failure should not block booking creation
   }
 
   return NextResponse.json(
@@ -184,7 +138,7 @@ async function createTouristRequest(req: NextRequest) {
       success: true,
       message: 'Booking request created successfully',
       requestId: touristRequest.id,
-      request: touristRequest,
+      status: touristRequest.status,
     },
     { status: 201 }
   );

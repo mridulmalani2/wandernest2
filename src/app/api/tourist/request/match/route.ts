@@ -58,7 +58,9 @@ interface ScoredStudent {
   bio: string | null
   coverLetter: string | null
   score: number
+
   matchReasons: string[]
+  tags: string[]
 }
 
 function calculateMatchScore(
@@ -138,11 +140,8 @@ function calculateMatchScore(
 }
 
 function maskStudentIdentity(student: { id: string }, index: number): string {
-  // Create a masked identifier like "Guide #A73F"
-  const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-  const letter = letters[index % letters.length]
-  const numbers = student.id.slice(-3).toUpperCase()
-  return `Guide #${letter}${numbers}`
+  // Use index to create a deterministic but anonymous alias for this list
+  return `Guide #${(index + 101).toString()}`
 }
 
 function extractTags(student: { coverLetter: string | null; bio: string | null }): string[] {
@@ -353,6 +352,7 @@ async function matchStudents(req: NextRequest) {
         coverLetter: student.coverLetter,
         score,
         matchReasons: reasons,
+        tags,
       }
     })
 
@@ -383,7 +383,7 @@ async function matchStudents(req: NextRequest) {
         reviewCount: student.tripsHosted, // Approximation
         noShowCount: student.noShowCount,
         reliabilityBadge: student.reliabilityBadge,
-        tags: extractTags(student),
+        tags: student.tags,
         matchReasons: student.matchReasons,
       })),
       suggestedPriceRange,

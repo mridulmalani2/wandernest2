@@ -131,12 +131,7 @@ export async function POST(req: NextRequest) {
         `${matchResult.invitationsSent} invitations sent`
       )
     } else {
-      console.warn(`[verifyTouristRequest] Auto-match failed:`, matchResult.errors)
-      // Continue anyway - matching is not critical for request creation
-    }
-
-    if (matchResult.errors.length > 0) {
-      console.warn(`[verifyTouristRequest] Auto-match warnings:`, matchResult.errors)
+      console.warn(`[verifyTouristRequest] Auto-match failed/warnings:`, matchResult.errors)
     }
 
     // Send booking confirmation email with match status (non-critical)
@@ -155,7 +150,8 @@ export async function POST(req: NextRequest) {
         success: true,
         message: 'Booking request created successfully',
         requestId: touristRequest.id,
-        request: touristRequest,
+        // sanitize PII from response as client already has the data
+        status: touristRequest.status,
       },
       { status: 201 }
     )
