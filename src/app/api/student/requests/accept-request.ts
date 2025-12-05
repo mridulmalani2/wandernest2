@@ -80,14 +80,23 @@ export async function acceptRequest(requestId: string, studentId: string) {
       },
     })
 
-    // Update the tourist request
-    await tx.touristRequest.update({
-      where: { id: requestId },
+    // Atomic Update: Ensure request is still PENDING and not expired at the moment of update
+    // This prevents race conditions where two students accept simultaneously
+    const updatedRequest = await tx.touristRequest.update({
+      where: {
+        id: requestId,
+        status: 'PENDING',
+        expiresAt: { gt: new Date() } // Ensure not expired
+      },
       data: {
         status: 'ACCEPTED',
         assignedStudentId: studentId,
       },
     })
+
+    // If update fails (e.g. record not found because status changed or expired), it throws P2025
+    // We catch this implicitly via the transaction failure or explicit check if we used updateMany (but update throws on missing).
+
 
     // Update student metrics
     await tx.student.update({
@@ -97,7 +106,7 @@ export async function acceptRequest(requestId: string, studentId: string) {
       },
     })
 
-    return { student, touristRequest, selection: updatedSelection }
+    return { student, touristRequest: updatedRequest, selection: updatedSelection }
   })
 
   // Send notification emails (outside transaction)

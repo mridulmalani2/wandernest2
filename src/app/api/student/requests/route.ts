@@ -16,8 +16,8 @@ export const GET = withStudent(async (request, studentAuth) => {
 
         if (!student) {
             return NextResponse.json(
-                { error: 'Student profile not found' },
-                { status: 404 }
+                { error: 'Unauthorized or Student profile not found' },
+                { status: 401 }
             );
         }
         studentId = student.id;

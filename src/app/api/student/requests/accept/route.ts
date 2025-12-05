@@ -5,10 +5,34 @@ import { NextRequest, NextResponse } from 'next/server'
 import { verifyStudent } from '@/lib/api-auth'
 import { acceptRequest } from '../accept-request'
 import { requireDatabase } from '@/lib/prisma'
+import { AppError } from '@/lib/error-handler'
 
 export async function POST(req: NextRequest) {
   try {
     const db = requireDatabase()
+
+    // CSRF Protection: Strict Origin Check
+    const origin = req.headers.get('origin')
+    const referer = req.headers.get('referer')
+    const host = req.headers.get('host')
+    const protocol = req.headers.get('x-forwarded-proto') || 'http'
+    const expectedOrigin = `${protocol}://${host}`
+
+    // Browsers send Origin for POST requests. If present, it must match.
+    if (origin && origin !== expectedOrigin) {
+      return NextResponse.json(
+        { error: 'Forbidden: Invalid Origin' },
+        { status: 403 }
+      )
+    }
+
+    // If Origin is missing (rare in modern browsers for POST), check Referer
+    if (!origin && referer && !referer.startsWith(expectedOrigin)) {
+      return NextResponse.json(
+        { error: 'Forbidden: Invalid Referer' },
+        { status: 403 }
+      )
+    }
 
     const authResult = await verifyStudent(req)
     if (!authResult.authorized || !authResult.student) {
@@ -61,16 +85,23 @@ export async function POST(req: NextRequest) {
 
     const errorMessage = error instanceof Error ? error.message : 'Failed to accept request'
 
-    if (error instanceof Error && error.message.includes('not found')) {
+    if (error instanceof AppError) {
       return NextResponse.json(
-        { error: errorMessage },
+        { error: error.message },
+        { status: error.statusCode }
+      )
+    }
+
+    if (error instanceof Error && (error.message.includes('not found') || error.message.includes('No tourist request found'))) {
+      return NextResponse.json(
+        { error: error.message },
         { status: 404 }
       )
     }
 
-    if (error instanceof Error && (error.message.includes('no longer available') || error.message.includes('expired'))) {
+    if (error instanceof Error && (error.message.includes('no longer available') || error.message.includes('expired') || error.message.includes('already accepted'))) {
       return NextResponse.json(
-        { error: errorMessage },
+        { error: error.message },
         { status: 409 }
       )
     }

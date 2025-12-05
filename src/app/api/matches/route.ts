@@ -8,14 +8,27 @@ import { requireDatabase } from '@/lib/prisma'
 import { findMatches, generateAnonymousId } from '@/lib/matching/algorithm'
 import { cache } from '@/lib/cache'
 import { CACHE_TTL } from '@/lib/constants'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/lib/auth-options'
+
+// Helper to map student to anonymized match response
+// eslint-disable-next-line
+const mapToMatchResponse = (student: any, selectionStatus?: string) => ({
+  id: student.id,
+  anonymousId: generateAnonymousId(student.id),
+  university: student.institute,
+  languages: student.languages,
+  tripsHosted: student.tripsHosted,
+  rating: student.averageRating || 0,
+  badge: student.reliabilityBadge || 'none',
+  score: student.score,
+  ...(selectionStatus && { selectionStatus })
+})
 
 /**
  * POST /api/matches
  * Find matching guides for a tourist request
  */
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth-options'
-
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
@@ -24,7 +37,6 @@ export async function POST(request: NextRequest) {
     }
 
     const db = requireDatabase()
-
     const body = await request.json()
     const { requestId } = body
 
@@ -35,21 +47,21 @@ export async function POST(request: NextRequest) {
       )
     }
 
-
     // Fetch the tourist request
     const touristRequest = await db.touristRequest.findUnique({
       where: { id: requestId }
     })
-
-    if (touristRequest && (touristRequest.email !== session.user.email)) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-    }
 
     if (!touristRequest) {
       return NextResponse.json(
         { error: 'Tourist request not found' },
         { status: 404 }
       )
+    }
+
+    // Authorization check
+    if (touristRequest.email !== session.user.email) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
     // Find matches with caching
@@ -60,16 +72,7 @@ export async function POST(request: NextRequest) {
     )
 
     // Format response with anonymized data
-    const anonymizedMatches = matches.map(student => ({
-      id: student.id,
-      anonymousId: generateAnonymousId(student.id),
-      university: student.institute,
-      languages: student.languages,
-      tripsHosted: student.tripsHosted,
-      rating: student.averageRating || 0,
-      badge: student.reliabilityBadge || 'none',
-      score: student.score
-    }))
+    const anonymizedMatches = matches.map(student => mapToMatchResponse(student))
 
     return NextResponse.json({
       success: true,
@@ -95,8 +98,12 @@ export async function POST(request: NextRequest) {
  */
 export async function GET(request: NextRequest) {
   try {
-    const db = requireDatabase()
+    const session = await getServerSession(authOptions)
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
 
+    const db = requireDatabase()
     const searchParams = request.nextUrl.searchParams
     const requestId = searchParams.get('requestId')
 
@@ -126,18 +133,17 @@ export async function GET(request: NextRequest) {
       )
     }
 
+    // Authorization check
+    if (touristRequest.email !== session.user.email) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+
     // Return existing selections if any
     if (touristRequest.selections && touristRequest.selections.length > 0) {
-      const selectedGuides = touristRequest.selections.map((selection: { student: { id: string; institute: string | null; languages: string[]; tripsHosted: number; averageRating: number | null; reliabilityBadge: string | null }; status: string }) => ({
-        id: selection.student.id,
-        anonymousId: generateAnonymousId(selection.student.id),
-        university: selection.student.institute,
-        languages: selection.student.languages,
-        tripsHosted: selection.student.tripsHosted,
-        rating: selection.student.averageRating || 0,
-        badge: selection.student.reliabilityBadge || 'none',
-        selectionStatus: selection.status
-      }))
+      // eslint-disable-next-line
+      const selectedGuides = touristRequest.selections.map((selection: any) =>
+        mapToMatchResponse(selection.student, selection.status)
+      )
 
       return NextResponse.json({
         success: true,
@@ -153,16 +159,7 @@ export async function GET(request: NextRequest) {
       { ttl: CACHE_TTL.MATCHES }
     )
 
-    const anonymizedMatches = matches.map(student => ({
-      id: student.id,
-      anonymousId: generateAnonymousId(student.id),
-      university: student.institute,
-      languages: student.languages,
-      tripsHosted: student.tripsHosted,
-      rating: student.averageRating || 0,
-      badge: student.reliabilityBadge || 'none',
-      score: student.score
-    }))
+    const anonymizedMatches = matches.map(student => mapToMatchResponse(student))
 
     return NextResponse.json({
       success: true,
@@ -170,7 +167,7 @@ export async function GET(request: NextRequest) {
       count: anonymizedMatches.length
     }, {
       headers: {
-        'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600',
+        'Cache-Control': 'private, max-age=300, stale-while-revalidate=600',
       },
     })
   } catch (error) {

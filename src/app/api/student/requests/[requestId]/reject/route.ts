@@ -12,29 +12,17 @@ async function rejectStudentRequest(
   const db = requireDatabase();
   const { requestId } = params
 
-  // Get token from cookie or header
-  const token =
-    req.cookies.get('student_token')?.value ||
-    req.headers.get('authorization')?.replace('Bearer ', '')
+  // Use verifyStudent for standardized authentication
+  const { verifyStudent } = await import('@/lib/api-auth')
+  const authResult = await verifyStudent(req)
 
-  if (!token) {
-    throw new AppError(401, 'Unauthorized - No token provided', 'NO_TOKEN')
+  if (!authResult.authorized || !authResult.student?.id) {
+    throw new AppError(401, 'Unauthorized or Invalid Session', 'UNAUTHORIZED')
   }
 
-  const prisma = requireDatabase()
+  const studentId = authResult.student.id;
 
-  // Find session
-  const session = await withDatabaseRetry(async () =>
-    db.studentSession.findUnique({
-      where: { token },
-    })
-  )
 
-  if (!session || !session.studentId) {
-    throw new AppError(401, 'Invalid or expired session', 'INVALID_SESSION')
-  }
-
-  const studentId = session.studentId
 
   // Get the RequestSelection for this student
   const selection = await withDatabaseRetry(async () =>

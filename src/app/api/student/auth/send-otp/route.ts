@@ -14,8 +14,9 @@ export async function POST(req: Request) {
       )
     }
 
-    // 6-digit OTP
-    const code = Math.floor(100000 + Math.random() * 900000).toString()
+    // 6-digit OTP using secure RNG
+    const { randomInt } = await import('crypto');
+    const code = randomInt(100000, 1000000).toString();
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000) // 10 minutes
 
     // Optimize DB operations: Invalidate old OTPs and create new one in a single transaction
@@ -38,12 +39,9 @@ export async function POST(req: Request) {
       }),
     ])
 
-    console.log('✅ OTP Generated:', {
-      email,
-      code, // Logged for debugging (remove in strict prod if needed, but helpful now)
-      expiresAt: expiresAt.toISOString(),
-      serverTime: new Date().toISOString()
-    });
+    if (process.env.NODE_ENV === 'development') {
+      console.log('✅ OTP Generated for:', email);
+    }
 
     // Send email synchronously for debugging
     console.log('Attempting to send OTP email to:', email);

@@ -27,10 +27,20 @@ async function getStudentDashboard(req: NextRequest) {
     throw new AppError(401, 'Unauthorized: Invalid or expired session', 'UNAUTHORIZED')
   }
 
-  // 2. Fetch Student Record using Session Email
-  const student = await db.student.findUnique({
-    where: { email: session.email },
-  })
+  // 2. Fetch Student Record
+  let student;
+
+  if (session.studentId) {
+    // Strong binding: Use the ID linked to the session
+    student = await db.student.findUnique({
+      where: { id: session.studentId },
+    })
+  } else {
+    // Weak binding (fallback): Use email
+    student = await db.student.findUnique({
+      where: { email: session.email },
+    })
+  }
 
   if (!student) {
     throw new AppError(404, 'Student not found', 'STUDENT_NOT_FOUND')
