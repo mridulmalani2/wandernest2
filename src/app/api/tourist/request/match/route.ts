@@ -409,11 +409,8 @@ async function matchStudents(req: NextRequest) {
 function maskName(fullName: string | null): string {
   if (!fullName) return 'Anonymous'
   const parts = fullName.trim().split(' ')
-  if (parts.length === 1) {
-    return parts[0]
-  }
-  // Show first name + last initial
-  return `${parts[0]} ${parts[parts.length - 1][0]}.`
+  // Return only the first name for privacy consistency
+  return parts[0]
 }
 
 // Export the POST handler (this was missing, causing 404 errors in production)

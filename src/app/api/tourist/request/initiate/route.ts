@@ -90,8 +90,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         {
           success: false,
-          error: 'Validation failed',
-          details: error.errors,
+          error: 'Validation failed. Please check your input.',
         },
         { status: 400 }
       )

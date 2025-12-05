@@ -49,8 +49,8 @@ export async function GET() {
           status: dbHealth.healthy
             ? 'healthy'
             : dbHealth.available
-            ? 'unhealthy'
-            : 'not_configured',
+              ? 'unhealthy'
+              : 'not_configured',
           available: dbHealth.available,
           healthy: dbHealth.healthy,
           error: dbHealth.error,
@@ -74,13 +74,13 @@ export async function GET() {
           configured: configSummary.integrations.redis === 'configured',
         },
       },
-      warnings: configSummary.warnings,
-      errors: configSummary.errors,
+      warnings: configSummary.warnings.length > 0 ? ['Check server logs for warnings'] : [],
+      errors: configSummary.errors.length > 0 ? ['Check server logs for errors'] : [],
     }
 
     return NextResponse.json(response, { status: httpStatus })
   } catch (error) {
-    console.error('❌ Health check failed:', error)
+    console.error('❌ Health check failed:', error instanceof Error ? error.message : 'Unknown error')
 
     return NextResponse.json(
       {

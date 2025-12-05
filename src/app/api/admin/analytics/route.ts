@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
 
   if (!authResult.authorized) {
     return NextResponse.json(
-      { error: authResult.error || 'Unauthorized' },
+      { error: 'Unauthorized' },
       { status: 401 }
     )
   }
@@ -146,11 +146,11 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(analyticsData, {
       headers: {
-        'Cache-Control': 'public, s-maxage=600, stale-while-revalidate=1800',
+        'Cache-Control': 'private, no-store, max-age=0',
       },
     })
   } catch (error) {
-    console.error('Error fetching analytics:', error)
+    console.error('Error fetching analytics:', error instanceof Error ? error.message : 'Unknown error')
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

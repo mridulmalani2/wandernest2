@@ -316,8 +316,8 @@ export function getConfigSummary() {
       googleAuth: config.auth.google.isConfigured ? 'configured' : 'not_configured',
       redis: config.redis.isConfigured ? 'configured' : 'not_configured',
     },
-    warnings: configWarnings.length,
-    errors: configErrors.length,
+    warnings: configWarnings,
+    errors: configErrors,
     healthy: configErrors.length === 0,
   }
 }

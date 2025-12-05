@@ -41,7 +41,7 @@ export async function GET(request: NextRequest) {
 
   if (!authResult.authorized) {
     return NextResponse.json(
-      { error: authResult.error || 'Unauthorized' },
+      { error: 'Unauthorized' },
       { status: 401 }
     )
   }
@@ -110,7 +110,7 @@ export async function GET(request: NextRequest) {
       upcomingBookings,
     })
   } catch (error) {
-    console.error('Error loading admin dashboard data', error)
+    console.error('Error loading admin dashboard data', error instanceof Error ? error.message : 'Unknown error')
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
