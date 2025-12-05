@@ -13,15 +13,11 @@ const providers = [];
 // ============================================================================
 // EMAIL PROVIDER CONFIGURATION (REQUIRED FOR STUDENT MAGIC-LINK SIGN-IN)
 // ============================================================================
-// Only add EmailProvider if email is properly configured with SMTP credentials.
+// Only add EmailProvider if email is properly configured (Resend or SMTP).
 // This prevents NextAuth from trying to use an unconfigured email service.
 //
-// Required environment variables for magic-link to work:
-// - EMAIL_HOST (e.g., smtp.gmail.com)
-// - EMAIL_PORT (e.g., 587 for TLS, 465 for SSL)
-// - EMAIL_USER (SMTP username / email address)
-// - EMAIL_PASS (SMTP password / app password)
-// - EMAIL_FROM (sender address shown in emails)
+// Preferred: RESEND_API_KEY (recommended for production)
+// Fallback: EMAIL_HOST, EMAIL_PORT, EMAIL_USER, EMAIL_PASS (SMTP)
 //
 // Without these, students will see a "Sign-In Unavailable" message on the student sign-in page.
 // ============================================================================
@@ -35,9 +31,9 @@ if (config.email.isConfigured) {
           user: config.email.user!,
           pass: config.email.pass!,
         },
-        secure: config.email.port === 465, // true for 465 (SSL), false for other ports like 587 (STARTTLS)
+        secure: config.email.port === 465,
         tls: {
-          rejectUnauthorized: config.app.isProduction, // Enforce in production, allow self-signed in dev
+          rejectUnauthorized: config.app.isProduction,
         },
       },
       from: config.email.from,
@@ -70,28 +66,63 @@ if (config.email.isConfigured) {
           console.log('🎓 Auth: Student email validation passed:', email);
         }
 
-        const nodemailer = (await import('nodemailer')).default
         const { host } = new URL(url)
 
+        // Try Resend first if available
+        if (config.email.resendApiKey) {
+          try {
+            const { Resend } = await import('resend')
+            const resend = new Resend(config.email.resendApiKey)
+
+            if (config.app.isDevelopment) {
+              console.log('📧 Attempting to send magic link email via Resend...')
+              console.log('   To:', email)
+              console.log('   From:', provider.from)
+            }
+
+            // Resend SDK v6+ returns data directly and throws on error
+            const data = await resend.emails.send({
+              from: provider.from,
+              to: email,
+              subject: `Sign in to ${host}`,
+              html: html({ url, host, email }),
+            })
+
+            console.log('✅ Magic link email sent successfully via Resend to:', email)
+            if (config.app.isDevelopment) {
+              console.log('   Message ID:', data.id)
+            }
+            return
+          } catch (error) {
+            console.error('❌ Error sending magic link email via Resend:', error)
+            // Fall through to SMTP if Resend fails
+            if (!config.email.host) {
+              throw error // No fallback available
+            }
+            console.log('🔄 Falling back to SMTP...')
+          }
+        }
+
+        // Fallback to SMTP
+        const nodemailer = (await import('nodemailer')).default
         const transport = nodemailer.createTransport({
           host: config.email.host!,
           port: config.email.port,
-          secure: config.email.port === 465, // true for 465 (SSL), false for other ports like 587 (STARTTLS)
+          secure: config.email.port === 465,
           auth: {
             user: config.email.user!,
             pass: config.email.pass!,
           },
           tls: {
-            rejectUnauthorized: config.app.isProduction, // Enforce in production, allow self-signed in dev
+            rejectUnauthorized: config.app.isProduction,
           },
-          // Add timeouts to prevent hanging
           connectionTimeout: 10000,
           greetingTimeout: 10000,
         })
 
         try {
           if (config.app.isDevelopment) {
-            console.log('📧 Attempting to send magic link email...')
+            console.log('📧 Attempting to send magic link email via SMTP...')
             console.log('   To:', email)
             console.log('   From:', provider.from)
             console.log('   SMTP Host:', config.email.host)
@@ -113,10 +144,10 @@ if (config.email.isConfigured) {
             throw new Error(`Email (${failed.join(', ')}) could not be sent`)
           }
 
-          console.log('✅ Magic link email sent successfully to:', email)
+          console.log('✅ Magic link email sent successfully via SMTP to:', email)
           console.log('   Message ID:', result.messageId)
         } catch (error) {
-          console.error('❌ Error sending magic link email:', error)
+          console.error('❌ Error sending magic link email via SMTP:', error)
           if (error instanceof Error) {
             console.error('   Error message:', error.message)
             console.error('   Error name:', error.name)
@@ -129,6 +160,7 @@ if (config.email.isConfigured) {
             console.error('   Error stack:', error.stack)
           }
           console.error('   Email config check:')
+          console.error('     - RESEND_API_KEY set:', !!config.email.resendApiKey)
           console.error('     - EMAIL_HOST set:', !!config.email.host)
           console.error('     - EMAIL_USER set:', !!config.email.user)
           console.error('     - EMAIL_PASS set:', !!config.email.pass)
@@ -139,9 +171,14 @@ if (config.email.isConfigured) {
     })
   );
   console.log('✅ EmailProvider configured - magic link authentication enabled');
+  if (config.email.resendApiKey) {
+    console.log('   Using Resend API for magic links');
+  } else {
+    console.log('   Using SMTP for magic links');
+  }
 } else {
   console.log('⚠️  EmailProvider not configured - magic link authentication disabled');
-  console.log('   Set EMAIL_HOST, EMAIL_USER, EMAIL_PASS environment variables to enable');
+  console.log('   Set RESEND_API_KEY or EMAIL_HOST/EMAIL_USER/EMAIL_PASS environment variables to enable');
 }
 
 // Email HTML template
