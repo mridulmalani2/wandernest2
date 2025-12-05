@@ -74,14 +74,6 @@ export default function Footer({ variant = 'default' }: FooterProps) {
                     Book a Guide
                   </Link>
                 </li>
-                <li>
-                  <Link
-                    href="/booking"
-                    className="text-sm text-white/80 hover:text-white transition-colors duration-200 inline-block hover:translate-x-1 transform"
-                  >
-                    Sign In
-                  </Link>
-                </li>
               </ul>
             </div>
 
@@ -105,14 +97,6 @@ export default function Footer({ variant = 'default' }: FooterProps) {
                     className="text-sm text-white/80 hover:text-white transition-colors duration-200 inline-block hover:translate-x-1 transform"
                   >
                     Guide Sign In
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/student/dashboard"
-                    className="text-sm text-white/80 hover:text-white transition-colors duration-200 inline-block hover:translate-x-1 transform"
-                  >
-                    Dashboard
                   </Link>
                 </li>
                 <li>
