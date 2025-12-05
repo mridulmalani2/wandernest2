@@ -9,7 +9,7 @@ export type CTAVariant = 'blue' | 'purple' | 'ghost';
 interface PrimaryCTAButtonProps {
   children: React.ReactNode;
   href?: string;
-  onClick?: () => void;
+  onClick?: (e?: React.MouseEvent) => void;
   icon?: LucideIcon;
   showArrow?: boolean;
   variant?: CTAVariant;
@@ -65,16 +65,14 @@ export function PrimaryCTAButton({
     <div className={`relative transition-transform duration-200 ${isDisabled ? '' : 'hover:scale-103 active:scale-98'}`}>
       {/* Glow effect */}
       <div
-        className={`absolute -inset-1 ${styles.glow} rounded-2xl opacity-25 blur-xl group-hover:opacity-40 transition-opacity duration-500 pointer-events-none ${
-          isDisabled ? 'opacity-10' : ''
-        }`}
+        className={`absolute -inset-1 ${styles.glow} rounded-2xl opacity-25 blur-xl group-hover:opacity-40 transition-opacity duration-500 pointer-events-none ${isDisabled ? 'opacity-10' : ''
+          }`}
       />
 
       {/* Main button */}
       <div
-        className={`relative px-6 py-3 sm:px-8 sm:py-4 ${styles.gradient} rounded-2xl shadow-lg overflow-hidden ${
-          isDisabled ? 'opacity-50 cursor-not-allowed' : ''
-        }`}
+        className={`relative px-6 py-3 sm:px-8 sm:py-4 ${styles.gradient} rounded-2xl shadow-lg overflow-hidden ${isDisabled ? 'opacity-50 cursor-not-allowed' : ''
+          }`}
       >
         {/* Shimmer effect */}
         {!isDisabled && (
@@ -112,6 +110,7 @@ export function PrimaryCTAButton({
     return (
       <Link
         href={href}
+        onClick={(e) => onClick?.(e)}
         className="group inline-block focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-white/50 focus-visible:ring-offset-4 focus-visible:ring-offset-transparent rounded-2xl transition-all"
       >
         {buttonContent}
@@ -125,7 +124,7 @@ export function PrimaryCTAButton({
       onClick={(e) => {
         if (!isDisabled && onClick) {
           e.stopPropagation();
-          onClick();
+          onClick(e);
         }
       }}
       disabled={isDisabled}

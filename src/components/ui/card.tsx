@@ -24,16 +24,13 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
       )
     }
 
-    const MotionDiv = motion.div as any
-
     return (
-      <MotionDiv
+      <motion.div
         ref={ref}
-        className={cardClassName}
+        className={`${cardClassName} hover:shadow-premium`}
         whileHover={{
           scale: hoverScale,
           y: hoverY,
-          boxShadow: '0 20px 40px -12px rgba(0, 0, 0, 0.15), 0 8px 16px -8px rgba(0, 0, 0, 0.1)',
           transition: { duration: 0.3, ease: [0.22, 1, 0.36, 1] }
         }}
         transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}

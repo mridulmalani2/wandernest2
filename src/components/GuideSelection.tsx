@@ -19,28 +19,43 @@ export default function GuideSelection({
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
+  const [successMsg, setSuccessMsg] = useState<string | null>(null)
 
   useEffect(() => {
-    fetchMatches()
-  }, [requestId])
+    const controller = new AbortController()
 
-  const fetchMatches = async () => {
-    try {
-      setLoading(true)
-      const response = await fetch(`/api/matches?requestId=${requestId}`)
+    const fetchMatches = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+        const response = await fetch(`/api/matches?requestId=${requestId}`, {
+          signal: controller.signal
+        })
 
-      if (!response.ok) {
-        throw new Error('Failed to fetch matches')
+        if (!response.ok) {
+          throw new Error('Failed to fetch matches')
+        }
+
+        const data: MatchResponse = await response.json()
+        setGuides(data.matches)
+        setError(null)
+      } catch (err) {
+        if (err instanceof Error && err.name === 'AbortError') return
+        console.error('Fetch error:', err)
+        setError('Unable to load guides. Please try again later.')
+      } finally {
+        if (!controller.signal.aborted) {
+          setLoading(false)
+        }
       }
-
-      const data: MatchResponse = await response.json()
-      setGuides(data.matches)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred')
-    } finally {
-      setLoading(false)
     }
-  }
+
+    fetchMatches()
+
+    return () => {
+      controller.abort()
+    }
+  }, [requestId])
 
   const handleGuideSelect = (guideId: string) => {
     setSelectedGuides(prev => {
@@ -56,12 +71,13 @@ export default function GuideSelection({
 
   const handleSubmit = async () => {
     if (selectedGuides.size === 0) {
-      alert('Please select at least one guide')
+      setError('Please select at least one guide')
       return
     }
 
     try {
       setSubmitting(true)
+      setError(null)
       const response = await fetch('/api/matches/select', {
         method: 'POST',
         headers: {
@@ -80,13 +96,14 @@ export default function GuideSelection({
       const data = await response.json()
 
       if (data.success) {
-        alert('Your guide selections have been saved!')
+        setSuccessMsg('Your guide selections have been saved!')
         if (onSelectionComplete) {
           onSelectionComplete(Array.from(selectedGuides))
         }
       }
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Failed to save selections')
+      console.error('Submit error:', err)
+      setError('Failed to save selections. Please try again.')
     } finally {
       setSubmitting(false)
     }
@@ -130,6 +147,32 @@ export default function GuideSelection({
         >
           Try Again
         </motion.button>
+      </motion.div>
+    )
+  }
+
+  if (successMsg) {
+    return (
+      <motion.div
+        className="glass-card border border-primary/20 rounded-lg p-6 text-center"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+      >
+        <div className="flex justify-center mb-4">
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: "spring", stiffness: 200, damping: 20 }}
+            className="h-12 w-12 rounded-full bg-primary/20 flex items-center justify-center"
+          >
+            <svg className="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+          </motion.div>
+        </div>
+        <p className="text-xl font-bold text-foreground mb-2">Success!</p>
+        <p className="text-muted-foreground">{successMsg}</p>
       </motion.div>
     )
   }
@@ -218,10 +261,10 @@ export default function GuideSelection({
           whileHover={
             selectedGuides.size > 0 && !submitting
               ? {
-                  scale: 1.05,
-                  y: -2,
-                  boxShadow: '0 20px 60px -15px rgba(0, 0, 0, 0.2)',
-                }
+                scale: 1.05,
+                y: -2,
+                boxShadow: '0 20px 60px -15px rgba(0, 0, 0, 0.2)',
+              }
               : {}
           }
           whileTap={
