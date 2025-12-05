@@ -40,7 +40,7 @@ async function verifyMigrationStatus() {
   }
 
   log('\n🔍 PRISMA MIGRATION STATUS VERIFICATION', colors.cyan);
-  log('=' .repeat(60), colors.cyan);
+  log('='.repeat(60), colors.cyan);
 
   // Check local migrations
   const migrationsDir = path.join(__dirname, '..', 'src', 'prisma', 'migrations');
@@ -120,7 +120,7 @@ async function verifyMigrationStatus() {
           if (!row.finished_at) {
             log(`      ⚠️  This migration failed and is blocking further migrations`, colors.yellow);
             if (row.logs) {
-              log(`      Logs: ${row.logs.substring(0, 100)}...`, colors.yellow);
+              log(`      Logs available in database (_prisma_migrations table)`, colors.yellow);
             }
           }
         });
@@ -172,18 +172,21 @@ async function verifyMigrationStatus() {
 
   } catch (error) {
     log('\n❌ ERROR during verification:', colors.red);
-    log(`   ${error.message}`, colors.red);
+    // Sanitize error message to prevent sensitive info leakage
+    log('   A database error occurred during verification.', colors.red);
     if (error.code) {
       log(`   Error code: ${error.code}`, colors.yellow);
     }
-    process.exit(1);
+    process.exitCode = 1;
   } finally {
-    await client.end();
+    if (client) {
+      await client.end();
+    }
   }
 }
 
 // Run verification
 verifyMigrationStatus().catch(error => {
-  log(`\n❌ Unexpected error: ${error.message}`, colors.red);
+  console.error('\n❌ Unexpected error occurred');
   process.exit(1);
 });
