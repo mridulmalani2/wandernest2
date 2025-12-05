@@ -33,7 +33,7 @@ export default function TouristLanding() {
             <div className="text-center space-y-6 md:space-y-8 animate-slide-up-fade">
               <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold leading-tight tracking-tight text-white text-shadow-lg">
                 Experience{' '}
-                <span className="text-gradient-vibrant animate-gradient-shift inline-block bg-white/10 px-3 sm:px-4 py-1.5 sm:py-2 rounded-2xl">
+                <span className="text-gradient-vibrant animate-gradient-shift">
                   Authentic Travel
                 </span>
                 <br />
