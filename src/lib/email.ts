@@ -121,8 +121,8 @@ async function sendEmail(
   // 1. Try Resend first
   if (resend) {
     try {
-      // Resend SDK v6+ returns data directly and throws on error
-      const data = await resend.emails.send({
+      // Resend SDK v6+ returns { data, error }
+      const response = await resend.emails.send({
         from: config.email.from,
         to: options.to,
         subject: options.subject,
@@ -131,9 +131,13 @@ async function sendEmail(
         replyTo: options.replyTo || config.email.contactEmail,
       })
 
+      if (response.error) {
+        throw new Error(response.error.message)
+      }
+
       console.log(`✅ Email sent via Resend: ${context} to ${options.to}`)
-      if (config.app.isDevelopment) {
-        console.log('   Message ID:', data.id)
+      if (config.app.isDevelopment && response.data) {
+        console.log('   Message ID:', response.data.id)
       }
 
       return { success: true }

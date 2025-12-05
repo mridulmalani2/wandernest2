@@ -94,17 +94,21 @@ if (config.email.isConfigured) {
               console.log('   From:', provider.from)
             }
 
-            // Resend SDK v6+ returns data directly and throws on error
-            const data = await resend.emails.send({
+            // Resend SDK v6+ returns { data, error }
+            const response = await resend.emails.send({
               from: provider.from,
               to: email,
               subject: `Sign in to ${host}`,
               html: html({ url, host, email }),
             })
 
+            if (response.error) {
+              throw new Error(response.error.message)
+            }
+
             console.log('✅ Magic link email sent successfully via Resend to:', email)
-            if (config.app.isDevelopment) {
-              console.log('   Message ID:', data.id)
+            if (config.app.isDevelopment && response.data) {
+              console.log('   Message ID:', response.data.id)
             }
             return
           } catch (error) {
