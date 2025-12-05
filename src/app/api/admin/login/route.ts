@@ -47,7 +47,6 @@ function createAdminResponse(admin: { id: string; email: string; name: string; r
   const token = generateToken({ adminId: admin.id, email: admin.email, role: admin.role }, '8h')
 
   const response = NextResponse.json({
-    token,
     admin: {
       id: admin.id,
       email: admin.email,

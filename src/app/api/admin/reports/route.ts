@@ -13,20 +13,24 @@ export async function GET(request: NextRequest) {
 
   if (!authResult.authorized) {
     return NextResponse.json(
-      { error: authResult.error || 'Unauthorized' },
+      { error: 'Unauthorized' },
       { status: 401 }
     )
   }
 
-  const prisma = requireDatabase()
+
 
   try {
     const db = requireDatabase()
 
     const { searchParams } = new URL(request.url)
     const status = searchParams.get('status')
-    const page = parseInt(searchParams.get('page') || '1')
-    const limit = parseInt(searchParams.get('limit') || '20')
+    const page = Math.max(1, parseInt(searchParams.get('page') || '1'))
+    const limit = Math.max(1, Math.min(100, parseInt(searchParams.get('limit') || '20')))
+
+    if (isNaN(page) || isNaN(limit)) {
+      return NextResponse.json({ error: 'Invalid pagination parameters' }, { status: 400 })
+    }
 
     const where: { status?: string } = {}
 
@@ -81,12 +85,12 @@ export async function PATCH(request: NextRequest) {
 
   if (!authResult.authorized) {
     return NextResponse.json(
-      { error: authResult.error || 'Unauthorized' },
+      { error: 'Unauthorized' },
       { status: 401 }
     )
   }
 
-  const prisma = requireDatabase()
+
 
   try {
     const db = requireDatabase()

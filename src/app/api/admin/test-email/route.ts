@@ -1,5 +1,6 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { config } from '@/lib/config'
+import { verifyAdmin } from '@/lib/api-auth'
 
 // Force this route to be dynamic
 export const dynamic = 'force-dynamic'
@@ -38,26 +39,26 @@ export async function GET() {
     requiredActions: config.email.isConfigured
       ? []
       : [
-          'Set EMAIL_HOST in Vercel environment variables (e.g., smtp.gmail.com)',
-          'Set EMAIL_PORT in Vercel environment variables (e.g., 587)',
-          'Set EMAIL_USER in Vercel environment variables (your SMTP username)',
-          'Set EMAIL_PASS in Vercel environment variables (your SMTP password/app password)',
-          'Set EMAIL_FROM in Vercel environment variables (optional, has default)',
-          'Redeploy the application after setting variables',
-        ],
+        'Set EMAIL_HOST in Vercel environment variables (e.g., smtp.gmail.com)',
+        'Set EMAIL_PORT in Vercel environment variables (e.g., 587)',
+        'Set EMAIL_USER in Vercel environment variables (your SMTP username)',
+        'Set EMAIL_PASS in Vercel environment variables (your SMTP password/app password)',
+        'Set EMAIL_FROM in Vercel environment variables (optional, has default)',
+        'Redeploy the application after setting variables',
+      ],
     nextSteps: config.email.isConfigured
       ? [
-          'Try signing in with magic link',
-          'Check Vercel logs for SMTP connection errors if it fails',
-          'Verify SMTP credentials are correct',
-          'Ensure firewall allows outbound SMTP connections',
-        ]
+        'Try signing in with magic link',
+        'Check Vercel logs for SMTP connection errors if it fails',
+        'Verify SMTP credentials are correct',
+        'Ensure firewall allows outbound SMTP connections',
+      ]
       : [
-          'Go to Vercel Dashboard → Your Project → Settings → Environment Variables',
-          'Add the required EMAIL_* variables',
-          'For Gmail: Use an App Password (not your regular password)',
-          'Deploy the changes',
-        ],
+        'Go to Vercel Dashboard → Your Project → Settings → Environment Variables',
+        'Add the required EMAIL_* variables',
+        'For Gmail: Use an App Password (not your regular password)',
+        'Deploy the changes',
+      ],
   }
 
   return NextResponse.json(emailConfig, {
@@ -73,13 +74,21 @@ export async function GET() {
  * Send a test email to verify SMTP configuration.
  * Requires a recipient email in the request body.
  */
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
+  const authResult = await verifyAdmin(request)
+
+  if (!authResult.authorized) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
   try {
     const { to } = await request.json()
 
-    if (!to || typeof to !== 'string') {
+    // Basic email validation regex
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!to || typeof to !== 'string' || !emailRegex.test(to)) {
       return NextResponse.json(
-        { error: 'Missing or invalid "to" field in request body' },
+        { error: 'Invalid recipient email address' },
         { status: 400 }
       )
     }
@@ -115,9 +124,8 @@ export async function POST(request: Request) {
     })
 
     console.log('📧 Sending test email...')
+    // Log only safe details
     console.log('   To:', to)
-    console.log('   From:', config.email.from)
-    console.log('   SMTP Host:', config.email.host)
 
     const result = await transport.sendMail({
       to,
@@ -161,28 +169,14 @@ export async function POST(request: Request) {
       success: true,
       message: 'Test email sent successfully',
       messageId: result.messageId,
-      to,
-      from: config.email.from,
     })
   } catch (error) {
-    console.error('❌ Error sending test email:', error)
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    console.error('❌ Error sending test email:', errorMessage)
 
-    const errorDetails: any = {
-      success: false,
-      error: 'Failed to send test email',
-    }
-
-    if (error instanceof Error) {
-      errorDetails.message = error.message
-      errorDetails.name = error.name
-      if ('code' in error) {
-        errorDetails.code = (error as any).code
-      }
-      if ('command' in error) {
-        errorDetails.command = (error as any).command
-      }
-    }
-
-    return NextResponse.json(errorDetails, { status: 500 })
+    return NextResponse.json(
+      { success: false, error: 'Failed to send test email' },
+      { status: 500 }
+    )
   }
 }
