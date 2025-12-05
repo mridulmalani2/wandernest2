@@ -214,17 +214,38 @@ VALUES (
 - Monitor serverless function execution time
 - Watch for cold starts on API routes
 
-## Architecture Changes for Vercel
+## Architecture Changes & Security Improvements
 
-The following changes were made to make the app Vercel-compatible:
+The following architectural changes and security measures have been implemented to ensure Vercel compatibility and production readiness:
 
-1. ✅ All API routes marked as dynamic (`export const dynamic = 'force-dynamic'`)
-2. ✅ Redis connection made lazy and optional
-3. ✅ File uploads converted to Base64 storage
-4. ✅ Prisma client optimized for serverless
-5. ✅ Removed duplicate Prisma instances
-6. ✅ Added comprehensive error handling
-7. ✅ Configured Next.js for standalone output
+### 1. Database Connection Management (`src/lib/prisma.ts`)
+- **Singleton Pattern**: Implemented `globalForPrisma` singleton pattern to prevent connection exhaustion in Vercel's serverless environment.
+- **Connection Pooling**: Configured Prisma Client to use connection pooling via `DATABASE_URL` (supporting Vercel Postgres/Neon/Supabase poolers).
+- **Health Checks**: Added `checkDatabaseHealth()` utility for safe failovers.
+- **Lazy Connection**: Prisma client connects only on the first query to reduce cold start times.
+
+### 2. Standardized Routing & Middleware (`middleware.ts`)
+- **Edge Runtime**: Middleware runs on Vercel Edge Runtime for sub-millisecond routing decisions.
+- **Route Protection**:
+  - `/admin/*`: Restricted to specific admin host and requires admin token.
+  - `/student/*`: protected by `student_session_token` cookie.
+  - `/tourist/*`: Protected by NextAuth session with `userType: 'tourist'` check.
+- **Automatic Redirection**: Unauthenticated users are redirected to their respective login pages (`/admin/login`, `/student/signin`, `/booking`).
+
+### 3. Security Hardening
+- **Headers**: Middleware automatically injects security headers into all responses:
+  - `X-Frame-Options: SAMEORIGIN` (Clickjacking protection)
+  - `X-Content-Type-Options: nosniff` (MIME sniffing protection)
+  - `Referrer-Policy: strict-origin-when-cross-origin`
+- **Authentication Segregation (`src/lib/auth-options.ts`)**:
+  - **Tourists**: Use NextAuth.js (Google OAuth).
+  - **Students**: Use Custom OTP flow (Magic Link) restricted to educational domains (`.edu`, `.ac.uk`, etc.).
+  - **Privilege Separation**: Logic added to `signIn` callback to explicitly block Student emails from using Tourist login flows.
+
+### 4. Cleanup & Optimization
+- **Code Removal**: specific legacy API routes (e.g., old PeerJS handlers) have been removed in favor of the standardized polling architecture.
+- **Asset Optimization**: File uploads converted to Base64 storage (`src/lib/utils.ts`) to avoid filesystem dependency in serverless functions.
+- **Dynamic Routes**: API routes marked as `export const dynamic = 'force-dynamic'` where necessary to bypass Vercel static cache for real-time data.
 
 ## Support
 
