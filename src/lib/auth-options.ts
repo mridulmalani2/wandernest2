@@ -22,10 +22,11 @@ const providers = [];
 // Without these, students will see a "Sign-In Unavailable" message on the student sign-in page.
 // ============================================================================
 if (config.email.isConfigured) {
-  providers.push(
-    EmailProvider({
-      server: {
-        host: config.email.host!,
+  // Build server config - use dummy values if only Resend is configured
+  // (these won't be used since we override sendVerificationRequest)
+  const serverConfig = config.email.host
+    ? {
+        host: config.email.host,
         port: config.email.port,
         auth: {
           user: config.email.user!,
@@ -35,7 +36,20 @@ if (config.email.isConfigured) {
         tls: {
           rejectUnauthorized: config.app.isProduction,
         },
-      },
+      }
+    : {
+        // Dummy config when only Resend is available
+        host: 'dummy.smtp.server',
+        port: 587,
+        auth: {
+          user: 'dummy@example.com',
+          pass: 'dummy',
+        },
+      };
+
+  providers.push(
+    EmailProvider({
+      server: serverConfig,
       from: config.email.from,
       async sendVerificationRequest({ identifier: email, url, provider }) {
         // ========================================================================
