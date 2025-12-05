@@ -127,9 +127,9 @@ async function resetDatabase() {
   }
 
   log('\n🗑️  DATABASE RESET SCRIPT', colors.cyan);
-  log('=' .repeat(60), colors.cyan);
+  log('='.repeat(60), colors.cyan);
   log('⚠️  WARNING: This will DELETE ALL DATA in your database!', colors.yellow);
-  log('=' .repeat(60), colors.cyan);
+  log('='.repeat(60), colors.cyan);
 
   const client = new Client({
     connectionString: databaseUrl,
@@ -239,15 +239,15 @@ async function resetDatabase() {
 
   } catch (error) {
     log('\n❌ ERROR during database reset:', colors.red);
-    log(`   ${error.message}`, colors.red);
-    if (error.stack) {
-      log(`\nStack trace:`, colors.yellow);
-      log(error.stack, colors.yellow);
-    }
-    process.exit(1);
+    log('   A critical error occurred while resetting the database.', colors.red);
+    log('   Please check the database connection and permissions.', colors.yellow);
+
+    process.exitCode = 1;
   } finally {
-    await client.end();
-    log('📡 Database connection closed', colors.blue);
+    if (client) {
+      await client.end();
+      log('📡 Database connection closed', colors.blue);
+    }
 
     // Give the database a moment to fully release locks
     log('⏱️  Waiting for locks to clear...', colors.blue);
@@ -258,6 +258,6 @@ async function resetDatabase() {
 
 // Run the reset
 resetDatabase().catch(error => {
-  log(`\n❌ Unexpected error: ${error.message}`, colors.red);
-  process.exit(1);
+  console.error('\n❌ Unexpected error occurred during execution');
+  process.exitCode = 1;
 });
