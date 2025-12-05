@@ -16,21 +16,6 @@
     --surface: 0 0% 99%;
     --surface-elevated: 0 0% 100%;
 
-    /* ========================================
-       LIQUID DESIGN SYSTEM - 3-Shade Premium Palette
-       Ultra-modern, minimal, flowing aesthetic
-       ======================================== */
-
-    /* Main Dark Shades - Primary interactive elements */
-    --liquid-dark-primary: 228 45% 23%;
-    /* Deep midnight blue #1a1f3a */
-    --liquid-dark-secondary: 215 25% 27%;
-    /* Charcoal slate #2d3748 */
-
-    /* Light Shade - Airy contrast and backgrounds */
-    --liquid-light: 220 20% 98%;
-    /* Soft cream/pearl #f8f9fb */
-
     /* Legacy Color System (preserved for migration) */
     --ui-blue-primary: 220 70% 65%;
     /* Soft periwinkle blue */
@@ -554,7 +539,7 @@
 
   /* Gradient text - Used in headers and branding */
   .text-gradient-vibrant {
-    background: linear-gradient(135deg, hsl(var(--ui-purple-accent)) 0%, hsl(var(--ui-purple-primary)) 50%, hsl(var(--ui-blue-primary)) 100%);
+    background: linear-gradient(135deg, hsl(var(--ui-blue-primary)) 0%, hsl(var(--ui-purple-primary)) 50%, hsl(var(--ui-purple-accent)) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
