@@ -119,6 +119,7 @@ export function PreferencesStep({ data, errors, updateData }: Props) {
                 role="combobox"
                 aria-expanded={isLanguageOpen}
                 aria-haspopup="listbox"
+                aria-controls="language-listbox"
                 tabIndex={0}
                 className={cn(
                   'w-full min-h-[48px] px-0 py-3 cursor-pointer focus:outline-none focus:border-white',
@@ -162,6 +163,7 @@ export function PreferencesStep({ data, errors, updateData }: Props) {
 
               {isLanguageOpen && (
                 <div
+                  id="language-listbox"
                   className="absolute top-full left-0 w-full mt-2 bg-white rounded-2xl shadow-lg border border-gray-100 z-50 overflow-hidden animate-scale-in"
                   role="listbox"
                 >

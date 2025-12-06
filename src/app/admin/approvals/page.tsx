@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
+import { useRouter } from 'next/navigation'
 import ApprovalQueue from '@/components/admin/ApprovalQueue'
 import AdminNav from '@/components/admin/AdminNav'
 
@@ -22,21 +23,18 @@ interface Student {
 }
 
 export default function ApprovalsPage() {
+  const router = useRouter()
   const [students, setStudents] = useState<Student[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    fetchPendingStudents()
-  }, [])
-
-  const fetchPendingStudents = async () => {
+  const fetchPendingStudents = useCallback(async (signal?: AbortSignal) => {
     try {
       setLoading(true)
       const token = localStorage.getItem('adminToken')
 
       if (!token) {
-        window.location.href = '/admin/login'
+        router.replace('/admin/login')
         return
       }
 
@@ -44,10 +42,12 @@ export default function ApprovalsPage() {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
+        signal,
       })
 
       if (response.status === 401) {
-        window.location.href = '/admin/login'
+        localStorage.removeItem('adminToken')
+        router.replace('/admin/login')
         return
       }
 
@@ -57,71 +57,126 @@ export default function ApprovalsPage() {
 
       const data = await response.json()
       setStudents(data.students)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred')
+    } catch (err: any) {
+      if (err.name === 'AbortError') return
+      console.error('Fetch error:', err)
+      setError(err instanceof Error ? err.message : 'An error occurred fetching approvals')
     } finally {
-      setLoading(false)
+      if (signal && !signal.aborted) {
+        setLoading(false)
+      }
     }
-  }
+  }, [router])
+
+  useEffect(() => {
+    const controller = new AbortController()
+    fetchPendingStudents(controller.signal)
+    return () => controller.abort()
+  }, [fetchPendingStudents])
 
   const handleApprove = async (studentId: string) => {
-    const token = localStorage.getItem('adminToken')
+    try {
+      const token = localStorage.getItem('adminToken')
+      if (!token) {
+        router.replace('/admin/login')
+        return
+      }
 
-    const response = await fetch('/api/admin/students/approve', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-      },
-      body: JSON.stringify({ studentId, action: 'approve' }),
-    })
+      const response = await fetch('/api/admin/students/approve', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ studentId, action: 'approve' }),
+      })
 
-    if (!response.ok) {
-      throw new Error('Failed to approve student')
+      if (response.status === 401) {
+        localStorage.removeItem('adminToken')
+        router.replace('/admin/login')
+        return
+      }
+
+      if (!response.ok) {
+        throw new Error('Failed to approve student')
+      }
+
+      // Refresh the list
+      await fetchPendingStudents()
+    } catch (err) {
+      console.error('Approve error:', err)
+      setError(err instanceof Error ? err.message : 'Failed to approve student')
     }
-
-    // Refresh the list
-    await fetchPendingStudents()
   }
 
   const handleReject = async (studentId: string) => {
-    const token = localStorage.getItem('adminToken')
+    try {
+      const token = localStorage.getItem('adminToken')
+      if (!token) {
+        router.replace('/admin/login')
+        return
+      }
 
-    const response = await fetch('/api/admin/students/approve', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-      },
-      body: JSON.stringify({ studentId, action: 'reject' }),
-    })
+      const response = await fetch('/api/admin/students/approve', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ studentId, action: 'reject' }),
+      })
 
-    if (!response.ok) {
-      throw new Error('Failed to reject student')
+      if (response.status === 401) {
+        localStorage.removeItem('adminToken')
+        router.replace('/admin/login')
+        return
+      }
+
+      if (!response.ok) {
+        throw new Error('Failed to reject student')
+      }
+
+      // Refresh the list
+      await fetchPendingStudents()
+    } catch (err) {
+      console.error('Reject error:', err)
+      setError(err instanceof Error ? err.message : 'Failed to reject student')
     }
-
-    // Refresh the list
-    await fetchPendingStudents()
   }
 
   const handleBulkApprove = async (studentIds: string[], action: 'approve' | 'reject') => {
-    const token = localStorage.getItem('adminToken')
+    try {
+      const token = localStorage.getItem('adminToken')
+      if (!token) {
+        router.replace('/admin/login')
+        return
+      }
 
-    const response = await fetch('/api/admin/students/bulk-approve', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-      },
-      body: JSON.stringify({ studentIds, action }),
-    })
+      const response = await fetch('/api/admin/students/bulk-approve', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({ studentIds, action }),
+      })
 
-    if (!response.ok) {
-      throw new Error(`Failed to ${action} students`)
+      if (response.status === 401) {
+        localStorage.removeItem('adminToken')
+        router.replace('/admin/login')
+        return
+      }
+
+      if (!response.ok) {
+        throw new Error(`Failed to ${action} students`)
+      }
+
+      // Refresh the list
+      await fetchPendingStudents()
+    } catch (err) {
+      console.error('Bulk action error:', err)
+      setError(err instanceof Error ? err.message : `Failed to ${action} students`)
     }
-
-    // Refresh the list
-    await fetchPendingStudents()
   }
 
   if (loading) {
@@ -141,6 +196,12 @@ export default function ApprovalsPage() {
         <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-md">
           <h2 className="text-red-800 font-semibold mb-2">Error</h2>
           <p className="text-red-600">{error}</p>
+          <button
+            onClick={() => { setError(null); fetchPendingStudents(); }}
+            className="mt-4 px-4 py-2 bg-red-100 text-red-800 rounded hover:bg-red-200 text-sm font-medium"
+          >
+            Retry
+          </button>
         </div>
       </div>
     )

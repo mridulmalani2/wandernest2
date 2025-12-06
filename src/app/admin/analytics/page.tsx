@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
+import { useRouter } from 'next/navigation'
 import AdminNav from '@/components/admin/AdminNav'
 
 interface AnalyticsData {
@@ -34,21 +35,20 @@ interface AnalyticsData {
 }
 
 export default function AnalyticsPage() {
+  const router = useRouter()
   const [data, setData] = useState<AnalyticsData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    fetchAnalytics()
-  }, [])
-
-  const fetchAnalytics = async () => {
+  const fetchAnalytics = useCallback(async (signal?: AbortSignal) => {
     try {
       setLoading(true)
+      // Note: We are using localStorage for admin auth currently. 
+      // Future improvement: move to httpOnly cookies for better security.
       const token = localStorage.getItem('adminToken')
 
       if (!token) {
-        window.location.href = '/admin/login'
+        router.replace('/admin/login')
         return
       }
 
@@ -56,10 +56,12 @@ export default function AnalyticsPage() {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
+        signal,
       })
 
       if (response.status === 401) {
-        window.location.href = '/admin/login'
+        localStorage.removeItem('adminToken')
+        router.replace('/admin/login')
         return
       }
 
@@ -69,12 +71,25 @@ export default function AnalyticsPage() {
 
       const analyticsData = await response.json()
       setData(analyticsData)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred')
+    } catch (err: any) {
+      if (err.name === 'AbortError') return
+      console.error('Analytics fetch error:', err)
+      setError('Unable to load analytics data. Please try again later.')
     } finally {
-      setLoading(false)
+      if (signal && !signal.aborted) {
+        setLoading(false)
+      }
     }
-  }
+  }, [router])
+
+  useEffect(() => {
+    const controller = new AbortController()
+    fetchAnalytics(controller.signal)
+
+    return () => {
+      controller.abort()
+    }
+  }, [fetchAnalytics])
 
   if (loading) {
     return (
@@ -237,11 +252,10 @@ export default function AnalyticsPage() {
                       <div className="flex items-center">
                         <div className="w-32 bg-gray-200 rounded-full h-2 mr-2">
                           <div
-                            className={`h-2 rounded-full ${
-                              city.ratio > 2 ? 'bg-red-500' :
-                              city.ratio > 1 ? 'bg-yellow-500' :
-                              'bg-green-500'
-                            }`}
+                            className={`h-2 rounded-full ${city.ratio > 2 ? 'bg-red-500' :
+                                city.ratio > 1 ? 'bg-yellow-500' :
+                                  'bg-green-500'
+                              }`}
                             style={{ width: `${Math.min(100, (city.ratio / 3) * 100)}%` }}
                           ></div>
                         </div>

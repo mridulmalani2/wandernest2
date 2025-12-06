@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState, Suspense } from 'react'
+import { useEffect, useMemo, useState, Suspense, useCallback } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { StudentProfileCard, StudentMatch } from '@/components/tourist/StudentProfileCard'
@@ -10,8 +10,12 @@ import { Loader2, AlertCircle, Info } from 'lucide-react'
 import { PrimaryCTAButton } from '@/components/ui/PrimaryCTAButton'
 import Navigation from '@/components/Navigation'
 
+const STUDENT_GROUP_IMAGE_URL = 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=1920&q=80'
+
 function SelectGuideContent() {
   const searchParams = useSearchParams()
+  // ... rest of the component
+
   const router = useRouter()
   const requestId = searchParams.get('requestId')
 
@@ -21,7 +25,8 @@ function SelectGuideContent() {
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [errorType, setErrorType] = useState<'network' | 'server' | 'notfound' | null>(null)
+  const [submitError, setSubmitError] = useState<string | null>(null)
+  const [errorType, setErrorType] = useState<'network' | 'server' | 'notfound' | 'auth' | null>(null)
   const [suggestedPrice, setSuggestedPrice] = useState<any>(null)
   const [nationalityFilter, setNationalityFilter] = useState<string>('all')
   const [languageFilters, setLanguageFilters] = useState<string[]>([])
@@ -30,25 +35,18 @@ function SelectGuideContent() {
     preferredLanguages: string[]
   }>({ preferredNationality: null, preferredLanguages: [] })
 
-  const errorTitle =
-    errorType === 'notfound'
-      ? 'Request Not Found'
-      : errorType === 'network'
-        ? 'Connection Issue'
-        : 'Something Went Wrong'
-
-  useEffect(() => {
-    if (!requestId) {
-      setError('No request ID provided. Please start a new booking from the booking page.')
-      setErrorType('notfound')
-      setLoading(false)
-      return
+  const errorTitle = useMemo(() => {
+    switch (errorType) {
+      case 'notfound': return 'Request Not Found'
+      case 'network': return 'Connection Issue'
+      case 'auth': return 'Authentication Session Expired'
+      default: return 'Something Went Wrong'
     }
+  }, [errorType])
 
-    fetchMatches()
-  }, [requestId])
+  const fetchMatches = useCallback(async (signal?: AbortSignal) => {
+    if (!requestId) return
 
-  const fetchMatches = async () => {
     try {
       setLoading(true)
       setError(null)
@@ -56,25 +54,35 @@ function SelectGuideContent() {
 
       const response = await fetch('/api/tourist/request/match', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json'
+        },
         body: JSON.stringify({ requestId }),
+        signal,
       })
 
-      // Check if response is OK before parsing JSON
       if (!response.ok) {
-        // Handle HTTP errors (404, 500, etc.) - these are server-side issues, not network issues
+        if (response.status === 401 || response.status === 403) {
+          setErrorType('auth');
+          setError('Your session has expired. Please log in again to view this request.');
+          setLoading(false);
+          return;
+        }
+
         let errorMessage = 'Unable to load your booking request.'
         let errType: 'server' | 'notfound' = 'server'
 
         try {
           const data = await response.json()
+          // Sanitize: Don't show raw server errors if they assume internal knowledge
+          // But allow "friendly" errors from our API
           errorMessage = data.error || errorMessage
+
           if (response.status === 404) {
             errType = 'notfound'
             errorMessage = 'Booking request not found. It may have expired or been deleted.'
           }
         } catch {
-          // Failed to parse error response
           if (response.status === 404) {
             errType = 'notfound'
             errorMessage = 'Booking request not found. It may have expired or been deleted.'
@@ -91,8 +99,6 @@ function SelectGuideContent() {
 
       const data = await response.json()
 
-      // Important: "No matches found" (empty array) is a SUCCESS state, not an error
-      // The backend returns { success: true, hasMatches: false, matches: [] } for this case
       if (data.success) {
         setMatches(data.matches || [])
         setSuggestedPrice(data.suggestedPriceRange)
@@ -103,19 +109,34 @@ function SelectGuideContent() {
         setError(null)
         setErrorType(null)
       } else {
-        // Only set error for actual failures (database errors, etc.)
         setError(data.error || 'Unable to process your request. Please try again.')
         setErrorType('server')
       }
-    } catch (err) {
+    } catch (err: any) {
+      if (err.name === 'AbortError') return
+
       console.error('Error fetching matches:', err)
-      // True network error (fetch threw before getting a response)
       setError('Unable to connect to the server. This might be a network issue - please check your connection and try again.')
       setErrorType('network')
     } finally {
+      if (signal?.aborted) return
       setLoading(false)
     }
-  }
+  }, [requestId])
+
+  useEffect(() => {
+    if (!requestId) {
+      setError('No request ID provided. Please start a new booking from the booking page.')
+      setErrorType('notfound')
+      setLoading(false)
+      return
+    }
+
+    const controller = new AbortController()
+    fetchMatches(controller.signal)
+
+    return () => controller.abort()
+  }, [requestId, fetchMatches])
 
   const handleToggleStudent = (studentId: string) => {
     setSelectedStudents((prev) =>
@@ -145,7 +166,7 @@ function SelectGuideContent() {
         const nationalityMatch =
           preferredNationality && student.nationality === preferredNationality
         const languageOverlap = (preferredLanguages || []).filter((language) =>
-          student.languages.includes(language)
+          (student.languages || []).includes(language)
         )
 
         const recommendationScore = (nationalityMatch ? 2 : 0) +
@@ -189,7 +210,7 @@ function SelectGuideContent() {
 
       const languagePasses =
         languageFilters.length === 0 ||
-        languageFilters.every((lang) => student.languages.includes(lang))
+        languageFilters.every((lang) => (student.languages || []).includes(lang))
 
       return nationalityPasses && languagePasses
     })
@@ -211,8 +232,9 @@ function SelectGuideContent() {
   }
 
   const handleSubmitSelection = async () => {
+    setSubmitError(null)
     if (selectedStudents.length === 0) {
-      alert('Please select at least one guide')
+      setSubmitError('Please select at least one guide')
       return
     }
 
@@ -233,11 +255,11 @@ function SelectGuideContent() {
         // Redirect to confirmation page
         router.push(`/booking/pending?requestId=${requestId}`)
       } else {
-        alert(data.error || 'Failed to submit selection')
+        setSubmitError(data.error || 'Failed to submit selection')
       }
     } catch (err) {
       console.error('Error submitting selection:', err)
-      alert('Failed to submit selection')
+      setSubmitError('Failed to submit selection due to a network error.')
     } finally {
       setSubmitting(false)
     }
@@ -250,7 +272,7 @@ function SelectGuideContent() {
         <div className="min-h-screen flex flex-col relative overflow-hidden bg-black">
           <div className="absolute inset-0">
             <Image
-              src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=1920&q=80"
+              src={STUDENT_GROUP_IMAGE_URL}
               alt="Students working together"
               fill
               quality={85}
@@ -279,7 +301,7 @@ function SelectGuideContent() {
         <div className="min-h-screen flex flex-col relative overflow-hidden bg-black">
           <div className="absolute inset-0">
             <Image
-              src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=1920&q=80"
+              src={STUDENT_GROUP_IMAGE_URL}
               alt="Students working together"
               fill
               quality={85}
@@ -311,7 +333,7 @@ function SelectGuideContent() {
                   </Button>
                   {errorType !== 'notfound' && (
                     <PrimaryCTAButton
-                      onClick={fetchMatches}
+                      onClick={() => fetchMatches()}
                       variant="blue"
                       className="hover-lift"
                     >
@@ -334,7 +356,7 @@ function SelectGuideContent() {
         <div className="min-h-screen flex flex-col relative overflow-hidden bg-black">
           <div className="absolute inset-0">
             <Image
-              src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=1920&q=80"
+              src={STUDENT_GROUP_IMAGE_URL}
               alt="Students working together"
               fill
               quality={85}
@@ -555,34 +577,41 @@ function SelectGuideContent() {
           )}
 
           {/* Action Buttons */}
-          <div className="max-w-3xl mx-auto flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up delay-500">
-            <Button
-              variant="outline"
-              onClick={() => router.push('/booking')}
-              disabled={submitting}
-              className="w-full sm:w-auto hover-lift border-2 border-white/20 text-white bg-transparent hover:bg-white/10"
-            >
-              Modify Request
-            </Button>
+          <div className="max-w-3xl mx-auto flex flex-col items-center gap-4 animate-fade-in-up delay-500">
+            {submitError && (
+              <div className="w-full text-center p-3 bg-red-500/20 border border-red-500/50 rounded-lg text-red-200 text-sm mb-2">
+                {submitError}
+              </div>
+            )}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center w-full">
+              <Button
+                variant="outline"
+                onClick={() => router.push('/booking')}
+                disabled={submitting}
+                className="w-full sm:w-auto hover-lift border-2 border-white/20 text-white bg-transparent hover:bg-white/10"
+              >
+                Modify Request
+              </Button>
 
-            <PrimaryCTAButton
-              onClick={handleSubmitSelection}
-              disabled={selectedStudents.length === 0 || submitting}
-              variant="blue"
-              className="w-full sm:w-auto"
-            >
-              {submitting ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Sending Requests...
-                </>
-              ) : (
-                <>
-                  Confirm & Send Request
-                  {selectedStudents.length > 0 && ` (${selectedStudents.length})`}
-                </>
-              )}
-            </PrimaryCTAButton>
+              <PrimaryCTAButton
+                onClick={handleSubmitSelection}
+                disabled={selectedStudents.length === 0 || submitting}
+                variant="blue"
+                className="w-full sm:w-auto"
+              >
+                {submitting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Sending Requests...
+                  </>
+                ) : (
+                  <>
+                    Confirm & Send Request
+                    {selectedStudents.length > 0 && ` (${selectedStudents.length})`}
+                  </>
+                )}
+              </PrimaryCTAButton>
+            </div>
           </div>
 
           {/* Selection Summary */}
@@ -605,8 +634,8 @@ export default function SelectGuidePage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen flex items-center justify-center">
-          <Loader2 className="h-12 w-12 animate-spin text-ui-blue-primary" />
+        <div className="min-h-screen flex items-center justify-center bg-black">
+          <Loader2 className="h-12 w-12 animate-spin text-blue-400" />
         </div>
       }
     >

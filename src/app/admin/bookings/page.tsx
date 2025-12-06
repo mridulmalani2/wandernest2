@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, useCallback } from 'react'
+import { useRouter } from 'next/navigation'
 import AdminNav from '@/components/admin/AdminNav'
 
 type RequestStatus = 'PENDING' | 'MATCHED' | 'ACCEPTED' | 'EXPIRED' | 'CANCELLED'
@@ -55,6 +56,7 @@ interface BookingDetail extends BookingSummary {
 }
 
 export default function AdminBookingsPage() {
+  const router = useRouter()
   const [bookings, setBookings] = useState<BookingSummary[]>([])
   const [selectedBookingId, setSelectedBookingId] = useState<string | null>(null)
   const [selectedBooking, setSelectedBooking] = useState<BookingDetail | null>(null)
@@ -66,36 +68,34 @@ export default function AdminBookingsPage() {
   const [assignError, setAssignError] = useState<string | null>(null)
   const [selectedStudentId, setSelectedStudentId] = useState<string>('')
 
-  useEffect(() => {
-    fetchBookings()
-  }, [])
-
-  useEffect(() => {
-    if (selectedBookingId) {
-      fetchBookingDetail(selectedBookingId)
+  // Helper for auth tokens
+  const getAuthToken = useCallback(() => {
+    const token = localStorage.getItem('adminToken')
+    if (!token) {
+      router.replace('/admin/login')
+      return null
     }
-  }, [selectedBookingId])
+    return token
+  }, [router])
 
-  const fetchBookings = async () => {
+  const fetchBookings = useCallback(async (signal?: AbortSignal) => {
     try {
       setLoadingList(true)
       setError(null)
 
-      const token = localStorage.getItem('adminToken')
-
-      if (!token) {
-        window.location.href = '/admin/login'
-        return
-      }
+      const token = getAuthToken()
+      if (!token) return
 
       const response = await fetch('/api/admin/bookings', {
         headers: {
           Authorization: `Bearer ${token}`,
         },
+        signal,
       })
 
       if (response.status === 401) {
-        window.location.href = '/admin/login'
+        localStorage.removeItem('adminToken')
+        router.replace('/admin/login')
         return
       }
 
@@ -106,37 +106,44 @@ export default function AdminBookingsPage() {
       const payload = (await response.json()) as { bookings: BookingSummary[] }
       setBookings(payload.bookings)
 
-      if (!selectedBookingId && payload.bookings.length > 0) {
-        setSelectedBookingId(payload.bookings[0].id)
+      // Only set selectedBookingId if none is selected and we have bookings
+      // To avoid overriding user selection if this is a refresh
+      if (payload.bookings.length > 0) {
+        // If we want to auto-select the first one:
+        // But creating a race condition if user selects one while loading?
+        // We'll trust the user's selection unless it's empty.
+        setSelectedBookingId(prev => prev ?? payload.bookings[0].id)
       }
-    } catch (err) {
+    } catch (err: any) {
+      if (err.name === 'AbortError') return
       console.error('Failed to load bookings', err)
       setError(err instanceof Error ? err.message : 'Unable to load bookings')
     } finally {
-      setLoadingList(false)
+      // Check if aborted before state update?
+      if (!signal?.aborted) {
+        setLoadingList(false)
+      }
     }
-  }
+  }, [getAuthToken, router])
 
-  const fetchBookingDetail = async (bookingId: string) => {
+  const fetchBookingDetail = useCallback(async (bookingId: string, signal?: AbortSignal) => {
     try {
       setLoadingDetail(true)
       setDetailError(null)
 
-      const token = localStorage.getItem('adminToken')
-
-      if (!token) {
-        window.location.href = '/admin/login'
-        return
-      }
+      const token = getAuthToken()
+      if (!token) return
 
       const response = await fetch(`/api/admin/bookings/${bookingId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
+        signal,
       })
 
       if (response.status === 401) {
-        window.location.href = '/admin/login'
+        localStorage.removeItem('adminToken')
+        router.replace('/admin/login')
         return
       }
 
@@ -147,14 +154,32 @@ export default function AdminBookingsPage() {
       const payload = (await response.json()) as { booking: BookingDetail }
       setSelectedBooking(payload.booking)
       setSelectedStudentId(payload.booking.assignedStudent?.id || '')
-    } catch (err) {
+    } catch (err: any) {
+      if (err.name === 'AbortError') return
       console.error('Failed to load booking detail', err)
       setDetailError(err instanceof Error ? err.message : 'Unable to load booking')
     } finally {
-      setLoadingDetail(false)
+      if (!signal?.aborted) {
+        setLoadingDetail(false)
+      }
     }
-  }
+  }, [getAuthToken, router])
 
+  useEffect(() => {
+    const controller = new AbortController()
+    fetchBookings(controller.signal)
+    return () => controller.abort()
+  }, [fetchBookings])
+
+  useEffect(() => {
+    if (selectedBookingId) {
+      const controller = new AbortController()
+      fetchBookingDetail(selectedBookingId, controller.signal)
+      return () => controller.abort()
+    }
+  }, [selectedBookingId, fetchBookingDetail])
+
+  // This function is still triggered interactively, so signal is less critical but good for robustness if we wanted to support cancellation.
   const handleAssign = async () => {
     if (!selectedBookingId || !selectedStudentId) {
       setAssignError('Select a student to assign to this booking')
@@ -165,12 +190,8 @@ export default function AdminBookingsPage() {
       setAssigning(true)
       setAssignError(null)
 
-      const token = localStorage.getItem('adminToken')
-
-      if (!token) {
-        window.location.href = '/admin/login'
-        return
-      }
+      const token = getAuthToken()
+      if (!token) return
 
       const response = await fetch('/api/admin/bookings/assign', {
         method: 'POST',
@@ -182,7 +203,8 @@ export default function AdminBookingsPage() {
       })
 
       if (response.status === 401) {
-        window.location.href = '/admin/login'
+        localStorage.removeItem('adminToken')
+        router.replace('/admin/login')
         return
       }
 
@@ -192,7 +214,14 @@ export default function AdminBookingsPage() {
         throw new Error(message)
       }
 
-      await Promise.all([fetchBookings(), fetchBookingDetail(selectedBookingId)])
+      // Refresh both list and detail
+      // Note: we don't pass signal here as we want these to complete even if user navigates away quickly?
+      // Actually normally we would want them tied to the component. 
+      // For now, simpler await is fine.
+      await Promise.all([
+        fetchBookings(),
+        selectedBookingId ? fetchBookingDetail(selectedBookingId) : Promise.resolve()
+      ])
     } catch (err) {
       console.error('Failed to assign student', err)
       setAssignError(err instanceof Error ? err.message : 'Unable to assign student')
@@ -268,9 +297,8 @@ export default function AdminBookingsPage() {
                       <li key={booking.id}>
                         <button
                           onClick={() => setSelectedBookingId(booking.id)}
-                          className={`w-full text-left px-4 py-3 hover:bg-gray-50 transition ${
-                            selectedBookingId === booking.id ? 'bg-blue-50/70 border-l-4 border-blue-500' : ''
-                          }`}
+                          className={`w-full text-left px-4 py-3 hover:bg-gray-50 transition ${selectedBookingId === booking.id ? 'bg-blue-50/70 border-l-4 border-blue-500' : ''
+                            }`}
                         >
                           <div className="flex items-start justify-between gap-3">
                             <div className="space-y-1">
@@ -347,9 +375,9 @@ export default function AdminBookingsPage() {
                         label="Contact"
                         value={
                           selectedBooking.contact.phone ||
-                            selectedBooking.contact.whatsapp ||
-                            selectedBooking.contact.contactMethod ||
-                            'Not provided'
+                          selectedBooking.contact.whatsapp ||
+                          selectedBooking.contact.contactMethod ||
+                          'Not provided'
                         }
                       />
                       <InfoTile label="Meeting preference" value={selectedBooking.contact.meetingPreference || 'Not provided'} />

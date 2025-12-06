@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
+import { useRouter } from 'next/navigation'
 import AdminNav from '@/components/admin/AdminNav'
 
 interface Student {
@@ -21,6 +22,7 @@ interface Student {
 }
 
 export default function StudentsPage() {
+  const router = useRouter()
   const [students, setStudents] = useState<Student[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -31,17 +33,13 @@ export default function StudentsPage() {
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
 
-  useEffect(() => {
-    fetchStudents()
-  }, [filters, page])
-
-  const fetchStudents = async () => {
+  const fetchStudents = useCallback(async (signal?: AbortSignal) => {
     try {
       setLoading(true)
       const token = localStorage.getItem('adminToken')
 
       if (!token) {
-        window.location.href = '/admin/login'
+        router.replace('/admin/login')
         return
       }
 
@@ -55,10 +53,12 @@ export default function StudentsPage() {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
+        signal,
       })
 
       if (response.status === 401) {
-        window.location.href = '/admin/login'
+        localStorage.removeItem('adminToken')
+        router.replace('/admin/login')
         return
       }
 
@@ -69,13 +69,24 @@ export default function StudentsPage() {
       const data = await response.json()
       setStudents(data.students)
       setTotalPages(data.pagination.totalPages)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred')
+    } catch (err: any) {
+      if (err.name === 'AbortError') return
+      console.error('Fetch error:', err)
+      setError(err instanceof Error ? err.message : 'An error occurred fetching students')
     } finally {
-      setLoading(false)
+      if (signal && !signal.aborted) {
+        setLoading(false)
+      }
     }
-  }
+  }, [filters, page, router])
 
+  useEffect(() => {
+    const controller = new AbortController()
+    fetchStudents(controller.signal)
+    return () => controller.abort()
+  }, [fetchStudents])
+
+  // ... rest of the file ...
   const getStatusBadge = (status: string) => {
     const styles = {
       APPROVED: 'bg-green-100 text-green-800',
@@ -149,6 +160,12 @@ export default function StudentsPage() {
           <div className="bg-red-50 border border-red-200 rounded-lg p-6">
             <h2 className="text-red-800 font-semibold mb-2">Error</h2>
             <p className="text-red-600">{error}</p>
+            <button
+              onClick={() => { setError(null); fetchStudents(); }}
+              className="mt-4 px-4 py-2 bg-red-100 text-red-800 rounded hover:bg-red-200 text-sm font-medium"
+            >
+              Retry
+            </button>
           </div>
         ) : (
           <>
