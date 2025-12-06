@@ -157,7 +157,7 @@ class CacheManager {
    * Delete multiple keys matching a pattern
    */
   async deletePattern(pattern: string): Promise<void> {
-    // Pattern validation is harder strictly, but we can check basic safety
+    // Pattern validation
     if (pattern.includes('**')) {
       console.warn('Recursive patterns not supported safely');
       return;
@@ -166,9 +166,25 @@ class CacheManager {
 
     if (isRedisAvailable && redis) {
       try {
-        const keys = await redis.keys(pattern);
-        if (keys.length > 0) {
-          await redis.del(...keys);
+        // SECURITY: Use SCAN instead of KEYS to avoid blocking the Redis server (DoS prevention)
+        // KEYS is O(N) and blocks, while SCAN is O(1) per iteration.
+        const stream = redis.scanIterator({
+          MATCH: pattern,
+          COUNT: 100
+        });
+
+        // Batch deletions
+        const keysToDelete: string[] = [];
+        for await (const key of stream) {
+          keysToDelete.push(key);
+          if (keysToDelete.length >= 100) {
+            await redis.del(...keysToDelete);
+            keysToDelete.length = 0;
+          }
+        }
+
+        if (keysToDelete.length > 0) {
+          await redis.del(...keysToDelete);
         }
       } catch (error) {
         console.error('Redis deletePattern error', error instanceof Error ? error.message : 'Unknown');
@@ -177,7 +193,15 @@ class CacheManager {
     }
 
     // For in-memory cache, delete matching keys
-    const regex = new RegExp(pattern.replace(/\*/g, '.*'));
+    // Escape regex characters except * which becomes .*
+    const safeRegexPattern = pattern
+      .replace(/[.+?^${}()|[\]\\]/g, '\\$&') // Escape special chars
+      .replace(/\*/g, '.*'); // Convert wildcard
+
+    const regex = new RegExp(`^${safeRegexPattern}$`);
+
+    // We can't iterate safely while deleting in some map implementations, 
+    // so collect keys first
     const keys = Array.from(this.memoryCache.keys());
     for (const key of keys) {
       if (regex.test(key)) {

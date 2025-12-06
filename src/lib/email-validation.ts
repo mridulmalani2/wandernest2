@@ -88,22 +88,25 @@ const STUDENT_EMAIL_PATTERNS = [
  * @returns true if the email domain is from a recognized educational institution
  */
 export function isStudentEmail(email: string): boolean {
-
-  if (process.env.NODE_ENV == "development") {
+  if (process.env.NODE_ENV === "development") {
+    // Optional: Keep this if you want to allow any email in dev, 
+    // or remove it to enforce strict checking even in dev.
+    // For now I will include it to match previous behavior but cleaner.
     return true;
   }
+
   if (!email || typeof email !== 'string') {
     return false;
   }
 
-  const lowerEmail = email.toLowerCase().trim();
-
-  // Validate email format
-  if (!lowerEmail.includes('@') || lowerEmail.split('@').length !== 2) {
+  // Use centralized format check
+  if (!isValidEmailFormat(email)) {
     return false;
   }
 
-  const domain = lowerEmail.split('@')[1];
+  // Use centralized domain extraction
+  const domain = getEmailDomain(email);
+  if (!domain) return false;
 
   // Check against exact domain matches
   const hasExactMatch = STUDENT_EMAIL_DOMAINS.some(suffix => domain.endsWith(suffix));
