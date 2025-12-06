@@ -139,6 +139,7 @@ export async function POST(req: NextRequest) {
     const emailResult = await sendBookingConfirmation(
       validatedData.email,
       touristRequest.id,
+      touristRequest.city,
       { matchesFound: matchResult.candidatesFound }
     )
     if (!emailResult.success) {
