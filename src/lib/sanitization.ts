@@ -9,7 +9,11 @@
  * Remove HTML tags from a string to prevent XSS attacks
  */
 export function stripHtml(input: string): string {
-  return input.replace(/<[^>]*>/g, '');
+  // Remove script and style tags with their content
+  let sanitized = input.replace(/<script\b[^>]*>([\s\S]*?)<\/script>/gim, "")
+    .replace(/<style\b[^>]*>([\s\S]*?)<\/style>/gim, "");
+  // Remove other tags
+  return sanitized.replace(/<[^>]*>/g, '');
 }
 
 /**

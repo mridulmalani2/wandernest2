@@ -4,6 +4,7 @@ export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server'
 import { requireDatabase } from '@/lib/prisma'
 import { generateToken } from '@/lib/auth'
+import { hashVerificationCode } from '@/lib/redis'
 
 // Verify code and create JWT token
 export async function POST(request: NextRequest) {
@@ -18,11 +19,14 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    const normalizedEmail = email.toLowerCase().trim()
+    const hashedCode = hashVerificationCode(code)
+
     // Find the session
     const session = await db.touristSession.findFirst({
       where: {
-        email,
-        verificationCode: code,
+        email: normalizedEmail,
+        verificationCode: hashedCode,
         isVerified: false,
       },
       orderBy: {

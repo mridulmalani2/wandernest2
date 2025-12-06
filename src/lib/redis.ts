@@ -2,6 +2,11 @@ import 'server-only'
 import Redis from 'ioredis'
 import { prisma } from '@/lib/prisma'
 import { config } from '@/lib/config'
+import crypto from 'crypto'
+
+export function hashVerificationCode(code: string): string {
+  return crypto.createHash('sha256').update(code).digest('hex')
+}
 
 const globalForRedis = globalThis as unknown as {
   redis: Redis | null | undefined
@@ -191,14 +196,17 @@ async function withRedis<T>(
  * @returns Promise<void>
  */
 export async function storeVerificationCode(email: string, code: string, data: any): Promise<void> {
+  const normalizedEmail = email.toLowerCase().trim()
+  const hashedCode = hashVerificationCode(code)
+
   await withRedis(
     // Redis operation
     async (client) => {
-      const key = `verification:${email}`
+      const key = `verification:${normalizedEmail}`
       await client.setex(
         key,
         config.verification.codeExpiry,
-        JSON.stringify({ code, data, attempts: 0 })
+        JSON.stringify({ code: hashedCode, data, attempts: 0 })
       )
     },
     // Database fallback
@@ -207,19 +215,22 @@ export async function storeVerificationCode(email: string, code: string, data: a
 
       const expiresAt = new Date(Date.now() + config.verification.codeExpiry * 1000)
 
-      // Delete existing verification session for this email
-      await prisma.touristSession.deleteMany({
-        where: { email, isVerified: false },
-      })
+      // Use transaction to prevent race conditions
+      await prisma.$transaction(async (tx) => {
+        // Delete existing verification session for this email
+        await tx.touristSession.deleteMany({
+          where: { email: normalizedEmail, isVerified: false },
+        })
 
-      // Create new verification session
-      await prisma.touristSession.create({
-        data: {
-          email,
-          verificationCode: code,
-          isVerified: false,
-          expiresAt,
-        },
+        // Create new verification session
+        await tx.touristSession.create({
+          data: {
+            email: normalizedEmail,
+            verificationCode: hashedCode,
+            isVerified: false,
+            expiresAt,
+          },
+        })
       })
     }
   )
@@ -231,12 +242,19 @@ export async function storeVerificationCode(email: string, code: string, data: a
  * @returns Promise<any | null> - The stored data or null if not found/expired
  */
 export async function getVerificationData(email: string): Promise<any | null> {
+  const normalizedEmail = email.toLowerCase().trim()
+
   return await withRedis(
     // Redis operation
     async (client) => {
-      const key = `verification:${email}`
+      const key = `verification:${normalizedEmail}`
       const data = await client.get(key)
-      return data ? JSON.parse(data) : null
+      try {
+        return data ? JSON.parse(data) : null
+      } catch (e) {
+        console.error('Failed to parse Redis data', e)
+        return null
+      }
     },
     // Database fallback
     async () => {
@@ -244,7 +262,7 @@ export async function getVerificationData(email: string): Promise<any | null> {
 
       const session = await prisma.touristSession.findFirst({
         where: {
-          email,
+          email: normalizedEmail,
           isVerified: false,
           expiresAt: { gt: new Date() },
         },
@@ -257,7 +275,7 @@ export async function getVerificationData(email: string): Promise<any | null> {
       return {
         code: session.verificationCode,
         data: null, // TouristSession doesn't store additional data
-        attempts: 0, // Not tracked in DB version
+        attempts: 0, // Used for rate limiting, but DB doesn't track this yet so we assume 0
       }
     }
   )
@@ -269,10 +287,12 @@ export async function getVerificationData(email: string): Promise<any | null> {
  * @returns Promise<void>
  */
 export async function deleteVerificationCode(email: string): Promise<void> {
+  const normalizedEmail = email.toLowerCase().trim()
+
   await withRedis(
     // Redis operation
     async (client) => {
-      const key = `verification:${email}`
+      const key = `verification:${normalizedEmail}`
       await client.del(key)
     },
     // Database fallback
@@ -280,7 +300,7 @@ export async function deleteVerificationCode(email: string): Promise<void> {
       if (!prisma) return
 
       await prisma.touristSession.deleteMany({
-        where: { email, isVerified: false },
+        where: { email: normalizedEmail, isVerified: false },
       })
     }
   )
@@ -292,17 +312,23 @@ export async function deleteVerificationCode(email: string): Promise<void> {
  * @returns Promise<number> - The new attempt count
  */
 export async function incrementVerificationAttempts(email: string): Promise<number> {
+  const normalizedEmail = email.toLowerCase().trim()
+
   return await withRedis(
     // Redis operation
     async (client) => {
-      const key = `verification:${email}`
+      const key = `verification:${normalizedEmail}`
       const data = await client.get(key)
       if (!data) return 0
 
-      const parsed = JSON.parse(data)
-      parsed.attempts = (parsed.attempts || 0) + 1
-      await client.setex(key, config.verification.codeExpiry, JSON.stringify(parsed))
-      return parsed.attempts
+      try {
+        const parsed = JSON.parse(data)
+        parsed.attempts = (parsed.attempts || 0) + 1
+        await client.setex(key, config.verification.codeExpiry, JSON.stringify(parsed))
+        return parsed.attempts
+      } catch (e) {
+        return 0
+      }
     },
     // Database fallback
     async () => {

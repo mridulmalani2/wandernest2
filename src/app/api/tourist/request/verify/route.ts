@@ -10,6 +10,7 @@ import {
   getVerificationData,
   incrementVerificationAttempts,
   deleteVerificationCode,
+  hashVerificationCode,
 } from '@/lib/redis'
 import { sendBookingConfirmation } from '@/lib/email'
 import { autoMatchAndInvite } from '@/lib/matching/autoMatch'
@@ -74,7 +75,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Verify the code
-    if (storedData.code !== validatedData.code) {
+    if (storedData.code !== hashVerificationCode(validatedData.code)) {
       // Increment attempts
       const newAttempts = await incrementVerificationAttempts(validatedData.email)
 
