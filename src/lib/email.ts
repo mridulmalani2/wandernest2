@@ -294,27 +294,16 @@ export async function sendTouristAcceptanceNotification(
   touristRequest: TouristRequest,
   touristName?: string
 ) {
-  const dates = touristRequest.dates as { start: string; end?: string }
-  const startDate = new Date(dates.start).toLocaleDateString('en-US', {
-    month: 'long',
-    day: 'numeric',
-    year: 'numeric'
-  })
+
 
   const html = getTouristAcceptanceNotificationHtml(
     touristName || 'Tourist',
     student.name || 'Student Guide',
     touristRequest.city,
-    startDate,
     {
       institute: student.institute || 'Unknown Institute',
-      nationality: student.nationality || 'Unknown',
       languages: student.languages,
-      rating: student.averageRating || undefined,
-      tripsHosted: student.tripsHosted,
       email: student.email,
-      whatsapp: (student as any).whatsapp,
-      phone: (student as any).phone
     }
   )
 
