@@ -124,7 +124,7 @@ export async function GET(req: NextRequest) {
     ) {
       console.error(
         `[match/respond] Token mismatch: expected requestId=${selection.requestId}, studentId=${selection.studentId}; ` +
-          `got requestId=${requestId}, studentId=${studentId}`
+        `got requestId=${requestId}, studentId=${studentId}`
       )
 
       return new NextResponse(
@@ -202,7 +202,30 @@ export async function GET(req: NextRequest) {
     if (action === 'accept') {
       // ACCEPT FLOW: Update status, send emails, close other selections
       await db.$transaction(async (tx) => {
-        // 1. Update this RequestSelection to 'accepted'
+        // 1. Atomic Update: Try to claim the request (must be PENDING)
+        // This prevents race condition where multiple students accept locally
+        try {
+          await tx.touristRequest.update({
+            where: {
+              id: requestId,
+              status: 'PENDING' // Crucial: Atomic check
+            },
+            data: {
+              status: 'ACCEPTED',
+              assignedStudentId: studentId,
+            },
+          })
+        } catch (error: any) {
+          // Prisma error P2025 means 'Record to update not found', which implies status != PENDING
+          if (error.code === 'P2025') {
+            throw new Error('ALREADY_MATCHED');
+          }
+          throw error;
+        }
+
+        console.log(`[match/respond] Updated TouristRequest ${requestId} to 'ACCEPTED'`)
+
+        // 2. Update this RequestSelection to 'accepted'
         await tx.requestSelection.update({
           where: { id: selectionId },
           data: {
@@ -213,7 +236,7 @@ export async function GET(req: NextRequest) {
 
         console.log(`[match/respond] Updated RequestSelection ${selectionId} to 'accepted'`)
 
-        // 2. Reject all other pending selections for this request
+        // 3. Reject all other pending selections for this request
         const rejectedCount = await tx.requestSelection.updateMany({
           where: {
             requestId,
@@ -226,17 +249,6 @@ export async function GET(req: NextRequest) {
         console.log(
           `[match/respond] Rejected ${rejectedCount.count} other pending selections for request ${requestId}`
         )
-
-        // 3. Update TouristRequest to 'ACCEPTED' and set assignedStudentId
-        await tx.touristRequest.update({
-          where: { id: requestId },
-          data: {
-            status: 'ACCEPTED',
-            assignedStudentId: studentId,
-          },
-        })
-
-        console.log(`[match/respond] Updated TouristRequest ${requestId} to 'ACCEPTED'`)
 
         // 4. Increment student's tripsHosted counter
         await tx.student.update({
@@ -420,7 +432,28 @@ export async function GET(req: NextRequest) {
         }
       )
     }
-  } catch (error) {
+  } catch (error: any) {
+    if (error.message === 'ALREADY_MATCHED') {
+      return new NextResponse(
+        `
+            <!DOCTYPE html>
+            <html>
+              <head><title>Already Matched</title></head>
+              <body style="font-family: sans-serif; text-align: center; padding: 50px;">
+                <h1>😔 Too Late</h1>
+                <p>Sorry, another student has already accepted this request.</p>
+                <p>Keep an eye out for future opportunities!</p>
+                <p><a href="/student/dashboard">Go to Dashboard</a></p>
+              </body>
+            </html>
+            `,
+        {
+          status: 409,
+          headers: { 'Content-Type': 'text/html' },
+        }
+      )
+    }
+
     console.error('[match/respond] Error processing match response:', error)
 
     return new NextResponse(

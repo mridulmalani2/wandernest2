@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
 
     const formData = await req.formData();
     const file = formData.get('file') as File | null;
-    const type = formData.get('type') as string;
+    // const type = formData.get('type') as string; // Unused, removed
 
     if (!file) {
       return NextResponse.json(
@@ -30,10 +30,27 @@ export async function POST(req: NextRequest) {
     }
 
     // Validate file type
-    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'application/pdf'];
-    if (!validTypes.includes(file.type)) {
+    const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
+    // Validate Extension mapping to Mime (Basic spoofing check)
+    const mimeToExt: Record<string, string[]> = {
+      'image/jpeg': ['jpg', 'jpeg'],
+      'image/png': ['png'],
+      'image/webp': ['webp'],
+      'application/pdf': ['pdf']
+    };
+
+    if (!allowedMimeTypes.includes(file.type)) {
       return NextResponse.json(
         { error: 'Invalid file type. Only JPG, PNG, WebP, and PDF are allowed.' },
+        { status: 400 }
+      );
+    }
+
+    // Check extension matches mime
+    const ext = file.name.split('.').pop()?.toLowerCase() || '';
+    if (!mimeToExt[file.type]?.includes(ext)) {
+      return NextResponse.json(
+        { error: 'Invalid file extension for the provided file type.' },
         { status: 400 }
       );
     }

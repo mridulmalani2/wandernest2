@@ -16,38 +16,36 @@ export async function POST(req: Request) {
 
     const now = new Date()
 
-    const record = await prisma.studentOtp.findFirst({
+    // Atomic Consumption: Try to mark as used where valid
+    const updateResult = await prisma.studentOtp.updateMany({
       where: {
         email,
         code,
         used: false,
-        expiresAt: {
-          gt: now,
-        },
+        expiresAt: { gt: now },
       },
-      orderBy: {
-        createdAt: 'desc',
+      data: {
+        used: true,
       },
     })
 
-    if (!record) {
-      // Debugging: Find out WHY it failed
+    if (updateResult.count === 0) {
+      // Debugging: Find out WHY it failed (safe, as atomic action already failed)
+      // Only log safely if needed, do NOT log actual codes in production
       const debugRecord = await prisma.studentOtp.findFirst({
         where: { email, code },
         orderBy: { createdAt: 'desc' }
       });
 
-      console.log('❌ OTP Verification Failed:', {
+      // Sanitized logging
+      console.log('❌ OTP Verification Failed for:', {
         email,
-        codeProvided: code,
-        serverTime: now.toISOString(),
-        recordFound: !!debugRecord,
         reason: !debugRecord
           ? 'Code not found'
           : debugRecord.used
             ? 'Code already used'
             : debugRecord.expiresAt <= now
-              ? `Code expired (Expires: ${debugRecord.expiresAt.toISOString()}, Now: ${now.toISOString()})`
+              ? 'Code expired'
               : 'Unknown'
       });
 
@@ -57,13 +55,8 @@ export async function POST(req: Request) {
       )
     }
 
-    // Mark as used
-    await prisma.studentOtp.update({
-      where: { id: record.id },
-      data: {
-        used: true,
-      },
-    })
+    // OTP consumed successfully, now create session
+    // We need to find the student ID to bind the session if possible (optional improvement, but keeping scope to fix)
 
     // Determine session duration based on rememberMe preference
     // Default (unchecked): 24 hours

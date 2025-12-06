@@ -32,13 +32,27 @@ export default function TouristDashboard() {
     }
 
     if (status === 'authenticated') {
-      fetch('/api/tourist/bookings')
-        .then(res => res.json())
+      const controller = new AbortController();
+
+      fetch('/api/tourist/bookings', { signal: controller.signal })
+        .then(res => {
+          if (!res.ok) throw new Error('Failed to fetch bookings');
+          return res.json();
+        })
         .then(data => {
+          // If unmounted, this won't run if we handle cleanup correctly, 
+          // but React state updates on unmounted components are the main concern.
+          // The cleanup function aborting the request handles the network side.
           setBookings(data.bookings || []);
           setLoading(false);
         })
-        .catch(() => setLoading(false));
+        .catch((err) => {
+          if (err.name !== 'AbortError') {
+            setLoading(false);
+          }
+        });
+
+      return () => controller.abort();
     }
   }, [status, router]);
 
