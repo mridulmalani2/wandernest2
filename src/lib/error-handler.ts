@@ -197,13 +197,13 @@ export function handleApiError(
  *   // Your route logic here
  * }, 'GET /api/example');
  */
-export function withErrorHandler<T extends unknown[]>(
-  handler: (...args: T) => Promise<NextResponse>,
+export function withErrorHandler<T extends unknown[], R>(
+  handler: (...args: T) => Promise<R>,
   context?: string
 ) {
-  return async (...args: T): Promise<NextResponse> => {
+  return async function (this: unknown, ...args: T): Promise<R | NextResponse<ErrorResponse>> {
     try {
-      return await handler(...args);
+      return await handler.apply(this, args);
     } catch (error) {
       return handleApiError(error, context);
     }
@@ -218,9 +218,9 @@ export async function withDatabaseRetry<T>(
   maxRetries = 3,
   retryDelay = 1000
 ): Promise<T> {
-  let lastError: unknown;
+  let lastError: unknown = new Error('Database retry loop did not execute');
 
-  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+  for (let attempt = 1; attempt <= Math.max(1, maxRetries); attempt++) {
     try {
       return await operation();
     } catch (error) {

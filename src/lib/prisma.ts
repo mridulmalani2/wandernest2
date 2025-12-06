@@ -92,16 +92,24 @@ export async function checkDatabaseHealth(): Promise<{
     globalForPrisma.prismaHealthy = true
     return { available: true, healthy: true }
   } catch (error) {
+    // Sanitize error message
     const errorMessage = error instanceof Error ? error.message : 'Unknown error'
-    globalForPrisma.prismaHealthy = false
-    globalForPrisma.prismaLastError = errorMessage
+    const minimalError = config.app.isProduction ? 'Database connection failed' : errorMessage
 
-    console.error('❌ Database health check failed:', errorMessage)
+    globalForPrisma.prismaHealthy = false
+    globalForPrisma.prismaLastError = minimalError
+
+    // Secure logging
+    if (config.app.isDevelopment) {
+      console.error('❌ Database health check failed:', errorMessage)
+    } else {
+      console.error('❌ Database health check failed')
+    }
 
     return {
       available: true,
       healthy: false,
-      error: errorMessage,
+      error: minimalError,
     }
   }
 }

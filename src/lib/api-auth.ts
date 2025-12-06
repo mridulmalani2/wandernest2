@@ -16,6 +16,12 @@ import { NextRequest, NextResponse } from 'next/server'
 import { verifyToken } from './auth'
 import { requireDatabase } from './prisma'
 
+interface JWTPayload {
+  adminId?: string
+  email?: string
+  role?: string
+}
+
 export interface AuthenticatedRequest extends NextRequest {
   admin?: {
     id: string
@@ -43,12 +49,12 @@ export async function verifyAdmin(request: NextRequest): Promise<{ authorized: b
         : cookieToken
 
     if (!token) {
-      return { authorized: false, error: 'No token provided' }
+      return { authorized: false, error: 'Authentication failed' }
     }
-    const decoded = verifyToken(token)
+    const decoded = verifyToken(token) as JWTPayload | string | null
 
-    if (!decoded || typeof decoded === 'string' || !(decoded as any).adminId) {
-      return { authorized: false, error: 'Invalid token' }
+    if (!decoded || typeof decoded === 'string' || !decoded.adminId) {
+      return { authorized: false, error: 'Authentication failed' }
     }
 
     const prisma = requireDatabase()
@@ -60,7 +66,7 @@ export async function verifyAdmin(request: NextRequest): Promise<{ authorized: b
     })
 
     if (!admin || !admin.isActive) {
-      return { authorized: false, error: 'Admin not found or inactive' }
+      return { authorized: false, error: 'Authentication failed' }
     }
 
     return { authorized: true, admin }
