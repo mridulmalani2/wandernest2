@@ -42,7 +42,8 @@ export async function createReview(input: CreateReviewInput & { authorizedStuden
     }
   }
 
-  // Use transaction to ensure atomicity of review creation and metrics update
+  // SECURITY: Use transaction to ensure atomicity of review creation and metrics update.
+  // This prevents race conditions and ensures metrics are always consistent with reviews.
   return await db.$transaction(async (tx) => {
     // Check if review already exists for this request
     const existingReview = await tx.review.findUnique({

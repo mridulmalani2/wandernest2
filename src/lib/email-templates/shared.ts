@@ -27,6 +27,8 @@ export const theme = {
 };
 
 // Security: Helper to escape HTML characters to prevent XSS
+// SECURITY: Helper to escape HTML characters to prevent XSS (Cross-Site Scripting)
+// This must be applied to ALL user-generated content before interpolation.
 export function escapeHtml(text: string | null | undefined | number): string {
   if (text === null || text === undefined) return '';
   return String(text)

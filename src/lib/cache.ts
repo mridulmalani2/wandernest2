@@ -166,7 +166,8 @@ class CacheManager {
 
     if (isRedisAvailable && redis) {
       try {
-        // Use SCAN instead of KEYS to avoid blocking
+        // SECURITY: Use SCAN instead of KEYS to avoid blocking the Redis server (DoS prevention)
+        // KEYS is O(N) and blocks, while SCAN is O(1) per iteration.
         const stream = redis.scanIterator({
           MATCH: pattern,
           COUNT: 100
