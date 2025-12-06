@@ -28,12 +28,12 @@ export default function TouristLanding() {
 
       <div className="relative z-10 flex flex-col min-h-screen">
         {/* Hero Section - Optimized for mobile: reduced padding */}
-        <main className="flex-1 container mx-auto px-4 py-8 md:py-16">
+        <main className="flex-1 container mx-auto px-4 pt-24 pb-8 md:pt-32 md:pb-16">
           <div className="max-w-5xl mx-auto space-y-10 md:space-y-16">
             <div className="text-center space-y-6 md:space-y-8 animate-slide-up-fade">
               <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold leading-tight tracking-tight text-white text-shadow-lg">
                 Experience{' '}
-                <span className="text-gradient-vibrant animate-gradient-shift">
+                <span className="bg-gradient-to-r from-blue-300 via-purple-300 to-blue-300 bg-clip-text text-transparent animate-gradient-shift">
                   Authentic Travel
                 </span>
                 <br />
