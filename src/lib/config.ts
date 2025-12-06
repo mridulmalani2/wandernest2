@@ -186,7 +186,7 @@ function loadConfig(): AppConfig {
 
   // App configuration
   // Fallback to tourwiseco.com in production if no env var is set
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXTAUTH_URL || (isProduction ? 'https://tourwiseco.com' : null)
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXTAUTH_URL || (isProduction ? 'https://www.tourwiseco.com' : null)
 
   if (!baseUrl && isProduction) {
     configWarnings.push(

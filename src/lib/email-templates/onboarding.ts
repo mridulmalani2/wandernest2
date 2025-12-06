@@ -11,10 +11,16 @@ export const getOtpEmailHtml = (otp: string, title: string = 'Verify Your Accoun
 
     const content = `
     <div style="text-align: center;">
-      <div style="width: auto; height: 64px; background-color: ${theme.colors.successBg}; border-radius: 32px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 24px; padding: 0 24px;">
-        <span style="font-size: 32px; margin-right: 12px;">👋</span>
-        <span style="font-size: 20px; font-weight: 700; color: ${theme.colors.success};">Welcome!!</span>
-      </div>
+    <div style="text-align: center;">
+      <!-- Badge using Table for compatibility -->
+      <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="display: inline-block; background-color: ${theme.colors.successBg}; border-radius: 32px; margin-bottom: 24px;">
+        <tr>
+          <td style="padding: 12px 24px;">
+            <span style="font-size: 32px; vertical-align: middle; margin-right: 12px;">👋</span>
+            <span style="font-size: 20px; font-weight: 700; color: ${theme.colors.success}; vertical-align: middle;">Welcome!!</span>
+          </td>
+        </tr>
+      </table>
 
       <h1 style="margin: 0 0 16px; font-size: 24px; font-weight: 700; color: ${theme.colors.secondary}; letter-spacing: -0.5px;">
         ${safeTitle}
