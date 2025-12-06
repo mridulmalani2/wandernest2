@@ -33,14 +33,22 @@ export class AppError extends Error {
  * In production, this could integrate with services like Sentry, DataDog, etc.
  */
 export function logError(error: unknown, context?: string): void {
-  const timestamp = new Date().toISOString();
-  const prefix = context ? `[${context}]` : '[ERROR]';
+  // In production, avoid logging sensitive error details to stdout/stderr
+  // unless using a secure logger (which we assume console.* is NOT in this context)
+  if (process.env.NODE_ENV !== 'production') {
+    const timestamp = new Date().toISOString();
+    const prefix = context ? `[${context}]` : '[ERROR]';
 
-  console.error(`${prefix} ${timestamp}:`, error);
+    console.error(`${prefix} ${timestamp}:`, error);
 
-  // Additional error details for debugging
-  if (error instanceof Error) {
-    console.error('Stack trace:', error.stack);
+    // Additional error details for debugging
+    if (error instanceof Error) {
+      console.error('Stack trace:', error.stack);
+    }
+  } else {
+    // Production logging: minimal info, no stack traces to std out
+    // ideally send to Sentry/DataDog here
+    console.error(`[ERROR] ${context || 'Unknown'}: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }
 
@@ -126,25 +134,28 @@ function buildErrorResponse(error: unknown, includeDetails = false): ErrorRespon
     error: sanitizeErrorMessage(error),
   };
 
-  // Add error code if available
+  // Only include specific error codes in development or if they are safe/public
+  // AppError codes are considered safe as they are defined by us
   if (error instanceof AppError && error.code) {
     response.code = error.code;
   }
 
-  if (error instanceof Prisma.PrismaClientKnownRequestError) {
+  // Do NOT expose Prisma/DB error codes in production
+  if (includeDetails && error instanceof Prisma.PrismaClientKnownRequestError) {
     response.code = error.code;
   }
 
-  // Include validation details for ZodErrors (in development)
-  if (includeDetails && error instanceof ZodError) {
+  // Include validation details for ZodErrors (safe to show validation issues)
+  // But strictly filter "details" for other errors
+  if (error instanceof ZodError) {
     response.details = error.errors.map(err => ({
       path: err.path.join('.'),
       message: err.message,
     }));
   }
 
-  // Include custom error details if provided
-  if (error instanceof AppError && error.details) {
+  // Include custom error details only if specifically allowed (dev mode or AppError)
+  if (includeDetails && error instanceof AppError && error.details) {
     response.details = error.details;
   }
 
@@ -163,13 +174,14 @@ export function handleApiError(
   error: unknown,
   context?: string
 ): NextResponse<ErrorResponse> {
-  // Log the error server-side
+  // Log the error securely
   logError(error, context);
 
   // Get status code
   const statusCode = getStatusCode(error);
 
   // Build sanitized response
+  // includeDetails is strictly false for production to prevent leaking internals
   const includeDetails = process.env.NODE_ENV === 'development';
   const response = buildErrorResponse(error, includeDetails);
 
@@ -219,9 +231,9 @@ export async function withDatabaseRetry<T>(
         error instanceof Prisma.PrismaClientInitializationError ||
         error instanceof Prisma.PrismaClientUnknownRequestError ||
         (error instanceof Error &&
-         (error.message.includes('ECONNREFUSED') ||
-          error.message.includes('ETIMEDOUT') ||
-          error.message.includes('ENOTFOUND')));
+          (error.message.includes('ECONNREFUSED') ||
+            error.message.includes('ETIMEDOUT') ||
+            error.message.includes('ENOTFOUND')));
 
       if (!shouldRetry || attempt === maxRetries) {
         throw error;
