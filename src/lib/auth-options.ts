@@ -26,26 +26,26 @@ if (config.email.isConfigured) {
   // (these won't be used since we override sendVerificationRequest)
   const serverConfig = config.email.host
     ? {
-        host: config.email.host,
-        port: config.email.port,
-        auth: {
-          user: config.email.user!,
-          pass: config.email.pass!,
-        },
-        secure: config.email.port === 465,
-        tls: {
-          rejectUnauthorized: config.app.isProduction,
-        },
-      }
+      host: config.email.host,
+      port: config.email.port,
+      auth: {
+        user: config.email.user!,
+        pass: config.email.pass!,
+      },
+      secure: config.email.port === 465,
+      tls: {
+        rejectUnauthorized: config.app.isProduction,
+      },
+    }
     : {
-        // Dummy config when only Resend is available
-        host: 'dummy.smtp.server',
-        port: 587,
-        auth: {
-          user: 'dummy@example.com',
-          pass: 'dummy',
-        },
-      };
+      // Dummy config when only Resend is available
+      host: 'dummy.smtp.server',
+      port: 587,
+      auth: {
+        user: 'dummy@example.com',
+        pass: 'dummy',
+      },
+    };
 
   providers.push(
     EmailProvider({

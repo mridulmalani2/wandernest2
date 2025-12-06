@@ -115,7 +115,7 @@ async function sendEmail(
   console.log(`   To: ${options.to}`);
   console.log(`   Resend Client Available: ${!!resend}`);
   const isTestKey = config.email.resendApiKey?.startsWith('re_test_');
-  console.log(`   Resend API Key Type: ${isTestKey ? '⚠️ TEST KEY (Sandbox Mode - Only sends to you)' : '✅ LIVE KEY'}`);
+  console.log(`   Resend API Key Type: ${config.email.resendApiKey ? (isTestKey ? '⚠️ TEST KEY (Sandbox Mode - Only sends to you)' : '✅ LIVE KEY') : '❌ NOT CONFIGURED'}`);
   console.log(`   Resend API Key Configured: ${!!config.email.resendApiKey}`);
 
   // 1. Try Resend first
