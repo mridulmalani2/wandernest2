@@ -11,8 +11,9 @@ export const getOtpEmailHtml = (otp: string, title: string = 'Verify Your Accoun
 
     const content = `
     <div style="text-align: center;">
-      <div style="width: 64px; height: 64px; background-color: ${theme.colors.successBg}; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 24px;">
-        <span style="font-size: 32px;">👋</span>
+      <div style="width: auto; height: 64px; background-color: ${theme.colors.successBg}; border-radius: 32px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 24px; padding: 0 24px;">
+        <span style="font-size: 32px; margin-right: 12px;">👋</span>
+        <span style="font-size: 20px; font-weight: 700; color: ${theme.colors.success};">Welcome!!</span>
       </div>
 
       <h1 style="margin: 0 0 16px; font-size: 24px; font-weight: 700; color: ${theme.colors.secondary}; letter-spacing: -0.5px;">

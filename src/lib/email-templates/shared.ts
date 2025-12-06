@@ -5,55 +5,55 @@ import { config } from '@/lib/config';
 // ============================================================================
 
 export const theme = {
-    colors: {
-        primary: '#2DB7B5',    // Teal - Fresh, trustworthy, energetic
-        secondary: '#1D3557',  // Deep Navy - Professional, secure
-        accent: '#FFCF56',     // Warm Sunshine - Friendly, highlighting
-        background: '#F5F7FA', // Light Gray - Clean base
-        surface: '#ffffff',
-        text: '#1F2937',       // Gray 800 - Readable
-        textSecondary: '#6B7280', // Gray 500
-        border: '#E5E7EB',     // Gray 200
-        success: '#10B981',    // Green
-        successBg: '#ECFDF5',
-        error: '#EF4444',      // Red
-        errorBg: '#FEF2F2',
-        warning: '#F59E0B',    // Amber
-    },
-    fonts: {
-        headings: '"Poppins", "Montserrat", sans-serif',
-        body: '"Inter", "Lato", sans-serif',
-    },
+  colors: {
+    primary: '#2DB7B5',    // Teal - Fresh, trustworthy, energetic
+    secondary: '#1D3557',  // Deep Navy - Professional, secure
+    accent: '#FFCF56',     // Warm Sunshine - Friendly, highlighting
+    background: '#F5F7FA', // Light Gray - Clean base
+    surface: '#ffffff',
+    text: '#1F2937',       // Gray 800 - Readable
+    textSecondary: '#6B7280', // Gray 500
+    border: '#E5E7EB',     // Gray 200
+    success: '#10B981',    // Green
+    successBg: '#ECFDF5',
+    error: '#EF4444',      // Red
+    errorBg: '#FEF2F2',
+    warning: '#F59E0B',    // Amber
+  },
+  fonts: {
+    headings: '"Poppins", "Montserrat", sans-serif',
+    body: '"Inter", "Lato", sans-serif',
+  },
 };
 
 // Security: Helper to escape HTML characters to prevent XSS
 export function escapeHtml(text: string | null | undefined | number): string {
-    if (text === null || text === undefined) return '';
-    return String(text)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
+  if (text === null || text === undefined) return '';
+  return String(text)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
 }
 
 // Security: Helper to validate allow-listed URLs to prevent open redirects
 export function validateUrl(url: string): string {
-    const baseUrl = config.app.baseUrl || 'https://tourwiseco.com';
-    try {
-        if (url.startsWith('/')) {
-            return `${baseUrl}${url}`;
-        }
-        const parsedUrl = new URL(url);
-        const trustedHost = new URL(baseUrl).host;
-        if (parsedUrl.host === trustedHost) {
-            return url;
-        }
-        console.warn(`[Security] Blocked potential open redirect: ${url}`);
-        return baseUrl;
-    } catch (e) {
-        return baseUrl;
+  const baseUrl = config.app.baseUrl || 'https://tourwiseco.com';
+  try {
+    if (url.startsWith('/')) {
+      return `${baseUrl}${url}`;
     }
+    const parsedUrl = new URL(url);
+    const trustedHost = new URL(baseUrl).host;
+    if (parsedUrl.host === trustedHost) {
+      return url;
+    }
+    console.warn(`[Security] Blocked potential open redirect: ${url}`);
+    return baseUrl;
+  } catch (e) {
+    return baseUrl;
+  }
 }
 
 export const baseUrl = config.app.baseUrl || 'https://tourwiseco.com';
