@@ -42,7 +42,7 @@ function StudentSignInContent() {
       try {
         const res = await fetch('/api/student/auth/session-status');
         const data = await res.json();
-        if (data.ok && data.nextPath) {
+        if (data.ok && data.nextPath && data.nextPath.startsWith('/')) {
           router.replace(data.nextPath);
         }
       } catch (error) {
@@ -81,6 +81,10 @@ function StudentSignInContent() {
         body: JSON.stringify({ email }),
       });
 
+      if (!res.ok) {
+        throw new Error('Failed to send OTP');
+      }
+
       const data = await res.json();
 
       if (!res.ok || !data.success) {
@@ -103,7 +107,10 @@ function StudentSignInContent() {
   // STEP 2: Verify OTP
   const handleOtpVerify = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!code) return;
+    if (!code || code.length !== 6 || !/^\d+$/.test(code)) {
+      setEmailErrorMessage('Please enter a valid 6-digit code.');
+      return;
+    }
 
     setEmailErrorMessage(null);
     setDomainValidationError(null);
@@ -128,7 +135,7 @@ function StudentSignInContent() {
 
       // backend StudentSession cookie set karega
       setMessage('Signed in successfully. Redirecting…');
-      router.push(callbackUrl);
+      router.replace(callbackUrl);
     } catch (error) {
       console.error('OTP verify error:', error);
       setEmailErrorMessage('An unexpected error occurred. Please try again.');

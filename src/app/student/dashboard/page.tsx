@@ -26,41 +26,67 @@ export default function StudentDashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const controller = new AbortController();
+
     const checkAuthAndFetch = async () => {
+      // Avoid fetch if session is loading or if we already have a session and just need data
       if (status === 'loading') return;
 
-      let isAuthenticated = false;
+      let isAuthenticated = status === 'authenticated';
 
-      // Check Custom Session via API
-      try {
-        const res = await fetch('/api/student/auth/session-status');
-        const data = await res.json();
-        if (data.ok) {
-          isAuthenticated = true;
+      // Fallback: Check Custom Session via API if next-auth session is missing
+      if (!isAuthenticated) {
+        try {
+          const res = await fetch('/api/student/auth/session-status', {
+            signal: controller.signal
+          });
+          const data = await res.json();
+          if (data.ok) {
+            isAuthenticated = true;
+          }
+        } catch (error: any) {
+          if (error.name !== 'AbortError') {
+            console.error('Session check failed', error);
+          }
         }
-      } catch (error) {
-        console.error('Session check failed', error);
       }
 
       if (!isAuthenticated) {
-        router.push('/student/signin');
+        // Use replace to avoid back button loops
+        router.replace('/student/signin');
         return;
       }
 
-      // 3. Fetch Data if Authenticated
+      // Fetch Data
       try {
-        const res = await fetch('/api/student/requests');
+        const res = await fetch('/api/student/requests', {
+          signal: controller.signal
+        });
+
+        if (!res.ok) {
+          throw new Error('Failed to fetch requests');
+        }
+
         const data = await res.json();
         setRequests(data.requests || []);
-      } catch (error) {
-        console.error('Failed to fetch requests', error);
+      } catch (error: any) {
+        if (error.name !== 'AbortError') {
+          console.error('Failed to fetch requests', error);
+        }
       } finally {
-        setLoading(false);
+        // Ensure we don't update state if unmounted
+        if (!controller.signal.aborted) {
+          setLoading(false);
+        }
       }
     };
 
     checkAuthAndFetch();
-  }, [status, session, router]);
+
+    return () => {
+      controller.abort();
+    };
+  }, [status, router]);
 
   if (status === 'loading' || loading) {
     return (
@@ -119,7 +145,7 @@ export default function StudentDashboard() {
             Welcome back, {session?.user?.name?.split(' ')[0] || 'Guide'}
           </h1>
           <p className="text-lg font-light text-gray-300">
-            Manage your bookings and grow your guide business
+            Manage your bookings and grow your student profile
           </p>
         </div>
 
@@ -232,10 +258,16 @@ export default function StudentDashboard() {
 
                     {request.status === 'pending' && (
                       <div className="flex gap-2">
-                        <button className="px-6 py-2 rounded-full bg-white text-black hover:shadow-md transition-all duration-300 font-medium">
+                        <button
+                          onClick={() => console.log('Accept', request.id)}
+                          className="px-6 py-2 rounded-full bg-white text-black hover:shadow-md transition-all duration-300 font-medium"
+                        >
                           Accept
                         </button>
-                        <button className="px-6 py-2 rounded-full border-2 border-white/20 text-white hover:bg-white/10 transition-all duration-300">
+                        <button
+                          onClick={() => console.log('Decline', request.id)}
+                          className="px-6 py-2 rounded-full border-2 border-white/20 text-white hover:bg-white/10 transition-all duration-300"
+                        >
                           Decline
                         </button>
                       </div>
