@@ -185,8 +185,14 @@ function loadConfig(): AppConfig {
   }
 
   // App configuration
-  // Fallback to tourwiseco.com in production if no env var is set
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXTAUTH_URL || (isProduction ? 'https://www.tourwiseco.com' : null)
+  let baseUrl = process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXTAUTH_URL
+
+  // CRITICAL: Enforce custom domain in production, overriding Vercel's default .vercel.app URLs
+  if (isProduction) {
+    if (!baseUrl || baseUrl.includes('vercel.app')) {
+      baseUrl = 'https://www.tourwiseco.com';
+    }
+  }
 
   if (!baseUrl && isProduction) {
     configWarnings.push(
@@ -242,7 +248,7 @@ function loadConfig(): AppConfig {
     },
     app: {
       nodeEnv,
-      baseUrl,
+      baseUrl: baseUrl || null,
       isProduction,
       isDevelopment,
     },

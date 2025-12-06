@@ -121,9 +121,9 @@ export const StartupEmailLayout = (content: string, title: string = 'TourWiseCo'
           <tr>
             <td style="background-color: #F8FAFC; padding: 32px 40px; border-top: 1px solid ${theme.colors.border}; text-align: center;">
               <div style="margin-bottom: 20px;">
-                <a href="${baseUrl}" style="color: ${theme.colors.secondary}; text-decoration: none; font-size: 13px; font-weight: 600; margin: 0 12px;">Home</a>
-                <a href="${baseUrl}/explore" style="color: ${theme.colors.secondary}; text-decoration: none; font-size: 13px; font-weight: 600; margin: 0 12px;">Explore</a>
-                <a href="${baseUrl}/support" style="color: ${theme.colors.secondary}; text-decoration: none; font-size: 13px; font-weight: 600; margin: 0 12px;">Support</a>
+                <a href="https://www.tourwiseco.com" style="color: ${theme.colors.secondary}; text-decoration: none; font-size: 13px; font-weight: 600; margin: 0 12px;">Home</a>
+                <a href="https://www.tourwiseco.com/explore" style="color: ${theme.colors.secondary}; text-decoration: none; font-size: 13px; font-weight: 600; margin: 0 12px;">Explore</a>
+                <a href="https://www.tourwiseco.com/support" style="color: ${theme.colors.secondary}; text-decoration: none; font-size: 13px; font-weight: 600; margin: 0 12px;">Support</a>
               </div>
 
               <p style="margin: 0 0 12px; font-size: 13px; color: ${theme.colors.textSecondary};">
