@@ -20,8 +20,9 @@ import { config } from '@/lib/config'
 function getBaseUrl(): string {
   const baseUrl = config.app.baseUrl
   if (!baseUrl) {
+    // SECURITY: Use generic warning to avoid leaking internal config details if this ever leaks to user (unlikely but safe)
     console.warn(
-      '⚠️  NEXT_PUBLIC_BASE_URL not configured - email links will use fallback'
+      '⚠️  App Base URL not configured in config.app.baseUrl - email links will use default fallback'
     )
     return 'https://tourwiseco.com' // Fallback URL
   }
@@ -173,8 +174,12 @@ async function sendTransactionalEmail(
     console.log(`To: ${options.to}`)
     console.log(`Subject: ${options.subject}`)
     console.log('===========================================\n')
+    return { success: true }
   }
-  return { success: true } // Mock sends always "succeed"
+
+  // If we get here, no transport is available and we are NOT in dev mode (or we want to be strict)
+  console.error(`❌ No email transport configured for: ${context}`)
+  return { success: false, error: 'No email transport configured' }
 }
 
 /**

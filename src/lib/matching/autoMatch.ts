@@ -58,76 +58,65 @@ export async function autoMatchAndInvite(
     // Limit to maxCandidates
     const selectedCandidates = candidates.slice(0, maxCandidates);
 
-    // Step 2: Create RequestSelection records for each candidate
-    const selectionIds: Record<string, string> = {};
+    // Step 2 & 3: Create RequestSelection records and Update Status in Transaction
+    // SECURITY: Use transaction to ensure we don't end up with MATCHED request but no selections
+    const { selections, successCount } = await db.$transaction(async (tx) => {
+      const selectionResults = []
+      let createdCount = 0
 
-    for (const candidate of selectedCandidates) {
-      try {
-        const selection = await db.requestSelection.create({
-          data: {
-            requestId: request.id,
-            studentId: candidate.id,
-            status: 'pending',
-          },
-        });
-
-        selectionIds[candidate.id] = selection.id;
-        console.log(`[autoMatchAndInvite] Created RequestSelection ${selection.id} for student ${candidate.id}`);
-      } catch (error) {
-        console.error(`[autoMatchAndInvite] Failed to create RequestSelection for student ${candidate.id}:`, error);
-        errors.push(`Failed to create match record for student ${candidate.id}`);
-      }
-    }
-
-    // Step 3: Update TouristRequest status to MATCHED
-    await db.touristRequest.update({
-      where: { id: request.id },
-      data: { status: 'MATCHED' },
-    });
-
-    console.log(`[autoMatchAndInvite] Updated request ${request.id} status to MATCHED`);
-
-    // Step 4: Send invitation emails to each candidate IN PARALLEL for performance
-    // This prevents timeout issues when sending to multiple students (up to 4 emails)
-    const emailPromises = selectedCandidates.map(async (candidate) => {
-      const selectionId = selectionIds[candidate.id];
-
-      if (!selectionId) {
-        console.error(`[autoMatchAndInvite] No selectionId found for student ${candidate.id}, skipping email`);
-        return { success: false, error: 'No selection ID', candidateId: candidate.id };
-      }
-
-      try {
-        // Fetch full student record (candidates only have partial data)
-        const student = await db.student.findUnique({
-          where: { id: candidate.id },
-        });
-
-        if (!student) {
-          console.error(`[autoMatchAndInvite] Student ${candidate.id} not found, skipping email`);
-          errors.push(`Student ${candidate.id} not found`);
-          return { success: false, error: 'Student not found', candidateId: candidate.id };
+      for (const candidate of selectedCandidates) {
+        try {
+          const selection = await tx.requestSelection.create({
+            data: {
+              requestId: request.id,
+              studentId: candidate.id,
+              status: 'pending',
+            },
+          });
+          selectionResults.push({ candidateId: candidate.id, selectionId: selection.id })
+          createdCount++
+          // console.log(`[autoMatchAndInvite] Created RequestSelection ${selection.id}`) // Redacted student ID from logs
+        } catch (error) {
+          // Log error but continue to try other candidates
+          console.error(`[autoMatchAndInvite] Failed to create selection for a candidate:`, error);
         }
+      }
 
-        // Send invitation email with secure accept/decline links
+      // Only update status if we successfully created at least one selection
+      if (createdCount > 0) {
+        await tx.touristRequest.update({
+          where: { id: request.id },
+          data: { status: 'MATCHED' },
+        });
+      }
+
+      return { selections: selectionResults, successCount: createdCount }
+    })
+
+    console.log(`[autoMatchAndInvite] Successfully matched ${successCount} candidates and updated status`);
+
+    // Step 4: Send invitation emails (outside transaction to avoid blocking DB)
+    const emailPromises = selections.map(async ({ candidateId, selectionId }) => {
+      try {
+        const student = await db.student.findUnique({ where: { id: candidateId } });
+        if (!student) return { success: false, candidateId };
+
         const emailResult = await sendStudentMatchInvitation(student, request, selectionId);
 
         if (emailResult.success) {
-          console.log(`[autoMatchAndInvite] Sent invitation to ${student.email} (selection ${selectionId})`);
-          return { success: true, candidateId: candidate.id, email: student.email };
+          console.log(`[autoMatchAndInvite] Sent invitation (selection ${selectionId})`);
+          // PII Redacted: Do not log email addresses
+          return { success: true, candidateId };
         } else {
-          console.error(`[autoMatchAndInvite] Failed to send email to ${student.email}:`, emailResult.error);
-          errors.push(`Failed to send email to ${student.email}: ${emailResult.error}`);
-          return { success: false, error: emailResult.error, candidateId: candidate.id };
+          console.error(`[autoMatchAndInvite] Failed to send email (selection ${selectionId})`);
+          return { success: false, error: emailResult.error, candidateId };
         }
       } catch (error) {
-        console.error(`[autoMatchAndInvite] Error sending invitation to student ${candidate.id}:`, error);
-        errors.push(`Error sending invitation to student ${candidate.id}`);
-        return { success: false, error: error instanceof Error ? error.message : 'Unknown error', candidateId: candidate.id };
+        console.error(`[autoMatchAndInvite] Email error for candidate ${candidateId}`);
+        return { success: false, candidateId };
       }
     });
 
-    // Wait for all emails to complete (parallel execution)
     const emailResults = await Promise.all(emailPromises);
     const invitationsSent = emailResults.filter(r => r.success).length;
 
