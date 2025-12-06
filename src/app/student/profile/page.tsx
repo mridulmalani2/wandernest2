@@ -296,13 +296,14 @@ export default function StudentProfilePage() {
                   {/* Right: Edit/Save Actions */}
                   <div className="flex items-center gap-3 flex-shrink-0">
                     {!isEditing ? (
-                      <button
+                      <Button
                         onClick={handleEdit}
-                        className="group flex items-center gap-2 px-5 py-2 rounded-full bg-white/5 hover:bg-white/10 border border-white/30 hover:border-white/80 backdrop-blur-md transition-all duration-300 text-sm font-medium text-white shadow-sm hover:shadow-md hover:scale-105 active:scale-95"
+                        variant="ghost"
+                        className="group flex items-center gap-2 px-5 py-2 rounded-full bg-white/5 hover:bg-white/10 border border-white/30 hover:border-white/80 backdrop-blur-md transition-all duration-300 text-white shadow-sm hover:shadow-md hover:scale-105 active:scale-95"
                       >
-                        <Edit className="w-3.5 h-3.5" />
-                        <span>Edit Profile</span>
-                      </button>
+                        <Edit className="w-3.5 h-3.5 mr-2" />
+                        Edit Profile
+                      </Button>
                     ) : (
                       <>
                         <Button
@@ -360,7 +361,10 @@ export default function StudentProfilePage() {
                     <div className="w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center">
                       <AlertCircle className="w-5 h-5 text-red-400" />
                     </div>
-                    <p className="text-red-300 font-medium">{error}</p>
+                    <div>
+                      <p className="text-red-300 font-medium">Error</p>
+                      <p className="text-red-200 text-sm mt-0.5">{error}</p>
+                    </div>
                   </div>
                 </motion.div>
               )}
@@ -382,7 +386,7 @@ export default function StudentProfilePage() {
               />
               <StatCard
                 label="Average Rating"
-                value={currentProfile?.averageRating?.toFixed(1) || 'N/A'}
+                value={currentProfile?.averageRating ? currentProfile.averageRating.toFixed(1) : 'N/A'}
                 icon={Star}
                 accentColor="yellow"
               />
@@ -398,7 +402,7 @@ export default function StudentProfilePage() {
             >
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
                 <div>
-                  <Label htmlFor="name" className="text-gray-700 font-semibold mb-2 block">
+                  <Label htmlFor={isEditing ? "name" : undefined} className="text-gray-700 font-semibold mb-2 block">
                     Full Name *
                   </Label>
                   {isEditing ? (
@@ -423,7 +427,7 @@ export default function StudentProfilePage() {
                 </div>
 
                 <div>
-                  <Label htmlFor="phoneNumber" className="text-gray-700 font-semibold mb-2 block">
+                  <Label htmlFor={isEditing ? "phoneNumber" : undefined} className="text-gray-700 font-semibold mb-2 block">
                     Phone Number
                   </Label>
                   {isEditing ? (
@@ -441,7 +445,7 @@ export default function StudentProfilePage() {
                 </div>
 
                 <div>
-                  <Label htmlFor="dateOfBirth" className="text-gray-700 font-semibold mb-2 block">
+                  <Label htmlFor={isEditing ? "dateOfBirth" : undefined} className="text-gray-700 font-semibold mb-2 block">
                     Date of Birth
                   </Label>
                   {isEditing ? (
@@ -460,7 +464,7 @@ export default function StudentProfilePage() {
                 </div>
 
                 <div>
-                  <Label htmlFor="gender" className="text-gray-700 font-semibold mb-2 block">
+                  <Label htmlFor={isEditing ? "gender" : undefined} className="text-gray-700 font-semibold mb-2 block">
                     Gender
                   </Label>
                   {isEditing ? (
@@ -477,14 +481,14 @@ export default function StudentProfilePage() {
                       <option value="Prefer not to say">Prefer not to say</option>
                     </select>
                   ) : (
-                    <InfoRow label="">
+                    <InfoRow label="" icon={User}>
                       {currentProfile?.gender || 'Not provided'}
                     </InfoRow>
                   )}
                 </div>
 
                 <div>
-                  <Label htmlFor="nationality" className="text-gray-700 font-semibold mb-2 block">
+                  <Label htmlFor={isEditing ? "nationality" : undefined} className="text-gray-700 font-semibold mb-2 block">
                     Nationality
                   </Label>
                   {isEditing ? (
@@ -502,7 +506,7 @@ export default function StudentProfilePage() {
                 </div>
 
                 <div>
-                  <Label htmlFor="city" className="text-gray-700 font-semibold mb-2 block">
+                  <Label htmlFor={isEditing ? "city" : undefined} className="text-gray-700 font-semibold mb-2 block">
                     City
                   </Label>
                   {isEditing ? (
@@ -521,7 +525,7 @@ export default function StudentProfilePage() {
                 </div>
 
                 <div>
-                  <Label htmlFor="timezone" className="text-gray-700 font-semibold mb-2 block">
+                  <Label htmlFor={isEditing ? "timezone" : undefined} className="text-gray-700 font-semibold mb-2 block">
                     Timezone
                   </Label>
                   {isEditing ? (
@@ -551,7 +555,7 @@ export default function StudentProfilePage() {
             >
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
                 <div>
-                  <Label htmlFor="institute" className="text-gray-700 font-semibold mb-2 block">
+                  <Label htmlFor={isEditing ? "institute" : undefined} className="text-gray-700 font-semibold mb-2 block">
                     University/Institute
                   </Label>
                   {isEditing ? (
@@ -562,14 +566,14 @@ export default function StudentProfilePage() {
                       className="bg-white/80 border-gray-300 focus:border-ui-blue-accent"
                     />
                   ) : (
-                    <InfoRow label="">
+                    <InfoRow label="" icon={GraduationCap}>
                       {currentProfile?.institute || 'Not provided'}
                     </InfoRow>
                   )}
                 </div>
 
                 <div>
-                  <Label htmlFor="campus" className="text-gray-700 font-semibold mb-2 block">
+                  <Label htmlFor={isEditing ? "campus" : undefined} className="text-gray-700 font-semibold mb-2 block">
                     Campus
                   </Label>
                   {isEditing ? (
@@ -580,14 +584,14 @@ export default function StudentProfilePage() {
                       className="bg-white/80 border-gray-300 focus:border-ui-blue-accent"
                     />
                   ) : (
-                    <InfoRow label="">
+                    <InfoRow label="" icon={MapPin}>
                       {currentProfile?.campus || 'Not provided'}
                     </InfoRow>
                   )}
                 </div>
 
                 <div>
-                  <Label htmlFor="programDegree" className="text-gray-700 font-semibold mb-2 block">
+                  <Label htmlFor={isEditing ? "programDegree" : undefined} className="text-gray-700 font-semibold mb-2 block">
                     Program/Degree
                   </Label>
                   {isEditing ? (
@@ -599,14 +603,14 @@ export default function StudentProfilePage() {
                       placeholder="e.g., Bachelor of Computer Science"
                     />
                   ) : (
-                    <InfoRow label="">
+                    <InfoRow label="" icon={FileText}>
                       {currentProfile?.programDegree || 'Not provided'}
                     </InfoRow>
                   )}
                 </div>
 
                 <div>
-                  <Label htmlFor="yearOfStudy" className="text-gray-700 font-semibold mb-2 block">
+                  <Label htmlFor={isEditing ? "yearOfStudy" : undefined} className="text-gray-700 font-semibold mb-2 block">
                     Year of Study
                   </Label>
                   {isEditing ? (
@@ -618,14 +622,14 @@ export default function StudentProfilePage() {
                       placeholder="e.g., 2nd Year"
                     />
                   ) : (
-                    <InfoRow label="">
+                    <InfoRow label="" icon={Calendar}>
                       {currentProfile?.yearOfStudy || 'Not provided'}
                     </InfoRow>
                   )}
                 </div>
 
                 <div>
-                  <Label htmlFor="expectedGraduation" className="text-gray-700 font-semibold mb-2 block">
+                  <Label htmlFor={isEditing ? "expectedGraduation" : undefined} className="text-gray-700 font-semibold mb-2 block">
                     Expected Graduation
                   </Label>
                   {isEditing ? (
@@ -655,7 +659,7 @@ export default function StudentProfilePage() {
             >
               <div className="space-y-6">
                 <div>
-                  <Label htmlFor="bio" className="text-gray-700 font-semibold mb-2 block">
+                  <Label htmlFor={isEditing ? "bio" : undefined} className="text-gray-700 font-semibold mb-2 block">
                     Bio / Short Introduction
                   </Label>
                   {isEditing ? (
@@ -675,7 +679,7 @@ export default function StudentProfilePage() {
                 </div>
 
                 <div>
-                  <Label htmlFor="preferredGuideStyle" className="text-gray-700 font-semibold mb-2 block">
+                  <Label htmlFor={isEditing ? "preferredGuideStyle" : undefined} className="text-gray-700 font-semibold mb-2 block">
                     Preferred Guide Style
                   </Label>
                   {isEditing ? (
@@ -694,7 +698,7 @@ export default function StudentProfilePage() {
                 </div>
 
                 <div>
-                  <Label htmlFor="skills" className="text-gray-700 font-semibold mb-3 block">
+                  <Label htmlFor={isEditing ? "skills" : undefined} className="text-gray-700 font-semibold mb-3 block">
                     Skills
                   </Label>
                   {isEditing ? (
@@ -719,7 +723,7 @@ export default function StudentProfilePage() {
                 </div>
 
                 <div>
-                  <Label htmlFor="interests" className="text-gray-700 font-semibold mb-3 block">
+                  <Label htmlFor={isEditing ? "interests" : undefined} className="text-gray-700 font-semibold mb-3 block">
                     Interests
                   </Label>
                   {isEditing ? (
@@ -755,7 +759,7 @@ export default function StudentProfilePage() {
             >
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
                 <div>
-                  <Label htmlFor="hourlyRate" className="text-gray-700 font-semibold mb-2 block">
+                  <Label htmlFor={isEditing ? "hourlyRate" : undefined} className="text-gray-700 font-semibold mb-2 block">
                     Hourly Rate (USD)
                   </Label>
                   {isEditing ? (
@@ -776,7 +780,7 @@ export default function StudentProfilePage() {
                 </div>
 
                 <div className="md:col-span-2">
-                  <Label htmlFor="servicesOffered" className="text-gray-700 font-semibold mb-3 block">
+                  <Label htmlFor={isEditing ? "servicesOffered" : undefined} className="text-gray-700 font-semibold mb-3 block">
                     Services Offered
                   </Label>
                   {isEditing ? (
@@ -827,7 +831,7 @@ export default function StudentProfilePage() {
             >
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
                 <div>
-                  <Label htmlFor="emergencyContactName" className="text-gray-700 font-semibold mb-2 block">
+                  <Label htmlFor={isEditing ? "emergencyContactName" : undefined} className="text-gray-700 font-semibold mb-2 block">
                     Contact Name
                   </Label>
                   {isEditing ? (
@@ -845,7 +849,7 @@ export default function StudentProfilePage() {
                 </div>
 
                 <div>
-                  <Label htmlFor="emergencyContactPhone" className="text-gray-700 font-semibold mb-2 block">
+                  <Label htmlFor={isEditing ? "emergencyContactPhone" : undefined} className="text-gray-700 font-semibold mb-2 block">
                     Contact Phone
                   </Label>
                   {isEditing ? (
