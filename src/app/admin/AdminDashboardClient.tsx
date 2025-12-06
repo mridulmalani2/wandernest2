@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import AdminNav from '@/components/admin/AdminNav'
 import { CheckCircle2, Clock3, HelpCircle, UserPlus2 } from 'lucide-react'
 
@@ -33,16 +34,25 @@ const statusColors: Record<UpcomingBooking['approval'], string> = {
 }
 
 export default function AdminDashboardClient() {
+  const router = useRouter()
   const [data, setData] = useState<DashboardSnapshot | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    const controller = new AbortController()
+
     const loadDashboard = async () => {
       try {
         const response = await fetch('/api/admin/dashboard', {
           credentials: 'include',
+          signal: controller.signal,
         })
+
+        if (response.status === 401) {
+          router.replace('/admin/login')
+          return
+        }
 
         if (!response.ok) {
           throw new Error('Failed to load dashboard data')
@@ -50,15 +60,20 @@ export default function AdminDashboardClient() {
 
         const payload = (await response.json()) as DashboardSnapshot
         setData(payload)
-      } catch (err) {
-        console.error('Failed to fetch dashboard data', err)
+      } catch (err: any) {
+        if (err.name === 'AbortError') return
+        // Sanitize error logging
         setError('Unable to load dashboard data. Please try again later.')
       } finally {
-        setLoading(false)
+        if (!controller.signal.aborted) {
+          setLoading(false)
+        }
       }
     }
 
     loadDashboard()
+
+    return () => controller.abort()
   }, [])
 
   const totals = useMemo(

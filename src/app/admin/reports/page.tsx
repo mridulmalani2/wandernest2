@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
+import { useRouter } from 'next/navigation'
 import AdminNav from '@/components/admin/AdminNav'
 
 interface Report {
@@ -19,6 +20,7 @@ interface Report {
 }
 
 export default function ReportsPage() {
+  const router = useRouter()
   const [reports, setReports] = useState<Report[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -27,19 +29,9 @@ export default function ReportsPage() {
   const [totalPages, setTotalPages] = useState(1)
   const [selectedReport, setSelectedReport] = useState<Report | null>(null)
 
-  useEffect(() => {
-    fetchReports()
-  }, [statusFilter, page])
-
-  const fetchReports = async () => {
+  const fetchReports = useCallback(async (signal?: AbortSignal) => {
     try {
       setLoading(true)
-      const token = localStorage.getItem('adminToken')
-
-      if (!token) {
-        window.location.href = '/admin/login'
-        return
-      }
 
       const params = new URLSearchParams({
         page: page.toString(),
@@ -47,13 +39,12 @@ export default function ReportsPage() {
       })
 
       const response = await fetch(`/api/admin/reports?${params}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
+        // Cookies handled automatically
+        signal,
       })
 
       if (response.status === 401) {
-        window.location.href = '/admin/login'
+        router.replace('/admin/login')
         return
       }
 
@@ -64,25 +55,37 @@ export default function ReportsPage() {
       const data = await response.json()
       setReports(data.reports)
       setTotalPages(data.pagination.totalPages)
-    } catch (err) {
+    } catch (err: any) {
+      if (err.name === 'AbortError') return
       setError(err instanceof Error ? err.message : 'An error occurred')
     } finally {
-      setLoading(false)
+      if (!signal?.aborted) {
+        setLoading(false)
+      }
     }
-  }
+  }, [page, statusFilter, router])
+
+  useEffect(() => {
+    const controller = new AbortController()
+    fetchReports(controller.signal)
+    return () => controller.abort()
+  }, [fetchReports])
 
   const updateReportStatus = async (reportId: string, status: string) => {
     try {
-      const token = localStorage.getItem('adminToken')
-
       const response = await fetch('/api/admin/reports', {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
+          // Cookies handled automatically
         },
         body: JSON.stringify({ reportId, status }),
       })
+
+      if (response.status === 401) {
+        router.replace('/admin/login')
+        return
+      }
 
       if (!response.ok) {
         throw new Error('Failed to update report')
@@ -92,7 +95,11 @@ export default function ReportsPage() {
       await fetchReports()
       setSelectedReport(null)
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Failed to update report')
+      // Use a toast or set error state instead of alert if possible, or keep alert for now but sanitize
+      // For now, simple alert is safer than silent fail, but we were using alert before.
+      // Ideally we'd have a UI error state or toast.
+      console.error('Update failed', err)
+      alert('Failed to update report status')
     }
   }
 
@@ -254,13 +261,23 @@ export default function ReportsPage() {
 
       {/* Report Detail Modal */}
       {selectedReport && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-2xl w-full">
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="modal-title"
+          onClick={() => setSelectedReport(null)} // Click outside to close
+        >
+          <div
+            className="bg-white rounded-lg max-w-2xl w-full"
+            onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside
+          >
             <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
-              <h2 className="text-xl font-semibold text-gray-900">Report Details</h2>
+              <h2 id="modal-title" className="text-xl font-semibold text-gray-900">Report Details</h2>
               <button
                 onClick={() => setSelectedReport(null)}
-                className="text-gray-400 hover:text-gray-600"
+                className="text-gray-400 hover:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-sm"
+                aria-label="Close modal"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -277,11 +294,10 @@ export default function ReportsPage() {
                   <p className="text-sm"><span className="font-medium">City:</span> {selectedReport.student.city}</p>
                   <p className="text-sm">
                     <span className="font-medium">Status:</span>{' '}
-                    <span className={`px-2 py-1 text-xs rounded-full ${
-                      selectedReport.student.status === 'APPROVED' ? 'bg-green-100 text-green-800' :
+                    <span className={`px-2 py-1 text-xs rounded-full ${selectedReport.student.status === 'APPROVED' ? 'bg-green-100 text-green-800' :
                       selectedReport.student.status === 'SUSPENDED' ? 'bg-red-100 text-red-800' :
-                      'bg-yellow-100 text-yellow-800'
-                    }`}>
+                        'bg-yellow-100 text-yellow-800'
+                      }`}>
                       {selectedReport.student.status}
                     </span>
                   </p>
