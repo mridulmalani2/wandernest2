@@ -184,12 +184,14 @@ export default function AdminDashboardClient() {
             <div className="divide-y divide-gray-200">
               {data.upcomingBookings.map((booking) => (
                 <article key={booking.id} className="grid grid-cols-1 lg:grid-cols-12 px-6 py-4 gap-3">
-                  <div className="lg:col-span-2 flex items-center gap-3">
-                    <span className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 text-blue-700 font-semibold">
-                      {booking.id.replace('BK-', '')}
+                  <div className="lg:col-span-2 flex items-center gap-3 overflow-hidden">
+                    <span className="flex-shrink-0 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-blue-50 text-blue-700 font-semibold text-xs">
+                      TW
                     </span>
-                    <div>
-                      <p className="font-semibold text-gray-900">{booking.id}</p>
+                    <div className="min-w-0">
+                      <p className="font-semibold text-gray-900 truncate" title={booking.id}>
+                        {booking.id.length > 8 ? `...${booking.id.slice(-8)}` : booking.id}
+                      </p>
                       <p className="text-sm text-gray-500">{booking.date}</p>
                     </div>
                   </div>
@@ -200,8 +202,8 @@ export default function AdminDashboardClient() {
                   </div>
 
                   <div className="lg:col-span-2 text-gray-900">
-                    <p className="font-medium">{booking.city}</p>
-                    <p className="text-sm text-gray-500">{booking.date}</p>
+                    <p className="font-medium capitalize">{booking.city}</p>
+                    <p className="text-sm text-gray-500">Destination</p>
                   </div>
 
                   <div className="lg:col-span-2 text-gray-900">
