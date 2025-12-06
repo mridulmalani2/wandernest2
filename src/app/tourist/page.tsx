@@ -55,6 +55,7 @@ export default function TouristLanding() {
                   href="/booking"
                   showArrow
                   variant="blue"
+                  className="text-lg"
                 >
                   Start Your Adventure
                 </PrimaryCTAButton>

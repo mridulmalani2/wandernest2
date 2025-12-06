@@ -75,7 +75,8 @@ export default function StudentLandingPage() {
 
       <div className="relative z-10 flex flex-col min-h-screen">
         {/* Hero Section */}
-        <main className="flex-1 container mx-auto px-4 py-8 md:py-16">
+        {/* Hero Section */}
+        <main className="flex-1 container mx-auto px-4 pt-24 pb-8 md:pt-32 md:pb-16">
           <div className="max-w-5xl mx-auto space-y-10 md:space-y-16">
 
             {/* Hero Text */}
