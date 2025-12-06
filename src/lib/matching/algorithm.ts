@@ -2,6 +2,14 @@ import { requireDatabase } from '@/lib/prisma'
 import { TouristRequest, Student, StudentAvailability, Prisma } from '@prisma/client'
 import { cache } from '@/lib/cache'
 import { CACHE_TTL } from '@/lib/constants'
+import crypto from 'crypto'
+
+/**
+ * Helper to sanitize cache keys to prevent injection/poisoning
+ */
+function sanitizeCacheKey(input: string): string {
+  return input.toLowerCase().replace(/[^a-z0-9]/g, '')
+}
 
 interface StudentWithScore {
   id: string
@@ -39,17 +47,39 @@ interface MatchingFilters {
  */
 async function getApprovedStudentsByCity(city: string) {
   const db = requireDatabase()
+  const safeCity = sanitizeCacheKey(city)
+
   return cache.cached(
-    `students:approved:${city}`,
+    `students:approved:${safeCity}`,
     async () => {
+      // SECURITY: Select only necessary fields to minimize data exposure in cache
       return db.student.findMany({
         where: {
-          city,
+          city, // Use original city for DB query
           status: 'APPROVED',
         },
-        include: {
-          availability: true,
-        },
+        select: {
+          id: true,
+          name: true,
+          nationality: true,
+          languages: true,
+          institute: true,
+          gender: true,
+          city: true,
+          tripsHosted: true,
+          averageRating: true,
+          noShowCount: true,
+          reliabilityBadge: true,
+          interests: true,
+          // We need availability for matching
+          availability: {
+            select: {
+              dayOfWeek: true,
+              startTime: true,
+              endTime: true
+            }
+          }
+        }
       })
     },
     { ttl: CACHE_TTL.APPROVED_STUDENTS }
@@ -178,9 +208,12 @@ function checkAvailability(student: { availability?: StudentAvailability[] }, re
  * Generate anonymized guide ID for display
  */
 export function generateAnonymousId(studentId: string): string {
-  // Create a consistent hash-based ID
-  const hash = studentId.split('').reduce((acc, char) => {
-    return ((acc << 5) - acc) + char.charCodeAt(0)
-  }, 0)
-  return `Guide #${Math.abs(hash) % 10000}`.padStart(10, '0')
+  // SECURITY: Use SHA-256 for predictable but secure collision-resistant hashing
+  const hash = crypto.createHash('sha256').update(studentId).digest('hex')
+
+  // Take first 8 chars and convert to integer mod 10000
+  const shortHash = parseInt(hash.substring(0, 8), 16) % 10000
+
+  // Format: "Guide #0001"
+  return `Guide #${shortHash.toString().padStart(4, '0')}`
 }
