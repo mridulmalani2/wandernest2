@@ -181,7 +181,7 @@ function StudentSignInContent() {
   return (
     <div className="min-h-screen flex flex-col relative overflow-hidden bg-black">
       {/* Background Image with Overlays */}
-      <div className="absolute inset-0" role="img" aria-label="Student studying with books and learning materials">
+      <div className="absolute inset-0">
         <Image
           src="https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=1920&q=80"
           alt="Student studying with books and learning materials"
@@ -221,9 +221,7 @@ function StudentSignInContent() {
                     <p className="text-sm text-red-300 font-semibold">
                       {domainValidationError ||
                         emailErrorMessage ||
-                        (urlError === 'EmailSignin'
-                          ? 'An error occurred during authentication'
-                          : 'An error occurred during authentication')}
+                        (urlError ? 'An error occurred during authentication' : '')}
                     </p>
                   </div>
                 </div>
@@ -234,9 +232,7 @@ function StudentSignInContent() {
             {message && (
               <div className="glass-card-dark bg-green-900/20 border-2 border-green-500/20 rounded-2xl p-4 shadow-premium backdrop-blur-md animate-scale-in">
                 <div className="flex items-start gap-2">
-                  <svg className="w-5 h-5 text-green-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                  </svg>
+                  <CheckCircle2 className="w-5 h-5 text-green-400 flex-shrink-0 mt-0.5" />
                   <p className="text-sm text-green-300 font-semibold flex-1">{message}</p>
                 </div>
               </div>

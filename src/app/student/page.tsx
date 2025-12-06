@@ -67,83 +67,58 @@ export default function StudentLandingPage() {
                 </p>
               </div>
               <div className="grid md:grid-cols-3 gap-6 lg:gap-8 max-w-6xl mx-auto">
-                <div className="group rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 relative overflow-hidden h-full">
-                  <div className="absolute inset-0">
-                    <Image
-                      src="https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=800&q=80"
-                      alt="Person holding money or calculating earnings"
-                      fill
-                      quality={60}
-                      sizes="(max-width: 768px) 100vw, 33vw"
-                      className="object-cover"
-                      loading="lazy"
-                    />
-                    <div className="absolute inset-0 bg-black/50"></div>
-                  </div>
-                  <div className="relative z-10 p-8 h-full backdrop-blur-sm bg-white/10 border border-white/20 rounded-2xl group-hover:bg-white/15 transition-all">
-                    <div className="inline-flex p-4 rounded-2xl bg-white/10 text-white mb-6 group-hover:scale-105 transition-all duration-300 shadow-md border border-white/20">
-                      <DollarSign className="w-8 h-8" />
+                {[
+                  {
+                    icon: DollarSign,
+                    title: 'High Earnings',
+                    desc: 'Earn significantly more than standard campus jobs. Set your own rates.',
+                    groupHoverColor: 'text-green-300',
+                    imgSrc: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=800&q=80',
+                    alt: 'Person calculating earnings'
+                  },
+                  {
+                    icon: Clock,
+                    title: 'Total Flexibility',
+                    desc: 'Work around your class schedule. You choose when you\'re available.',
+                    groupHoverColor: 'text-blue-300',
+                    imgSrc: 'https://images.unsplash.com/photo-1506784983877-45594efa4cbe?w=800&q=80',
+                    alt: 'Student planning schedule'
+                  },
+                  {
+                    icon: Users,
+                    title: 'Build Network',
+                    desc: 'Connect with professionals and travelers from your home country.',
+                    groupHoverColor: 'text-purple-300',
+                    imgSrc: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=800&q=80',
+                    alt: 'People networking'
+                  }
+                ].map((feature, idx) => (
+                  <div key={idx} className="group rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 relative overflow-hidden h-full">
+                    <div className="absolute inset-0">
+                      <Image
+                        src={feature.imgSrc}
+                        alt={feature.alt}
+                        fill
+                        quality={60}
+                        sizes="(max-width: 768px) 100vw, 33vw"
+                        className="object-cover"
+                        loading="lazy"
+                      />
+                      <div className="absolute inset-0 bg-black/50"></div>
                     </div>
-                    <h3 className="text-xl font-bold mb-3 text-white group-hover:text-green-300 transition-colors">
-                      High Earnings
-                    </h3>
-                    <p className="text-base text-white/90 leading-relaxed">
-                      Earn significantly more than standard campus jobs. Set your own rates.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="group rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 relative overflow-hidden h-full">
-                  <div className="absolute inset-0">
-                    <Image
-                      src="https://images.unsplash.com/photo-1506784983877-45594efa4cbe?w=800&q=80"
-                      alt="Student planning schedule"
-                      fill
-                      quality={60}
-                      sizes="(max-width: 768px) 100vw, 33vw"
-                      className="object-cover"
-                      loading="lazy"
-                    />
-                    <div className="absolute inset-0 bg-black/50"></div>
-                  </div>
-                  <div className="relative z-10 p-8 h-full backdrop-blur-sm bg-white/10 border border-white/20 rounded-2xl group-hover:bg-white/15 transition-all">
-                    <div className="inline-flex p-4 rounded-2xl bg-white/10 text-white mb-6 group-hover:scale-105 transition-all duration-300 shadow-md border border-white/20">
-                      <Clock className="w-8 h-8" />
+                    <div className="relative z-10 p-8 h-full backdrop-blur-sm bg-white/10 border border-white/20 rounded-2xl group-hover:bg-white/15 transition-all">
+                      <div className="inline-flex p-4 rounded-2xl bg-white/10 text-white mb-6 group-hover:scale-105 transition-all duration-300 shadow-md border border-white/20">
+                        <feature.icon className="w-8 h-8" />
+                      </div>
+                      <h3 className={`text-xl font-bold mb-3 text-white group-hover:${feature.groupHoverColor} transition-colors`}>
+                        {feature.title}
+                      </h3>
+                      <p className="text-base text-white/90 leading-relaxed">
+                        {feature.desc}
+                      </p>
                     </div>
-                    <h3 className="text-xl font-bold mb-3 text-white group-hover:text-blue-300 transition-colors">
-                      Total Flexibility
-                    </h3>
-                    <p className="text-base text-white/90 leading-relaxed">
-                      Work around your class schedule. You choose when you're available.
-                    </p>
                   </div>
-                </div>
-
-                <div className="group rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 relative overflow-hidden h-full">
-                  <div className="absolute inset-0">
-                    <Image
-                      src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=800&q=80"
-                      alt="People networking"
-                      fill
-                      quality={60}
-                      sizes="(max-width: 768px) 100vw, 33vw"
-                      className="object-cover"
-                      loading="lazy"
-                    />
-                    <div className="absolute inset-0 bg-black/50"></div>
-                  </div>
-                  <div className="relative z-10 p-8 h-full backdrop-blur-sm bg-white/10 border border-white/20 rounded-2xl group-hover:bg-white/15 transition-all">
-                    <div className="inline-flex p-4 rounded-2xl bg-white/10 text-white mb-6 group-hover:scale-105 transition-all duration-300 shadow-md border border-white/20">
-                      <Users className="w-8 h-8" />
-                    </div>
-                    <h3 className="text-xl font-bold mb-3 text-white group-hover:text-purple-300 transition-colors">
-                      Build Network
-                    </h3>
-                    <p className="text-base text-white/90 leading-relaxed">
-                      Connect with professionals and travelers from your home country.
-                    </p>
-                  </div>
-                </div>
+                ))}
               </div>
             </div>
 
@@ -154,60 +129,37 @@ export default function StudentLandingPage() {
               {/* Desktop Timeline */}
               <div className="hidden md:block relative max-w-4xl mx-auto">
                 <div className="grid md:grid-cols-3 gap-8">
-                  {/* Step 1 */}
-                  <div className="text-center group">
-                    <div className="min-h-[120px] space-y-2 backdrop-blur-sm bg-white/10 rounded-xl p-5 border border-white/20 group-hover:bg-white/20 transition-all">
-                      <h3 className="font-bold text-lg text-white">Create Profile</h3>
-                      <p className="text-sm text-white/90 leading-relaxed">
-                        Sign up with your university email and verify your student status
-                      </p>
+                  {[
+                    { title: 'Create Profile', text: 'Sign up with your university email and verify your student status' },
+                    { title: 'Set Availability', text: 'Choose your dates, times, and hourly rates' },
+                    { title: 'Start Earning', text: 'Accept booking requests and get paid directly by tourists' }
+                  ].map((step, idx) => (
+                    <div key={idx} className="text-center group">
+                      <div className="min-h-[120px] space-y-2 backdrop-blur-sm bg-white/10 rounded-xl p-5 border border-white/20 group-hover:bg-white/20 transition-all">
+                        <h3 className="font-bold text-lg text-white">{step.title}</h3>
+                        <p className="text-sm text-white/90 leading-relaxed">
+                          {step.text}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-
-                  {/* Step 2 */}
-                  <div className="text-center group">
-                    <div className="min-h-[120px] space-y-2 backdrop-blur-sm bg-white/10 rounded-xl p-5 border border-white/20 group-hover:bg-white/20 transition-all">
-                      <h3 className="font-bold text-lg text-white">Set Availability</h3>
-                      <p className="text-sm text-white/90 leading-relaxed">
-                        Choose your dates, times, and hourly rates
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Step 3 */}
-                  <div className="text-center group">
-                    <div className="min-h-[120px] space-y-2 backdrop-blur-sm bg-white/10 rounded-xl p-5 border border-white/20 group-hover:bg-white/20 transition-all">
-                      <h3 className="font-bold text-lg text-white">Start Earning</h3>
-                      <p className="text-sm text-white/90 leading-relaxed">
-                        Accept booking requests and get paid directly by tourists
-                      </p>
-                    </div>
-                  </div>
+                  ))}
                 </div>
               </div>
 
               {/* Mobile Vertical Timeline */}
               <div className="md:hidden space-y-4 max-w-md mx-auto">
-                <div className="space-y-2 backdrop-blur-sm bg-white/10 rounded-xl p-4 border border-white/20">
-                  <h3 className="font-bold text-base text-white">Create Profile</h3>
-                  <p className="text-sm text-white/90 leading-relaxed">
-                    Sign up with your university email and verify your student status
-                  </p>
-                </div>
-
-                <div className="space-y-2 backdrop-blur-sm bg-white/10 rounded-xl p-4 border border-white/20">
-                  <h3 className="font-bold text-base text-white">Set Availability</h3>
-                  <p className="text-sm text-white/90 leading-relaxed">
-                    Choose your dates, times, and hourly rates
-                  </p>
-                </div>
-
-                <div className="space-y-2 backdrop-blur-sm bg-white/10 rounded-xl p-4 border border-white/20">
-                  <h3 className="font-bold text-base text-white">Start Earning</h3>
-                  <p className="text-sm text-white/90 leading-relaxed">
-                    Accept booking requests and get paid directly by tourists
-                  </p>
-                </div>
+                {[
+                  { title: 'Create Profile', text: 'Sign up with your university email and verify your student status' },
+                  { title: 'Set Availability', text: 'Choose your dates, times, and hourly rates' },
+                  { title: 'Start Earning', text: 'Accept booking requests and get paid directly by tourists' }
+                ].map((step, idx) => (
+                  <div key={idx} className="space-y-2 backdrop-blur-sm bg-white/10 rounded-xl p-4 border border-white/20">
+                    <h3 className="font-bold text-base text-white">{step.title}</h3>
+                    <p className="text-sm text-white/90 leading-relaxed">
+                      {step.text}
+                    </p>
+                  </div>
+                ))}
               </div>
             </div>
 
