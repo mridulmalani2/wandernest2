@@ -63,6 +63,7 @@ export function sanitizePhoneNumber(phone: string): string {
  * Sanitize URL to prevent javascript: and data: protocols
  */
 export function sanitizeUrl(url: string): string {
+  if (!url || !url.trim()) return '';
   const trimmed = url.trim();
 
   // Block dangerous protocols
@@ -75,8 +76,13 @@ export function sanitizeUrl(url: string): string {
     }
   }
 
-  // Ensure URL starts with http:// or https:// or is relative
-  if (!trimmed.startsWith('http://') && !trimmed.startsWith('https://') && !trimmed.startsWith('/')) {
+  // Allow absolute paths, relative paths, or protocol-relative
+  if (trimmed.startsWith('/') || trimmed.startsWith('./') || trimmed.startsWith('../')) {
+    return trimmed;
+  }
+
+  // Ensure URL starts with http:// or https://
+  if (!trimmed.startsWith('http://') && !trimmed.startsWith('https://')) {
     return `https://${trimmed}`;
   }
 
@@ -110,9 +116,14 @@ export function sanitizeInteger(
   min?: number,
   max?: number
 ): number {
-  const parsed = parseInt(value, 10);
+  // Ensure strict integer parsing
+  if (typeof value === 'string' && !/^-?\d+$/.test(value)) {
+    throw new Error('Invalid integer format');
+  }
 
-  if (isNaN(parsed)) {
+  const parsed = Number(value);
+
+  if (!Number.isInteger(parsed) || !Number.isSafeInteger(parsed)) {
     throw new Error('Invalid integer value');
   }
 
@@ -136,9 +147,13 @@ export function sanitizeFloat(
   max?: number,
   decimals = 2
 ): number {
+  if (decimals < 0 || decimals > 20) {
+    throw new Error('Invalid decimals value');
+  }
+
   const parsed = parseFloat(value);
 
-  if (isNaN(parsed)) {
+  if (!Number.isFinite(parsed)) {
     throw new Error('Invalid number value');
   }
 
@@ -162,11 +177,15 @@ export function sanitizeArray(
   maxLength = 100,
   itemMaxLength = 1000
 ): string[] {
+  if (!Array.isArray(arr)) {
+    return [];
+  }
+
   return arr
+    .slice(0, maxLength)
     .filter(item => item != null)
     .map(item => String(item))
-    .map(item => sanitizeText(item, itemMaxLength))
-    .slice(0, maxLength);
+    .map(item => sanitizeText(item, itemMaxLength));
 }
 
 /**
@@ -181,10 +200,19 @@ export function escapeRegex(str: string): string {
  * Sanitize filename to prevent directory traversal attacks
  */
 export function sanitizeFilename(filename: string): string {
+  // Windows reserved names
+  const reserved = /^(con|prn|aux|nul|com[0-9]|lpt[0-9])$/i;
+
   // Remove path separators and dangerous characters
-  return filename
+  const sanitized = filename
     .replace(/[\/\\]/g, '')
     .replace(/\.\./g, '')
     .replace(/[^a-zA-Z0-9._-]/g, '_')
     .substring(0, 255);
+
+  if (sanitized.length === 0 || reserved.test(sanitized)) {
+    return `file_${Date.now()}`;
+  }
+
+  return sanitized;
 }
