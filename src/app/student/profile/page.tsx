@@ -74,6 +74,26 @@ interface StudentProfile {
  *
  * Premium glassmorphism design matching landing page aesthetic
  */
+const PROFILE_BG_IMAGE = "https://images.unsplash.com/photo-1531545514256-b1400bc00f31?w=1920&q=80";
+
+const ProfileBackground = () => (
+  <>
+    <div className="absolute inset-0">
+      <Image
+        src={PROFILE_BG_IMAGE}
+        alt="Students working together at modern café"
+        fill
+        priority
+        quality={85}
+        sizes="100vw"
+        className="object-cover"
+      />
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px]" />
+    </div>
+    <div className="absolute inset-0 pattern-dots opacity-10" />
+  </>
+);
+
 export default function StudentProfilePage() {
   const router = useRouter();
   const [profile, setProfile] = useState<StudentProfile | null>(null);
@@ -83,6 +103,16 @@ export default function StudentProfilePage() {
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  // Clear success message after 3 seconds with cleanup
+  useEffect(() => {
+    if (successMessage) {
+      const timer = setTimeout(() => {
+        setSuccessMessage(null);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [successMessage]);
 
   // Fetch profile on mount
   useEffect(() => {
@@ -167,9 +197,6 @@ export default function StudentProfilePage() {
       setIsEditing(false);
       setSuccessMessage('Profile updated successfully!');
 
-      // Clear success message after 3 seconds
-      setTimeout(() => setSuccessMessage(null), 3000);
-
     } catch (err: any) {
       console.error('Error updating profile:', err);
       setError(err.message);
@@ -178,7 +205,7 @@ export default function StudentProfilePage() {
     }
   };
 
-  const updateField = (field: keyof StudentProfile, value: any) => {
+  const updateField = <K extends keyof StudentProfile>(field: K, value: StudentProfile[K]) => {
     setEditedProfile((prev) => {
       if (!prev) {
         console.warn('updateField called before profile loaded');
@@ -193,23 +220,8 @@ export default function StudentProfilePage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex flex-col relative overflow-hidden">
-        {/* Background with Image and Overlays */}
-        <div className="absolute inset-0">
-          <Image
-            src="https://images.unsplash.com/photo-1531545514256-b1400bc00f31?w=1920&q=80"
-            alt="Students working together at modern café"
-            fill
-            priority
-            quality={85}
-            sizes="100vw"
-            className="object-cover"
-          />
-          <div className="absolute inset-0 bg-black/20 backdrop-blur-[4px]" />
-          <div className="absolute inset-0 bg-gradient-to-br from-ui-purple-accent/15 via-ui-blue-primary/10 to-ui-purple-primary/15" />
-        </div>
-        <div className="absolute inset-0 pattern-dots opacity-10" />
-
+      <div className="min-h-screen flex flex-col relative overflow-hidden bg-black">
+        <ProfileBackground />
         <div className="relative z-10 flex items-center justify-center min-h-screen">
           <div className="glass-card rounded-3xl p-8 shadow-premium animate-fade-in">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-ui-blue-accent mx-auto" />
@@ -222,23 +234,8 @@ export default function StudentProfilePage() {
 
   if (error && !profile) {
     return (
-      <div className="min-h-screen flex flex-col relative overflow-hidden">
-        {/* Background */}
-        <div className="absolute inset-0">
-          <Image
-            src="https://images.unsplash.com/photo-1531545514256-b1400bc00f31?w=1920&q=80"
-            alt="Students working together at modern café"
-            fill
-            priority
-            quality={85}
-            sizes="100vw"
-            className="object-cover"
-          />
-          <div className="absolute inset-0 bg-black/20 backdrop-blur-[4px]" />
-          <div className="absolute inset-0 bg-gradient-to-br from-ui-purple-accent/15 via-ui-blue-primary/10 to-ui-purple-primary/15" />
-        </div>
-        <div className="absolute inset-0 pattern-dots opacity-10" />
-
+      <div className="min-h-screen flex flex-col relative overflow-hidden bg-black">
+        <ProfileBackground />
         <div className="relative z-10 flex items-center justify-center min-h-screen p-6">
           <div className="glass-card rounded-3xl p-8 shadow-premium max-w-lg w-full">
             <div className="flex items-start gap-4">
@@ -269,22 +266,7 @@ export default function StudentProfilePage() {
     <>
       <Navigation variant="student" />
       <div className="min-h-screen flex flex-col relative overflow-hidden bg-black">
-        {/* Premium Background */}
-        <div className="absolute inset-0">
-          <Image
-            src="https://images.unsplash.com/photo-1531545514256-b1400bc00f31?w=1920&q=80"
-            alt="Students working together at modern café"
-            fill
-            priority
-            quality={85}
-            sizes="100vw"
-            className="object-cover"
-          />
-          {/* Dark overlay for contrast */}
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px]" />
-        </div>
-        {/* Dot pattern */}
-        <div className="absolute inset-0 pattern-dots opacity-10" />
+        <ProfileBackground />
 
         {/* Content Container */}
         <div className="relative z-10 w-full px-4 sm:px-6 lg:px-8 pt-28 pb-8 md:pt-36 md:pb-12">
