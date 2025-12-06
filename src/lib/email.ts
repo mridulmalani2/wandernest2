@@ -209,13 +209,14 @@ async function sendEmail(
 }
 
 export async function sendStudentOtpEmail(toEmail: string, otp: string) {
-  const html = getOtpEmailHtml(otp)
-  const text = `Your TourWiseCo verification code is: ${otp}\n\nThis code expires in 10 minutes. If you didn't request this code, you can safely ignore this email.`
+  // Use standardized OTP email template and subject
+  const html = getOtpEmailHtml(otp, 'Sign in as Student Guide', 'Enter this code to securely sign in to your account.')
+  const text = `Sign in as Student Guide\n\nEnter this code to securely sign in to your account:\n\n${otp}\n\nThis code expires in 10 minutes. If you didn't request this code, you can safely ignore this email.`
 
-  return await sendEmail(
+  return sendEmail(
     {
       to: toEmail,
-      subject: 'Your TourWiseCo sign-in code',
+      subject: 'Verification Code', // Changed from 'Your TourWiseCo sign-in code' to match sendVerificationEmail
       html,
       text,
     },
@@ -227,16 +228,19 @@ export async function sendStudentOtpEmail(toEmail: string, otp: string) {
 export async function sendBookingConfirmation(
   email: string,
   requestId: string,
+  city: string,
   options?: { matchesFound?: number }
 ) {
   const hasMatches = (options?.matchesFound ?? 0) > 0
-  const html = getBookingConfirmationHtml(requestId, "Your Destination", hasMatches, options?.matchesFound)
+  const html = getBookingConfirmationHtml(requestId, city, hasMatches, options?.matchesFound)
+  const text = `Booking Request Received!\n\nYour trip to ${city} is officially in the works.\nRequest ID: ${requestId}\n\n${hasMatches ? `Good News! We found ${options?.matchesFound} student guides who match your preferences.` : ''}`
 
-  return await sendEmail(
+  return sendEmail(
     {
       to: email,
       subject: '✅ Booking Confirmed – Your Adventure Awaits!',
       html,
+      text,
     },
     'Booking Confirmation'
   )
@@ -244,16 +248,25 @@ export async function sendBookingConfirmation(
 
 export async function sendStudentRequestNotification(
   student: Student,
-  touristRequest: TouristRequest
+  touristRequest: TouristRequest,
+  selectionId: string
 ) {
-  const acceptUrl = `${getBaseUrl()}/student/requests/${touristRequest.id}/accept`
+  // Use secure token generation for the accept URL, consistent with match invitations
+  const { acceptUrl } = generateMatchUrls(
+    getBaseUrl(),
+    touristRequest.id,
+    student.id,
+    selectionId
+  )
   const html = getStudentRequestNotificationHtml(student.name || 'Student', touristRequest.city, acceptUrl)
+  const text = `New Request in ${touristRequest.city}!\n\nHi ${student.name || 'Student'}, a tourist has requested you as their guide.\n\nView & Accept Request: ${acceptUrl}`
 
-  return await sendEmail(
+  return sendEmail(
     {
       to: student.email,
       subject: `🌟 You've Been Requested as a Guide in ${touristRequest.city}!`,
       html,
+      text,
     },
     'Student Request Notification'
   )
@@ -338,7 +351,7 @@ export async function sendVerificationEmail(
 export async function sendStudentConfirmation(
   student: Student,
   touristRequest: TouristRequest,
-  touristName?: string
+  touristName: string = 'Tourist' // Default if not provided, but caller should ideally provide it
 ) {
   const dates = touristRequest.dates as { start: string; end?: string }
   const dateString = new Date(dates.start).toLocaleDateString('en-US', {
@@ -347,34 +360,24 @@ export async function sendStudentConfirmation(
     year: 'numeric'
   })
 
-  // We don't have tourist name directly on the request object usually, 
-  // but we might have it if we fetched it. 
-  // For now, we'll use "Tourist" if not available or pass it in if we can.
-  // Looking at the call site, it passes bookingRecord which is TouristRequest.
-  // TouristRequest doesn't have tourist name directly, it has touristId.
-  // But we can just use "Tourist" or try to get it from relation if included.
-  // The template expects touristName.
-
-  // In the call site: 
-  // const [booking, student] = await Promise.all([...])
-  // booking includes selections but not tourist.
-  // Wait, line 110: const touristEmail = bookingRecord.email
-
+  // Cleaner implementation without leftover comments
   const html = getStudentConfirmationHtml(
     student.name || 'Student',
-    touristName || 'Tourist',
+    touristName,
     touristRequest.city,
     dateString,
     touristRequest.email,
     touristRequest.phone || undefined,
     touristRequest.whatsapp || undefined
   )
+  const text = `Trip Confirmed!\n\nHi ${student.name || 'Student'}, you are confirmed for the trip in ${touristRequest.city}.\n\nDates: ${dateString}\nTourist: ${touristName}\n\nContact Email: ${touristRequest.email}`
 
-  return await sendEmail(
+  return sendEmail(
     {
       to: student.email,
       subject: `✅ You are confirmed for a trip in ${touristRequest.city}!`,
       html,
+      text,
     },
     'Student Confirmation'
   )
@@ -389,7 +392,7 @@ export async function sendContactFormEmails(data: {
   const html = getContactFormEmailHtml(data.name, data.email, data.message, data.phone)
 
   // Send to admin
-  return await sendEmail(
+  return sendEmail(
     {
       to: config.email.contactEmail, // Send to support email
       subject: `New Contact Form Submission from ${data.name}`,

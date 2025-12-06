@@ -123,6 +123,7 @@ async function createTouristRequest(req: NextRequest) {
   const emailResult = await sendBookingConfirmation(
     session.user.email,
     touristRequest.id,
+    touristRequest.city,
     { matchesFound: 0 } // No automatic matching - admin will handle matching later
   )
 

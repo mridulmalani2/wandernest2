@@ -197,15 +197,16 @@ import { getBookingConfirmationHtml } from '@/lib/email-templates'
 export async function sendBookingConfirmation(
   email: string,
   requestId: string,
+  city: string,
   options?: { matchesFound?: number }
 ): Promise<{ success: boolean; error?: string }> {
   const hasMatches = (options?.matchesFound ?? 0) > 0
-  const html = getBookingConfirmationHtml(requestId, "Your Destination", hasMatches, options?.matchesFound)
+  const html = getBookingConfirmationHtml(requestId, city, hasMatches, options?.matchesFound)
 
   return await sendTransactionalEmail(
     {
       to: email,
-      subject: '✅ Booking Confirmed – Your Adventure Awaits!',
+      subject: `✅ Booking Confirmed: ${city} – Your Adventure Awaits!`, // Enhanced subject
       html,
     },
     'Booking Confirmation'

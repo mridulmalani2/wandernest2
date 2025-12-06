@@ -104,12 +104,29 @@ async function selectStudents(req: NextRequest) {
     ])
   )
 
+  // Extract created selections (results match order of input map operations)
+  // The last element is the update result, which we ignore for mapping
+  const selectionResults = selections.slice(0, selectedStudentIds.length)
+  const studentSelectionMap: Record<string, string> = {}
+
+  selectedStudentIds.forEach((studentId, idx) => {
+    const selection = selectionResults[idx] as { id: string }
+    if (selection && selection.id) {
+      studentSelectionMap[studentId] = selection.id
+    }
+  })
+
   // Send notification emails to all selected students (outside transaction)
   // Emails are non-critical, so failures won't break the flow
   const notificationResults = await Promise.allSettled(
-    students.map((student: any) =>
-      sendStudentRequestNotification(student, touristRequest)
-    )
+    students.map((student: any) => {
+      const selectionId = studentSelectionMap[student.id]
+      if (!selectionId) {
+        console.error(`Missing selection ID for student ${student.id}`)
+        return Promise.reject(new Error('Missing selection ID'))
+      }
+      return sendStudentRequestNotification(student, touristRequest, selectionId)
+    })
   )
 
   // Count successful notifications
