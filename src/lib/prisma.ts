@@ -119,17 +119,16 @@ export async function checkDatabaseHealth(): Promise<{
  */
 export function requireDatabase(): PrismaClient {
   if (!prisma) {
-    const error = globalForPrisma.prismaLastError || 'Database is not configured'
+    const error = config.app.isDevelopment ? globalForPrisma.prismaLastError : 'Configuration missing';
     throw new Error(
-      `Database required but not available: ${error}. ` +
-      'Please check DATABASE_URL environment variable.'
+      `Database required but not available. ${error}`
     )
   }
 
   if (globalForPrisma.prismaHealthy === false) {
+    const error = config.app.isDevelopment ? globalForPrisma.prismaLastError : 'Connection failed';
     throw new Error(
-      `Database is unhealthy: ${globalForPrisma.prismaLastError}. ` +
-      'Please check database connection and try again.'
+      `Database is unhealthy. ${error}`
     )
   }
 
@@ -172,17 +171,15 @@ export function getDatabaseErrorMessage(error: unknown): string {
   }
 
   if (error instanceof Prisma.PrismaClientKnownRequestError) {
-    switch (error.code) {
+    const code = error.code;
+    switch (code) {
       case 'P1000':
-        return 'Authentication failed for database. Please check credentials.'
       case 'P1001':
-        return 'Cannot reach database server. Please check host and port.'
       case 'P1002':
-        return 'Database server connection timed out.'
       case 'P1003':
-        return 'Database does not exist.'
       case 'P1008':
-        return 'Database operations timed out.'
+      case 'P1017': // Server closed connection
+        return 'Database connection issue. Please try again.';
       case 'P2002':
         return 'A record with this information already exists.'
       case 'P2025':
@@ -193,11 +190,14 @@ export function getDatabaseErrorMessage(error: unknown): string {
   }
 
   if (error instanceof Error) {
-    if (error.message.includes('ECONNREFUSED')) {
-      return 'Database connection refused. Is the database running?'
-    }
-    if (error.message.includes('ETIMEDOUT')) {
-      return 'Database connection timed out. Please check network connectivity.'
+    const message = error.message.toLowerCase();
+    if (
+      message.includes('connection') ||
+      message.includes('econnrefused') ||
+      message.includes('etimedout') ||
+      message.includes('enotfound')
+    ) {
+      return 'Database connection unavailable. Please try again later.'
     }
   }
 

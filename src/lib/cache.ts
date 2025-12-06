@@ -11,27 +11,54 @@ export interface CacheOptions {
 class CacheManager {
   private memoryCache: Map<string, { value: any; expires: number }> = new Map();
   private isRedisAvailable: boolean | null = null;
+  private lastRedisCheck: number = 0;
+  private readonly REDIS_CHECK_TTL = 60000; // 60 seconds
+
+  private readonly ALLOWED_PREFIXES = [
+    'student:', 'tourist:', 'request:', 'match:',
+    'dashboard:', 'students:', 'analytics:', 'verification:'
+  ];
 
   /**
-   * Check if Redis is available
+   * Validate key namespace to prevent collisions and insecure usage
    */
-  private async checkRedis(): Promise<boolean> {
-    if (this.isRedisAvailable !== null) {
+  private validateKey(key: string): void {
+    if (!this.ALLOWED_PREFIXES.some(prefix => key.startsWith(prefix))) {
+      // In development warn, in production could throw or log
+      if (process.env.NODE_ENV === 'development') {
+        console.warn(`[Cache] Warning: Key "${key}" does not start with a valid prefix`);
+      }
+    }
+  }
+
+  /**
+   * Check if Redis is available (public for invalidation helpers)
+   */
+  public async checkRedis(): Promise<boolean> {
+    const now = Date.now();
+    // Use cached status if within TTL
+    if (this.isRedisAvailable !== null && (now - this.lastRedisCheck < this.REDIS_CHECK_TTL)) {
       return this.isRedisAvailable;
     }
 
     if (!redis) {
       this.isRedisAvailable = false;
+      this.lastRedisCheck = now;
       return false;
     }
 
     try {
       await redis.ping();
       this.isRedisAvailable = true;
+      this.lastRedisCheck = now;
       return true;
     } catch (error) {
-      console.warn('Redis not available, falling back to in-memory cache');
+      // Only log initial failure or state change to reduce noise
+      if (this.isRedisAvailable !== false) {
+        console.warn('Redis not available, falling back to in-memory cache');
+      }
       this.isRedisAvailable = false;
+      this.lastRedisCheck = now;
       return false;
     }
   }
@@ -40,6 +67,7 @@ class CacheManager {
    * Get value from cache
    */
   async get<T>(key: string): Promise<T | null> {
+    this.validateKey(key);
     const isRedisAvailable = await this.checkRedis();
 
     if (isRedisAvailable && redis) {
@@ -49,7 +77,10 @@ class CacheManager {
           return JSON.parse(value) as T;
         }
       } catch (error) {
-        console.error(`Redis get error for key ${key}:`, error);
+        console.error('Redis get error', error instanceof Error ? error.message : 'Unknown');
+        // Mark as unavailable to trigger immediate fallback and re-check logic next time (after TTL expires)
+        // For resilience, we might want to force a re-check sooner, but let's stick to TTL pattern
+        this.isRedisAvailable = false;
       }
     }
 
@@ -71,6 +102,7 @@ class CacheManager {
    * Set value in cache
    */
   async set(key: string, value: any, options: CacheOptions = {}): Promise<void> {
+    this.validateKey(key);
     const { ttl = 300 } = options; // Default 5 minutes
     const isRedisAvailable = await this.checkRedis();
 
@@ -79,7 +111,8 @@ class CacheManager {
         await redis.setex(key, ttl, JSON.stringify(value));
         return;
       } catch (error) {
-        console.error(`Redis set error for key ${key}:`, error);
+        console.error('Redis set error', error instanceof Error ? error.message : 'Unknown');
+        this.isRedisAvailable = false;
       }
     }
 
@@ -105,13 +138,15 @@ class CacheManager {
    * Delete value from cache
    */
   async delete(key: string): Promise<void> {
+    this.validateKey(key);
     const isRedisAvailable = await this.checkRedis();
 
     if (isRedisAvailable && redis) {
       try {
         await redis.del(key);
       } catch (error) {
-        console.error(`Redis delete error for key ${key}:`, error);
+        console.error('Redis delete error', error instanceof Error ? error.message : 'Unknown');
+        this.isRedisAvailable = false;
       }
     }
 
@@ -122,6 +157,11 @@ class CacheManager {
    * Delete multiple keys matching a pattern
    */
   async deletePattern(pattern: string): Promise<void> {
+    // Pattern validation is harder strictly, but we can check basic safety
+    if (pattern.includes('**')) {
+      console.warn('Recursive patterns not supported safely');
+      return;
+    }
     const isRedisAvailable = await this.checkRedis();
 
     if (isRedisAvailable && redis) {
@@ -131,7 +171,8 @@ class CacheManager {
           await redis.del(...keys);
         }
       } catch (error) {
-        console.error(`Redis deletePattern error for pattern ${pattern}:`, error);
+        console.error('Redis deletePattern error', error instanceof Error ? error.message : 'Unknown');
+        this.isRedisAvailable = false;
       }
     }
 
@@ -234,7 +275,7 @@ export const cacheInvalidation = {
    */
   async all(): Promise<void> {
     cache.clearMemory();
-    const isRedisAvailable = await cache['checkRedis']();
+    const isRedisAvailable = await cache.checkRedis();
     if (isRedisAvailable && redis) {
       try {
         await redis.flushdb();
