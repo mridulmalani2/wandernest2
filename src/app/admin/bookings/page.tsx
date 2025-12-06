@@ -68,33 +68,21 @@ export default function AdminBookingsPage() {
   const [assignError, setAssignError] = useState<string | null>(null)
   const [selectedStudentId, setSelectedStudentId] = useState<string>('')
 
-  // Helper for auth tokens
-  const getAuthToken = useCallback(() => {
-    const token = localStorage.getItem('adminToken')
-    if (!token) {
-      router.replace('/admin/login')
-      return null
-    }
-    return token
-  }, [router])
+  // Helper for auth tokens (Removed as we use cookies now)
 
   const fetchBookings = useCallback(async (signal?: AbortSignal) => {
     try {
       setLoadingList(true)
       setError(null)
 
-      const token = getAuthToken()
-      if (!token) return
-
       const response = await fetch('/api/admin/bookings', {
         headers: {
-          Authorization: `Bearer ${token}`,
+          // No need for Authorization header with cookies
         },
         signal,
       })
 
       if (response.status === 401) {
-        localStorage.removeItem('adminToken')
         router.replace('/admin/login')
         return
       }
@@ -124,25 +112,21 @@ export default function AdminBookingsPage() {
         setLoadingList(false)
       }
     }
-  }, [getAuthToken, router])
+  }, [router])
 
   const fetchBookingDetail = useCallback(async (bookingId: string, signal?: AbortSignal) => {
     try {
       setLoadingDetail(true)
       setDetailError(null)
 
-      const token = getAuthToken()
-      if (!token) return
-
       const response = await fetch(`/api/admin/bookings/${bookingId}`, {
         headers: {
-          Authorization: `Bearer ${token}`,
+          // Cookies handled automatically
         },
         signal,
       })
 
       if (response.status === 401) {
-        localStorage.removeItem('adminToken')
         router.replace('/admin/login')
         return
       }
@@ -163,7 +147,7 @@ export default function AdminBookingsPage() {
         setLoadingDetail(false)
       }
     }
-  }, [getAuthToken, router])
+  }, [router])
 
   useEffect(() => {
     const controller = new AbortController()
@@ -190,20 +174,16 @@ export default function AdminBookingsPage() {
       setAssigning(true)
       setAssignError(null)
 
-      const token = getAuthToken()
-      if (!token) return
-
       const response = await fetch('/api/admin/bookings/assign', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
+          // Cookies auto-sent
         },
         body: JSON.stringify({ requestId: selectedBookingId, studentId: selectedStudentId }),
       })
 
       if (response.status === 401) {
-        localStorage.removeItem('adminToken')
         router.replace('/admin/login')
         return
       }

@@ -36,12 +36,7 @@ export default function StudentsPage() {
   const fetchStudents = useCallback(async (signal?: AbortSignal) => {
     try {
       setLoading(true)
-      const token = localStorage.getItem('adminToken')
-
-      if (!token) {
-        router.replace('/admin/login')
-        return
-      }
+      // Removed localStorage token check
 
       const params = new URLSearchParams({
         page: page.toString(),
@@ -50,14 +45,11 @@ export default function StudentsPage() {
       })
 
       const response = await fetch(`/api/admin/students?${params}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
+        // Cookies sent automatically
         signal,
       })
 
       if (response.status === 401) {
-        localStorage.removeItem('adminToken')
         router.replace('/admin/login')
         return
       }

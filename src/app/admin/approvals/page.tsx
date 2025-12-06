@@ -31,22 +31,16 @@ export default function ApprovalsPage() {
   const fetchPendingStudents = useCallback(async (signal?: AbortSignal) => {
     try {
       setLoading(true)
-      const token = localStorage.getItem('adminToken')
-
-      if (!token) {
-        router.replace('/admin/login')
-        return
-      }
+      // Removed localStorage token check
 
       const response = await fetch('/api/admin/students/pending', {
         headers: {
-          'Authorization': `Bearer ${token}`,
+          // Cookies handled automatically
         },
         signal,
       })
 
       if (response.status === 401) {
-        localStorage.removeItem('adminToken')
         router.replace('/admin/login')
         return
       }
@@ -76,23 +70,16 @@ export default function ApprovalsPage() {
 
   const handleApprove = async (studentId: string) => {
     try {
-      const token = localStorage.getItem('adminToken')
-      if (!token) {
-        router.replace('/admin/login')
-        return
-      }
-
       const response = await fetch('/api/admin/students/approve', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
+          // Cookies handled automatically
         },
         body: JSON.stringify({ studentId, action: 'approve' }),
       })
 
       if (response.status === 401) {
-        localStorage.removeItem('adminToken')
         router.replace('/admin/login')
         return
       }
@@ -111,23 +98,16 @@ export default function ApprovalsPage() {
 
   const handleReject = async (studentId: string) => {
     try {
-      const token = localStorage.getItem('adminToken')
-      if (!token) {
-        router.replace('/admin/login')
-        return
-      }
-
       const response = await fetch('/api/admin/students/approve', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
+          // Cookies handled automatically
         },
         body: JSON.stringify({ studentId, action: 'reject' }),
       })
 
       if (response.status === 401) {
-        localStorage.removeItem('adminToken')
         router.replace('/admin/login')
         return
       }
@@ -146,23 +126,16 @@ export default function ApprovalsPage() {
 
   const handleBulkApprove = async (studentIds: string[], action: 'approve' | 'reject') => {
     try {
-      const token = localStorage.getItem('adminToken')
-      if (!token) {
-        router.replace('/admin/login')
-        return
-      }
-
       const response = await fetch('/api/admin/students/bulk-approve', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
+          // Cookies handled automatically
         },
         body: JSON.stringify({ studentIds, action }),
       })
 
       if (response.status === 401) {
-        localStorage.removeItem('adminToken')
         router.replace('/admin/login')
         return
       }

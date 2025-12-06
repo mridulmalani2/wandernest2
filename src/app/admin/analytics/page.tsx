@@ -43,24 +43,13 @@ export default function AnalyticsPage() {
   const fetchAnalytics = useCallback(async (signal?: AbortSignal) => {
     try {
       setLoading(true)
-      // Note: We are using localStorage for admin auth currently. 
-      // Future improvement: move to httpOnly cookies for better security.
-      const token = localStorage.getItem('adminToken')
-
-      if (!token) {
-        router.replace('/admin/login')
-        return
-      }
 
       const response = await fetch('/api/admin/analytics', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-        },
+        // Cookies handled automatically
         signal,
       })
 
       if (response.status === 401) {
-        localStorage.removeItem('adminToken')
         router.replace('/admin/login')
         return
       }
@@ -253,8 +242,8 @@ export default function AnalyticsPage() {
                         <div className="w-32 bg-gray-200 rounded-full h-2 mr-2">
                           <div
                             className={`h-2 rounded-full ${city.ratio > 2 ? 'bg-red-500' :
-                                city.ratio > 1 ? 'bg-yellow-500' :
-                                  'bg-green-500'
+                              city.ratio > 1 ? 'bg-yellow-500' :
+                                'bg-green-500'
                               }`}
                             style={{ width: `${Math.min(100, (city.ratio / 3) * 100)}%` }}
                           ></div>

@@ -30,14 +30,7 @@ export default function AdminLogin() {
         throw new Error(data.error || 'Login failed')
       }
 
-      localStorage.setItem('adminToken', data.token)
-      localStorage.setItem('adminUser', JSON.stringify(data.admin))
-
-      // Mirror the token into a same-site cookie immediately so middleware
-      // and server components see it on the next navigation (some browsers
-      // block the httpOnly Set-Cookie response).
-      const secureFlag = window.location.protocol === 'https:' ? '; Secure' : ''
-      document.cookie = `admin-token=${data.token}; path=/; SameSite=Lax; Max-Age=${60 * 60 * 8}${secureFlag}`
+      // Token is set in HttpOnly cookie by the server
 
       // Redirect to approvals page
       router.push('/admin/approvals')

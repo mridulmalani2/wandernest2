@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
 const NAV_ITEMS = [
@@ -14,18 +14,9 @@ const NAV_ITEMS = [
 ]
 
 export default function AdminNav() {
+  const router = useRouter()
   const pathname = usePathname()
   const [isScrolled, setIsScrolled] = useState(false)
-
-  // Mirror the admin token into a same-site cookie on every nav render so
-  // middleware and server components consistently see the session.
-  useEffect(() => {
-    const token = window.localStorage.getItem('adminToken')
-    if (!token) return
-
-    const secureFlag = window.location.protocol === 'https:' ? '; Secure' : ''
-    document.cookie = `admin-token=${token}; Path=/; SameSite=Lax; Max-Age=${60 * 60 * 8}${secureFlag}`
-  }, [pathname])
 
   // Add scroll detection for shadow effect
   useEffect(() => {
@@ -37,27 +28,16 @@ export default function AdminNav() {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-  const handleLogout = () => {
-    window.localStorage.removeItem('adminToken')
-    window.localStorage.removeItem('adminUser')
-    document.cookie = 'admin-token=; Path=/; Max-Age=0; SameSite=Lax'
-    window.location.href = '/admin/login'
-  }
-  // Keep the http-only admin cookie in sync so navigating between admin routes
-  // doesn't accidentally drop the session. Some browsers may block the
-  // Set-Cookie response, so we mirror the token from localStorage into a
-  // same-site cookie when needed.
-  useEffect(() => {
-    const token = localStorage.getItem('adminToken')
-
-    if (!token) return
-
-    const hasCookie = document.cookie.split('; ').some((entry) => entry.startsWith('admin-token='))
-
-    if (!hasCookie) {
-      document.cookie = `admin-token=${token}; path=/; SameSite=Lax`
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/admin/logout', { method: 'POST' })
+      router.push('/admin/login')
+    } catch (error) {
+      console.error('Logout failed', error)
+      // Fallback redirect
+      window.location.href = '/admin/login'
     }
-  }, [])
+  }
 
   return (
     <nav className={`border-b border-[var(--nav-border)] bg-[var(--nav-bg)] backdrop-blur-xl sticky top-0 z-50 transition-all duration-300 ${isScrolled ? 'shadow-lg shadow-black/10' : ''}`}>
