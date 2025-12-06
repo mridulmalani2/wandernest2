@@ -105,16 +105,34 @@ async function ensureRedisConnection(client: Redis): Promise<boolean> {
 
     // If connecting, wait a bit
     if (client.status === 'connecting') {
-      // Wait up to 3 seconds for connection
-      const timeout = new Promise<boolean>((resolve) =>
-        setTimeout(() => resolve(false), 3000)
-      )
-      const connected = new Promise<boolean>((resolve) => {
-        client.once('ready', () => resolve(true))
-        client.once('error', () => resolve(false))
-      })
+      return new Promise<boolean>((resolve) => {
+        const timeoutMs = 3000;
+        let timer: NodeJS.Timeout;
 
-      return await Promise.race([connected, timeout])
+        const cleanup = () => {
+          client.removeListener('ready', onReady);
+          client.removeListener('error', onError);
+          clearTimeout(timer);
+        };
+
+        const onReady = () => {
+          cleanup();
+          resolve(true);
+        };
+
+        const onError = () => {
+          cleanup();
+          resolve(false);
+        };
+
+        timer = setTimeout(() => {
+          cleanup();
+          resolve(false);
+        }, timeoutMs);
+
+        client.once('ready', onReady);
+        client.once('error', onError);
+      });
     }
 
     return false

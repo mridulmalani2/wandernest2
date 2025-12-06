@@ -94,6 +94,64 @@ const ProfileBackground = () => (
   </>
 );
 
+const parseArrayInput = (value: string) =>
+  value.split(',').map((s) => s.trim()).filter((s) => s.length > 0);
+
+interface ProfileActionsProps {
+  isEditing: boolean;
+  isSaving: boolean;
+  onEdit: () => void;
+  onCancel: () => void;
+  onSave: () => void;
+  className?: string; // Allow passing extra classes for positioning
+}
+
+const ProfileActions: React.FC<ProfileActionsProps> = ({
+  isEditing,
+  isSaving,
+  onEdit,
+  onCancel,
+  onSave,
+  className = "",
+}) => {
+  return (
+    <div className={`flex items-center gap-3 flex-shrink-0 ${className}`}>
+      {!isEditing ? (
+        <Button
+          onClick={onEdit}
+          variant="ghost"
+          className="group flex items-center gap-2 px-5 py-2 rounded-full bg-white/5 hover:bg-white/10 border border-white/30 hover:border-white/80 backdrop-blur-md transition-all duration-300 text-white shadow-sm hover:shadow-md hover:scale-105 active:scale-95"
+        >
+          <Edit className="w-3.5 h-3.5 mr-2" />
+          Edit Profile
+        </Button>
+      ) : (
+        <>
+          <Button
+            onClick={onCancel}
+            variant="outline"
+            disabled={isSaving}
+            className="border-2 border-white/20 hover:border-white/40 bg-white/10 backdrop-blur transition-colors text-white hover:bg-white/20"
+          >
+            <X className="w-4 h-4 mr-2" />
+            Cancel
+          </Button>
+          <PrimaryCTAButton
+            onClick={onSave}
+            disabled={isSaving}
+            icon={Save}
+            variant="purple"
+            isLoading={isSaving}
+            loadingText="Saving..."
+          >
+            Save Changes
+          </PrimaryCTAButton>
+        </>
+      )}
+    </div>
+  );
+};
+
 export default function StudentProfilePage() {
   const router = useRouter();
   const [profile, setProfile] = useState<StudentProfile | null>(null);
@@ -294,40 +352,13 @@ export default function StudentProfilePage() {
                   </div>
 
                   {/* Right: Edit/Save Actions */}
-                  <div className="flex items-center gap-3 flex-shrink-0">
-                    {!isEditing ? (
-                      <Button
-                        onClick={handleEdit}
-                        variant="ghost"
-                        className="group flex items-center gap-2 px-5 py-2 rounded-full bg-white/5 hover:bg-white/10 border border-white/30 hover:border-white/80 backdrop-blur-md transition-all duration-300 text-white shadow-sm hover:shadow-md hover:scale-105 active:scale-95"
-                      >
-                        <Edit className="w-3.5 h-3.5 mr-2" />
-                        Edit Profile
-                      </Button>
-                    ) : (
-                      <>
-                        <Button
-                          onClick={handleCancel}
-                          variant="outline"
-                          disabled={isSaving}
-                          className="border-2 border-white/20 hover:border-white/40 bg-white/10 backdrop-blur transition-colors text-white hover:bg-white/20"
-                        >
-                          <X className="w-4 h-4 mr-2" />
-                          Cancel
-                        </Button>
-                        <PrimaryCTAButton
-                          onClick={handleSave}
-                          disabled={isSaving}
-                          icon={Save}
-                          variant="purple"
-                          isLoading={isSaving}
-                          loadingText="Saving..."
-                        >
-                          Save Changes
-                        </PrimaryCTAButton>
-                      </>
-                    )}
-                  </div>
+                  <ProfileActions
+                    isEditing={isEditing}
+                    isSaving={isSaving}
+                    onEdit={handleEdit}
+                    onCancel={handleCancel}
+                    onSave={handleSave}
+                  />
                 </div>
               </div>
             </motion.div>
@@ -672,9 +703,11 @@ export default function StudentProfilePage() {
                       placeholder="Tell tourists about yourself..."
                     />
                   ) : (
-                    <p className="text-gray-700 leading-relaxed whitespace-pre-wrap bg-white/40 rounded-xl p-4 border border-gray-200">
-                      {currentProfile?.bio || 'Not provided'}
-                    </p>
+                    <InfoRow label="" icon={FileText}>
+                      <div className="whitespace-pre-wrap">
+                        {currentProfile?.bio || 'Not provided'}
+                      </div>
+                    </InfoRow>
                   )}
                 </div>
 
@@ -705,7 +738,7 @@ export default function StudentProfilePage() {
                     <Input
                       id="skills"
                       value={currentProfile?.skills?.join(', ') || ''}
-                      onChange={(e) => updateField('skills', e.target.value.split(',').map(s => s.trim()))}
+                      onChange={(e) => updateField('skills', parseArrayInput(e.target.value))}
                       className="bg-white/80 border-gray-300 focus:border-ui-blue-accent"
                       placeholder="e.g., Photography, History, Food Tours"
                     />
@@ -713,7 +746,7 @@ export default function StudentProfilePage() {
                     <div className="flex flex-wrap gap-2">
                       {currentProfile?.skills && currentProfile.skills.length > 0 ? (
                         currentProfile.skills.map((skill, idx) => (
-                          <SkillChip key={idx} label={skill} variant="blue" />
+                          <SkillChip key={`${skill}-${idx}`} label={skill} variant="blue" />
                         ))
                       ) : (
                         <p className="text-gray-500 italic">No skills listed</p>
@@ -730,7 +763,7 @@ export default function StudentProfilePage() {
                     <Input
                       id="interests"
                       value={currentProfile?.interests?.join(', ') || ''}
-                      onChange={(e) => updateField('interests', e.target.value.split(',').map(s => s.trim()))}
+                      onChange={(e) => updateField('interests', parseArrayInput(e.target.value))}
                       className="bg-white/80 border-gray-300 focus:border-ui-blue-accent"
                       placeholder="e.g., Art, Music, Sports"
                     />
@@ -738,7 +771,7 @@ export default function StudentProfilePage() {
                     <div className="flex flex-wrap gap-2">
                       {currentProfile?.interests && currentProfile.interests.length > 0 ? (
                         currentProfile.interests.map((interest, idx) => (
-                          <SkillChip key={idx} label={interest} variant="purple" />
+                          <SkillChip key={`${interest}-${idx}`} label={interest} variant="purple" />
                         ))
                       ) : (
                         <p className="text-gray-500 italic">No interests listed</p>
@@ -766,8 +799,11 @@ export default function StudentProfilePage() {
                     <Input
                       id="hourlyRate"
                       type="number"
-                      value={currentProfile?.hourlyRate || ''}
-                      onChange={(e) => updateField('hourlyRate', parseFloat(e.target.value))}
+                      value={currentProfile?.hourlyRate?.toString() || ''}
+                      onChange={(e) => {
+                        const val = parseFloat(e.target.value);
+                        updateField('hourlyRate', isNaN(val) ? 0 : val);
+                      }}
                       className="bg-white/80 border-gray-300 focus:border-ui-blue-accent"
                       min="0"
                       step="0.01"
@@ -787,7 +823,7 @@ export default function StudentProfilePage() {
                     <Input
                       id="servicesOffered"
                       value={currentProfile?.servicesOffered?.join(', ') || ''}
-                      onChange={(e) => updateField('servicesOffered', e.target.value.split(',').map(s => s.trim()))}
+                      onChange={(e) => updateField('servicesOffered', parseArrayInput(e.target.value))}
                       className="bg-white/80 border-gray-300 focus:border-ui-blue-accent"
                       placeholder="e.g., City Tours, Food Tours, Museum Visits"
                     />
@@ -795,7 +831,7 @@ export default function StudentProfilePage() {
                     <div className="flex flex-wrap gap-2">
                       {currentProfile?.servicesOffered && currentProfile.servicesOffered.length > 0 ? (
                         currentProfile.servicesOffered.map((service, idx) => (
-                          <SkillChip key={idx} label={service} variant="green" />
+                          <SkillChip key={`${service}-${idx}`} label={service} variant="green" />
                         ))
                       ) : (
                         <p className="text-gray-500 italic">No services listed</p>
@@ -876,26 +912,13 @@ export default function StudentProfilePage() {
                 className="glass-card rounded-2xl p-6 shadow-premium border border-white/60 backdrop-blur-lg"
               >
                 <div className="flex items-center justify-end gap-4">
-                  <Button
-                    onClick={handleCancel}
-                    variant="outline"
-                    disabled={isSaving}
-                    size="lg"
-                    className="border-2 border-gray-300 hover:border-gray-400 bg-white/80 backdrop-blur"
-                  >
-                    <X className="w-5 h-5 mr-2" />
-                    Cancel Changes
-                  </Button>
-                  <PrimaryCTAButton
-                    onClick={handleSave}
-                    disabled={isSaving}
-                    icon={Save}
-                    variant="purple"
-                    isLoading={isSaving}
-                    loadingText="Saving..."
-                  >
-                    Save All Changes
-                  </PrimaryCTAButton>
+                  <ProfileActions
+                    isEditing={isEditing}
+                    isSaving={isSaving}
+                    onEdit={handleEdit}
+                    onCancel={handleCancel}
+                    onSave={handleSave}
+                  />
                 </div>
               </motion.div>
             )}
