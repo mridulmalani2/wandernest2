@@ -86,48 +86,63 @@ export default function StudentProfilePage() {
 
   // Fetch profile on mount
   useEffect(() => {
+    const controller = new AbortController();
+
+    const fetchProfile = async () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+
+        const response = await fetch('/api/student/profile', {
+          signal: controller.signal
+        });
+
+        if (!response.ok) {
+          if (response.status === 404) {
+            throw new Error('Profile not found. Please complete onboarding first.');
+          }
+          throw new Error('Failed to load profile');
+        }
+
+        const data = await response.json();
+        setProfile(data.student);
+        setEditedProfile(data.student);
+
+      } catch (err: any) {
+        if (err.name !== 'AbortError') {
+          console.error('Error fetching profile:', err);
+          setError(err.message);
+        }
+      } finally {
+        if (!controller.signal.aborted) {
+          setIsLoading(false);
+        }
+      }
+    };
+
     fetchProfile();
+    return () => controller.abort();
   }, []);
 
-  const fetchProfile = async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
-
-      const response = await fetch('/api/student/profile');
-
-      if (!response.ok) {
-        if (response.status === 404) {
-          throw new Error('Profile not found. Please complete onboarding first.');
-        }
-        throw new Error('Failed to load profile');
-      }
-
-      const data = await response.json();
-      setProfile(data.student);
-      setEditedProfile(data.student);
-
-    } catch (err: any) {
-      console.error('Error fetching profile:', err);
-      setError(err.message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const handleEdit = () => {
+    if (!profile) return;
     setIsEditing(true);
-    setEditedProfile({ ...profile! });
+    // Use structuredClone for deep copy if environment supports, or JSON parse/stringify for safety
+    // For now, assuming simple object structure or that spread is sufficient if no deep nested mutations are needed except those handled
+    setEditedProfile(JSON.parse(JSON.stringify(profile)));
     setSuccessMessage(null);
   };
 
   const handleCancel = () => {
+    if (!profile) return;
     setIsEditing(false);
-    setEditedProfile({ ...profile! });
+    setEditedProfile(JSON.parse(JSON.stringify(profile)));
     setError(null);
   };
 
   const handleSave = async () => {
+    if (!editedProfile) return;
+
     try {
       setIsSaving(true);
       setError(null);

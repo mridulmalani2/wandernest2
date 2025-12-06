@@ -3,8 +3,57 @@ import Image from 'next/image'
 import Footer from '@/components/Footer'
 import FAQAccordion from '@/components/shared/FAQAccordion'
 import { studentFAQs } from '@/lib/faq/data'
-import { DollarSign, Clock, Users } from 'lucide-react'
+import { DollarSign, Clock, Users, Check } from 'lucide-react'
 import { PrimaryCTAButton } from '@/components/ui/PrimaryCTAButton'
+
+const FEATURES = [
+  {
+    icon: DollarSign,
+    title: 'High Earnings',
+    desc: 'Earn significantly more than standard campus jobs. Set your own rates.',
+    groupHoverColor: 'text-green-300',
+    imgSrc: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=800&q=80',
+    alt: 'Person calculating earnings'
+  },
+  {
+    icon: Clock,
+    title: 'Total Flexibility',
+    desc: 'Work around your class schedule. You choose when you\'re available.',
+    groupHoverColor: 'text-blue-300',
+    imgSrc: 'https://images.unsplash.com/photo-1506784983877-45594efa4cbe?w=800&q=80',
+    alt: 'Student planning schedule'
+  },
+  {
+    icon: Users,
+    title: 'Build Network',
+    desc: 'Connect with professionals and travelers from your home country.',
+    groupHoverColor: 'text-purple-300',
+    imgSrc: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=800&q=80',
+    alt: 'People networking'
+  }
+];
+
+const HOW_IT_WORKS_STEPS = [
+  {
+    title: 'Create Profile',
+    text: 'Sign up with your university email and verify your student status'
+  },
+  {
+    title: 'Set Availability',
+    text: 'Choose your dates, times, and hourly rates'
+  },
+  {
+    title: 'Start Earning',
+    text: 'Accept booking requests and get paid directly by tourists'
+  }
+];
+
+const COMMITMENT_ITEMS = [
+  'Setting your own rates and schedule',
+  'Delivering a safe and authentic experience',
+  'Handling payments directly with tourists',
+  'Maintaining your student verification status'
+];
 
 export default function StudentLandingPage() {
   return (
@@ -50,13 +99,14 @@ export default function StudentLandingPage() {
                   href="/student/onboarding"
                   showArrow
                   variant="purple"
+                  className="text-lg"
                 >
                   Start Earning Today
                 </PrimaryCTAButton>
               </div>
             </div>
 
-            {/* Features - Image Cards (Matching Tourist Style) */}
+            {/* Features - Image Cards */}
             <div className="pt-8 animate-fade-in-up delay-400">
               <div className="text-center space-y-3 mb-12">
                 <h2 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-white text-shadow-lg">
@@ -67,32 +117,7 @@ export default function StudentLandingPage() {
                 </p>
               </div>
               <div className="grid md:grid-cols-3 gap-6 lg:gap-8 max-w-6xl mx-auto">
-                {[
-                  {
-                    icon: DollarSign,
-                    title: 'High Earnings',
-                    desc: 'Earn significantly more than standard campus jobs. Set your own rates.',
-                    groupHoverColor: 'text-green-300',
-                    imgSrc: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=800&q=80',
-                    alt: 'Person calculating earnings'
-                  },
-                  {
-                    icon: Clock,
-                    title: 'Total Flexibility',
-                    desc: 'Work around your class schedule. You choose when you\'re available.',
-                    groupHoverColor: 'text-blue-300',
-                    imgSrc: 'https://images.unsplash.com/photo-1506784983877-45594efa4cbe?w=800&q=80',
-                    alt: 'Student planning schedule'
-                  },
-                  {
-                    icon: Users,
-                    title: 'Build Network',
-                    desc: 'Connect with professionals and travelers from your home country.',
-                    groupHoverColor: 'text-purple-300',
-                    imgSrc: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=800&q=80',
-                    alt: 'People networking'
-                  }
-                ].map((feature, idx) => (
+                {FEATURES.map((feature, idx) => (
                   <div key={idx} className="group rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 relative overflow-hidden h-full">
                     <div className="absolute inset-0">
                       <Image
@@ -122,18 +147,14 @@ export default function StudentLandingPage() {
               </div>
             </div>
 
-            {/* How It Works - Timeline Style (Matching Tourist Style) */}
+            {/* How It Works - Timeline Style */}
             <div className="space-y-6 pt-8 animate-fade-in-up delay-500">
               <h2 className="text-3xl md:text-4xl font-bold text-center text-white text-shadow-lg">How It Works</h2>
 
               {/* Desktop Timeline */}
               <div className="hidden md:block relative max-w-4xl mx-auto">
                 <div className="grid md:grid-cols-3 gap-8">
-                  {[
-                    { title: 'Create Profile', text: 'Sign up with your university email and verify your student status' },
-                    { title: 'Set Availability', text: 'Choose your dates, times, and hourly rates' },
-                    { title: 'Start Earning', text: 'Accept booking requests and get paid directly by tourists' }
-                  ].map((step, idx) => (
+                  {HOW_IT_WORKS_STEPS.map((step, idx) => (
                     <div key={idx} className="text-center group">
                       <div className="min-h-[120px] space-y-2 backdrop-blur-sm bg-white/10 rounded-xl p-5 border border-white/20 group-hover:bg-white/20 transition-all">
                         <h3 className="font-bold text-lg text-white">{step.title}</h3>
@@ -148,11 +169,7 @@ export default function StudentLandingPage() {
 
               {/* Mobile Vertical Timeline */}
               <div className="md:hidden space-y-4 max-w-md mx-auto">
-                {[
-                  { title: 'Create Profile', text: 'Sign up with your university email and verify your student status' },
-                  { title: 'Set Availability', text: 'Choose your dates, times, and hourly rates' },
-                  { title: 'Start Earning', text: 'Accept booking requests and get paid directly by tourists' }
-                ].map((step, idx) => (
+                {HOW_IT_WORKS_STEPS.map((step, idx) => (
                   <div key={idx} className="space-y-2 backdrop-blur-sm bg-white/10 rounded-xl p-4 border border-white/20">
                     <h3 className="font-bold text-base text-white">{step.title}</h3>
                     <p className="text-sm text-white/90 leading-relaxed">
@@ -194,33 +211,14 @@ export default function StudentLandingPage() {
 
                         {/* List of Items */}
                         <div className="grid md:grid-cols-2 gap-3">
-                          <div className="flex items-center gap-3">
-                            <div className="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0 border border-white/10">
-                              <span className="text-white text-xs">✓</span>
+                          {COMMITMENT_ITEMS.map((item, idx) => (
+                            <div key={idx} className="flex items-center gap-3">
+                              <div className="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0 border border-white/10">
+                                <Check className="w-3 h-3 text-white" />
+                              </div>
+                              <span className="text-sm text-white/70 font-light">{item}</span>
                             </div>
-                            <span className="text-sm text-white/70 font-light">Setting your own rates and schedule</span>
-                          </div>
-
-                          <div className="flex items-center gap-3">
-                            <div className="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0 border border-white/10">
-                              <span className="text-white text-xs">✓</span>
-                            </div>
-                            <span className="text-sm text-white/70 font-light">Delivering a safe and authentic experience</span>
-                          </div>
-
-                          <div className="flex items-center gap-3">
-                            <div className="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0 border border-white/10">
-                              <span className="text-white text-xs">✓</span>
-                            </div>
-                            <span className="text-sm text-white/70 font-light">Handling payments directly with tourists</span>
-                          </div>
-
-                          <div className="flex items-center gap-3">
-                            <div className="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0 border border-white/10">
-                              <span className="text-white text-xs">✓</span>
-                            </div>
-                            <span className="text-sm text-white/70 font-light">Maintaining your student verification status</span>
-                          </div>
+                          ))}
                         </div>
 
                         {/* Footer Note */}
@@ -242,7 +240,7 @@ export default function StudentLandingPage() {
               </p>
               <div className="flex justify-center mt-4">
                 <PrimaryCTAButton
-                  href="/student/signin"
+                  href="/student/onboarding"
                   showArrow
                   variant="purple"
                   className="text-lg"
