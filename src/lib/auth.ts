@@ -21,8 +21,12 @@ export function generateToken(payload: object, expiresIn: string = '1h'): string
 export function verifyToken(token: string): jwt.JwtPayload | string | null {
   try {
     const JWT_SECRET = getJWTSecret()
-    return jwt.verify(token, JWT_SECRET)
+    // SECURITY: Enforce algorithms to prevent downgrade attacks
+    return jwt.verify(token, JWT_SECRET, { algorithms: ['HS256'] })
   } catch (error) {
+    if (process.env.NODE_ENV === 'development') {
+      console.error('JWT Verification failed:', error);
+    }
     return null
   }
 }

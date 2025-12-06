@@ -48,8 +48,13 @@ export async function middleware(request: NextRequest) {
     if (!studentSessionToken) {
       return NextResponse.redirect(new URL('/student/signin', request.url))
     }
-    // Note: We don't validate the token here (database access needed). 
-    // The API/Page will handle validation via /api/student/auth/session-status or similar.
+
+    // SECURITY: Validate token format (UUID pattern) to reject malformed tokens early.
+    // Full validation (database check) happens in the API/Page via /api/student/auth/session-status.
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(studentSessionToken)) {
+      return NextResponse.redirect(new URL('/student/signin', request.url))
+    }
   }
 
   // Tourist dashboard - check for NextAuth session with tourist userType

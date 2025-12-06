@@ -168,24 +168,19 @@ class CacheManager {
       try {
         // SECURITY: Use SCAN instead of KEYS to avoid blocking the Redis server (DoS prevention)
         // KEYS is O(N) and blocks, while SCAN is O(1) per iteration.
-        const stream = redis.scanIterator({
-          MATCH: pattern,
-          COUNT: 100
-        });
+        // Manual scan loop for ioredis
+        let cursor = '0';
+        do {
+          const result = await redis.scan(cursor, 'MATCH', pattern, 'COUNT', 100);
+          cursor = result[0];
+          const keys = result[1];
 
-        // Batch deletions
-        const keysToDelete: string[] = [];
-        for await (const key of stream) {
-          keysToDelete.push(key);
-          if (keysToDelete.length >= 100) {
-            await redis.del(...keysToDelete);
-            keysToDelete.length = 0;
+          if (keys.length > 0) {
+            await redis.del(...keys);
           }
-        }
+        } while (cursor !== '0');
 
-        if (keysToDelete.length > 0) {
-          await redis.del(...keysToDelete);
-        }
+
       } catch (error) {
         console.error('Redis deletePattern error', error instanceof Error ? error.message : 'Unknown');
         this.isRedisAvailable = false;
