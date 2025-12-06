@@ -13,8 +13,18 @@ const MAX_REVIEW_TEXT_LENGTH = 500
 /**
  * Creates a new review and updates student metrics
  */
-export async function createReview(input: CreateReviewInput) {
+export async function createReview(input: CreateReviewInput & { authorizedStudentId?: string }) {
   const db = requireDatabase()
+
+  // Authorization check: Ensure the caller is authorized for this studentId
+  if (input.authorizedStudentId && input.authorizedStudentId !== input.studentId) {
+    throw new Error('Unauthorized: You can only create reviews for your own profile')
+  }
+
+  if (!input.studentId || typeof input.studentId !== 'string') {
+    throw new Error('Invalid student ID')
+  }
+
   // Validate rating
   if (input.rating < 1 || input.rating > 5) {
     throw new Error('Rating must be between 1 and 5')
@@ -32,49 +42,53 @@ export async function createReview(input: CreateReviewInput) {
     }
   }
 
-  // Check if review already exists for this request
-  const existingReview = await db.review.findUnique({
-    where: { requestId: input.requestId },
+  // Use transaction to ensure atomicity of review creation and metrics update
+  return await db.$transaction(async (tx) => {
+    // Check if review already exists for this request
+    const existingReview = await tx.review.findUnique({
+      where: { requestId: input.requestId },
+    })
+
+    if (existingReview) {
+      throw new Error('A review already exists for this request')
+    }
+
+    // Create the review
+    const review = await tx.review.create({
+      data: {
+        requestId: input.requestId,
+        studentId: input.studentId,
+        rating: input.rating,
+        text: input.text,
+        attributes: input.attributes,
+        noShow: input.noShow,
+        pricePaid: input.pricePaid,
+        isAnonymous: input.isAnonymous ?? false,
+      },
+    })
+
+    // Update student metrics within the same transaction to guarantee consistency
+    await updateStudentMetricsInternal(tx, input.studentId)
+
+    return review
   })
-
-  if (existingReview) {
-    throw new Error('A review already exists for this request')
-  }
-
-  // Create the review
-  const review = await db.review.create({
-    data: {
-      requestId: input.requestId,
-      studentId: input.studentId,
-      rating: input.rating,
-      text: input.text,
-      attributes: input.attributes,
-      noShow: input.noShow,
-      pricePaid: input.pricePaid,
-      isAnonymous: input.isAnonymous ?? false,
-    },
-  })
-
-  // Update student metrics
-  await updateStudentMetrics(input.studentId)
-
-  // Invalidate student caches
-  await cacheInvalidation.student(input.studentId)
-
-  return review
+    .then(async (result) => {
+      // Invalidate cache after successful transaction
+      await cacheInvalidation.student(input.studentId)
+      return result
+    })
 }
 
 /**
  * Updates student metrics based on all their reviews
  * Calculates average rating, completion rate, and reliability badge
  */
-export async function updateStudentMetrics(
-  studentId: string,
-  newReview?: { rating: number; wouldRecommend: boolean; guideShowedUp: boolean }
-) {
-  const db = requireDatabase()
+/**
+ * Internal helper to update student metrics (transaction-aware)
+ */
+async function updateStudentMetricsInternal(tx: any, studentId: string) {
   // Get only necessary review fields for calculations (optimized)
-  const allReviews = await db.review.findMany({
+  const allReviews = await tx.review.findMany({
     where: { studentId },
     select: {
       rating: true,
@@ -84,19 +98,19 @@ export async function updateStudentMetrics(
   })
 
   if (allReviews.length === 0) {
-    return
+    return null
   }
 
   // Calculate new average rating
-  const newAverage =
-    allReviews.reduce((acc: number, r: any) => acc + r.rating, 0) / allReviews.length
+  const totalRating = allReviews.reduce((acc: number, r: { rating: number }) => acc + r.rating, 0)
+  const newAverage = totalRating / allReviews.length
 
   // Calculate completion rate (percentage of non-no-show experiences)
-  const completedExperiences = allReviews.filter((r: any) => !r.noShow).length
+  const completedExperiences = allReviews.filter((r: { noShow: boolean }) => !r.noShow).length
   const completionRate = (completedExperiences / allReviews.length) * 100
 
   // Calculate no-show count
-  const noShowCount = allReviews.filter((r: any) => r.noShow).length
+  const noShowCount = allReviews.filter((r: { noShow: boolean }) => r.noShow).length
 
   // Determine reliability badge
   let badge: ReliabilityBadge = 'bronze'
@@ -107,7 +121,7 @@ export async function updateStudentMetrics(
   }
 
   // Update student record
-  await db.student.update({
+  await tx.student.update({
     where: { id: studentId },
     data: {
       averageRating: newAverage,
@@ -122,8 +136,18 @@ export async function updateStudentMetrics(
     completionRate,
     reliabilityBadge: badge,
     totalReviews: allReviews.length,
-  } as ReviewMetrics
+  }
 }
+
+/**
+ * Updates student metrics (standalone wrapper)
+ */
+export async function updateStudentMetrics(studentId: string) {
+  const db = requireDatabase()
+  return await updateStudentMetricsInternal(db, studentId)
+}
+
+
 
 /**
  * Get all reviews for a student (cached for 10 minutes)
@@ -135,7 +159,14 @@ export async function getStudentReviews(studentId: string) {
     async () => {
       return db.review.findMany({
         where: { studentId },
-        include: {
+        select: {
+          id: true,
+          rating: true,
+          text: true,
+          createdAt: true,
+          attributes: true,
+          pricePaid: true,
+          isAnonymous: true,
           request: {
             select: {
               city: true,
@@ -159,6 +190,7 @@ export async function getStudentMetrics(studentId: string): Promise<ReviewMetric
   const student = await db.student.findUnique({
     where: { id: studentId },
     select: {
+      id: true,
       averageRating: true,
       reliabilityBadge: true,
       tripsHosted: true,
