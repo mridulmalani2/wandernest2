@@ -106,7 +106,7 @@ export default function Navigation({ variant = 'default', showBackButton = false
               />
             </motion.div>
             <motion.span
-              className="text-base md:text-lg font-sans font-semibold text-white tracking-tight"
+              className="text-base md:text-lg font-sans font-semibold text-blue-50 tracking-tight"
               whileHover={{ opacity: 0.9 }}
               transition={{ duration: 0.2 }}
             >
@@ -119,7 +119,7 @@ export default function Navigation({ variant = 'default', showBackButton = false
 
             {showBackButton && (
               <Link href={backHref}>
-                <Button variant="ghost" className="rounded-full px-3 py-1 h-auto text-white/90 hover:bg-white/10 hover:text-white transition-all font-sans text-xs font-medium focus-visible:ring-2 focus-visible:ring-white/30 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent" aria-label="Go back">
+                <Button variant="ghost" className="rounded-full px-3 py-1 h-auto text-blue-50 hover:bg-white/10 hover:text-white transition-all font-sans text-xs font-medium focus-visible:ring-2 focus-visible:ring-white/30 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent" aria-label="Go back">
                   <ChevronLeft className="w-3.5 h-3.5 mr-1" /> Back
                 </Button>
               </Link>
@@ -128,7 +128,7 @@ export default function Navigation({ variant = 'default', showBackButton = false
             {!session && variant === 'default' && (
               <>
                 <Link href="/student">
-                  <Button variant="ghost" className="rounded-full px-4 py-2 h-auto text-white/90 border border-white/20 hover:bg-white/10 hover:text-white transition-all duration-200 hover:scale-105 active:scale-95 font-sans text-sm font-medium">
+                  <Button variant="ghost" className="rounded-full px-4 py-2 h-auto text-blue-50 border border-white/20 hover:bg-white/10 hover:text-white transition-all duration-200 hover:scale-105 active:scale-95 font-sans text-sm font-medium">
                     I&apos;m a Student
                   </Button>
                 </Link>
@@ -143,7 +143,7 @@ export default function Navigation({ variant = 'default', showBackButton = false
             {!session && variant === 'tourist' && (
               <>
                 <Link href="/">
-                  <Button variant="ghost" className="rounded-full px-4 py-2 h-auto text-white/90 hover:bg-white/10 hover:text-white transition-all duration-200 hover:scale-105 active:scale-95 font-sans text-sm font-medium">
+                  <Button variant="ghost" className="rounded-full px-4 py-2 h-auto text-blue-50 hover:bg-white/10 hover:text-white transition-all duration-200 hover:scale-105 active:scale-95 font-sans text-sm font-medium">
                     <ChevronLeft className="w-3.5 h-3.5 mr-1" /> Back to Home
                   </Button>
                 </Link>
@@ -158,12 +158,12 @@ export default function Navigation({ variant = 'default', showBackButton = false
             {!session && !studentSession && variant === 'student' && (
               <>
                 <Link href="/">
-                  <Button variant="ghost" className="rounded-full px-4 py-2 h-auto text-white/90 hover:bg-white/10 hover:text-white transition-all duration-200 hover:scale-105 active:scale-95 font-sans text-sm font-medium">
+                  <Button variant="ghost" className="rounded-full px-4 py-2 h-auto text-blue-50 hover:bg-white/10 hover:text-white transition-all duration-200 hover:scale-105 active:scale-95 font-sans text-sm font-medium">
                     <ChevronLeft className="w-4 h-4 mr-1" /> Back to Home
                   </Button>
                 </Link>
                 <Link href="/student/signin">
-                  <Button variant="ghost" className="rounded-full px-5 py-2 h-auto text-white/90 border border-white/20 hover:bg-white/10 hover:text-white transition-all duration-200 hover:scale-105 active:scale-95 font-sans text-sm font-medium">
+                  <Button variant="ghost" className="rounded-full px-5 py-2 h-auto text-blue-50 border border-white/20 hover:bg-white/10 hover:text-white transition-all duration-200 hover:scale-105 active:scale-95 font-sans text-sm font-medium">
                     Sign In
                   </Button>
                 </Link>
@@ -175,13 +175,13 @@ export default function Navigation({ variant = 'default', showBackButton = false
                 {session?.user?.userType === 'tourist' && (
                   <>
                     <Link href="/">
-                      <Button variant="ghost" className="rounded-full px-4 py-2 h-auto text-white/90 hover:bg-white/10 hover:text-white transition-all duration-200 hover:scale-105 active:scale-95 font-sans text-sm font-medium">
+                      <Button variant="ghost" className="rounded-full px-4 py-2 h-auto text-blue-50 hover:bg-white/10 hover:text-white transition-all duration-200 hover:scale-105 active:scale-95 font-sans text-sm font-medium">
                         <Home className="w-4 h-4 mr-2" />
                         Home
                       </Button>
                     </Link>
                     <Link href="/tourist/dashboard">
-                      <Button variant="ghost" className="rounded-full px-4 py-2 h-auto text-white/90 hover:bg-white/10 hover:text-white transition-all duration-200 hover:scale-105 active:scale-95 font-sans text-sm font-medium">
+                      <Button variant="ghost" className="rounded-full px-4 py-2 h-auto text-blue-50 hover:bg-white/10 hover:text-white transition-all duration-200 hover:scale-105 active:scale-95 font-sans text-sm font-medium">
                         <LayoutDashboard className="w-4 h-4 mr-2" />
                         Dashboard
                       </Button>
@@ -191,13 +191,13 @@ export default function Navigation({ variant = 'default', showBackButton = false
                 {(session?.user?.userType === 'student' || studentSession) && (
                   <>
                     <Link href="/student/dashboard">
-                      <Button variant="ghost" className="rounded-full px-4 py-2 h-auto text-white/90 hover:bg-white/10 hover:text-white transition-all duration-200 hover:scale-105 active:scale-95 font-sans text-sm font-medium">
+                      <Button variant="ghost" className="rounded-full px-4 py-2 h-auto text-blue-50 hover:bg-white/10 hover:text-white transition-all duration-200 hover:scale-105 active:scale-95 font-sans text-sm font-medium">
                         <LayoutDashboard className="w-4 h-4 mr-2" />
                         Dashboard
                       </Button>
                     </Link>
                     <Link href="/student/profile">
-                      <Button variant="ghost" className="rounded-full px-4 py-2 h-auto text-white/90 hover:bg-white/10 hover:text-white transition-all duration-200 hover:scale-105 active:scale-95 font-sans text-sm font-medium">
+                      <Button variant="ghost" className="rounded-full px-4 py-2 h-auto text-blue-50 hover:bg-white/10 hover:text-white transition-all duration-200 hover:scale-105 active:scale-95 font-sans text-sm font-medium">
                         <UserCircle className="w-4 h-4 mr-2" />
                         Profile
                       </Button>
@@ -249,7 +249,7 @@ export default function Navigation({ variant = 'default', showBackButton = false
 
             {showBackButton && (
               <Link href={backHref} onClick={() => setMobileMenuOpen(false)}>
-                <Button variant="ghost" className="w-full justify-start rounded-full text-white/90 hover:bg-white/10 hover:text-white transition-all font-sans text-sm font-medium">
+                <Button variant="ghost" className="w-full justify-start rounded-full text-blue-50 hover:bg-white/10 hover:text-white transition-all font-sans text-sm font-medium">
                   <ChevronLeft className="w-4 h-4 mr-2" /> Back
                 </Button>
               </Link>
@@ -258,7 +258,7 @@ export default function Navigation({ variant = 'default', showBackButton = false
             {!session && variant === 'default' && (
               <>
                 <Link href="/student" onClick={() => setMobileMenuOpen(false)}>
-                  <Button variant="ghost" className="w-full rounded-full text-white/90 border border-white/20 hover:bg-white/10 hover:text-white transition-all font-sans text-sm font-medium">
+                  <Button variant="ghost" className="w-full rounded-full text-blue-50 border border-white/20 hover:bg-white/10 hover:text-white transition-all font-sans text-sm font-medium">
                     I&apos;m a Student
                   </Button>
                 </Link>
@@ -273,7 +273,7 @@ export default function Navigation({ variant = 'default', showBackButton = false
             {!session && variant === 'tourist' && (
               <>
                 <Link href="/" onClick={() => setMobileMenuOpen(false)}>
-                  <Button variant="ghost" className="w-full justify-start rounded-full text-white/90 hover:bg-white/10 hover:text-white transition-all font-sans text-sm font-medium">
+                  <Button variant="ghost" className="w-full justify-start rounded-full text-blue-50 hover:bg-white/10 hover:text-white transition-all font-sans text-sm font-medium">
                     <ChevronLeft className="w-4 h-4 mr-2" /> Back to Home
                   </Button>
                 </Link>
@@ -288,12 +288,12 @@ export default function Navigation({ variant = 'default', showBackButton = false
             {!session && !studentSession && variant === 'student' && (
               <>
                 <Link href="/" onClick={() => setMobileMenuOpen(false)}>
-                  <Button variant="ghost" className="w-full justify-start rounded-full text-white/90 hover:bg-white/10 hover:text-white transition-all font-sans text-sm font-medium">
+                  <Button variant="ghost" className="w-full justify-start rounded-full text-blue-50 hover:bg-white/10 hover:text-white transition-all font-sans text-sm font-medium">
                     <ChevronLeft className="w-4 h-4 mr-2" /> Back to Home
                   </Button>
                 </Link>
                 <Link href="/student/signin" onClick={() => setMobileMenuOpen(false)}>
-                  <Button variant="ghost" className="w-full rounded-full text-white/90 border border-white/20 hover:bg-white/10 hover:text-white transition-all font-sans text-sm font-medium">
+                  <Button variant="ghost" className="w-full rounded-full text-blue-50 border border-white/20 hover:bg-white/10 hover:text-white transition-all font-sans text-sm font-medium">
                     Sign In
                   </Button>
                 </Link>
@@ -313,13 +313,13 @@ export default function Navigation({ variant = 'default', showBackButton = false
                 {session?.user?.userType === 'tourist' && (
                   <>
                     <Link href="/" onClick={() => setMobileMenuOpen(false)}>
-                      <Button variant="ghost" className="w-full justify-start rounded-full text-white/90 hover:bg-white/10 hover:text-white transition-all font-sans text-sm font-medium">
+                      <Button variant="ghost" className="w-full justify-start rounded-full text-blue-50 hover:bg-white/10 hover:text-white transition-all font-sans text-sm font-medium">
                         <Home className="w-4 h-4 mr-2" />
                         Home
                       </Button>
                     </Link>
                     <Link href="/tourist/dashboard" onClick={() => setMobileMenuOpen(false)}>
-                      <Button variant="ghost" className="w-full justify-start rounded-full text-white/90 hover:bg-white/10 hover:text-white transition-all font-sans text-sm font-medium">
+                      <Button variant="ghost" className="w-full justify-start rounded-full text-blue-50 hover:bg-white/10 hover:text-white transition-all font-sans text-sm font-medium">
                         <LayoutDashboard className="w-4 h-4 mr-2" />
                         Dashboard
                       </Button>
@@ -329,13 +329,13 @@ export default function Navigation({ variant = 'default', showBackButton = false
                 {(session?.user?.userType === 'student' || studentSession) && (
                   <>
                     <Link href="/student/dashboard" onClick={() => setMobileMenuOpen(false)}>
-                      <Button variant="ghost" className="w-full justify-start rounded-full text-white/90 hover:bg-white/10 hover:text-white transition-all font-sans text-sm font-medium">
+                      <Button variant="ghost" className="w-full justify-start rounded-full text-blue-50 hover:bg-white/10 hover:text-white transition-all font-sans text-sm font-medium">
                         <LayoutDashboard className="w-4 h-4 mr-2" />
                         Dashboard
                       </Button>
                     </Link>
                     <Link href="/student/profile" onClick={() => setMobileMenuOpen(false)}>
-                      <Button variant="ghost" className="w-full justify-start rounded-full text-white/90 hover:bg-white/10 hover:text-white transition-all font-sans text-sm font-medium">
+                      <Button variant="ghost" className="w-full justify-start rounded-full text-blue-50 hover:bg-white/10 hover:text-white transition-all font-sans text-sm font-medium">
                         <UserCircle className="w-4 h-4 mr-2" />
                         Profile
                       </Button>
@@ -348,7 +348,7 @@ export default function Navigation({ variant = 'default', showBackButton = false
                     setMobileMenuOpen(false)
                     handleSignOut()
                   }}
-                  className="w-full justify-start rounded-full hover:bg-red-500/20 hover:text-red-300 text-white/90 transition-all font-sans text-sm font-medium"
+                  className="w-full justify-start rounded-full hover:bg-red-500/20 hover:text-red-300 text-blue-50 transition-all font-sans text-sm font-medium"
                 >
                   <LogOut className="w-4 h-4 mr-2" />
                   Sign Out
