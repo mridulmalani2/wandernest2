@@ -46,6 +46,7 @@ model Student {
   id                String   @id @default(cuid())
   email             String   @unique
   emailVerified     Boolean  @default(false)
+  passwordHash      String?  // Optional for initial OTP signup, set later
   googleId          String?  @unique  // Now optional - supports both Google OAuth and email verification
   name              String?  // Optional until onboarding is completed
 
