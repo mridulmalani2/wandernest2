@@ -217,7 +217,7 @@ export const reviewCreateSchema = z.object({
     communication: ratingSchema.optional(),
     value: ratingSchema.optional(),
   }).optional(),
-  isAnonymous: z.boolean().optional().default(false),
+  isAnonymous: z.boolean().default(false),
   touristEmail: emailSchema.optional(),
   touristName: nameSchema.optional(),
 });
@@ -313,7 +313,7 @@ export type StudentOnboardingInput = z.infer<typeof studentOnboardingSchema>;
 export type MatchResponseInput = z.infer<typeof matchResponseSchema>;
 export type TouristRequestCreateInput = z.infer<typeof touristRequestCreateSchema>;
 export type TouristRequestSelectInput = z.infer<typeof touristRequestSelectSchema>;
-export type ReviewCreateInput = z.infer<typeof reviewCreateSchema>;
+export type ReviewCreateInput = z.output<typeof reviewCreateSchema>;
 export type ContactFormInput = z.infer<typeof contactFormSchema>;
 export type FindMatchesInput = z.infer<typeof findMatchesSchema>;
 export type StudentsQueryInput = z.infer<typeof studentsQuerySchema>;
