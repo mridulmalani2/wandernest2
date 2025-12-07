@@ -204,22 +204,18 @@ export const bookingStatusUpdateSchema = z.object({
 // REVIEW SCHEMAS
 // ============================================
 
+/**
+ * Schema for creating a review - aligned with CreateReviewInput from lib/reviews/types.ts
+ */
 export const reviewCreateSchema = z.object({
+  requestId: uuidSchema,
   studentId: uuidSchema,
-  requestId: uuidSchema.optional(),
-  bookingId: uuidSchema.optional(),
   rating: ratingSchema,
-  comment: longTextSchema.optional(),
-  categories: z.object({
-    knowledge: ratingSchema.optional(),
-    friendliness: ratingSchema.optional(),
-    punctuality: ratingSchema.optional(),
-    communication: ratingSchema.optional(),
-    value: ratingSchema.optional(),
-  }).optional(),
-  isAnonymous: z.boolean().default(false),
-  touristEmail: emailSchema.optional(),
-  touristName: nameSchema.optional(),
+  text: z.string().max(500, 'Review text must not exceed 500 characters').transform(val => val.trim()).optional(),
+  attributes: stringArraySchema(20),
+  noShow: z.boolean(),
+  pricePaid: z.number().positive().optional(),
+  isAnonymous: z.boolean().optional().default(false),
 });
 
 // ============================================
@@ -230,7 +226,7 @@ export const contactFormSchema = z.object({
   name: nameSchema,
   email: emailSchema,
   phone: phoneSchema.optional(),
-  message: longTextSchema.min(10, 'Message must be at least 10 characters'),
+  message: z.string().min(10, 'Message must be at least 10 characters').max(5000, 'Message cannot exceed 5000 characters').transform(val => val.trim()),
   category: z.enum(['general', 'support', 'partnership', 'feedback']).optional(),
   fileUrl: optionalStringSchema,
   fileName: optionalStringSchema,

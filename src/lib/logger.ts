@@ -178,9 +178,20 @@ function log(level: LogLevel, message: string, context?: LogContext): void {
 }
 
 /**
- * Logger interface
+ * Logger type definition
  */
-export const logger = {
+export interface Logger {
+  debug(message: string, context?: LogContext): void;
+  info(message: string, context?: LogContext): void;
+  warn(message: string, context?: LogContext): void;
+  error(message: string, context?: LogContext): void;
+  child(baseContext: LogContext): Logger;
+}
+
+/**
+ * Logger implementation
+ */
+export const logger: Logger = {
   /**
    * Debug level - verbose information for development
    */
@@ -212,7 +223,7 @@ export const logger = {
   /**
    * Create a child logger with preset context
    */
-  child(baseContext: LogContext): typeof logger {
+  child(baseContext: LogContext): Logger {
     return {
       debug: (msg: string, ctx?: LogContext) => log('debug', msg, { ...baseContext, ...ctx }),
       info: (msg: string, ctx?: LogContext) => log('info', msg, { ...baseContext, ...ctx }),

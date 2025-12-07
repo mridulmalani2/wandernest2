@@ -419,7 +419,7 @@ export interface PaginatedData<T> {
   total: number;
 }
 
-export interface UsePaginatedOptions<T> extends Omit<FetchOptions<PaginatedData<T>>, 'params'> {
+export interface UsePaginatedOptions<T> extends Omit<FetchOptions<PaginatedData<T>>, 'params' | 'url'> {
   initialPage?: number;
   pageSize?: number;
   additionalParams?: Record<string, string | number | boolean | undefined>;

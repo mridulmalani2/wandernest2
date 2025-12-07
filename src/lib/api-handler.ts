@@ -25,7 +25,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { ZodSchema, ZodError, z } from 'zod';
+import { ZodError, z } from 'zod';
 import { verifyAdmin, verifyStudent, verifyTourist } from './api-auth';
 import { requireDatabase } from './prisma';
 import { AppError, handleApiError } from './error-handler';
@@ -41,7 +41,7 @@ type AuthType = 'admin' | 'student' | 'tourist' | 'optional' | 'none';
 interface AuthResult {
   authorized: boolean;
   admin?: { id: string; email: string };
-  student?: { id: string; email: string };
+  student?: { email: string; id?: string | null };
   tourist?: { email: string };
   error?: string;
 }
@@ -57,10 +57,10 @@ interface HandlerContext<TBody, TQuery> {
 
 interface ApiHandlerConfig<TBody, TQuery, TResponse> {
   /** Zod schema for request body validation */
-  bodySchema?: ZodSchema<TBody>;
+  bodySchema?: z.ZodTypeAny;
 
   /** Zod schema for query parameter validation */
-  querySchema?: ZodSchema<TQuery>;
+  querySchema?: z.ZodTypeAny;
 
   /** Authentication requirement */
   auth?: AuthType;
@@ -349,7 +349,7 @@ export function withApiHandler(
 /**
  * Validate data against a schema and throw AppError on failure
  */
-export function validateBody<T>(schema: ZodSchema<T>, data: unknown): T {
+export function validateBody<T>(schema: z.ZodType<T, any, any>, data: unknown): T {
   try {
     return schema.parse(data);
   } catch (error) {
@@ -363,7 +363,7 @@ export function validateBody<T>(schema: ZodSchema<T>, data: unknown): T {
 /**
  * Safely parse query parameters with a schema
  */
-export function parseQuery<T>(schema: ZodSchema<T>, req: NextRequest): T {
+export function parseQuery<T>(schema: z.ZodType<T, any, any>, req: NextRequest): T {
   const params = parseQueryParams(req);
   try {
     return schema.parse(params);
