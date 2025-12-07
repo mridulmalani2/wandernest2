@@ -215,11 +215,13 @@ export function sanitizeFilename(filename: string): string {
   const reserved = /^(con|prn|aux|nul|com[0-9]|lpt[0-9])$/i;
 
   // Remove path separators and dangerous characters
-  const sanitized = filename
-    .replace(/[\/\\]/g, '')
-    .replace(/\.\./g, '')
-    .replace(/[^a-zA-Z0-9._-]/g, '_')
-    .substring(0, 255);
+  const sanitized = truncateUnicodeSafe(
+    filename
+      .replace(/[\/\\]/g, '')
+      .replace(/\.\./g, '')
+      .replace(/[^a-zA-Z0-9._-]/g, '_'),
+    255
+  );
 
   if (sanitized.length === 0 || reserved.test(sanitized)) {
     return `file_${Date.now()}`;

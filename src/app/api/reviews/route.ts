@@ -3,16 +3,15 @@ export const dynamic = 'force-dynamic'
 
 import { NextResponse } from 'next/server'
 import { createApiHandler } from '@/lib/api-handler'
-import { reviewCreateSchema } from '@/lib/schemas'
+import { reviewCreateSchema, type ReviewCreateInput } from '@/lib/schemas'
 import { createReview } from '@/lib/reviews/service'
-import { CreateReviewInput } from '@/lib/reviews/types'
 import { AppError } from '@/lib/error-handler'
 
 /**
  * POST /api/reviews
  * Create a new review (must be authenticated tourist who made the booking)
  */
-export const POST = createApiHandler<CreateReviewInput>({
+export const POST = createApiHandler<ReviewCreateInput>({
   bodySchema: reviewCreateSchema,
   auth: 'tourist',
   route: 'POST /api/reviews',
