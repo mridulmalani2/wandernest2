@@ -23,6 +23,37 @@ export interface MatchTokenPayload {
 }
 
 /**
+ * Validate parsed token payload has required fields with correct types
+ * Returns null if validation fails
+ */
+function validateMatchTokenPayload(parsed: unknown): MatchTokenPayload | null {
+  if (parsed === null || typeof parsed !== 'object') {
+    return null;
+  }
+
+  const obj = parsed as Record<string, unknown>;
+
+  // Validate required string fields
+  if (typeof obj.requestId !== 'string' || !obj.requestId) return null;
+  if (typeof obj.studentId !== 'string' || !obj.studentId) return null;
+  if (typeof obj.selectionId !== 'string' || !obj.selectionId) return null;
+
+  // Validate action is one of the allowed values
+  if (obj.action !== 'accept' && obj.action !== 'decline') return null;
+
+  // Validate expiry is a number
+  if (typeof obj.exp !== 'number') return null;
+
+  return {
+    requestId: obj.requestId,
+    studentId: obj.studentId,
+    selectionId: obj.selectionId,
+    action: obj.action,
+    exp: obj.exp,
+  };
+}
+
+/**
  * Generate a signed token for student match actions
  *
  * @param payload - Token data
@@ -82,7 +113,14 @@ export function verifyMatchToken(token: string): MatchTokenPayload | null {
 
     // Decode payload
     const payloadJson = Buffer.from(payloadB64, 'base64url').toString('utf-8');
-    const payload: MatchTokenPayload = JSON.parse(payloadJson);
+    const parsed = JSON.parse(payloadJson);
+
+    // Validate payload structure
+    const payload = validateMatchTokenPayload(parsed);
+    if (!payload) {
+      console.error('[verifyMatchToken] Invalid payload structure');
+      return null;
+    }
 
     // Check expiry
     if (Date.now() > payload.exp) {
