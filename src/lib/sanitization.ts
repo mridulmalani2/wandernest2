@@ -6,6 +6,19 @@
  */
 
 /**
+ * Unicode-safe truncation that operates on code points, not UTF-16 code units.
+ * Prevents splitting surrogate pairs (e.g., emoji characters).
+ */
+function truncateUnicodeSafe(str: string, maxCodePoints: number): string {
+  // Spread operator correctly splits by code points, not code units
+  const codePoints = [...str];
+  if (codePoints.length <= maxCodePoints) {
+    return str;
+  }
+  return codePoints.slice(0, maxCodePoints).join('');
+}
+
+/**
  * Remove HTML tags from a string to prevent XSS attacks
  */
 export function stripHtml(input: string): string {
@@ -26,10 +39,8 @@ export function sanitizeText(input: string, maxLength = 1000): string {
   // Trim whitespace
   sanitized = sanitized.trim();
 
-  // Limit length
-  if (sanitized.length > maxLength) {
-    sanitized = sanitized.substring(0, maxLength);
-  }
+  // Limit length using Unicode-safe truncation (prevents splitting surrogate pairs)
+  sanitized = truncateUnicodeSafe(sanitized, maxLength);
 
   return sanitized;
 }

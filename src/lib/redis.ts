@@ -8,6 +8,41 @@ export function hashVerificationCode(code: string): string {
   return crypto.createHash('sha256').update(code).digest('hex')
 }
 
+// Lightweight structural validation for verification payloads (no heavy dependencies)
+interface VerificationPayload {
+  code: string
+  data: unknown
+  attempts: number
+}
+
+/**
+ * Validate parsed verification payload has required fields with correct types
+ * Returns null if validation fails, logs a warning for debugging
+ */
+function validateVerificationPayload(parsed: unknown): VerificationPayload | null {
+  if (parsed === null || typeof parsed !== 'object') {
+    console.warn('Redis payload validation failed: not an object')
+    return null
+  }
+
+  const obj = parsed as Record<string, unknown>
+
+  // Validate required 'code' field is a string
+  if (typeof obj.code !== 'string') {
+    console.warn('Redis payload validation failed: missing or invalid "code" field')
+    return null
+  }
+
+  // Validate 'attempts' is a number (default to 0 if missing for backwards compat)
+  const attempts = typeof obj.attempts === 'number' ? obj.attempts : 0
+
+  return {
+    code: obj.code,
+    data: obj.data, // data can be any type
+    attempts,
+  }
+}
+
 const globalForRedis = globalThis as unknown as {
   redis: Redis | null | undefined
 }
@@ -249,8 +284,11 @@ export async function getVerificationData(email: string): Promise<any | null> {
     async (client) => {
       const key = `verification:${normalizedEmail}`
       const data = await client.get(key)
+      if (!data) return null
       try {
-        return data ? JSON.parse(data) : null
+        const parsed = JSON.parse(data)
+        // Structural validation: ensure required fields exist with correct types
+        return validateVerificationPayload(parsed)
       } catch (e) {
         console.error('Failed to parse Redis data', e)
         return null
@@ -323,9 +361,13 @@ export async function incrementVerificationAttempts(email: string): Promise<numb
 
       try {
         const parsed = JSON.parse(data)
-        parsed.attempts = (parsed.attempts || 0) + 1
-        await client.setex(key, config.verification.codeExpiry, JSON.stringify(parsed))
-        return parsed.attempts
+        // Structural validation: ensure payload is valid before incrementing
+        const validated = validateVerificationPayload(parsed)
+        if (!validated) return 0
+
+        validated.attempts = validated.attempts + 1
+        await client.setex(key, config.verification.codeExpiry, JSON.stringify(validated))
+        return validated.attempts
       } catch (e) {
         return 0
       }

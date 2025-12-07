@@ -46,8 +46,11 @@ async function verifyMigrationStatus() {
   const migrationsDir = path.join(__dirname, '..', 'src', 'prisma', 'migrations');
   log('\n📁 Local Migrations:', colors.blue);
 
+  // Store local migrations for later comparison
+  let localMigrations = [];
+
   try {
-    const localMigrations = fs.readdirSync(migrationsDir)
+    localMigrations = fs.readdirSync(migrationsDir)
       .filter(item => {
         const fullPath = path.join(migrationsDir, item);
         return fs.statSync(fullPath).isDirectory() && item !== 'migration_lock.toml';
@@ -88,6 +91,11 @@ async function verifyMigrationStatus() {
 
     const migrationsTableExists = tableCheckResult.rows[0].exists;
 
+    // Track applied migration names for comparison
+    let appliedMigrationNames = [];
+    // Track if any issues found (for exit code)
+    let hasIssues = false;
+
     if (!migrationsTableExists) {
       log('\n📋 Database Migration Status:', colors.blue);
       log('   ℹ️  _prisma_migrations table does not exist', colors.yellow);
@@ -106,6 +114,9 @@ async function verifyMigrationStatus() {
         FROM _prisma_migrations
         ORDER BY started_at;
       `);
+
+      // Store applied migration names for comparison
+      appliedMigrationNames = migrationsResult.rows.map(row => row.migration_name);
 
       if (migrationsResult.rows.length === 0) {
         log('   ℹ️  No migrations recorded in database', colors.yellow);
@@ -143,8 +154,41 @@ async function verifyMigrationStatus() {
         log('   Your database has failed migrations that need to be cleaned up.', colors.yellow);
         log('   Run: node scripts/reset-neon-db.js', colors.blue);
         log('   Then: npx prisma migrate deploy --schema=./src/prisma/schema.prisma', colors.blue);
+        hasIssues = true;
       } else {
         log('\n✅ All applied migrations completed successfully', colors.green);
+      }
+
+      // Compare local vs applied migrations to detect pending and drift
+      const localSet = new Set(localMigrations);
+      const appliedSet = new Set(appliedMigrationNames);
+
+      // Pending: local migrations not yet applied to database
+      const pendingMigrations = localMigrations.filter(m => !appliedSet.has(m));
+      // Drift: applied migrations that no longer exist locally
+      const driftMigrations = appliedMigrationNames.filter(m => !localSet.has(m));
+
+      if (pendingMigrations.length > 0) {
+        log('\n⚠️  PENDING MIGRATIONS (local but not applied):', colors.yellow);
+        pendingMigrations.forEach(migration => {
+          log(`   - ${migration}`, colors.yellow);
+        });
+        log('\n💡 Run: npx prisma migrate deploy --schema=./src/prisma/schema.prisma', colors.blue);
+        hasIssues = true;
+      }
+
+      if (driftMigrations.length > 0) {
+        log('\n❌ MIGRATION DRIFT DETECTED (applied but missing locally):', colors.red);
+        driftMigrations.forEach(migration => {
+          log(`   - ${migration}`, colors.red);
+        });
+        log('\n⚠️  Database has migrations that do not exist in local codebase.', colors.yellow);
+        log('   This may indicate the database was migrated from a different branch.', colors.yellow);
+        hasIssues = true;
+      }
+
+      if (pendingMigrations.length === 0 && driftMigrations.length === 0 && failedMigrationsResult.rows.length === 0) {
+        log('\n✅ Local and database migrations are in sync', colors.green);
       }
     }
 
@@ -167,8 +211,15 @@ async function verifyMigrationStatus() {
     }
 
     log('\n' + '='.repeat(60), colors.cyan);
-    log('✅ VERIFICATION COMPLETE', colors.green);
-    log('='.repeat(60) + '\n', colors.cyan);
+    // Exit with non-zero code if drift or missing migrations detected (CI-safe)
+    if (hasIssues) {
+      log('❌ VERIFICATION COMPLETE - ISSUES DETECTED', colors.red);
+      log('='.repeat(60) + '\n', colors.cyan);
+      process.exitCode = 1;
+    } else {
+      log('✅ VERIFICATION COMPLETE', colors.green);
+      log('='.repeat(60) + '\n', colors.cyan);
+    }
 
   } catch (error) {
     log('\n❌ ERROR during verification:', colors.red);
