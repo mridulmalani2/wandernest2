@@ -4,38 +4,26 @@ export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
 
 import { NextRequest, NextResponse } from 'next/server'
-import { requireDatabase } from '@/lib/prisma'
-import { verifyAdmin } from '@/lib/api-auth'
-import { withErrorHandler, withDatabaseRetry, AppError } from '@/lib/error-handler'
+import { createApiHandler, validateBody } from '@/lib/api-handler'
+import { studentApprovalSchema, type StudentApprovalInput } from '@/lib/schemas'
+import { AppError } from '@/lib/error-handler'
 
-// Approve or reject a student
-async function approveStudent(request: NextRequest) {
-  const authResult = await verifyAdmin(request)
+/**
+ * POST /api/admin/students/approve
+ *
+ * Approve or reject a student application.
+ * Requires admin authentication.
+ */
+export const POST = createApiHandler<StudentApprovalInput>({
+  bodySchema: studentApprovalSchema,
+  auth: 'admin',
+  route: 'POST /api/admin/students/approve',
 
-  if (!authResult.authorized) {
-    throw new AppError(401, 'Unauthorized', 'AUTH_FAILED')
-  }
+  async handler({ body, db }) {
+    const { studentId, action } = body
 
-  const body = await request.json()
-  const { studentId, action } = body
-
-  if (!studentId || !action) {
-    throw new AppError(400, 'Student ID and action are required', 'MISSING_FIELDS')
-  }
-
-  if (action !== 'approve' && action !== 'reject') {
-    throw new AppError(400, 'Invalid action. Must be "approve" or "reject"', 'INVALID_ACTION')
-  }
-
-  if (typeof studentId !== 'string' || studentId.trim().length === 0) {
-    throw new AppError(400, 'Invalid Student ID', 'INVALID_INPUT')
-  }
-
-  const db = requireDatabase()
-
-  // Execute atomically to prevent race conditions
-  const updatedStudent = await withDatabaseRetry(async () =>
-    db.$transaction(async (tx) => {
+    // Execute atomically to prevent race conditions
+    const updatedStudent = await db.$transaction(async (tx) => {
       const student = await tx.student.findUnique({
         where: { id: studentId },
       })
@@ -53,18 +41,16 @@ async function approveStudent(request: NextRequest) {
         data: {
           status: action === 'approve' ? 'APPROVED' : 'SUSPENDED',
         },
+        select: {
+          id: true,
+          name: true,
+          status: true,
+        },
       })
     })
-  )
 
-  return NextResponse.json({
-    success: true,
-    student: {
-      id: updatedStudent.id,
-      name: updatedStudent.name,
-      status: updatedStudent.status,
-    },
-  })
-}
-
-export const POST = withErrorHandler(approveStudent, 'POST /api/admin/students/approve');
+    return {
+      student: updatedStudent,
+    }
+  },
+})

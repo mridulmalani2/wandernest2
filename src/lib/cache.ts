@@ -64,7 +64,7 @@ class CacheManager {
   }
 
   /**
-   * Get value from cache
+   * Get value from cache with safe JSON parsing
    */
   async get<T>(key: string): Promise<T | null> {
     this.validateKey(key);
@@ -74,12 +74,27 @@ class CacheManager {
       try {
         const value = await redis.get(key);
         if (value) {
-          return JSON.parse(value) as T;
+          // Safe JSON parsing with validation
+          try {
+            const parsed = JSON.parse(value);
+            // Basic type validation - ensure we got an object or array
+            if (parsed === null || (typeof parsed !== 'object' && typeof parsed !== 'boolean' && typeof parsed !== 'number' && typeof parsed !== 'string')) {
+              console.warn(`[Cache] Invalid cached value type for key: ${key}`);
+              // Delete invalid entry
+              await redis.del(key);
+              return null;
+            }
+            return parsed as T;
+          } catch (parseError) {
+            console.error(`[Cache] JSON parse error for key ${key}:`, parseError instanceof Error ? parseError.message : 'Unknown');
+            // Delete corrupted entry
+            await redis.del(key);
+            return null;
+          }
         }
       } catch (error) {
         console.error('Redis get error', error instanceof Error ? error.message : 'Unknown');
         // Mark as unavailable to trigger immediate fallback and re-check logic next time (after TTL expires)
-        // For resilience, we might want to force a re-check sooner, but let's stick to TTL pattern
         this.isRedisAvailable = false;
       }
     }
@@ -291,15 +306,32 @@ export const cacheInvalidation = {
 
   /**
    * Invalidate all caches (use sparingly)
+   *
+   * SECURITY: This operation is protected to prevent accidental data loss.
+   * In production, it only clears the memory cache unless explicitly confirmed.
+   *
+   * @param confirm - Must be true to flush Redis in production
    */
-  async all(): Promise<void> {
+  async all(confirm: boolean = false): Promise<void> {
     cache.clearMemory();
+
+    const isProduction = process.env.NODE_ENV === 'production';
+
+    // In production, require explicit confirmation to flush Redis
+    if (isProduction && !confirm) {
+      console.warn(
+        '[Cache] Redis flush blocked in production. Pass confirm=true to proceed.'
+      );
+      return;
+    }
+
     const isRedisAvailable = await cache.checkRedis();
     if (isRedisAvailable && redis) {
       try {
         await redis.flushdb();
+        console.log('[Cache] Redis cache flushed');
       } catch (error) {
-        console.error('Redis flushdb error:', error);
+        console.error('Redis flushdb error:', error instanceof Error ? error.message : 'Unknown');
       }
     }
   },

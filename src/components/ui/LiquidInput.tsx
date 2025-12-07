@@ -12,11 +12,29 @@ export interface LiquidInputProps extends React.InputHTMLAttributes<HTMLInputEle
     containerClassName?: string;
 }
 
+/**
+ * LiquidInput - Accessible floating label input component
+ *
+ * Accessibility features:
+ * - aria-describedby: Links error and helper text to input
+ * - aria-invalid: Indicates validation state
+ * - aria-required: Indicates required fields
+ * - role="alert" on error messages for screen reader announcements
+ * - Icons marked with aria-hidden
+ */
 const LiquidInput = React.forwardRef<HTMLInputElement, LiquidInputProps>(
-    ({ className, label, error, helperText, icon: Icon, containerClassName, type, placeholder, ...props }, ref) => {
+    ({ className, label, error, helperText, icon: Icon, containerClassName, type, placeholder, required, ...props }, ref) => {
         const [isFocused, setIsFocused] = React.useState(false);
         const [hasValue, setHasValue] = React.useState(false);
         const id = React.useId();
+        const errorId = `${id}-error`;
+        const helperId = `${id}-helper`;
+
+        // Build aria-describedby based on what's present
+        const describedBy = [
+            error ? errorId : null,
+            !error && helperText ? helperId : null,
+        ].filter(Boolean).join(' ') || undefined;
 
         const handleFocus = () => setIsFocused(true);
         const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
@@ -30,7 +48,10 @@ const LiquidInput = React.forwardRef<HTMLInputElement, LiquidInputProps>(
                 <div className="relative">
                     {/* Icon */}
                     {Icon && (
-                        <div className="absolute left-0 top-1/2 -translate-y-1/2 text-gray-400 transition-colors duration-200">
+                        <div
+                            className="absolute left-0 top-1/2 -translate-y-1/2 text-gray-400 transition-colors duration-200"
+                            aria-hidden="true"
+                        >
                             <Icon className="h-4 w-4" />
                         </div>
                     )}
@@ -39,6 +60,11 @@ const LiquidInput = React.forwardRef<HTMLInputElement, LiquidInputProps>(
                     <input
                         id={id}
                         type={type}
+                        ref={ref}
+                        required={required}
+                        aria-invalid={error ? 'true' : undefined}
+                        aria-required={required ? 'true' : undefined}
+                        aria-describedby={describedBy}
                         className={cn(
                             // Base styles - minimal, transparent
                             'w-full bg-transparent px-0 py-3 text-base font-light tracking-wide',
@@ -67,7 +93,6 @@ const LiquidInput = React.forwardRef<HTMLInputElement, LiquidInputProps>(
 
                             className
                         )}
-                        ref={ref}
                         onFocus={handleFocus}
                         onBlur={handleBlur}
                         placeholder={type === 'date' || label ? '' : (placeholder || ' ')}
@@ -96,19 +121,28 @@ const LiquidInput = React.forwardRef<HTMLInputElement, LiquidInputProps>(
                             )}
                         >
                             {label}
+                            {required && <span className="ml-1" aria-hidden="true">*</span>}
                         </label>
                     )}
                 </div>
 
                 {/* Helper/Error Text */}
-                {(helperText || error) && (
+                {error && (
                     <p
-                        className={cn(
-                            'mt-1.5 text-xs font-light',
-                            error ? 'text-ui-error' : 'text-gray-500'
-                        )}
+                        id={errorId}
+                        role="alert"
+                        aria-live="polite"
+                        className="mt-1.5 text-xs font-light text-ui-error"
                     >
-                        {error || helperText}
+                        {error}
+                    </p>
+                )}
+                {!error && helperText && (
+                    <p
+                        id={helperId}
+                        className="mt-1.5 text-xs font-light text-gray-500"
+                    >
+                        {helperText}
                     </p>
                 )}
             </div>

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { Prisma } from '@prisma/client';
 import { ZodError } from 'zod';
+import { logger } from './logger';
 
 /**
  * Standardized error response format
@@ -29,26 +30,37 @@ export class AppError extends Error {
 }
 
 /**
- * Log error to console (server-side only)
- * In production, this could integrate with services like Sentry, DataDog, etc.
+ * Log error using structured logger
+ * Automatically handles different error types and redacts sensitive data
  */
 export function logError(error: unknown, context?: string): void {
-  // In production, avoid logging sensitive error details to stdout/stderr
-  // unless using a secure logger (which we assume console.* is NOT in this context)
-  if (process.env.NODE_ENV !== 'production') {
-    const timestamp = new Date().toISOString();
-    const prefix = context ? `[${context}]` : '[ERROR]';
+  const errorContext: Record<string, unknown> = {
+    context,
+  };
 
-    console.error(`${prefix} ${timestamp}:`, error);
-
-    // Additional error details for debugging
-    if (error instanceof Error) {
-      console.error('Stack trace:', error.stack);
+  if (error instanceof AppError) {
+    errorContext.code = error.code;
+    errorContext.statusCode = error.statusCode;
+    logger.error(error.message, errorContext);
+  } else if (error instanceof ZodError) {
+    errorContext.validationErrors = error.errors.map((e) => ({
+      path: e.path.join('.'),
+      message: e.message,
+    }));
+    logger.warn('Validation error', errorContext);
+  } else if (error instanceof Prisma.PrismaClientKnownRequestError) {
+    errorContext.prismaCode = error.code;
+    // Don't log full error message in production (may contain sensitive data)
+    logger.error('Database error', errorContext);
+  } else if (error instanceof Error) {
+    errorContext.name = error.name;
+    // Only include stack in development
+    if (process.env.NODE_ENV !== 'production') {
+      errorContext.stack = error.stack;
     }
+    logger.error(error.message, errorContext);
   } else {
-    // Production logging: minimal info, no stack traces to std out
-    // ideally send to Sentry/DataDog here
-    console.error(`[ERROR] ${context || 'Unknown'}: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    logger.error('Unknown error occurred', { ...errorContext, error: String(error) });
   }
 }
 
