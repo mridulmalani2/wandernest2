@@ -4,15 +4,19 @@ export const maxDuration = 10
 export const revalidate = 300 // 5 minutes
 
 import { NextRequest, NextResponse } from 'next/server'
-import { requireDatabase } from '@/lib/prisma'
+import { createApiHandler, parseQuery } from '@/lib/api-handler'
+import { findMatchesSchema, type FindMatchesInput, uuidSchema, z } from '@/lib/schemas'
 import { findMatches, generateAnonymousId } from '@/lib/matching/algorithm'
 import { cache } from '@/lib/cache'
 import { CACHE_TTL } from '@/lib/constants'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth-options'
+import { AppError } from '@/lib/error-handler'
+
+// Query schema for GET endpoint
+const matchesQuerySchema = z.object({
+  requestId: uuidSchema,
+})
 
 // Helper to map student to anonymized match response
-// eslint-disable-next-line
 const mapToMatchResponse = (student: any, selectionStatus?: string) => ({
   id: student.id,
   anonymousId: generateAnonymousId(student.id),
@@ -29,23 +33,13 @@ const mapToMatchResponse = (student: any, selectionStatus?: string) => ({
  * POST /api/matches
  * Find matching guides for a tourist request
  */
-export async function POST(request: NextRequest) {
-  try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user?.email) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
+export const POST = createApiHandler<FindMatchesInput>({
+  bodySchema: findMatchesSchema,
+  auth: 'tourist',
+  route: 'POST /api/matches',
 
-    const db = requireDatabase()
-    const body = await request.json()
+  async handler({ body, db, auth }) {
     const { requestId } = body
-
-    if (!requestId) {
-      return NextResponse.json(
-        { error: 'Request ID is required' },
-        { status: 400 }
-      )
-    }
 
     // Fetch the tourist request
     const touristRequest = await db.touristRequest.findUnique({
@@ -53,15 +47,12 @@ export async function POST(request: NextRequest) {
     })
 
     if (!touristRequest) {
-      return NextResponse.json(
-        { error: 'Tourist request not found' },
-        { status: 404 }
-      )
+      throw new AppError(404, 'Tourist request not found', 'REQUEST_NOT_FOUND')
     }
 
-    // Authorization check
-    if (touristRequest.email !== session.user.email) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    // Authorization check - tourist can only access their own requests
+    if (auth.tourist && touristRequest.email !== auth.tourist.email) {
+      throw new AppError(403, 'Access denied', 'FORBIDDEN')
     }
 
     // Find matches with caching
@@ -83,36 +74,20 @@ export async function POST(request: NextRequest) {
         'Cache-Control': 'private, max-age=300, stale-while-revalidate=600',
       },
     })
-  } catch (error) {
-    console.error('Error finding matches:', error instanceof Error ? error.message : 'Unknown error')
-    return NextResponse.json(
-      { error: 'Failed to find matches' },
-      { status: 500 }
-    )
-  }
-}
+  },
+})
 
 /**
  * GET /api/matches?requestId=xxx
  * Get existing matches for a request
  */
-export async function GET(request: NextRequest) {
-  try {
-    const session = await getServerSession(authOptions)
-    if (!session?.user?.email) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
+export const GET = createApiHandler({
+  querySchema: matchesQuerySchema,
+  auth: 'tourist',
+  route: 'GET /api/matches',
 
-    const db = requireDatabase()
-    const searchParams = request.nextUrl.searchParams
-    const requestId = searchParams.get('requestId')
-
-    if (!requestId) {
-      return NextResponse.json(
-        { error: 'Request ID is required' },
-        { status: 400 }
-      )
-    }
+  async handler({ query, db, auth }) {
+    const { requestId } = query
 
     // Fetch the tourist request with selections
     const touristRequest = await db.touristRequest.findUnique({
@@ -127,20 +102,16 @@ export async function GET(request: NextRequest) {
     })
 
     if (!touristRequest) {
-      return NextResponse.json(
-        { error: 'Tourist request not found' },
-        { status: 404 }
-      )
+      throw new AppError(404, 'Tourist request not found', 'REQUEST_NOT_FOUND')
     }
 
     // Authorization check
-    if (touristRequest.email !== session.user.email) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    if (auth.tourist && touristRequest.email !== auth.tourist.email) {
+      throw new AppError(403, 'Access denied', 'FORBIDDEN')
     }
 
     // Return existing selections if any
     if (touristRequest.selections && touristRequest.selections.length > 0) {
-      // eslint-disable-next-line
       const selectedGuides = touristRequest.selections.map((selection: any) =>
         mapToMatchResponse(selection.student, selection.status)
       )
@@ -170,11 +141,5 @@ export async function GET(request: NextRequest) {
         'Cache-Control': 'private, max-age=300, stale-while-revalidate=600',
       },
     })
-  } catch (error) {
-    console.error('Error fetching matches:', error)
-    return NextResponse.json(
-      { error: 'Failed to fetch matches' },
-      { status: 500 }
-    )
-  }
-}
+  },
+})
