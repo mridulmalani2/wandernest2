@@ -101,7 +101,7 @@ function loadConfig(): AppConfig {
   const emailPort = parseInt(process.env.EMAIL_PORT || '587', 10)
   const emailUser = process.env.EMAIL_USER || null
   const emailPass = process.env.EMAIL_PASS || null
-  const emailFrom = process.env.EMAIL_FROM || 'TourWiseCo <noreply@tourwiseco.com>'
+  const emailFrom = process.env.EMAIL_FROM || 'TourWise <team@tourwiseco.com>'
   const contactEmail = process.env.CONTACT_EMAIL || emailFrom
   const resendApiKey = process.env.RESEND_API_KEY || null
 
