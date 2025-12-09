@@ -158,495 +158,692 @@ const DARK_LABEL_CLASS = "text-gray-300 font-medium mb-2 block";
 
 export default function StudentProfilePage() {
   const router = useRouter();
-// ... (rest of component logic remains the same)
+  const [loading, setLoading] = useState(true);
+  const [currentProfile, setCurrentProfile] = useState<StudentProfile | null>(null);
+  const [originalProfile, setOriginalProfile] = useState<StudentProfile | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
-// In the JSX, replace usages:
+  useEffect(() => {
+    fetchProfile();
+  }, []);
 
-                <div>
-                  <Label htmlFor={isEditing ? "name" : undefined} className={DARK_LABEL_CLASS}>
-                    Full Name *
-                  </Label>
-                  {isEditing ? (
-                    <Input
-                      id="name"
-                      value={currentProfile?.name || ''}
-                      onChange={(e) => updateField('name', e.target.value)}
-                      className={DARK_INPUT_CLASS}
-                    />
-                  ) : (
-                    <InfoRow label="" icon={User}>
-                      {currentProfile?.name || 'Not provided'}
-                    </InfoRow>
-                  )}
-                </div>
+  const fetchProfile = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch('/api/student/profile');
+      if (res.ok) {
+        const data = await res.json();
+        setCurrentProfile(data.student);
+        setOriginalProfile(data.student);
+      } else {
+        // Handle unauthorized or error
+        if (res.status === 401) {
+          router.push('/student/login');
+        }
+      }
+    } catch (error) {
+      console.error('Failed to fetch profile', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-                <div>
-                  <Label className={DARK_LABEL_CLASS}>Email</Label>
-                  <InfoRow label="" icon={Mail}>
-                    {currentProfile?.email}
-                  </InfoRow>
-                </div>
+  const updateField = (field: keyof StudentProfile, value: any) => {
+    if (!currentProfile) return;
+    setCurrentProfile({
+      ...currentProfile,
+      [field]: value
+    });
+  };
 
-                <div>
-                  <Label htmlFor={isEditing ? "phoneNumber" : undefined} className={DARK_LABEL_CLASS}>
-                    Phone Number
-                  </Label>
-                  {isEditing ? (
-                    <Input
-                      id="phoneNumber"
-                      value={currentProfile?.phoneNumber || ''}
-                      onChange={(e) => updateField('phoneNumber', e.target.value)}
-                      className={DARK_INPUT_CLASS}
-                    />
-                  ) : (
-                    <InfoRow label="" icon={Phone}>
-                      {currentProfile?.phoneNumber || 'Not provided'}
-                    </InfoRow>
-                  )}
-                </div>
+  const handleEdit = () => {
+    setIsEditing(true);
+  };
 
-                <div>
-                  <Label htmlFor={isEditing ? "dateOfBirth" : undefined} className={DARK_LABEL_CLASS}>
-                    Date of Birth
-                  </Label>
-                  {isEditing ? (
-                    <Input
-                      id="dateOfBirth"
-                      type="date"
-                      value={currentProfile?.dateOfBirth || ''}
-                      onChange={(e) => updateField('dateOfBirth', e.target.value)}
-                      className={DARK_INPUT_CLASS}
-                    />
-                  ) : (
-                    <InfoRow label="" icon={Calendar}>
-                      {currentProfile?.dateOfBirth || 'Not provided'}
-                    </InfoRow>
-                  )}
-                </div>
+  const handleCancel = () => {
+    setCurrentProfile(originalProfile);
+    setIsEditing(false);
+  };
 
-                <div>
-                  <Label htmlFor={isEditing ? "gender" : undefined} className={DARK_LABEL_CLASS}>
-                    Gender
-                  </Label>
-                  {isEditing ? (
-                    <select
-                      id="gender"
-                      value={currentProfile?.gender || ''}
-                      onChange={(e) => updateField('gender', e.target.value)}
-                      className={DARK_INPUT_CLASS}
-                    >
-                      <option value="" className="bg-gray-900 text-gray-400">Select...</option>
-                      <option value="Male" className="bg-gray-900 text-white">Male</option>
-                      <option value="Female" className="bg-gray-900 text-white">Female</option>
-                      <option value="Non-binary" className="bg-gray-900 text-white">Non-binary</option>
-                      <option value="Prefer not to say" className="bg-gray-900 text-white">Prefer not to say</option>
-                    </select>
-                  ) : (
-                    <InfoRow label="" icon={User}>
-                      {currentProfile?.gender || 'Not provided'}
-                    </InfoRow>
-                  )}
-                </div>
+  const handleSave = async () => {
+    if (!currentProfile) return;
 
-                <div>
-                  <Label htmlFor={isEditing ? "nationality" : undefined} className={DARK_LABEL_CLASS}>
-                    Nationality
-                  </Label>
-                  {isEditing ? (
-                    <Input
-                      id="nationality"
-                      value={currentProfile?.nationality || ''}
-                      onChange={(e) => updateField('nationality', e.target.value)}
-                      className={DARK_INPUT_CLASS}
-                    />
-                  ) : (
-                    <InfoRow label="" icon={Globe}>
-                      {currentProfile?.nationality || 'Not provided'}
-                    </InfoRow>
-                  )}
-                </div>
+    setIsSaving(true);
+    try {
+      const res = await fetch('/api/student/profile', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(currentProfile),
+      });
 
-                <div>
-                  <Label htmlFor={isEditing ? "city" : undefined} className={DARK_LABEL_CLASS}>
-                    City
-                  </Label>
-                  {isEditing ? (
-                    <Input
-                      id="city"
-                      value={currentProfile?.city || ''}
-                      onChange={(e) => updateField('city', e.target.value)}
-                      className={DARK_INPUT_CLASS}
-                      placeholder="e.g., Paris, London, Tokyo"
-                    />
-                  ) : (
-                    <InfoRow label="" icon={MapPin}>
-                      {currentProfile?.city || 'Not provided'}
-                    </InfoRow>
-                  )}
-                </div>
+      if (res.ok) {
+        const data = await res.json();
+        setOriginalProfile(data.student);
+        setCurrentProfile(data.student);
+        setIsEditing(false);
+      } else {
+        // Handle error
+        console.error('Failed to update profile');
+      }
+    } catch (error) {
+      console.error('Error saving profile', error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
-                <div>
-                  <Label htmlFor={isEditing ? "timezone" : undefined} className={DARK_LABEL_CLASS}>
-                    Timezone
-                  </Label>
-                  {isEditing ? (
-                    <Input
-                      id="timezone"
-                      value={currentProfile?.timezone || ''}
-                      onChange={(e) => updateField('timezone', e.target.value)}
-                      className={DARK_INPUT_CLASS}
-                      placeholder="e.g., Europe/Paris"
-                    />
-                  ) : (
-                    <InfoRow label="" icon={Clock}>
-                      {currentProfile?.timezone || 'Not provided'}
-                    </InfoRow>
-                  )}
-                </div>
-              </div >
-            </SectionCard >
-
-    {/* Academic Information */ }
-    < SectionCard
-  title = "Academic Information"
-  icon = { GraduationCap }
-  delay = { 0.2}
-  accentGradient = "from-purple-400 via-purple-500 to-pink-500"
-  subtitle = "Your university and academic credentials"
-    >
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
-      <div>
-        <Label htmlFor={isEditing ? "institute" : undefined} className={DARK_LABEL_CLASS}>
-          University/Institute
-        </Label>
-        {isEditing ? (
-          <Input
-            id="institute"
-            value={currentProfile?.institute || ''}
-            onChange={(e) => updateField('institute', e.target.value)}
-            className={DARK_INPUT_CLASS}
-          />
-        ) : (
-          <InfoRow label="" icon={GraduationCap}>
-            {currentProfile?.institute || 'Not provided'}
-          </InfoRow>
-        )}
+  if (loading && !currentProfile) {
+    return (
+      <div className="min-h-screen bg-neutral-900 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
       </div>
-
-      <div>
-        <Label htmlFor={isEditing ? "campus" : undefined} className={DARK_LABEL_CLASS}>
-          Campus
-        </Label>
-        {isEditing ? (
-          <Input
-            id="campus"
-            value={currentProfile?.campus || ''}
-            onChange={(e) => updateField('campus', e.target.value)}
-            className={DARK_INPUT_CLASS}
-          />
-        ) : (
-          <InfoRow label="" icon={MapPin}>
-            {currentProfile?.campus || 'Not provided'}
-          </InfoRow>
-        )}
-      </div>
-
-      <div>
-        <Label htmlFor={isEditing ? "programDegree" : undefined} className={DARK_LABEL_CLASS}>
-          Program/Degree
-        </Label>
-        {isEditing ? (
-          <Input
-            id="programDegree"
-            value={currentProfile?.programDegree || ''}
-            onChange={(e) => updateField('programDegree', e.target.value)}
-            className={DARK_INPUT_CLASS}
-            placeholder="e.g., Bachelor of Computer Science"
-          />
-        ) : (
-          <InfoRow label="" icon={FileText}>
-            {currentProfile?.programDegree || 'Not provided'}
-          </InfoRow>
-        )}
-      </div>
-
-      <div>
-        <Label htmlFor={isEditing ? "yearOfStudy" : undefined} className={DARK_LABEL_CLASS}>
-          Year of Study
-        </Label>
-        {isEditing ? (
-          <Input
-            id="yearOfStudy"
-            value={currentProfile?.yearOfStudy || ''}
-            onChange={(e) => updateField('yearOfStudy', e.target.value)}
-            className={DARK_INPUT_CLASS}
-            placeholder="e.g., 2nd Year"
-          />
-        ) : (
-          <InfoRow label="" icon={Calendar}>
-            {currentProfile?.yearOfStudy || 'Not provided'}
-          </InfoRow>
-        )}
-      </div>
-
-      <div>
-        <Label htmlFor={isEditing ? "expectedGraduation" : undefined} className={DARK_LABEL_CLASS}>
-          Expected Graduation
-        </Label>
-        {isEditing ? (
-          <Input
-            id="expectedGraduation"
-            value={currentProfile?.expectedGraduation || ''}
-            onChange={(e) => updateField('expectedGraduation', e.target.value)}
-            className={DARK_INPUT_CLASS}
-            placeholder="e.g., May 2025"
-          />
-        ) : (
-          <InfoRow label="" icon={Calendar}>
-            {currentProfile?.expectedGraduation || 'Not provided'}
-          </InfoRow>
-        )}
-      </div>
-    </div>
-            </SectionCard >
-
-    {/* About You */ }
-    < SectionCard
-  title = "About You"
-  icon = { FileText }
-  delay = { 0.3}
-  accentGradient = "from-pink-400 via-purple-400 to-blue-400"
-  subtitle = "Tell tourists about yourself, your skills, and interests"
-    >
-    <div className="space-y-6">
-      <div>
-        <Label htmlFor={isEditing ? "bio" : undefined} className={DARK_LABEL_CLASS}>
-          Bio / Short Introduction
-        </Label>
-        {isEditing ? (
-          <Textarea
-            id="bio"
-            value={currentProfile?.bio || ''}
-            onChange={(e) => updateField('bio', e.target.value)}
-            className={`${DARK_INPUT_CLASS} min-h-[120px]`}
-            rows={5}
-            placeholder="Tell tourists about yourself..."
-          />
-        ) : (
-          <InfoRow label="" icon={FileText}>
-            <div className="whitespace-pre-wrap">
-              {currentProfile?.bio || 'Not provided'}
-            </div>
-          </InfoRow>
-        )}
-      </div>
-
-      <div>
-        <Label htmlFor={isEditing ? "preferredGuideStyle" : undefined} className={DARK_LABEL_CLASS}>
-          Preferred Guide Style
-        </Label>
-        {isEditing ? (
-          <Input
-            id="preferredGuideStyle"
-            value={currentProfile?.preferredGuideStyle || ''}
-            onChange={(e) => updateField('preferredGuideStyle', e.target.value)}
-            className={DARK_INPUT_CLASS}
-            placeholder="e.g., Interactive, Educational, Fun & Casual"
-          />
-        ) : (
-          <InfoRow label="">
-            {currentProfile?.preferredGuideStyle || 'Not provided'}
-          </InfoRow>
-        )}
-      </div>
-
-      <div>
-        <Label htmlFor={isEditing ? "skills" : undefined} className={DARK_LABEL_CLASS}>
-          Skills
-        </Label>
-        {isEditing ? (
-          <Input
-            id="skills"
-            value={currentProfile?.skills?.join(', ') || ''}
-            onChange={(e) => updateField('skills', parseArrayInput(e.target.value))}
-            className={DARK_INPUT_CLASS}
-            placeholder="e.g., Photography, History, Food Tours"
-          />
-        ) : (
-          <div className="flex flex-wrap gap-2">
-            {currentProfile?.skills && currentProfile.skills.length > 0 ? (
-              currentProfile.skills.map((skill, idx) => (
-                <SkillChip key={`${skill}-${idx}`} label={skill} variant="blue" />
-              ))
-            ) : (
-              <p className="text-gray-500 italic">No skills listed</p>
-            )}
-          </div>
-        )}
-      </div>
-
-      <div>
-        <Label htmlFor={isEditing ? "interests" : undefined} className={DARK_LABEL_CLASS}>
-          Interests
-        </Label>
-        {isEditing ? (
-          <Input
-            id="interests"
-            value={currentProfile?.interests?.join(', ') || ''}
-            onChange={(e) => updateField('interests', parseArrayInput(e.target.value))}
-            className={DARK_INPUT_CLASS}
-            placeholder="e.g., Art, Music, Sports"
-          />
-        ) : (
-          <div className="flex flex-wrap gap-2">
-            {currentProfile?.interests && currentProfile.interests.length > 0 ? (
-              currentProfile.interests.map((interest, idx) => (
-                <SkillChip key={`${interest}-${idx}`} label={interest} variant="purple" />
-              ))
-            ) : (
-              <p className="text-gray-500 italic">No interests listed</p>
-            )}
-          </div>
-        )}
-      </div>
-    </div>
-            </SectionCard >
-
-    {/* Service Preferences */ }
-    < SectionCard
-  title = "Service Preferences"
-  icon = { DollarSign }
-  delay = { 0.4}
-  accentGradient = "from-green-400 via-teal-400 to-blue-400"
-  subtitle = "Your rates and services you offer to tourists"
-    >
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
-      <div>
-        <Label htmlFor={isEditing ? "hourlyRate" : undefined} className={DARK_LABEL_CLASS}>
-          Hourly Rate (USD)
-        </Label>
-        {isEditing ? (
-          <Input
-            id="hourlyRate"
-            type="number"
-            value={currentProfile?.hourlyRate?.toString() || ''}
-            onChange={(e) => {
-              const val = parseFloat(e.target.value);
-              updateField('hourlyRate', isNaN(val) ? 0 : val);
-            }}
-            className="bg-white/80 border-gray-300 focus:border-ui-blue-accent"
-            min="0"
-            step="0.01"
-          />
-        ) : (
-          <InfoRow label="" icon={DollarSign}>
-            ${currentProfile?.hourlyRate || '0'} / hour
-          </InfoRow>
-        )}
-      </div>
-
-      <div className="md:col-span-2">
-        <Label htmlFor={isEditing ? "servicesOffered" : undefined} className="text-gray-700 font-semibold mb-3 block">
-          Services Offered
-        </Label>
-        {isEditing ? (
-          <Input
-            id="servicesOffered"
-            value={currentProfile?.servicesOffered?.join(', ') || ''}
-            onChange={(e) => updateField('servicesOffered', parseArrayInput(e.target.value))}
-            className="bg-white/80 border-gray-300 focus:border-ui-blue-accent"
-            placeholder="e.g., City Tours, Food Tours, Museum Visits"
-          />
-        ) : (
-          <div className="flex flex-wrap gap-2">
-            {currentProfile?.servicesOffered && currentProfile.servicesOffered.length > 0 ? (
-              currentProfile.servicesOffered.map((service, idx) => (
-                <SkillChip key={`${service}-${idx}`} label={service} variant="green" />
-              ))
-            ) : (
-              <p className="text-gray-500 italic">No services listed</p>
-            )}
-          </div>
-        )}
-      </div>
-    </div>
-            </SectionCard >
-
-
-
-    {/* Emergency Contact */ }
-    < SectionCard
-  title = "Emergency Contact"
-  icon = { Shield }
-  delay = { 0.6}
-  accentGradient = "from-red-400 via-orange-400 to-yellow-400"
-  subtitle = "For safety and security purposes"
-    >
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
-      <div>
-        <Label htmlFor={isEditing ? "emergencyContactName" : undefined} className="text-gray-700 font-semibold mb-2 block">
-          Contact Name
-        </Label>
-        {isEditing ? (
-          <Input
-            id="emergencyContactName"
-            value={currentProfile?.emergencyContactName || ''}
-            onChange={(e) => updateField('emergencyContactName', e.target.value)}
-            className="bg-white/80 border-gray-300 focus:border-ui-blue-accent"
-          />
-        ) : (
-          <InfoRow label="" icon={User}>
-            {currentProfile?.emergencyContactName || 'Not provided'}
-          </InfoRow>
-        )}
-      </div>
-
-      <div>
-        <Label htmlFor={isEditing ? "emergencyContactPhone" : undefined} className="text-gray-700 font-semibold mb-2 block">
-          Contact Phone
-        </Label>
-        {isEditing ? (
-          <Input
-            id="emergencyContactPhone"
-            value={currentProfile?.emergencyContactPhone || ''}
-            onChange={(e) => updateField('emergencyContactPhone', e.target.value)}
-            className="bg-white/80 border-gray-300 focus:border-ui-blue-accent"
-          />
-        ) : (
-          <InfoRow label="" icon={Phone}>
-            {currentProfile?.emergencyContactPhone || 'Not provided'}
-          </InfoRow>
-        )}
-      </div>
-    </div>
-            </SectionCard >
-
-    {/* Bottom Action Buttons in Edit Mode */ }
-  {
-    isEditing && (
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="glass-card rounded-2xl p-6 shadow-premium border border-white/60 backdrop-blur-lg"
-      >
-        <div className="flex items-center justify-end gap-4">
-          <ProfileActions
-            isEditing={isEditing}
-            isSaving={isSaving}
-            onEdit={handleEdit}
-            onCancel={handleCancel}
-            onSave={handleSave}
-          />
-        </div>
-      </motion.div>
-    )
+    );
   }
 
-  {/* Bottom Spacing */ }
-  <div className="h-8" />
-          </div >
-        </div >
-      </div >
+  return (
+    <>
+      <Navigation />
+      <div className="min-h-screen relative bg-neutral-900 text-white overflow-hidden font-sans selection:bg-purple-500/30">
+
+        {/* Background */}
+        <div className="fixed inset-0 z-0">
+          <ProfileBackground />
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-neutral-900/80 to-neutral-900" />
+        </div>
+
+        <div className="relative z-10 pt-24 pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+          {/* Header Section */}
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+            <div>
+              <h1 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white via-purple-100 to-purple-200">
+                My Profile
+              </h1>
+              <p className="text-gray-400 mt-2 text-lg">
+                Manage your personal information and preferences
+              </p>
+            </div>
+
+            {/* Top Edit Button */}
+            <div className="hidden md:block">
+              <ProfileActions
+                isEditing={isEditing}
+                isSaving={isSaving}
+                onEdit={handleEdit}
+                onCancel={handleCancel}
+                onSave={handleSave}
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Left Column - Profile Card */}
+            <div className="lg:col-span-1 space-y-6">
+              <div className="glass-card rounded-2xl p-6 md:p-8 flex flex-col items-center text-center relative overflow-hidden group border border-white/10 backdrop-blur-md bg-white/5">
+                <div className="absolute inset-0 bg-gradient-to-b from-purple-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+                <div className="relative mb-6">
+                  <div className="w-32 h-32 rounded-full overflow-hidden ring-4 ring-white/10 shadow-2xl relative">
+                    {currentProfile?.profilePhotoUrl ? (
+                      <Image
+                        src={currentProfile.profilePhotoUrl}
+                        alt={currentProfile.name}
+                        fill
+                        className="object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center">
+                        <User className="w-12 h-12 text-white/50" />
+                      </div>
+                    )}
+                  </div>
+                  {isEditing && (
+                    <button className="absolute bottom-0 right-0 p-2 bg-purple-600 rounded-full text-white shadow-lg hover:bg-purple-500 transition-colors">
+                      <CameraIcon className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+
+                <h2 className="text-2xl font-bold text-white mb-1">
+                  {currentProfile?.name}
+                </h2>
+                <div className="text-purple-300 font-medium mb-4 flex items-center gap-2">
+                  <GraduationCap className="w-4 h-4" />
+                  {currentProfile?.programDegree || 'Student'}
+                </div>
+
+                <div className="w-full border-t border-white/10 my-6" />
+
+                <div className="grid grid-cols-2 gap-4 w-full">
+                  <StatCard
+                    label="Trips Hosted"
+                    value={currentProfile?.tripsHosted?.toString() || '0'}
+                    icon={Globe}
+                    accentColor="blue"
+                  />
+                  <StatCard
+                    label="Rating"
+                    value={currentProfile?.averageRating?.toFixed(1) || 'N/A'}
+                    icon={Star}
+                    accentColor="yellow"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Right Column - Details */}
+            <div className="lg:col-span-2 space-y-6">
+
+              {/* Personal Information */}
+              <SectionCard
+                title="Personal Information"
+                icon={User}
+                delay={0.1}
+                accentGradient="from-blue-400 via-indigo-500 to-purple-500"
+                subtitle="Your basic personal details"
+              >
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                  <div>
+                    <Label htmlFor={isEditing ? "name" : undefined} className={DARK_LABEL_CLASS}>
+                      Full Name *
+                    </Label>
+                    {isEditing ? (
+                      <Input
+                        id="name"
+                        value={currentProfile?.name || ''}
+                        onChange={(e) => updateField('name', e.target.value)}
+                        className={DARK_INPUT_CLASS}
+                      />
+                    ) : (
+                      <InfoRow label="" icon={User}>
+                        {currentProfile?.name || 'Not provided'}
+                      </InfoRow>
+                    )}
+                  </div>
+
+                  <div>
+                    <Label className={DARK_LABEL_CLASS}>Email</Label>
+                    <InfoRow label="" icon={Mail}>
+                      {currentProfile?.email}
+                    </InfoRow>
+                  </div>
+
+                  <div>
+                    <Label htmlFor={isEditing ? "phoneNumber" : undefined} className={DARK_LABEL_CLASS}>
+                      Phone Number
+                    </Label>
+                    {isEditing ? (
+                      <Input
+                        id="phoneNumber"
+                        value={currentProfile?.phoneNumber || ''}
+                        onChange={(e) => updateField('phoneNumber', e.target.value)}
+                        className={DARK_INPUT_CLASS}
+                      />
+                    ) : (
+                      <InfoRow label="" icon={Phone}>
+                        {currentProfile?.phoneNumber || 'Not provided'}
+                      </InfoRow>
+                    )}
+                  </div>
+
+                  <div>
+                    <Label htmlFor={isEditing ? "dateOfBirth" : undefined} className={DARK_LABEL_CLASS}>
+                      Date of Birth
+                    </Label>
+                    {isEditing ? (
+                      <Input
+                        id="dateOfBirth"
+                        type="date"
+                        value={currentProfile?.dateOfBirth ? new Date(currentProfile.dateOfBirth).toISOString().split('T')[0] : ''}
+                        onChange={(e) => updateField('dateOfBirth', e.target.value)}
+                        className={DARK_INPUT_CLASS}
+                      />
+                    ) : (
+                      <InfoRow label="" icon={Calendar}>
+                        {currentProfile?.dateOfBirth ? new Date(currentProfile.dateOfBirth).toLocaleDateString() : 'Not provided'}
+                      </InfoRow>
+                    )}
+                  </div>
+
+                  <div>
+                    <Label htmlFor={isEditing ? "gender" : undefined} className={DARK_LABEL_CLASS}>
+                      Gender
+                    </Label>
+                    {isEditing ? (
+                      <select
+                        id="gender"
+                        value={currentProfile?.gender || ''}
+                        onChange={(e) => updateField('gender', e.target.value)}
+                        className={DARK_INPUT_CLASS}
+                      >
+                        <option value="" className="bg-gray-900 text-gray-400">Select...</option>
+                        <option value="Male" className="bg-gray-900 text-white">Male</option>
+                        <option value="Female" className="bg-gray-900 text-white">Female</option>
+                        <option value="Non-binary" className="bg-gray-900 text-white">Non-binary</option>
+                        <option value="Prefer not to say" className="bg-gray-900 text-white">Prefer not to say</option>
+                      </select>
+                    ) : (
+                      <InfoRow label="" icon={User}>
+                        {currentProfile?.gender || 'Not provided'}
+                      </InfoRow>
+                    )}
+                  </div>
+
+                  <div>
+                    <Label htmlFor={isEditing ? "nationality" : undefined} className={DARK_LABEL_CLASS}>
+                      Nationality
+                    </Label>
+                    {isEditing ? (
+                      <Input
+                        id="nationality"
+                        value={currentProfile?.nationality || ''}
+                        onChange={(e) => updateField('nationality', e.target.value)}
+                        className={DARK_INPUT_CLASS}
+                      />
+                    ) : (
+                      <InfoRow label="" icon={Globe}>
+                        {currentProfile?.nationality || 'Not provided'}
+                      </InfoRow>
+                    )}
+                  </div>
+
+                  <div>
+                    <Label htmlFor={isEditing ? "city" : undefined} className={DARK_LABEL_CLASS}>
+                      City
+                    </Label>
+                    {isEditing ? (
+                      <Input
+                        id="city"
+                        value={currentProfile?.city || ''}
+                        onChange={(e) => updateField('city', e.target.value)}
+                        className={DARK_INPUT_CLASS}
+                        placeholder="e.g., Paris, London, Tokyo"
+                      />
+                    ) : (
+                      <InfoRow label="" icon={MapPin}>
+                        {currentProfile?.city || 'Not provided'}
+                      </InfoRow>
+                    )}
+                  </div>
+
+                  <div>
+                    <Label htmlFor={isEditing ? "timezone" : undefined} className={DARK_LABEL_CLASS}>
+                      Timezone
+                    </Label>
+                    {isEditing ? (
+                      <Input
+                        id="timezone"
+                        value={currentProfile?.timezone || ''}
+                        onChange={(e) => updateField('timezone', e.target.value)}
+                        className={DARK_INPUT_CLASS}
+                        placeholder="e.g., Europe/Paris"
+                      />
+                    ) : (
+                      <InfoRow label="" icon={Clock}>
+                        {currentProfile?.timezone || 'Not provided'}
+                      </InfoRow>
+                    )}
+                  </div>
+                </div>
+              </SectionCard>
+
+              {/* Academic Information */}
+              <SectionCard
+                title="Academic Information"
+                icon={GraduationCap}
+                delay={0.2}
+                accentGradient="from-purple-400 via-purple-500 to-pink-500"
+                subtitle="Your university and academic credentials"
+              >
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                  <div>
+                    <Label htmlFor={isEditing ? "institute" : undefined} className={DARK_LABEL_CLASS}>
+                      University/Institute
+                    </Label>
+                    {isEditing ? (
+                      <Input
+                        id="institute"
+                        value={currentProfile?.institute || ''}
+                        onChange={(e) => updateField('institute', e.target.value)}
+                        className={DARK_INPUT_CLASS}
+                      />
+                    ) : (
+                      <InfoRow label="" icon={GraduationCap}>
+                        {currentProfile?.institute || 'Not provided'}
+                      </InfoRow>
+                    )}
+                  </div>
+
+                  <div>
+                    <Label htmlFor={isEditing ? "campus" : undefined} className={DARK_LABEL_CLASS}>
+                      Campus
+                    </Label>
+                    {isEditing ? (
+                      <Input
+                        id="campus"
+                        value={currentProfile?.campus || ''}
+                        onChange={(e) => updateField('campus', e.target.value)}
+                        className={DARK_INPUT_CLASS}
+                      />
+                    ) : (
+                      <InfoRow label="" icon={MapPin}>
+                        {currentProfile?.campus || 'Not provided'}
+                      </InfoRow>
+                    )}
+                  </div>
+
+                  <div>
+                    <Label htmlFor={isEditing ? "programDegree" : undefined} className={DARK_LABEL_CLASS}>
+                      Program/Degree
+                    </Label>
+                    {isEditing ? (
+                      <Input
+                        id="programDegree"
+                        value={currentProfile?.programDegree || ''}
+                        onChange={(e) => updateField('programDegree', e.target.value)}
+                        className={DARK_INPUT_CLASS}
+                        placeholder="e.g., Bachelor of Computer Science"
+                      />
+                    ) : (
+                      <InfoRow label="" icon={FileText}>
+                        {currentProfile?.programDegree || 'Not provided'}
+                      </InfoRow>
+                    )}
+                  </div>
+
+                  <div>
+                    <Label htmlFor={isEditing ? "yearOfStudy" : undefined} className={DARK_LABEL_CLASS}>
+                      Year of Study
+                    </Label>
+                    {isEditing ? (
+                      <Input
+                        id="yearOfStudy"
+                        value={currentProfile?.yearOfStudy || ''}
+                        onChange={(e) => updateField('yearOfStudy', e.target.value)}
+                        className={DARK_INPUT_CLASS}
+                        placeholder="e.g., 2nd Year"
+                      />
+                    ) : (
+                      <InfoRow label="" icon={Calendar}>
+                        {currentProfile?.yearOfStudy || 'Not provided'}
+                      </InfoRow>
+                    )}
+                  </div>
+
+                  <div>
+                    <Label htmlFor={isEditing ? "expectedGraduation" : undefined} className={DARK_LABEL_CLASS}>
+                      Expected Graduation
+                    </Label>
+                    {isEditing ? (
+                      <Input
+                        id="expectedGraduation"
+                        value={currentProfile?.expectedGraduation || ''}
+                        onChange={(e) => updateField('expectedGraduation', e.target.value)}
+                        className={DARK_INPUT_CLASS}
+                        placeholder="e.g., May 2025"
+                      />
+                    ) : (
+                      <InfoRow label="" icon={Calendar}>
+                        {currentProfile?.expectedGraduation || 'Not provided'}
+                      </InfoRow>
+                    )}
+                  </div>
+                </div>
+              </SectionCard>
+
+              {/* About You */}
+              <SectionCard
+                title="About You"
+                icon={FileText}
+                delay={0.3}
+                accentGradient="from-pink-400 via-purple-400 to-blue-400"
+                subtitle="Tell tourists about yourself, your skills, and interests"
+              >
+                <div className="space-y-6">
+                  <div>
+                    <Label htmlFor={isEditing ? "bio" : undefined} className={DARK_LABEL_CLASS}>
+                      Bio / Short Introduction
+                    </Label>
+                    {isEditing ? (
+                      <Textarea
+                        id="bio"
+                        value={currentProfile?.bio || ''}
+                        onChange={(e) => updateField('bio', e.target.value)}
+                        className={`${DARK_INPUT_CLASS} min-h-[120px]`}
+                        rows={5}
+                        placeholder="Tell tourists about yourself..."
+                      />
+                    ) : (
+                      <InfoRow label="" icon={FileText}>
+                        <div className="whitespace-pre-wrap">
+                          {currentProfile?.bio || 'Not provided'}
+                        </div>
+                      </InfoRow>
+                    )}
+                  </div>
+
+                  <div>
+                    <Label htmlFor={isEditing ? "preferredGuideStyle" : undefined} className={DARK_LABEL_CLASS}>
+                      Preferred Guide Style
+                    </Label>
+                    {isEditing ? (
+                      <Input
+                        id="preferredGuideStyle"
+                        value={currentProfile?.preferredGuideStyle || ''}
+                        onChange={(e) => updateField('preferredGuideStyle', e.target.value)}
+                        className={DARK_INPUT_CLASS}
+                        placeholder="e.g., Interactive, Educational, Fun & Casual"
+                      />
+                    ) : (
+                      <InfoRow label="">
+                        {currentProfile?.preferredGuideStyle || 'Not provided'}
+                      </InfoRow>
+                    )}
+                  </div>
+
+                  <div>
+                    <Label htmlFor={isEditing ? "skills" : undefined} className={DARK_LABEL_CLASS}>
+                      Skills
+                    </Label>
+                    {isEditing ? (
+                      <Input
+                        id="skills"
+                        value={currentProfile?.skills?.join(', ') || ''}
+                        onChange={(e) => updateField('skills', parseArrayInput(e.target.value))}
+                        className={DARK_INPUT_CLASS}
+                        placeholder="e.g., Photography, History, Food Tours"
+                      />
+                    ) : (
+                      <div className="flex flex-wrap gap-2">
+                        {currentProfile?.skills && currentProfile.skills.length > 0 ? (
+                          currentProfile.skills.map((skill, idx) => (
+                            <SkillChip key={`${skill}-${idx}`} label={skill} variant="blue" />
+                          ))
+                        ) : (
+                          <p className="text-gray-500 italic">No skills listed</p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  <div>
+                    <Label htmlFor={isEditing ? "interests" : undefined} className={DARK_LABEL_CLASS}>
+                      Interests
+                    </Label>
+                    {isEditing ? (
+                      <Input
+                        id="interests"
+                        value={currentProfile?.interests?.join(', ') || ''}
+                        onChange={(e) => updateField('interests', parseArrayInput(e.target.value))}
+                        className={DARK_INPUT_CLASS}
+                        placeholder="e.g., Art, Music, Sports"
+                      />
+                    ) : (
+                      <div className="flex flex-wrap gap-2">
+                        {currentProfile?.interests && currentProfile.interests.length > 0 ? (
+                          currentProfile.interests.map((interest, idx) => (
+                            <SkillChip key={`${interest}-${idx}`} label={interest} variant="purple" />
+                          ))
+                        ) : (
+                          <p className="text-gray-500 italic">No interests listed</p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </SectionCard>
+
+              {/* Service Preferences */}
+              <SectionCard
+                title="Service Preferences"
+                icon={DollarSign}
+                delay={0.4}
+                accentGradient="from-green-400 via-teal-400 to-blue-400"
+                subtitle="Your rates and services you offer to tourists"
+              >
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                  <div>
+                    <Label htmlFor={isEditing ? "hourlyRate" : undefined} className={DARK_LABEL_CLASS}>
+                      Hourly Rate (USD)
+                    </Label>
+                    {isEditing ? (
+                      <Input
+                        id="hourlyRate"
+                        type="number"
+                        value={currentProfile?.hourlyRate?.toString() || ''}
+                        onChange={(e) => {
+                          const val = parseFloat(e.target.value);
+                          updateField('hourlyRate', isNaN(val) ? 0 : val);
+                        }}
+                        className={DARK_INPUT_CLASS}
+                        min="0"
+                        step="0.01"
+                      />
+                    ) : (
+                      <InfoRow label="" icon={DollarSign}>
+                        ${currentProfile?.hourlyRate || '0'} / hour
+                      </InfoRow>
+                    )}
+                  </div>
+
+                  <div className="md:col-span-2">
+                    <Label htmlFor={isEditing ? "servicesOffered" : undefined} className={DARK_LABEL_CLASS}>
+                      Services Offered
+                    </Label>
+                    {isEditing ? (
+                      <Input
+                        id="servicesOffered"
+                        value={currentProfile?.servicesOffered?.join(', ') || ''}
+                        onChange={(e) => updateField('servicesOffered', parseArrayInput(e.target.value))}
+                        className={DARK_INPUT_CLASS}
+                        placeholder="e.g., City Tours, Food Tours, Museum Visits"
+                      />
+                    ) : (
+                      <div className="flex flex-wrap gap-2">
+                        {currentProfile?.servicesOffered && currentProfile.servicesOffered.length > 0 ? (
+                          currentProfile.servicesOffered.map((service, idx) => (
+                            <SkillChip key={`${service}-${idx}`} label={service} variant="green" />
+                          ))
+                        ) : (
+                          <p className="text-gray-500 italic">No services listed</p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </SectionCard>
+
+              {/* Emergency Contact */}
+              <SectionCard
+                title="Emergency Contact"
+                icon={Shield}
+                delay={0.6}
+                accentGradient="from-red-400 via-orange-400 to-yellow-400"
+                subtitle="For safety and security purposes"
+              >
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                  <div>
+                    <Label htmlFor={isEditing ? "emergencyContactName" : undefined} className={DARK_LABEL_CLASS}>
+                      Contact Name
+                    </Label>
+                    {isEditing ? (
+                      <Input
+                        id="emergencyContactName"
+                        value={currentProfile?.emergencyContactName || ''}
+                        onChange={(e) => updateField('emergencyContactName', e.target.value)}
+                        className={DARK_INPUT_CLASS}
+                      />
+                    ) : (
+                      <InfoRow label="" icon={User}>
+                        {currentProfile?.emergencyContactName || 'Not provided'}
+                      </InfoRow>
+                    )}
+                  </div>
+
+                  <div>
+                    <Label htmlFor={isEditing ? "emergencyContactPhone" : undefined} className={DARK_LABEL_CLASS}>
+                      Contact Phone
+                    </Label>
+                    {isEditing ? (
+                      <Input
+                        id="emergencyContactPhone"
+                        value={currentProfile?.emergencyContactPhone || ''}
+                        onChange={(e) => updateField('emergencyContactPhone', e.target.value)}
+                        className={DARK_INPUT_CLASS}
+                      />
+                    ) : (
+                      <InfoRow label="" icon={Phone}>
+                        {currentProfile?.emergencyContactPhone || 'Not provided'}
+                      </InfoRow>
+                    )}
+                  </div>
+                </div>
+              </SectionCard>
+
+              {/* Bottom Action Buttons in Edit Mode */}
+              {isEditing && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="glass-card rounded-2xl p-6 shadow-premium border border-white/60 backdrop-blur-lg"
+                >
+                  <div className="flex items-center justify-end gap-4">
+                    <ProfileActions
+                      isEditing={isEditing}
+                      isSaving={isSaving}
+                      onEdit={handleEdit}
+                      onCancel={handleCancel}
+                      onSave={handleSave}
+                    />
+                  </div>
+                </motion.div>
+              )}
+
+              {/* Bottom Spacing */}
+              <div className="h-8" />
+            </div>
+          </div>
+        </div>
+      </div>
     </>
   );
 }
+
+// Icon for the profile picture edit button
+const CameraIcon = ({ className }: { className?: string }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+  >
+    <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z" />
+    <circle cx="12" cy="13" r="3" />
+  </svg>
+);

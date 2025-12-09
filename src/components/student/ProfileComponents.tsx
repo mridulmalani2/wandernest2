@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { LucideIcon } from 'lucide-react';
+import { LucideIcon, Activity } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 /**
@@ -33,8 +33,9 @@ export function InfoRow({ label, children, icon: Icon }: InfoRowProps) {
 interface StatCardProps {
   label: string;
   value: string | number;
-  icon: LucideIcon;
-  accentColor: 'blue' | 'purple' | 'pink' | 'yellow';
+  icon?: LucideIcon;
+  accentColor?: 'blue' | 'purple' | 'pink' | 'yellow';
+  delay?: number;
 }
 
 const accentColors = {
@@ -64,13 +65,20 @@ const accentColors = {
   },
 };
 
-export function StatCard({ label, value, icon: Icon, accentColor }: StatCardProps) {
+export function StatCard({
+  label,
+  value,
+  icon: Icon = Activity,
+  accentColor = 'blue',
+  delay = 0
+}: StatCardProps) {
   const colors = accentColors[accentColor] || accentColors.blue;
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
+      transition={{ delay }}
       className={`glass-card-dark rounded-2xl p-5 border ${colors.border} ${colors.bg} backdrop-blur-lg shadow-premium hover-lift`}
     >
       <div className="flex items-center gap-3">
