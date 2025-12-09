@@ -1,48 +1,20 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Session } from 'next-auth';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import dynamic from 'next/dynamic';
 import { Button } from '@/components/ui/button';
-import Navigation from '@/components/Navigation';
-import { FormProgressHeader } from '@/components/shared/FormProgressHeader';
 import { PrimaryCTAButton } from '@/components/ui/PrimaryCTAButton';
 import { AlertTriangle } from 'lucide-react';
 
-// Dynamically import step components to reduce initial bundle size
-// Each step loads only when needed
-const BasicProfileStep = dynamic(() => import('./BasicProfileStep').then(mod => ({ default: mod.BasicProfileStep })), {
-  loading: () => <div className="flex justify-center p-8"><div className="animate-spin h-8 w-8 border-4 border-ui-blue-primary border-t-transparent rounded-full" /></div>
-});
-
-const StudentVerificationStep = dynamic(() => import('./StudentVerificationStep').then(mod => ({ default: mod.StudentVerificationStep })), {
-  loading: () => <div className="flex justify-center p-8"><div className="animate-spin h-8 w-8 border-4 border-ui-blue-primary border-t-transparent rounded-full" /></div>
-});
-
-const CoverLetterStep = dynamic(() => import('./CoverLetterStep').then(mod => ({ default: mod.CoverLetterStep })), {
-  loading: () => <div className="flex justify-center p-8"><div className="animate-spin h-8 w-8 border-4 border-ui-blue-primary border-t-transparent rounded-full" /></div>
-});
-
-const AvailabilityStep = dynamic(() => import('./AvailabilityStep').then(mod => ({ default: mod.AvailabilityStep })), {
-  loading: () => <div className="flex justify-center p-8"><div className="animate-spin h-8 w-8 border-4 border-ui-blue-primary border-t-transparent rounded-full" /></div>
-});
-
-const ServicePreferencesStep = dynamic(() => import('./ServicePreferencesStep').then(mod => ({ default: mod.ServicePreferencesStep })), {
-  loading: () => <div className="flex justify-center p-8"><div className="animate-spin h-8 w-8 border-4 border-ui-blue-primary border-t-transparent rounded-full" /></div>
-});
-
-const SafetyComplianceStep = dynamic(() => import('./SafetyComplianceStep').then(mod => ({ default: mod.SafetyComplianceStep })), {
-  loading: () => <div className="flex justify-center p-8"><div className="animate-spin h-8 w-8 border-4 border-ui-blue-primary border-t-transparent rounded-full" /></div>
-});
-
-const ReviewSubmitStep = dynamic(() => import('./ReviewSubmitStep').then(mod => ({ default: mod.ReviewSubmitStep })), {
-  loading: () => <div className="flex justify-center p-8"><div className="animate-spin h-8 w-8 border-4 border-ui-blue-primary border-t-transparent rounded-full" /></div>
-});
+// Static imports for single page flow
+import { BasicProfileStep } from './BasicProfileStep';
+import { StudentVerificationStep } from './StudentVerificationStep';
+import { SafetyComplianceStep } from './SafetyComplianceStep';
 
 export type OnboardingFormData = {
-  // Step 1: Basic Profile - Personal Details
+  // Personal Details
   name: string;
   dateOfBirth: string;
   gender: 'male' | 'female' | 'prefer_not_to_say' | '';
@@ -52,14 +24,14 @@ export type OnboardingFormData = {
   city: string;
   campus: string;
 
-  // Step 1: Basic Profile - Academic Details
+  // Academic Details
   institute: string;
   programDegree: string;
   yearOfStudy: string;
   expectedGraduation: string;
   languages: string[];
 
-  // Step 2: Identity Verification
+  // Identity Verification
   studentIdFile: File | null;
   studentIdPreview: string;
   studentIdExpiry: string;
@@ -73,49 +45,17 @@ export type OnboardingFormData = {
   documentsOwnedConfirmation: boolean;
   verificationConsent: boolean;
 
-  // Step 3: Profile Information
-  bio: string;
-  skills: string[];
-  preferredGuideStyle: string;
-  coverLetter: string;
-  interests: string[];
+  // Security (Optional)
+  password?: string;
+  confirmPassword?: string;
 
-  // Step 4: Availability
-  availability: Array<{
-    dayOfWeek: number;
-    startTime: string;
-    endTime: string;
-    note?: string;
-  }>;
-  unavailabilityExceptions: Array<{
-    date: string;
-    reason?: string;
-  }>;
-  timezone: string;
-  preferredDurations: string[];
-
-  // Step 5: Service Preferences
-  servicesOffered: string[];
-  hourlyRate: string;
-  onlineServicesAvailable: boolean;
-
-  // Step 6: Safety & Compliance
+  // Safety & Compliance
   termsAccepted: boolean;
   safetyGuidelinesAccepted: boolean;
   independentGuideAcknowledged: boolean;
   emergencyContactName: string;
   emergencyContactPhone: string;
 };
-
-const STEPS = [
-  { id: 1, name: 'Basic Profile', description: 'Personal & academic info' },
-  { id: 2, name: 'Verification', description: 'Identity verification' },
-  { id: 3, name: 'Profile', description: 'Your guide profile' },
-  { id: 4, name: 'Availability', description: 'Set your schedule' },
-  { id: 5, name: 'Services', description: 'Service preferences' },
-  { id: 6, name: 'Safety', description: 'Terms & safety' },
-  { id: 7, name: 'Review', description: 'Review and submit' },
-];
 
 const CITIES = ['Paris', 'London'];
 
@@ -125,11 +65,10 @@ interface OnboardingWizardProps {
 
 export function OnboardingWizard({ session }: OnboardingWizardProps) {
   const router = useRouter();
-  const [currentStep, setCurrentStep] = useState(1);
-  const [completedSteps, setCompletedSteps] = useState<number[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
   const [formData, setFormData] = useState<OnboardingFormData>({
-    // Step 1: Basic Profile
+    // Basic Profile
     name: session.user.name || '',
     dateOfBirth: '',
     gender: '',
@@ -144,7 +83,7 @@ export function OnboardingWizard({ session }: OnboardingWizardProps) {
     expectedGraduation: '',
     languages: [],
 
-    // Step 2: Identity Verification
+    // Identity Verification (Files not persisted in localStorage)
     studentIdFile: null,
     studentIdPreview: '',
     studentIdExpiry: '',
@@ -158,222 +97,126 @@ export function OnboardingWizard({ session }: OnboardingWizardProps) {
     documentsOwnedConfirmation: false,
     verificationConsent: false,
 
-    // Step 3: Profile Information
-    bio: '',
-    skills: [],
-    preferredGuideStyle: '',
-    coverLetter: '',
-    interests: [],
-
-    // Step 4: Availability
-    availability: [],
-    unavailabilityExceptions: [],
-    timezone: 'Europe/Paris', // Default to first available option to match dropdown
-    preferredDurations: [],
-
-    // Step 5: Service Preferences
-    servicesOffered: [],
-    hourlyRate: '',
-    onlineServicesAvailable: false,
-
-    // Step 6: Safety & Compliance
+    // Safety & Compliance
     termsAccepted: false,
     safetyGuidelinesAccepted: false,
     independentGuideAcknowledged: false,
     emergencyContactName: '',
     emergencyContactPhone: '',
+
+
   });
+
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [restored, setRestored] = useState(false);
+
+  // REMOVED LocalStorage logic as per user request to "not keep data"
 
   const updateFormData = (data: Partial<OnboardingFormData>) => {
     setFormData((prev) => ({ ...prev, ...data }));
-    // Clear errors for updated fields safely
     setErrors((prevErrors) => {
       const newErrors = { ...prevErrors };
-      Object.keys(data).forEach((key) => {
-        delete newErrors[key];
-      });
+      Object.keys(data).forEach((key) => delete newErrors[key]);
       return newErrors;
     });
   };
 
-  const validateStep = (step: number): boolean => {
+  const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
 
-    // Step 1: Basic Profile
-    if (step === 1) {
-      if (!formData.name.trim()) newErrors.name = 'Name is required';
-      if (!formData.dateOfBirth) newErrors.dateOfBirth = 'Date of birth is required';
-      if (!formData.gender) newErrors.gender = 'Gender selection is required';
-      if (!formData.nationality.trim()) newErrors.nationality = 'Nationality is required';
-      if (!formData.phoneNumber.trim()) newErrors.phoneNumber = 'Phone number is required';
-      if (!formData.city) newErrors.city = 'City selection is required';
-      if (!formData.campus) newErrors.campus = 'Campus selection is required';
-      if (!formData.institute.trim()) newErrors.institute = 'University name is required';
-      if (!formData.programDegree.trim()) newErrors.programDegree = 'Program/Degree is required';
-      if (!formData.yearOfStudy) newErrors.yearOfStudy = 'Year of study is required';
-      if (!formData.expectedGraduation.trim()) newErrors.expectedGraduation = 'Expected graduation is required';
-      if (formData.languages.length === 0) newErrors.languages = 'At least one language is required';
-    }
+    // Basic Profile Validations
+    if (!formData.name) newErrors.name = 'Name is required';
+    if (!formData.dateOfBirth) newErrors.dateOfBirth = 'Date of birth is required';
+    if (!formData.gender) newErrors.gender = 'Gender is required';
+    if (!formData.nationality) newErrors.nationality = 'Nationality is required';
+    if (!formData.phoneNumber) newErrors.phoneNumber = 'Phone number is required';
 
-    // Step 2: Identity Verification
-    if (step === 2) {
-      if (!formData.studentIdFile && !formData.studentIdPreview) {
-        newErrors.studentIdFile = 'Student ID card upload is required';
-      }
-      if (!formData.studentIdExpiry) {
-        newErrors.studentIdExpiry = 'Student ID expiry date is required';
-      }
-      if (!formData.governmentIdFile && !formData.governmentIdPreview) {
-        newErrors.governmentIdFile = 'Government ID upload is required';
-      }
-      if (!formData.governmentIdExpiry) {
-        newErrors.governmentIdExpiry = 'Government ID expiry date is required';
-      }
-      if (!formData.selfieFile && !formData.selfiePreview) {
-        newErrors.selfieFile = 'Selfie upload is required';
-      }
-      if (!formData.profilePhotoFile && !formData.profilePhotoPreview) {
-        newErrors.profilePhotoFile = 'Profile photo upload is required';
-      }
-      if (!formData.documentsOwnedConfirmation) {
-        newErrors.documentsOwnedConfirmation = 'You must confirm document ownership';
-      }
-      if (!formData.verificationConsent) {
-        newErrors.verificationConsent = 'You must consent to verification';
+    if (!formData.email) {
+      newErrors.email = 'Email is required';
+    } else {
+      const GENERIC_DOMAINS = ['gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com', 'aol.com', 'icloud.com'];
+      const domain = formData.email.split('@')[1];
+      // Allow generic domains in development
+      if (domain && GENERIC_DOMAINS.includes(domain.toLowerCase()) && process.env.NODE_ENV !== 'development') {
+        newErrors.email = 'Institutional email required. Please sign out and use your university email.';
       }
     }
 
-    // Step 3: Profile Information
-    if (step === 3) {
-      if (!formData.bio.trim()) {
-        newErrors.bio = 'Bio is required';
-      } else if (formData.bio.trim().length < 50) {
-        newErrors.bio = 'Bio must be at least 50 characters';
-      }
-      if (formData.skills.length === 0) {
-        newErrors.skills = 'At least one skill is required';
-      }
-      if (!formData.coverLetter.trim()) {
-        newErrors.coverLetter = 'Cover letter is required';
-      } else if (formData.coverLetter.trim().length < 200) {
-        newErrors.coverLetter = 'Cover letter must be at least 200 characters';
-      }
-      if (formData.interests.length === 0) {
-        newErrors.interests = 'At least one interest is required';
-      }
+    if (!formData.city) newErrors.city = 'City is required';
+    if (!formData.campus) newErrors.campus = 'Campus is required';
+    if (!formData.institute) newErrors.institute = 'Institute is required';
+    if (!formData.programDegree) newErrors.programDegree = 'Program/Degree is required';
+    if (!formData.yearOfStudy) newErrors.yearOfStudy = 'Year of study is required';
+    if (!formData.expectedGraduation) newErrors.expectedGraduation = 'Expected graduation is required';
+    if (!formData.languages || formData.languages.length === 0) newErrors.languages = 'Select at least one language';
+
+    // Password Validation
+    if (!formData.password) {
+      newErrors.password = 'Password is required';
+    } else {
+      if (formData.password.length < 8) newErrors.password = 'Password must be at least 8 characters';
+      if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = 'Passwords do not match';
     }
 
-    // Step 4: Availability
-    if (step === 4) {
-      if (formData.availability.length === 0) {
-        newErrors.availability = 'At least one availability slot is required';
-      } else {
-        const hasValidSlot = formData.availability.some((slot) => {
-          const start = slot.startTime.split(':').map(Number);
-          const end = slot.endTime.split(':').map(Number);
-          const duration = (end[0] * 60 + end[1]) - (start[0] * 60 + start[1]);
-          return duration >= 180;
-        });
-        if (!hasValidSlot) {
-          newErrors.availability = 'At least one slot must be 3+ hours';
+    // Verification Validations
+    if (!formData.studentIdFile && !formData.studentIdPreview) newErrors.studentIdFile = 'Student ID card upload is required';
+    if (!formData.studentIdExpiry) {
+      newErrors.studentIdExpiry = 'Student ID expiry date is required';
+    } else {
+      const [m, y] = formData.studentIdExpiry.split('/').map(Number);
+      // Check if date is valid
+      if (m && y) {
+        const lastDay = new Date(y, m, 0); // Last day of that month
+        const today = new Date();
+        if (lastDay < today) {
+          newErrors.studentIdExpiry = 'Student ID must be valid (future date)';
         }
       }
-      if (!formData.timezone) newErrors.timezone = 'Timezone is required';
-      if (formData.preferredDurations.length === 0) {
-        newErrors.preferredDurations = 'At least one preferred duration is required';
-      }
     }
 
-    // Step 5: Service Preferences
-    if (step === 5) {
-      if (formData.servicesOffered.length === 0) {
-        newErrors.servicesOffered = 'At least one service must be selected';
-      }
-      const rate = parseFloat(formData.hourlyRate);
-      if (!formData.hourlyRate || isNaN(rate) || rate <= 0) {
-        newErrors.hourlyRate = 'Valid hourly rate is required';
-      }
-    }
+    if (!formData.profilePhotoFile && !formData.profilePhotoPreview) newErrors.profilePhotoFile = 'Profile photo upload is required';
+    if (!formData.documentsOwnedConfirmation) newErrors.documentsOwnedConfirmation = 'You must confirm document ownership';
+    if (!formData.verificationConsent) newErrors.verificationConsent = 'You must consent to verification';
 
-    // Step 6: Safety & Compliance
-    if (step === 6) {
-      if (!formData.termsAccepted) {
-        newErrors.termsAccepted = 'You must accept the Terms & Conditions';
-      }
-      if (!formData.independentGuideAcknowledged) {
-        newErrors.independentGuideAcknowledged = 'You must acknowledge independent guide status';
-      }
-      if (!formData.safetyGuidelinesAccepted) {
-        newErrors.safetyGuidelinesAccepted = 'You must accept safety guidelines';
-      }
-    }
+    // Safety Validations
+    if (!formData.termsAccepted) newErrors.termsAccepted = 'You must accept the Terms & Conditions';
+    if (!formData.independentGuideAcknowledged) newErrors.independentGuideAcknowledged = 'You must acknowledge independent guide status';
+    if (!formData.safetyGuidelinesAccepted) newErrors.safetyGuidelinesAccepted = 'You must accept safety guidelines';
 
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
 
-  const handleNext = () => {
-    if (validateStep(currentStep)) {
-      // Mark current step as completed when moving forward
-      if (!completedSteps.includes(currentStep)) {
-        setCompletedSteps((prev) => [...prev, currentStep]);
+    if (Object.keys(newErrors).length > 0) {
+      console.log('Form validation failed:', newErrors);
+      const firstError = Object.keys(newErrors)[0];
+      const element = document.getElementById(firstError);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       }
-      setCurrentStep((prev) => Math.min(prev + 1, STEPS.length));
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return false;
     }
+    return true;
   };
 
-  const handleBack = () => {
-    setErrors({});
-    setCurrentStep((prev) => Math.max(prev - 1, 1));
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const handleStepClick = (stepId: number) => {
-    // Only allow navigation if moving back or if intermediate steps are completed/valid
-    if (stepId > currentStep) {
-      // Check if all steps before the target are completed
-      for (let i = currentStep; i < stepId; i++) {
-        if (!validateStep(i)) {
-          // Stop at the first invalid step
-          return;
-        }
-      }
+  const handleReset = () => {
+    if (confirm('Are you sure you want to clear the form? This will remove all your progress.')) {
+      localStorage.removeItem('wandernest_onboarding_draft');
+      window.location.reload();
     }
-    // If valid or moving back, clean errors and move
-    setErrors({});
-    setCurrentStep(stepId);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleSubmit = async () => {
-    // Validate ALL steps before final submission
-    let allValid = true;
-
-    for (let step = 1; step <= STEPS.length - 1; step++) {
-      const stepValid = validateStep(step);
-      if (!stepValid) {
-        allValid = false;
-      }
-    }
-
-    if (!allValid) {
-      setErrors({
-        submit: 'Please complete all required fields in all sections before submitting. Click on any step above to review and complete missing information.',
-      });
-      return;
-    }
+    if (!validateForm()) return;
 
     setIsSubmitting(true);
 
     try {
-      // Upload all files
+      // 1. Upload Files
       const filesToUpload = [
         { file: formData.studentIdFile, type: 'student_id', preview: formData.studentIdPreview },
-        { file: formData.governmentIdFile, type: 'government_id', preview: formData.governmentIdPreview },
-        { file: formData.selfieFile, type: 'selfie', preview: formData.selfiePreview },
         { file: formData.profilePhotoFile, type: 'profile_photo', preview: formData.profilePhotoPreview },
+        // Removed Government ID and Selfie
       ];
 
       const uploadedUrls: Record<string, string> = {};
@@ -389,10 +232,7 @@ export function OnboardingWizard({ session }: OnboardingWizardProps) {
             body: uploadFormData,
           });
 
-          if (!uploadResponse.ok) {
-            throw new Error(`Failed to upload ${type.replace('_', ' ')}`);
-          }
-
+          if (!uploadResponse.ok) throw new Error(`Failed to upload ${type.replace('_', ' ')}`);
           const uploadData = await uploadResponse.json();
           uploadedUrls[type] = uploadData.url;
         } else if (preview) {
@@ -400,18 +240,13 @@ export function OnboardingWizard({ session }: OnboardingWizardProps) {
         }
       }
 
-      // Submit onboarding data with all fields
+      // 2. Submit Data (Injecting Defaults for Hidden Fields)
       const response = await fetch('/api/student/onboarding', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          // Authentication - removed client-side session IDs to rely on server-side session
-          // email: session.user.email,
-          // googleId: session.user.id,
-
-          // Personal Details
+          // Personal & Academic
+          email: formData.email,
           name: formData.name,
           dateOfBirth: formData.dateOfBirth,
           gender: formData.gender,
@@ -419,45 +254,22 @@ export function OnboardingWizard({ session }: OnboardingWizardProps) {
           phoneNumber: formData.phoneNumber,
           city: formData.city,
           campus: formData.campus,
-
-          // Academic Details
           institute: formData.institute,
           programDegree: formData.programDegree,
           yearOfStudy: formData.yearOfStudy,
           expectedGraduation: formData.expectedGraduation,
           languages: formData.languages,
+          password: formData.password || undefined,
 
-          // Identity Verification
+
+          // Files
           studentIdUrl: uploadedUrls['student_id'],
           studentIdExpiry: formData.studentIdExpiry,
-          governmentIdUrl: uploadedUrls['government_id'],
-          governmentIdExpiry: formData.governmentIdExpiry,
-          selfieUrl: uploadedUrls['selfie'],
           profilePhotoUrl: uploadedUrls['profile_photo'],
           documentsOwnedConfirmation: formData.documentsOwnedConfirmation,
           verificationConsent: formData.verificationConsent,
 
-          // Profile Information
-          bio: formData.bio,
-          skills: formData.skills,
-          preferredGuideStyle: formData.preferredGuideStyle,
-          coverLetter: formData.coverLetter,
-          interests: formData.interests,
-
-          // Availability
-          availability: formData.availability,
-          unavailabilityExceptions: formData.unavailabilityExceptions.length > 0
-            ? formData.unavailabilityExceptions
-            : undefined,
-          timezone: formData.timezone,
-          preferredDurations: formData.preferredDurations,
-
-          // Service Preferences
-          servicesOffered: formData.servicesOffered,
-          hourlyRate: parseFloat(formData.hourlyRate),
-          onlineServicesAvailable: formData.onlineServicesAvailable,
-
-          // Safety & Compliance
+          // Safety
           termsAccepted: formData.termsAccepted,
           safetyGuidelinesAccepted: formData.safetyGuidelinesAccepted,
           independentGuideAcknowledged: formData.independentGuideAcknowledged,
@@ -467,178 +279,134 @@ export function OnboardingWizard({ session }: OnboardingWizardProps) {
       });
 
       if (!response.ok) {
-        if (response.status === 401) {
-          throw new Error('Session expired. Please sign in again.');
-        }
         const errorData = await response.json();
+
+        // Handle Zod validation errors from backend
+        if (errorData.details && Array.isArray(errorData.details)) {
+          const backendErrors: Record<string, string> = {};
+
+          errorData.details.forEach((err: any) => {
+            // Handle Zod path format (e.g., 'email' or 'availability.0.startTime')
+            // For simple fields, use the last part or join with dot
+            const field = err.path;
+            // Map backend field names to frontend if different? 
+            // Mostly they match. 'availability' might be tricky but let's just show it.
+            backendErrors[field] = err.message;
+          });
+
+          setErrors(backendErrors);
+
+          // If we have specific field errors, throw with generic message to trigger catch block cleanup
+          // but the errors state is already set with specifics.
+          // Actually, let's include the first validation error in the main message for visibility
+          const firstDetail = errorData.details[0];
+          const detailedMessage = `${errorData.error} (${firstDetail.path}: ${firstDetail.message})`;
+          throw new Error(detailedMessage);
+        }
+
         throw new Error(errorData.error || 'Failed to submit onboarding');
       }
 
-      // Redirect to confirmation page
+      localStorage.removeItem('wandernest_onboarding_draft');
       router.push('/student/onboarding/success');
     } catch (error) {
-      console.error('Onboarding submission error:', error);
-      setErrors({
-        submit: error instanceof Error ? error.message : 'Failed to submit onboarding. Please try again.',
-      });
+      console.error('Submission error:', error);
+      setErrors({ submit: error instanceof Error ? error.message : 'Submission failed.' });
       setIsSubmitting(false);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
   return (
-    <div className="min-h-screen flex flex-col relative overflow-hidden bg-black">
-      {/* Background Image with Overlays */}
-      <div className="absolute inset-0" role="img" aria-label="Modern university learning space">
+    <div className="min-h-screen flex flex-col relative overflow-hidden bg-black text-white">
+      {/* Background */}
+      <div className="absolute inset-0 z-0">
         <Image
           src="https://images.unsplash.com/photo-1562774053-701939374585?w=1920&q=80"
-          alt="Modern university lecture hall with natural light"
+          alt="Background"
           fill
+          className="object-cover opacity-40"
           priority
-          quality={85}
-          sizes="100vw"
-          className="object-cover"
         />
-        {/* Dark overlay for text contrast */}
         <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px]" />
       </div>
-      <div className="absolute inset-0 pattern-grid opacity-5" />
 
-      {/* Content */}
-      <div className="relative z-10 flex flex-col min-h-screen">
-        {/* Header - Navigation is handled by layout */}
+      <div className="relative z-10 max-w-4xl mx-auto px-4 py-20 w-full space-y-12">
+        <div className="text-center space-y-4 relative">
+          <Button
+            variant="ghost"
+            onClick={handleReset}
+            className="absolute -top-10 right-0 text-white/50 hover:text-white hover:bg-white/10"
+          >
+            Reset Form
+          </Button>
 
-        {/* Main Content */}
-        <main className="flex-1 px-4 pt-28 pb-16">
-          <div className="max-w-4xl mx-auto text-center mb-10 animate-fade-in-up">
-            <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 text-shadow-lg">
-              Student Guide Application
-            </h1>
-            <p className="text-xl text-gray-300 max-w-2xl mx-auto text-shadow">
-              Complete your profile to start connecting with travelers visiting Paris and London
-            </p>
-          </div>
+          <h1 className="text-4xl md:text-5xl font-bold text-white text-shadow-lg">
+            Become a Student Guide
+          </h1>
 
-          {/* Step Indicator */}
-          <div className="max-w-4xl mx-auto mb-8">
-            <FormProgressHeader
-              steps={STEPS}
-              currentStep={currentStep}
-              completedSteps={completedSteps}
-              onStepClick={handleStepClick}
-            />
-          </div>
-
-          {/* Form Steps */}
-          <div className="relative max-w-4xl mx-auto animate-fade-in-up delay-200">
-            <div className="relative glass-card-dark rounded-3xl border-2 border-white/10 shadow-premium p-8 hover-lift">
-              <div className="relative z-10">
-                {/* Step Content */}
-                {currentStep === 1 && (
-                  <BasicProfileStep
-                    formData={formData}
-                    updateFormData={updateFormData}
-                    errors={errors}
-                    cities={CITIES}
-                  />
-                )}
-                {currentStep === 2 && (
-                  <StudentVerificationStep
-                    formData={formData}
-                    updateFormData={updateFormData}
-                    errors={errors}
-                  />
-                )}
-                {currentStep === 3 && (
-                  <CoverLetterStep
-                    formData={formData}
-                    updateFormData={updateFormData}
-                    errors={errors}
-                  />
-                )}
-                {currentStep === 4 && (
-                  <AvailabilityStep
-                    formData={formData}
-                    updateFormData={updateFormData}
-                    errors={errors}
-                  />
-                )}
-                {currentStep === 5 && (
-                  <ServicePreferencesStep
-                    formData={formData}
-                    updateFormData={updateFormData}
-                    errors={errors}
-                  />
-                )}
-                {currentStep === 6 && (
-                  <SafetyComplianceStep
-                    formData={formData}
-                    updateFormData={updateFormData}
-                    errors={errors}
-                  />
-                )}
-                {currentStep === 7 && (
-                  <ReviewSubmitStep
-                    formData={formData}
-                    errors={errors}
-                  />
-                )}
-
-                {/* Navigation Buttons */}
-                <div className="mt-8 flex justify-between pt-6 border-t border-white/10">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={handleBack}
-                    disabled={currentStep === 1 || isSubmitting}
-                    className="hover-lift shadow-soft bg-transparent text-white border-white/20 hover:bg-white/10"
-                  >
-                    Back
-                  </Button>
-
-                  {currentStep < STEPS.length ? (
-                    <PrimaryCTAButton
-                      type="button"
-                      onClick={handleNext}
-                      disabled={isSubmitting}
-                      variant="blue"
-                    >
-                      Next
-                    </PrimaryCTAButton>
-                  ) : (
-                    <PrimaryCTAButton
-                      type="button"
-                      onClick={handleSubmit}
-                      disabled={isSubmitting}
-                      variant="blue"
-                    >
-                      {isSubmitting ? 'Submitting...' : 'Submit Profile'}
-                    </PrimaryCTAButton>
-                  )}
-                </div>
+          {/* Global Error Banner */}
+          {Object.keys(errors).length > 0 && (
+            <div className="bg-red-500/10 border border-red-500/50 rounded-lg p-4 max-w-2xl mx-auto backdrop-blur-sm">
+              <div className="flex items-center gap-2 text-red-500 mb-2 font-medium">
+                <AlertTriangle className="h-5 w-5" />
+                <span>Please correct the following errors:</span>
               </div>
-            </div>
-
-            {/* Marketplace Disclaimer */}
-            <div className="glass-card-dark bg-amber-900/20 border-2 border-amber-500/20 rounded-2xl p-4 md:p-6 mt-8 shadow-premium animate-fade-in-up delay-100">
-              <div className="flex items-start gap-3 md:gap-4">
-                <div className="flex-shrink-0 p-3 rounded-xl bg-amber-500/20 text-amber-400 shadow-soft">
-                  <AlertTriangle className="w-6 h-6" />
-                </div>
-                <div>
-                  <h2 className="font-bold text-amber-300 mb-2 text-lg">Marketplace Notice</h2>
-                  <p className="text-sm text-amber-200/90 leading-relaxed">
-                    <strong>TourWiseCo is a connection platform only.</strong> We do not handle payments, guarantee service quality, or assume liability. All services and payments are arranged directly between you and your chosen guide.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>   {/* Submit Error */}
-          {errors.submit && (
-            <div className="mt-4 p-4 glass-card-dark bg-red-900/20 border-2 border-red-500/20 rounded-2xl text-red-300 text-sm shadow-soft animate-slide-down">
-              {errors.submit}
+              <ul className="text-left text-sm text-red-400 list-disc pl-5 grid grid-cols-1 md:grid-cols-2 gap-x-4">
+                {Object.values(errors).map((err, idx) => (
+                  <li key={idx}>{err}</li>
+                ))}
+              </ul>
             </div>
           )}
-        </main>
+          <p className="text-xl text-gray-300">
+            Complete your profile in one step to start connecting with travelers.
+          </p>
+        </div>
+
+        {/* Single Page Form Container */}
+        <div className="space-y-12 pb-24">
+          <BasicProfileStep
+            formData={formData}
+            updateFormData={updateFormData}
+            errors={errors}
+            cities={CITIES}
+          />
+
+          <StudentVerificationStep
+            formData={formData}
+            updateFormData={updateFormData}
+            errors={errors}
+          />
+
+          <SafetyComplianceStep
+            formData={formData}
+            updateFormData={updateFormData}
+            errors={errors}
+          />
+
+          {/* Submit Action */}
+          <div className="glass-card-dark p-8 rounded-3xl border border-white/10 text-center space-y-4">
+            {errors.submit && (
+              <div className="p-4 bg-red-500/20 border border-red-500/50 rounded-xl text-red-200">
+                {errors.submit}
+              </div>
+            )}
+
+            <PrimaryCTAButton
+              type="button"
+              onClick={handleSubmit}
+              disabled={isSubmitting}
+              className="w-full md:w-auto md:min-w-[300px] text-lg py-6"
+            >
+              {isSubmitting ? 'Submitting Application...' : 'Submit Profile'}
+            </PrimaryCTAButton>
+
+            <p className="text-sm text-gray-400">
+              By clicking Submit, you agree to our Terms of Service.
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );

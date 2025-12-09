@@ -20,10 +20,16 @@ export async function POST(req: Request) {
             where: { email },
         })
 
-        if (!student || !student.passwordHash) {
-            // Generic error message for security (or specific if we want to guide them to OTP login)
+        if (!student) {
             return NextResponse.json(
-                { success: false, error: 'Invalid credentials' },
+                { success: false, error: 'Account does not exist' },
+                { status: 404 }
+            )
+        }
+
+        if (!student.passwordHash) {
+            return NextResponse.json(
+                { success: false, error: 'Password not set. Please reset your password.' },
                 { status: 401 }
             )
         }

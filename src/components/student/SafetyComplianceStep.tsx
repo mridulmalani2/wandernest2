@@ -89,13 +89,13 @@ export function SafetyComplianceStep({ formData, updateFormData, errors }: Safet
               <label htmlFor="termsAccepted" className="cursor-pointer">
                 I agree to the{' '}
               </label>
-              <Link href="/terms" className="font-medium text-white hover:underline" onClick={(e) => e.stopPropagation()}>
+              <Link href="/terms" target="_blank" rel="noopener noreferrer" className="font-medium text-white hover:underline" onClick={(e) => e.stopPropagation()}>
                 Terms of Service
               </Link>
               <label htmlFor="termsAccepted" className="cursor-pointer">
                 {' '}and{' '}
               </label>
-              <Link href="/privacy" className="font-medium text-white hover:underline" onClick={(e) => e.stopPropagation()}>
+              <Link href="/privacy" target="_blank" rel="noopener noreferrer" className="font-medium text-white hover:underline" onClick={(e) => e.stopPropagation()}>
                 Privacy Policy
               </Link>
               .
@@ -122,7 +122,7 @@ export function SafetyComplianceStep({ formData, updateFormData, errors }: Safet
             />
             <label htmlFor="safetyGuidelinesAccepted" className="text-sm font-light cursor-pointer">
               <p className="text-white/80">
-                I have read and agree to the <span className="font-medium text-white hover:underline">Safety Guidelines</span> and <span className="font-medium text-white hover:underline">Code of Conduct</span>.
+                I have read and agree to the <Link href="/safety" target="_blank" rel="noopener noreferrer" className="font-medium text-white hover:underline" onClick={(e) => e.stopPropagation()}>Safety Guidelines</Link> and <Link href="/conduct" target="_blank" rel="noopener noreferrer" className="font-medium text-white hover:underline" onClick={(e) => e.stopPropagation()}>Code of Conduct</Link>.
               </p>
             </label>
           </div>
@@ -130,6 +130,31 @@ export function SafetyComplianceStep({ formData, updateFormData, errors }: Safet
             <p className="text-xs font-light text-ui-error flex items-center gap-1">
               <Shield className="h-3 w-3" />
               {errors.safetyGuidelinesAccepted}
+            </p>
+          )}
+
+          <div className="flex items-start gap-4">
+            <input
+              type="checkbox"
+              id="independentGuideAcknowledged"
+              checked={formData.independentGuideAcknowledged || false}
+              onChange={(e) => updateFormData({ independentGuideAcknowledged: e.target.checked })}
+              className={cn(
+                'mt-1 h-5 w-5 rounded border-gray-300 focus:ring-white',
+                formData.independentGuideAcknowledged ? 'text-white' : '',
+                errors.independentGuideAcknowledged && 'border-ui-error'
+              )}
+            />
+            <label htmlFor="independentGuideAcknowledged" className="text-sm font-light cursor-pointer">
+              <p className="text-white/80">
+                I acknowledge that I am acting as an independent student guide and not as an employee of WanderNest.
+              </p>
+            </label>
+          </div>
+          {errors.independentGuideAcknowledged && (
+            <p className="text-xs font-light text-ui-error flex items-center gap-1">
+              <Shield className="h-3 w-3" />
+              {errors.independentGuideAcknowledged}
             </p>
           )}
         </div>

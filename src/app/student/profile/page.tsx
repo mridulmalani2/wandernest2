@@ -26,7 +26,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { AvailabilityEditor } from '@/components/student/AvailabilityEditor';
+
 import { PrimaryCTAButton } from '@/components/ui/PrimaryCTAButton';
 import { InfoRow, SectionCard, StatCard, SkillChip } from '@/components/student/ProfileComponents';
 import { useRouter } from 'next/navigation';
@@ -842,20 +842,7 @@ export default function StudentProfilePage() {
               </div>
             </SectionCard>
 
-            {/* Availability */}
-            <SectionCard
-              title="Availability"
-              icon={Clock}
-              delay={0.5}
-              accentGradient="from-blue-400 via-cyan-400 to-teal-400"
-              subtitle="Set your weekly availability for tours"
-            >
-              <AvailabilityEditor
-                value={currentProfile?.availability}
-                onChange={(availability) => updateField('availability', availability)}
-                disabled={!isEditing}
-              />
-            </SectionCard>
+
 
             {/* Emergency Contact */}
             <SectionCard

@@ -76,42 +76,21 @@ function StudentSignInContent() {
 
     setIsSubmitting(true);
     try {
-      if (isPasswordLogin) {
-        // 1. Password Login
-        const res = await fetch('/api/student/auth/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, password, rememberMe }),
-        });
-        const data = await res.json();
+      const res = await fetch('/api/student/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, rememberMe }),
+      });
+      const data = await res.json();
 
-        if (!res.ok || !data.success) {
-          setEmailErrorMessage(data.error || 'Invalid credentials');
-          setIsSubmitting(false);
-          return;
-        }
-
-        setMessage('Signed in successfully. Redirecting...');
-        router.replace(callbackUrl);
-      } else {
-        // 2. Request OTP
-        const res = await fetch('/api/student/auth/send-otp', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email }),
-        });
-        const data = await res.json();
-
-        if (!res.ok || !data.success) {
-          setEmailErrorMessage(data.error || 'Could not send verification code.');
-          setIsSubmitting(false); // Stop loading if failed
-          return;
-        }
-
-        setMessage('We’ve sent a 6-digit verification code to your email.');
-        setIsSubmitting(false); // Stop loading (success state transition)
-        setStep('otp');
+      if (!res.ok || !data.success) {
+        setEmailErrorMessage(data.error || 'Invalid credentials');
+        setIsSubmitting(false);
+        return;
       }
+
+      setMessage('Signed in successfully. Redirecting...');
+      router.replace(callbackUrl);
     } catch (error) {
       console.error('Auth error:', error);
       setEmailErrorMessage('An unexpected error occurred. Please try again.');
@@ -201,7 +180,7 @@ function StudentSignInContent() {
           <div className="max-w-md w-full space-y-8 animate-fade-in-up">
 
             <div className="text-center">
-              <h2 className="text-4xl font-bold mb-2 text-white text-shadow-lg font-serif">
+              <h2 className="text-4xl font-bold mb-2 text-white text-shadow-lg">
                 Sign in as <span className="text-gradient-vibrant inline-block">Student Guide</span>
               </h2>
               <p className="text-gray-300 mt-2 text-shadow">Use your university email</p>
@@ -211,7 +190,14 @@ function StudentSignInContent() {
             {anyError && (
               <div className="glass-card-dark bg-red-900/20 border-red-500/50 p-4 rounded-xl flex items-center gap-3 animate-scale-in">
                 <AlertCircle className="w-5 h-5 text-red-400" />
-                <p className="text-sm text-red-300 font-semibold">{anyError}</p>
+                <div className="flex-1">
+                  <p className="text-sm text-red-300 font-semibold">{anyError}</p>
+                  {anyError.includes('Account does not exist') && (
+                    <Link href="/student/signup" className="text-sm text-red-200 hover:text-white underline mt-1 block">
+                      Create an account now &rarr;
+                    </Link>
+                  )}
+                </div>
               </div>
             )}
 
@@ -224,136 +210,69 @@ function StudentSignInContent() {
             )}
 
             {/* Form Card */}
-            <div className="glass-card-dark rounded-3xl border border-white/10 p-8 shadow-premium space-y-6">
-
-              {step === 'email' ? (
-                // --- STEP 1: Email + Password/OTP Toggle ---
-                <>
-                  <form onSubmit={handleEmailSignIn} className="space-y-4 animate-fade-in">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-1">
-                        University Email
-                      </label>
-                      <div className="relative">
-                        <Mail className="absolute left-3 top-3.5 text-gray-500" size={20} />
-                        <Input
-                          type="email"
-                          required
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                          placeholder="your.email@university.edu"
-                          className="pl-10 h-12 bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-purple-500/50 focus:ring-purple-500/20"
-                          disabled={isSubmitting}
-                        />
-                      </div>
-
-                      {isPasswordLogin ? (
-                        <div className="mt-4 animate-fade-in">
-                          <label className="block text-sm font-medium text-gray-300 mb-1">
-                            Password
-                          </label>
-                          <Input
-                            type="password"
-                            required
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            placeholder="••••••••"
-                            className="h-12 bg-white/5 border-white/10 text-white placeholder:text-gray-500 focus:border-purple-500/50 focus:ring-purple-500/20"
-                            disabled={isSubmitting}
-                          />
-                          <div className="flex justify-end mt-1">
-                            <Link href="/student/auth/reset-password" className="text-xs text-gray-400 hover:text-white transition-colors">
-                              Forgot password?
-                            </Link>
-                          </div>
-                        </div>
-                      ) : (
-                        <p className="text-xs text-gray-400 mt-2 animate-fade-in">
-                          We'll send a 6-digit verification code to your email.
-                        </p>
-                      )}
-                    </div>
-
-                    <PrimaryCTAButton
-                      type="submit"
-                      disabled={isSubmitting || !email || (isPasswordLogin && !password)}
-                      isLoading={isSubmitting}
-                      loadingText={isPasswordLogin ? "Signing in..." : "Sending code..."}
-                      variant="purple"
-                      className="w-full justify-center"
-                    >
-                      {isPasswordLogin ? "Sign In" : "Send Code"}
-                    </PrimaryCTAButton>
-                  </form>
-
-                  <div className="text-center pt-2">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setIsPasswordLogin(!isPasswordLogin);
-                        setEmailErrorMessage(null); // clear errors when switching
-                      }}
-                      className="text-sm text-purple-300 hover:text-purple-200 underline transition-colors"
-                    >
-                      {isPasswordLogin ? "Or sign in with verification code" : "Or sign in with password"}
-                    </button>
-                  </div>
-
-                  <div className="text-center text-sm text-gray-400 pt-4 border-t border-white/10 mt-4">
-                    <p>
-                      Don't have an account?{' '}
-                      <Link href="/student/signup" className="text-purple-400 hover:underline font-bold transition-colors">
-                        Create Account
-                      </Link>
-                    </p>
-                  </div>
-                </>
-              ) : (
-                // --- STEP 2: Verify OTP ---
-                <div className="space-y-6 animate-fade-in">
-                  <div className="text-center">
-                    <div className="mx-auto w-12 h-12 bg-green-500/20 rounded-full flex items-center justify-center mb-3">
-                      <CheckCircle2 className="w-6 h-6 text-green-400" />
-                    </div>
-                    <h3 className="text-xl font-bold text-white">Verification Code</h3>
-                    <p className="text-sm text-gray-400">Sent to <span className="text-white">{email}</span></p>
-                  </div>
-
-                  <form onSubmit={handleOtpVerify} className="space-y-4">
+            <div className="glass-card-dark rounded-3xl border border-white/10 p-8 shadow-premium space-y-6 bg-[#0F0E1A]/40 backdrop-blur-xl">
+              <form onSubmit={handleEmailSignIn} className="space-y-4 animate-fade-in">
+                <div>
+                  <label className="block text-sm font-medium text-gray-200 mb-1">
+                    University Email
+                  </label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-3.5 text-[#CFCBFF]" size={20} />
                     <Input
-                      type="text"
-                      maxLength={6}
-                      value={code}
-                      onChange={(e) => setCode(e.target.value)}
-                      placeholder="123456"
-                      className="text-center text-2xl tracking-[0.5em] h-14 bg-white/5 border-white/10 text-white font-bold focus:border-purple-500/50 focus:ring-purple-500/20"
-                      disabled={isVerifying}
+                      type="email"
+                      required
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="your.email@university.edu"
+                      className="pl-10 h-12 bg-[#ffffff10] border-[#ffffff2e] text-white placeholder:text-gray-400 focus:border-[#A66CFF]/50 focus:ring-[#A66CFF]/20"
+                      disabled={isSubmitting}
                     />
-
-                    <PrimaryCTAButton
-                      type="submit"
-                      disabled={isVerifying || code.length !== 6}
-                      isLoading={isVerifying}
-                      variant="purple"
-                      className="w-full justify-center"
-                    >
-                      Verify & Sign In
-                    </PrimaryCTAButton>
-                  </form>
-
-                  <div className="flex flex-col gap-2 text-center text-sm">
-                    <button onClick={handleResend} className="text-purple-400 hover:underline">
-                      Resend Code
-                    </button>
-                    <button
-                      onClick={() => { setStep('email'); setCode(''); setEmailErrorMessage(null); }}
-                      className="text-gray-400 hover:underline"
-                    >
-                      Use different email
-                    </button>
                   </div>
                 </div>
-              )}
+
+                <div className="animate-fade-in">
+                  <label className="block text-sm font-medium text-gray-200 mb-1">
+                    Password
+                  </label>
+                  <Input
+                    type="password"
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    className="h-12 bg-[#ffffff10] border-[#ffffff2e] text-white placeholder:text-gray-400 focus:border-[#A66CFF]/50 focus:ring-[#A66CFF]/20"
+                    disabled={isSubmitting}
+                  />
+                  <div className="flex justify-end mt-1">
+                    <Link href="/student/auth/reset-password" className="text-xs text-gray-300 hover:text-white transition-colors">
+                      Forgot password?
+                    </Link>
+                  </div>
+                </div>
+
+                <PrimaryCTAButton
+                  type="submit"
+                  disabled={isSubmitting || !email || !password}
+                  isLoading={isSubmitting}
+                  loadingText="Signing in..."
+                  variant="purple"
+                  className="w-full justify-center"
+                >
+                  Sign In
+                </PrimaryCTAButton>
+              </form>
+
+              <div className="text-center text-sm text-[#B8B3CC] pt-4 border-t border-white/20 mt-4 flex flex-col items-center gap-3">
+                <p className='text-[#B8B3CC]'>Don't have an account?</p>
+                <Link
+                  href="/student/signup"
+                  className="px-6 py-2 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-purple-500/50 transition-all group"
+                >
+                  <span className="font-bold bg-gradient-to-r from-[#A66CFF] to-[#E85D9B] text-transparent bg-clip-text group-hover:opacity-80">
+                    Create Account
+                  </span>
+                </Link>
+              </div>
             </div>
 
             {/* Info Box */}

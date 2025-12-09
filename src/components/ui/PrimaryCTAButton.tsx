@@ -31,8 +31,8 @@ const variantStyles: Record<
     iconColor: 'text-white',
   },
   purple: {
-    gradient: 'bg-gradient-to-r from-purple-300 via-purple-400 to-pink-400',
-    glow: 'bg-gradient-to-r from-purple-300 via-purple-400 to-pink-400',
+    gradient: 'bg-gradient-to-r from-[#A66CFF] to-[#E85D9B] hover:shadow-[0_0_20px_rgba(166,108,255,0.4)]',
+    glow: 'bg-gradient-to-r from-[#A66CFF] to-[#E85D9B]',
     textColor: 'text-white',
     iconColor: 'text-white',
   },

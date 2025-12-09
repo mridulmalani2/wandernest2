@@ -7,6 +7,8 @@ import { useState, useCallback } from 'react';
 import { Upload, X, FileText, Image as ImageIcon, CheckCircle2, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
+import { LiquidSelect } from '@/components/ui/LiquidSelect';
+
 interface StudentVerificationStepProps {
   formData: OnboardingFormData;
   updateFormData: (data: Partial<OnboardingFormData>) => void;
@@ -147,60 +149,45 @@ export function StudentVerificationStep({ formData, updateFormData, errors }: St
             onRemove={handleRemove}
             onFileChange={handleFileChange}
           />
-          <div className="mt-4">
-            <LiquidInput
-              label="Student ID Expiry Date"
-              type="date"
-              value={formData.studentIdExpiry}
-              onChange={(e) => updateFormData({ studentIdExpiry: e.target.value })}
-              min={new Date().toISOString().split('T')[0]}
+          <div className="mt-4 grid grid-cols-2 gap-4">
+            <LiquidSelect
+              id="studentIdExpiry"
+              label="Expiry Month"
+              value={formData.studentIdExpiry.includes('/') ? formData.studentIdExpiry.split('/')[0] : ''}
+              onValueChange={(month) => {
+                const current = formData.studentIdExpiry;
+                const year = current && current.includes('/') ? current.split('/')[1] : new Date().getFullYear().toString();
+                updateFormData({ studentIdExpiry: `${month}/${year}` });
+              }}
+              placeholder="Month"
+              options={[
+                { value: '01', label: 'January' }, { value: '02', label: 'February' },
+                { value: '03', label: 'March' }, { value: '04', label: 'April' },
+                { value: '05', label: 'May' }, { value: '06', label: 'June' },
+                { value: '07', label: 'July' }, { value: '08', label: 'August' },
+                { value: '09', label: 'September' }, { value: '10', label: 'October' },
+                { value: '11', label: 'November' }, { value: '12', label: 'December' },
+              ]}
+              error={errors.studentIdExpiry}
+            />
+            <LiquidSelect
+              label="Expiry Year"
+              value={formData.studentIdExpiry.includes('/') ? formData.studentIdExpiry.split('/')[1] : ''}
+              onValueChange={(year) => {
+                const current = formData.studentIdExpiry;
+                const month = current && current.includes('/') ? current.split('/')[0] : '01';
+                updateFormData({ studentIdExpiry: `${month}/${year}` });
+              }}
+              placeholder="Year"
+              options={Array.from({ length: 11 }, (_, i) => {
+                const y = new Date().getFullYear() + i;
+                return { value: y.toString(), label: y.toString() };
+              })}
             />
           </div>
         </FlowCard>
 
-        <FlowCard padding="md">
-          <FileUploadCard
-            field="governmentId"
-            label="Government ID (Passport/Driver's License)"
-            preview={formData.governmentIdPreview}
-            file={formData.governmentIdFile}
-            icon={FileText}
-            error={errors.governmentIdFile || uploadErrors.governmentId}
-            isDragging={dragStates.governmentId}
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-            onDrop={handleDrop}
-            onRemove={handleRemove}
-            onFileChange={handleFileChange}
-          />
-          <div className="mt-4">
-            <LiquidInput
-              label="ID Expiry Date"
-              type="date"
-              value={formData.governmentIdExpiry}
-              onChange={(e) => updateFormData({ governmentIdExpiry: e.target.value })}
-              min={new Date().toISOString().split('T')[0]}
-            />
-          </div>
-        </FlowCard>
 
-        <FlowCard padding="md">
-          <FileUploadCard
-            field="selfie"
-            label="Selfie with ID"
-            preview={formData.selfiePreview}
-            file={formData.selfieFile}
-            icon={ImageIcon}
-            error={errors.selfieFile || uploadErrors.selfie}
-            isDragging={dragStates.selfie}
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-            onDrop={handleDrop}
-            onRemove={handleRemove}
-            onFileChange={handleFileChange}
-          />
-          <p className="text-xs text-white/70 mt-2">Hold your ID next to your face</p>
-        </FlowCard>
 
         <FlowCard padding="md">
           <FileUploadCard

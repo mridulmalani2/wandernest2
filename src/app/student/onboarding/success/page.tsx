@@ -126,11 +126,11 @@ export default function OnboardingSuccess() {
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4 animate-fade-in delay-400">
               <PrimaryCTAButton
-                href="/"
+                href="/student/dashboard"
                 variant="ghost"
                 className="text-white hover:bg-white/10"
               >
-                Return to Home
+                Go to Dashboard
               </PrimaryCTAButton>
               <PrimaryCTAButton
                 href="/student"

@@ -4,13 +4,12 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { BookingForm } from '@/components/booking/BookingForm'
 import Navigation from '@/components/Navigation'
-import { signIn } from 'next-auth/react'
-import { useAuth } from '@/lib/use-auth'
+import { signIn, useSession } from 'next-auth/react'
 import { AlertTriangle, Loader2, LogIn, CheckCircle2 } from 'lucide-react'
 import { PrimaryCTAButton } from '@/components/ui/PrimaryCTAButton'
 
 export default function BookingPage() {
-  const { data: session, status } = useAuth()
+  const { data: session, status } = useSession()
   const loading = status === 'loading'
   const isTourist = session?.user?.userType === 'tourist'
 

@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils';
 
 
 export interface LiquidSelectProps {
+    id?: string;
     label?: string;
     value: string;
     onValueChange: (value: string) => void;
@@ -19,6 +20,7 @@ export interface LiquidSelectProps {
 }
 
 export function LiquidSelect({
+    id: externalId,
     label,
     value,
     onValueChange,
@@ -29,8 +31,9 @@ export function LiquidSelect({
     icon: Icon,
     className,
 }: LiquidSelectProps) {
+    const internalId = React.useId();
+    const id = externalId || internalId;
     const [isOpen, setIsOpen] = React.useState(false);
-    const id = React.useId();
 
     return (
         <div className={cn('relative w-full', className)}>
@@ -67,9 +70,6 @@ export function LiquidSelect({
                         // Disabled
                         'disabled:opacity-50 disabled:cursor-not-allowed',
 
-                        // Icon padding - removed to fix alignment with LiquidInput
-                        // Code removed
-
                         // Layout
                         'flex items-center justify-between gap-2'
                     )}
@@ -104,29 +104,39 @@ export function LiquidSelect({
                                         key={option.value}
                                         value={option.value}
                                         className={cn(
-                                            'relative flex items-center gap-3 px-3 py-2 rounded-xl',
-                                            'text-sm cursor-pointer transition-all',
-                                            'outline-none',
-                                            'text-gray-300 hover:bg-white/10 hover:text-white',
-                                            'data-[state=checked]:bg-white/20 data-[state=checked]:font-medium data-[state=checked]:text-white',
+                                            'relative flex w-full cursor-default select-none items-center rounded-xl py-2.5 px-3 mb-1 outline-none',
+                                            'text-sm text-gray-300',
+                                            'transition-colors duration-200',
+                                            'data-[highlighted]:bg-white/10 data-[highlighted]:text-white',
+                                            'data-[state=checked]:bg-white/20 data-[state=checked]:text-white'
                                         )}
                                     >
-                                        {OptionIcon && <OptionIcon className="h-4 w-4" />}
-                                        <SelectPrimitive.ItemText>{option.label}</SelectPrimitive.ItemText>
-                                        <SelectPrimitive.ItemIndicator className="ml-auto">
+                                        <div className="flex items-center gap-2 flex-1">
+                                            {OptionIcon && <OptionIcon className="h-4 w-4 opacity-70" />}
+                                            <SelectPrimitive.ItemText>{option.label}</SelectPrimitive.ItemText>
+                                        </div>
+                                        <SelectPrimitive.ItemIndicator>
                                             <Check className="h-4 w-4 text-white" />
                                         </SelectPrimitive.ItemIndicator>
                                     </SelectPrimitive.Item>
                                 );
                             })}
                         </SelectPrimitive.Viewport>
+                        <SelectPrimitive.ScrollUpButton className="flex items-center justify-center h-[25px] bg-white/5 text-white cursor-default">
+                            <ChevronUp />
+                        </SelectPrimitive.ScrollUpButton>
+                        <SelectPrimitive.ScrollDownButton className="flex items-center justify-center h-[25px] bg-white/5 text-white cursor-default">
+                            <ChevronDown />
+                        </SelectPrimitive.ScrollDownButton>
                     </SelectPrimitive.Content>
                 </SelectPrimitive.Portal>
             </SelectPrimitive.Root>
 
-            {/* Error Text */}
+            {/* Error Message */}
             {error && (
-                <p className="mt-1.5 text-xs font-light text-ui-error">{error}</p>
+                <p className="mt-1.5 text-xs font-light text-ui-error animate-in slide-in-from-top-1">
+                    {error}
+                </p>
             )}
         </div>
     );

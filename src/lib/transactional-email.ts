@@ -212,3 +212,24 @@ export async function sendBookingConfirmation(
     'Booking Confirmation'
   )
 }
+
+/**
+ * Send welcome email to new student guide
+ */
+import { getStudentWelcomeHtml } from '@/lib/email-templates'
+
+export async function sendStudentWelcomeEmail(
+  email: string,
+  name: string
+): Promise<{ success: boolean; error?: string }> {
+  const html = getStudentWelcomeHtml(name)
+
+  return await sendTransactionalEmail(
+    {
+      to: email,
+      subject: `Welcome to the Team, ${name}! 🎓`,
+      html,
+    },
+    'Student Welcome Email'
+  )
+}

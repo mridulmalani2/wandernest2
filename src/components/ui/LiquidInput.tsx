@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { cn } from '@/lib/utils';
-import { LucideIcon } from 'lucide-react';
+import { LucideIcon, Eye, EyeOff } from 'lucide-react';
 
 export interface LiquidInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
     label?: string;
@@ -14,19 +14,14 @@ export interface LiquidInputProps extends React.InputHTMLAttributes<HTMLInputEle
 
 /**
  * LiquidInput - Accessible floating label input component
- *
- * Accessibility features:
- * - aria-describedby: Links error and helper text to input
- * - aria-invalid: Indicates validation state
- * - aria-required: Indicates required fields
- * - role="alert" on error messages for screen reader announcements
- * - Icons marked with aria-hidden
  */
 const LiquidInput = React.forwardRef<HTMLInputElement, LiquidInputProps>(
     ({ className, label, error, helperText, icon: Icon, containerClassName, type, placeholder, required, ...props }, ref) => {
         const [isFocused, setIsFocused] = React.useState(false);
         const [hasValue, setHasValue] = React.useState(false);
-        const id = React.useId();
+        const [showPassword, setShowPassword] = React.useState(false);
+        const internalId = React.useId();
+        const id = props.id || internalId;
         const errorId = `${id}-error`;
         const helperId = `${id}-helper`;
 
@@ -42,6 +37,8 @@ const LiquidInput = React.forwardRef<HTMLInputElement, LiquidInputProps>(
             setHasValue(e.target.value.length > 0);
             props.onBlur?.(e);
         };
+
+        const inputType = type === 'password' && showPassword ? 'text' : type;
 
         return (
             <div className={cn('relative w-full', containerClassName)}>
@@ -59,7 +56,7 @@ const LiquidInput = React.forwardRef<HTMLInputElement, LiquidInputProps>(
                     {/* Input */}
                     <input
                         id={id}
-                        type={type}
+                        type={inputType}
                         ref={ref}
                         required={required}
                         aria-invalid={error ? 'true' : undefined}
@@ -87,6 +84,7 @@ const LiquidInput = React.forwardRef<HTMLInputElement, LiquidInputProps>(
 
                             // Icon padding
                             Icon && 'pl-6',
+                            type === 'password' && 'pr-8',
 
                             // Always hide placeholder when we have a label (prevents overlap)
                             label && 'placeholder:text-transparent',
@@ -99,6 +97,18 @@ const LiquidInput = React.forwardRef<HTMLInputElement, LiquidInputProps>(
                         {...props}
                     />
 
+                    {/* Password Toggle */}
+                    {type === 'password' && (
+                        <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-0 top-2 p-1 text-gray-400 hover:text-white transition-colors focus:outline-none"
+                            aria-label={showPassword ? "Hide password" : "Show password"}
+                        >
+                            {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        </button>
+                    )}
+
                     {/* Floating Label */}
                     {label && (
                         <label
@@ -109,7 +119,7 @@ const LiquidInput = React.forwardRef<HTMLInputElement, LiquidInputProps>(
                                 Icon && 'left-6',
 
                                 // Floating animation
-                                isFocused || hasValue || props.value || type === 'date'
+                                isFocused || hasValue || props.value || inputType === 'date'
                                     ? '-top-5 text-xs text-white/80'
                                     : 'top-3 text-base text-white/50',
 

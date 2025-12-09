@@ -4,74 +4,69 @@ export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server';
 import { requireDatabase } from '@/lib/prisma';
 import { getValidStudentSession, readStudentTokenFromRequest } from '@/lib/student-auth';
+import { sendStudentWelcomeEmail } from '@/lib/transactional-email';
 import { z } from 'zod';
 import { withErrorHandler, withDatabaseRetry, AppError } from '@/lib/error-handler';
+import * as bcrypt from 'bcryptjs';
+
+const GENERIC_DOMAINS = ['gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com', 'aol.com', 'icloud.com'];
 
 const onboardingSchema = z.object({
   // Authentication
-  email: z.string().email(),
+  email: z.string().email().refine((email) => {
+    // Allow any email in development
+    if (process.env.NODE_ENV === 'development') return true;
+
+    const domain = email.split('@')[1];
+    return !GENERIC_DOMAINS.includes(domain.toLowerCase());
+  }, { message: "Please use your university email address (e.g., .edu, .ac.uk). Generic providers like Gmail are not allowed." }),
   googleId: z.string().optional(),
+  password: z.string().min(8),
 
   // Personal Details
-  name: z.string().min(1),
-  dateOfBirth: z.string().min(1).transform(str => new Date(str)),
+  name: z.string().min(1).max(100),
+  dateOfBirth: z.string().min(1).transform(str => new Date(str)).refine((date) => {
+    const ageDifMs = Date.now() - date.getTime();
+    const ageDate = new Date(ageDifMs);
+    const age = Math.abs(ageDate.getUTCFullYear() - 1970);
+    return age >= 18;
+  }, { message: "You must be at least 18 years old." }),
   gender: z.enum(['male', 'female', 'prefer_not_to_say']),
-  nationality: z.string().min(1),
-  phoneNumber: z.string().min(1),
-  city: z.string().min(1),
-  campus: z.string().min(1),
+  nationality: z.string().min(1).max(100),
+  phoneNumber: z.string().min(8, "Phone number too short").max(20, "Phone number too long").regex(/^\+?[0-9\s\-\(\)]+$/, "Invalid phone number format"),
+  city: z.string().min(1).max(100),
+  campus: z.string().min(1).max(100),
 
   // Academic Details
-  institute: z.string().min(1),
-  programDegree: z.string().min(1),
+  institute: z.string().min(1).max(100),
+  programDegree: z.string().min(1).max(100),
   yearOfStudy: z.string().min(1),
-  expectedGraduation: z.string().min(1),
+  // Fixed: expectedGraduation should be string in DB, so we refine the string instead of transforming
+  expectedGraduation: z.string().min(1).refine((str) => {
+    const d = new Date(str);
+    return !isNaN(d.getTime()) && d.getFullYear() >= new Date().getFullYear();
+  }, { message: "Graduation year cannot be in the past." }),
   languages: z.array(z.string()).min(1),
 
   // Identity Verification
   studentIdUrl: z.string().min(1),
-  studentIdExpiry: z.string().min(1).transform(str => new Date(str)),
-  governmentIdUrl: z.string().min(1),
-  governmentIdExpiry: z.string().min(1).transform(str => new Date(str)),
-  selfieUrl: z.string().min(1),
+  studentIdExpiry: z.string().min(1).regex(/^\d{2}\/\d{4}$/, "Format must be MM/YYYY").transform(str => {
+    const [month, year] = str.split('/').map(Number);
+    return new Date(year, month, 0); // Last day of the month
+  }).refine((date) => date > new Date(), { message: "Student ID has expired." }),
+  governmentIdUrl: z.string().optional(),
+  governmentIdExpiry: z.string().optional().transform(str => str ? new Date(str) : undefined).refine((date) => !date || date > new Date(), { message: "Government ID has expired." }),
+  selfieUrl: z.string().optional(),
   profilePhotoUrl: z.string().min(1),
   documentsOwnedConfirmation: z.boolean(),
   verificationConsent: z.boolean(),
 
-  // Profile Information
-  bio: z.string().min(50),
-  skills: z.array(z.string()).min(1),
-  preferredGuideStyle: z.string().optional(),
-  coverLetter: z.string().min(200),
-  interests: z.array(z.string()).min(1),
-
-  // Availability
-  timezone: z.string().min(1),
-  preferredDurations: z.array(z.string()).min(1),
-  unavailabilityExceptions: z.array(z.object({
-    date: z.string().min(1).transform(str => new Date(str)),
-    reason: z.string().optional(),
-  })).optional(),
-  availability: z.array(
-    z.object({
-      dayOfWeek: z.number().min(0).max(6),
-      startTime: z.string().min(1),
-      endTime: z.string().min(1),
-      note: z.string().optional(),
-    })
-  ).min(1),
-
-  // Service Preferences
-  servicesOffered: z.array(z.string()).min(1),
-  hourlyRate: z.number().positive(),
-  onlineServicesAvailable: z.boolean(),
-
   // Safety & Compliance
-  termsAccepted: z.boolean(),
-  safetyGuidelinesAccepted: z.boolean(),
-  independentGuideAcknowledged: z.boolean(),
+  termsAccepted: z.literal(true, { errorMap: () => ({ message: "You must accept the terms" }) }),
+  safetyGuidelinesAccepted: z.literal(true),
+  independentGuideAcknowledged: z.literal(true),
   emergencyContactName: z.string().optional(),
-  emergencyContactPhone: z.string().optional(),
+  emergencyContactPhone: z.string().optional().refine((val) => !val || /^\+?[0-9\s\-\(\)]+$/.test(val), { message: "Invalid emergency contact phone" }),
 });
 
 // Helper function to calculate profile completeness
@@ -79,18 +74,16 @@ function calculateProfileCompleteness(data: Record<string, unknown>): number {
   const requiredFields = [
     'name', 'dateOfBirth', 'gender', 'nationality', 'phoneNumber',
     'city', 'campus', 'institute', 'programDegree', 'yearOfStudy',
-    'expectedGraduation', 'studentIdUrl', 'governmentIdUrl', 'selfieUrl',
-    'profilePhotoUrl', 'bio', 'coverLetter', 'hourlyRate', 'timezone'
+    'expectedGraduation', 'studentIdUrl', 'profilePhotoUrl'
   ];
 
-  const arrayFields = ['languages', 'skills', 'interests', 'servicesOffered', 'preferredDurations'];
+  const arrayFields = ['languages'];
   const booleanFields = [
     'documentsOwnedConfirmation',
     'verificationConsent',
     'termsAccepted',
     'safetyGuidelinesAccepted',
     'independentGuideAcknowledged',
-    'onlineServicesAvailable',
   ];
 
   let completed = 0;
@@ -99,7 +92,6 @@ function calculateProfileCompleteness(data: Record<string, unknown>): number {
   requiredFields.forEach(field => { if (data[field]) completed++; });
   arrayFields.forEach(field => { if (Array.isArray(data[field]) && (data[field] as unknown[]).length > 0) completed++; });
   booleanFields.forEach(field => { if (data[field]) completed++; });
-  if (Array.isArray(data.availability) && data.availability.length > 0) completed++;
 
   return Math.round((completed / total) * 100);
 }
@@ -153,12 +145,17 @@ async function submitOnboarding(req: NextRequest) {
   const completeness = calculateProfileCompleteness(validatedData);
 
   // Create student profile
+  const passwordHash = validatedData.password
+    ? await bcrypt.hash(validatedData.password, 10)
+    : undefined;
+
   const student = await withDatabaseRetry(async () =>
     db.student.create({
       data: {
         // Authentication
         email: validatedData.email,
         googleId: validatedData.googleId,
+        passwordHash,
 
         // Personal Details
         name: validatedData.name,
@@ -190,20 +187,20 @@ async function submitOnboarding(req: NextRequest) {
         idCardUrl: validatedData.studentIdUrl,
 
         // Profile Information
-        bio: validatedData.bio,
-        skills: validatedData.skills,
-        preferredGuideStyle: validatedData.preferredGuideStyle,
-        coverLetter: validatedData.coverLetter,
-        interests: validatedData.interests,
+        // bio: undefined
+        // skills: [],
+        // preferredGuideStyle: undefined,
+        // coverLetter: undefined,
+        // interests: [],
 
         // Availability
-        timezone: validatedData.timezone,
-        preferredDurations: validatedData.preferredDurations,
+        // timezone: undefined,
+        // preferredDurations: [],
 
         // Service Preferences
-        servicesOffered: validatedData.servicesOffered,
-        hourlyRate: validatedData.hourlyRate,
-        onlineServicesAvailable: validatedData.onlineServicesAvailable,
+        // servicesOffered: [],
+        // hourlyRate: undefined,
+        // onlineServicesAvailable: false,
 
         // Safety & Compliance
         termsAccepted: validatedData.termsAccepted,
@@ -228,35 +225,16 @@ async function submitOnboarding(req: NextRequest) {
     })
   );
 
-  // Create availability slots
-  if (validatedData.availability.length > 0) {
-    await withDatabaseRetry(async () =>
-      db.studentAvailability.createMany({
-        data: validatedData.availability.map((slot) => ({
-          studentId: student.id,
-          dayOfWeek: slot.dayOfWeek,
-          startTime: slot.startTime,
-          endTime: slot.endTime,
-          note: slot.note,
-        })),
-      })
-    );
+  // Availability creation removed
+  // Unavailability exceptions creation removed
+
+  // Send email notification to student
+  const emailResult = await sendStudentWelcomeEmail(student.email, student.name || 'Guide');
+  if (!emailResult.success) {
+    console.warn(`Failed to send welcome email to ${student.email}:`, emailResult.error);
+    // Continue execution - do not fail onboarding for email delivery issues
   }
 
-  // Create unavailability exceptions if provided
-  if (validatedData.unavailabilityExceptions && validatedData.unavailabilityExceptions.length > 0) {
-    await withDatabaseRetry(async () =>
-      db.unavailabilityException.createMany({
-        data: validatedData.unavailabilityExceptions!.map((exception) => ({
-          studentId: student.id,
-          date: exception.date,
-          reason: exception.reason,
-        })),
-      })
-    );
-  }
-
-  // TODO: Send email notification to student
   // TODO: Send notification to admin team for review
 
   return NextResponse.json({

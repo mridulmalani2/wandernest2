@@ -88,6 +88,7 @@ export function BasicProfileStep({ formData, updateFormData, errors, cities }: B
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <LiquidInput
+              id="name"
               label="Full Name (as on ID)"
               value={formData.name}
               onChange={(e) => updateFormData({ name: e.target.value })}
@@ -97,6 +98,7 @@ export function BasicProfileStep({ formData, updateFormData, errors, cities }: B
             />
 
             <LiquidInput
+              id="dateOfBirth"
               label="Date of Birth"
               type="date"
               value={formData.dateOfBirth}
@@ -114,6 +116,7 @@ export function BasicProfileStep({ formData, updateFormData, errors, cities }: B
             <div className="grid grid-cols-3 gap-3">
               {['male', 'female', 'prefer_not_to_say'].map((option) => (
                 <button
+                  id={option === 'male' ? 'gender' : undefined}
                   key={option}
                   type="button"
                   role="radio"
@@ -123,8 +126,8 @@ export function BasicProfileStep({ formData, updateFormData, errors, cities }: B
                     'py-3 px-4 rounded-full text-sm font-medium transition-all duration-300',
                     'border-2',
                     formData.gender === option
-                      ? 'bg-liquid-dark-primary text-white border-liquid-dark-primary shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]'
-                      : 'bg-white text-gray-900 border-gray-300 hover:border-liquid-dark-primary hover:shadow-md hover:bg-liquid-light active:scale-[0.98] active:bg-gray-100'
+                      ? 'bg-white text-black border-white shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]'
+                      : 'bg-transparent text-white border-white/20 hover:border-white/50 hover:bg-white/10 active:scale-[0.98]'
                   )}
                 >
                   {option === 'prefer_not_to_say' ? 'Prefer not to say' : option.charAt(0).toUpperCase() + option.slice(1)}
@@ -137,6 +140,7 @@ export function BasicProfileStep({ formData, updateFormData, errors, cities }: B
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
               <LiquidSelect
+                id="nationality"
                 label="Nationality"
                 value={COUNTRIES.includes(formData.nationality) ? formData.nationality : (formData.nationality ? 'other' : '')}
                 onValueChange={(value) => {
@@ -165,6 +169,7 @@ export function BasicProfileStep({ formData, updateFormData, errors, cities }: B
             </div>
 
             <LiquidInput
+              id="phoneNumber"
               label="Phone Number"
               type="tel"
               value={formData.phoneNumber}
@@ -176,12 +181,34 @@ export function BasicProfileStep({ formData, updateFormData, errors, cities }: B
           </div>
 
           <LiquidInput
+            id="email"
             label="Email Address"
             type="email"
             value={formData.email}
             disabled
             containerClassName="opacity-60"
           />
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <LiquidInput
+              id="password"
+              label="Create Password"
+              type="password"
+              value={formData.password || ''}
+              onChange={(e) => updateFormData({ password: e.target.value })}
+              placeholder="Min. 8 characters"
+              error={errors.password}
+            />
+            <LiquidInput
+              id="confirmPassword"
+              label="Confirm Password"
+              type="password"
+              value={formData.confirmPassword || ''}
+              onChange={(e) => updateFormData({ confirmPassword: e.target.value })}
+              placeholder="Re-enter password"
+              error={errors.confirmPassword}
+            />
+          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <LiquidSelect
@@ -264,11 +291,15 @@ export function BasicProfileStep({ formData, updateFormData, errors, cities }: B
             />
           </div>
 
-          <LiquidInput
-            label="Expected Graduation"
+          <LiquidSelect
+            label="Expected Graduation Year"
             value={formData.expectedGraduation}
-            onChange={(e) => updateFormData({ expectedGraduation: e.target.value })}
-            placeholder="e.g., 2025"
+            onValueChange={(value) => updateFormData({ expectedGraduation: value })}
+            placeholder="Select Year"
+            options={Array.from({ length: 7 }, (_, i) => {
+              const year = new Date().getFullYear() + i;
+              return { value: year.toString(), label: year.toString() };
+            })}
             error={errors.expectedGraduation}
             icon={GraduationCap}
           />
