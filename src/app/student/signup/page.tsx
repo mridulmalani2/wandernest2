@@ -5,7 +5,7 @@ import { Suspense, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Mail, CheckCircle2, User, Lock, AlertCircle, ArrowLeft } from 'lucide-react';
+import { Mail, CheckCircle2, User, Lock, AlertCircle, ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { PrimaryCTAButton } from '@/components/ui/PrimaryCTAButton';
 import { isValidEmailFormat } from '@/lib/email-validation';
@@ -23,6 +23,7 @@ function StudentSignupContent() {
     const [code, setCode] = useState('');
     const [name, setName] = useState('');
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
 
     // Handlers
     const handleSendOtp = async (e: React.FormEvent) => {
@@ -260,15 +261,22 @@ function StudentSignupContent() {
                                             <div className="relative">
                                                 <Lock className="absolute left-3 top-3.5 text-[#CFCBFF]" size={20} />
                                                 <Input
-                                                    type="password"
+                                                    type={showPassword ? 'text' : 'password'}
                                                     required
                                                     minLength={8}
                                                     value={password}
                                                     onChange={(e) => setPassword(e.target.value)}
                                                     placeholder="Min. 8 characters"
-                                                    className="pl-10 h-12 bg-[#ffffff10] border-[#ffffff2e] text-white placeholder:text-gray-400 focus:border-[#A66CFF]/50 focus:ring-[#A66CFF]/20"
+                                                    className="pl-10 pr-10 h-12 bg-[#ffffff10] border-[#ffffff2e] text-white placeholder:text-gray-400 focus:border-[#A66CFF]/50 focus:ring-[#A66CFF]/20"
                                                     disabled={loading}
                                                 />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setShowPassword(!showPassword)}
+                                                    className="absolute right-3 top-3.5 text-gray-400 hover:text-white transition-colors"
+                                                >
+                                                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                                                </button>
                                             </div>
                                         </div>
                                     </div>
@@ -277,7 +285,7 @@ function StudentSignupContent() {
                                         type="submit"
                                         isLoading={loading}
                                         variant="purple"
-                                        className="w-full justify-center mt-6"
+                                        className="w-full justify-center"
                                     >
                                         Create Account & Login
                                     </PrimaryCTAButton>

@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Menu, X, User, LogOut, LayoutDashboard, ChevronLeft, UserCircle, Home } from 'lucide-react'
 import { useSession, signOut } from 'next-auth/react'
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import { motion } from 'framer-motion'
 
 interface NavigationProps {
@@ -18,6 +18,7 @@ interface NavigationProps {
 export default function Navigation({ variant = 'default', showBackButton = false, backHref = '/' }: NavigationProps) {
   const { data: session } = useSession()
   const router = useRouter()
+  const pathname = usePathname()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
   const [studentSession, setStudentSession] = useState<{ email: string; name?: string | null } | null>(null)
@@ -81,7 +82,7 @@ export default function Navigation({ variant = 'default', showBackButton = false
     return () => {
       isMounted = false
     }
-  }, [session, variant])
+  }, [session, variant, pathname])
 
   return (
     <header className={`nav-glass-dark fixed top-0 w-full z-50 transition-all duration-300 ${isScrolled ? 'shadow-lg shadow-black/10' : ''

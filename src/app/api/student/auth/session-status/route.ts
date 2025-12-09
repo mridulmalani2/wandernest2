@@ -47,12 +47,22 @@ export async function GET() {
           );
         }
 
+        let studentName = null;
+        if (studentId) {
+          const student = await prisma.student.findUnique({
+            where: { id: studentId },
+            select: { name: true }
+          });
+          studentName = student?.name;
+        }
+
         return NextResponse.json(
           {
             ok: true,
             nextPath: '/student/dashboard',
             linkedExistingStudent: true,
             email: session.email,
+            student: { name: studentName }
           },
           { status: 200 }
         );

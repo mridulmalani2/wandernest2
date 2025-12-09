@@ -7,7 +7,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { CheckCircle2, Mail, AlertCircle } from 'lucide-react';
+import { CheckCircle2, Mail, AlertCircle, Eye, EyeOff } from 'lucide-react';
 import { PrimaryCTAButton } from '@/components/ui/PrimaryCTAButton';
 import { Input } from '@/components/ui/input';
 import {
@@ -28,6 +28,7 @@ function StudentSignInContent() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [isPasswordLogin, setIsPasswordLogin] = useState(true);
   const [step, setStep] = useState<Step>('email');
   const [code, setCode] = useState('');
@@ -234,15 +235,24 @@ function StudentSignInContent() {
                   <label className="block text-sm font-medium text-gray-200 mb-1">
                     Password
                   </label>
-                  <Input
-                    type="password"
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••"
-                    className="h-12 bg-[#ffffff10] border-[#ffffff2e] text-white placeholder:text-gray-400 focus:border-[#A66CFF]/50 focus:ring-[#A66CFF]/20"
-                    disabled={isSubmitting}
-                  />
+                  <div className="relative">
+                    <Input
+                      type={showPassword ? 'text' : 'password'}
+                      required
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="••••••••"
+                      className="h-12 pr-10 bg-[#ffffff10] border-[#ffffff2e] text-white placeholder:text-gray-400 focus:border-[#A66CFF]/50 focus:ring-[#A66CFF]/20"
+                      disabled={isSubmitting}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-3.5 text-gray-400 hover:text-white transition-colors"
+                    >
+                      {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                    </button>
+                  </div>
                   <div className="flex justify-end mt-1">
                     <Link href="/student/auth/reset-password" className="text-xs text-gray-300 hover:text-white transition-colors">
                       Forgot password?
