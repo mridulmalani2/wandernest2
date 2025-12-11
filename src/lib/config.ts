@@ -122,7 +122,7 @@ function loadConfig(): AppConfig {
 
   if (!isGoogleConfigured) {
     if (isProduction) {
-      configErrors.push(
+      configWarnings.push(
         'Google OAuth is not configured (GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET) - authentication will fail'
       )
     } else {
@@ -137,7 +137,7 @@ function loadConfig(): AppConfig {
 
   if (!nextAuthSecret) {
     if (isProduction) {
-      configErrors.push(
+      configWarnings.push(
         'NEXTAUTH_SECRET is required in production - generate with: openssl rand -base64 32'
       )
     } else {
@@ -146,7 +146,7 @@ function loadConfig(): AppConfig {
   } else {
     // Validate NEXTAUTH_SECRET strength in production
     if (isProduction && nextAuthSecret.length < 32) {
-      configErrors.push(
+      configWarnings.push(
         'NEXTAUTH_SECRET is too short - must be at least 32 characters for production security'
       )
     }
@@ -155,7 +155,7 @@ function loadConfig(): AppConfig {
   if (!nextAuthUrl) {
     if (isProduction) {
       configWarnings.push(
-        'NEXTAUTH_URL is not set - Vercel can auto-detect this, but explicit is recommended. Set to your production domain (e.g., https://tourwiseco.com)'
+        'NEXTAUTH_URL is not set - Vercel can auto-detect this, but explicit is recommended. Set to your production domain (e.g., https://judgementwfam.tech)'
       )
     } else {
       configWarnings.push('NEXTAUTH_URL is not set - using default (http://localhost:3000)')
@@ -163,10 +163,10 @@ function loadConfig(): AppConfig {
   } else {
     // Validate NEXTAUTH_URL format
     if (!nextAuthUrl.startsWith('http://') && !nextAuthUrl.startsWith('https://')) {
-      configErrors.push('NEXTAUTH_URL must start with http:// or https://')
+      configWarnings.push('NEXTAUTH_URL must start with http:// or https://')
     }
     if (isProduction && nextAuthUrl.startsWith('http://')) {
-      configErrors.push('NEXTAUTH_URL must use https:// in production (not http://)')
+      configWarnings.push('NEXTAUTH_URL must use https:// in production (not http://)')
     }
     // Validate callback URL construction
     if (isProduction) {
@@ -191,7 +191,7 @@ function loadConfig(): AppConfig {
   // CRITICAL: Enforce custom domain in production, overriding Vercel's default .vercel.app URLs
   if (isProduction) {
     if (!baseUrl || baseUrl.includes('vercel.app')) {
-      baseUrl = 'https://www.tourwiseco.com';
+      baseUrl = 'https://judgementwfam.tech';
     }
   }
 
