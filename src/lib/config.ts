@@ -186,14 +186,7 @@ function loadConfig(): AppConfig {
   }
 
   // App configuration
-  let baseUrl = process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXTAUTH_URL
-
-  // CRITICAL: Enforce custom domain in production, overriding Vercel's default .vercel.app URLs
-  if (isProduction) {
-    if (!baseUrl || baseUrl.includes('vercel.app')) {
-      baseUrl = 'https://judgementwfam.tech';
-    }
-  }
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXTAUTH_URL
 
   if (!baseUrl && isProduction) {
     configWarnings.push(
