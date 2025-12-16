@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { cookies } from 'next/headers'
+import { sendWelcomeEmail } from '@/lib/email'
 
 export const dynamic = 'force-dynamic'
 
@@ -58,6 +59,15 @@ export async function POST(req: Request) {
                     profileCompleteness: 10, // Arbitrary starting value
                 },
             })
+
+            // Send Welcome Email for new signups
+            console.log(`✨ New user signed up: ${email}. Sending welcome email...`);
+            try {
+                await sendWelcomeEmail(email);
+                console.log(`✅ Welcome email sent to ${email}`);
+            } catch (emailErr) {
+                console.error('❌ Failed to send welcome email:', emailErr);
+            }
         } else {
             // If student exists, we might just update the basic info if it's missing?
             // Or just log them in. For "Signup" route, usually implies creating or updating.
