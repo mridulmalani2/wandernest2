@@ -59,15 +59,20 @@ export async function GET() {
           profileCompleteness = student?.profileCompleteness;
         }
 
+        // Check if onboarding is arguably complete (has name and completeness score)
+        const hasCompletedOnboarding = !!(studentName && (profileCompleteness || 0) > 0);
+
         return NextResponse.json(
           {
             ok: true,
-            nextPath: '/student/dashboard',
+            nextPath: hasCompletedOnboarding ? '/student/dashboard' : '/student/onboarding',
             linkedExistingStudent: true,
+            hasCompletedOnboarding, // Directly return this flag
             email: session.email,
             student: {
               name: studentName,
-              profileCompleteness: profileCompleteness
+              profileCompleteness: profileCompleteness,
+              hasCompletedOnboarding // Also keep inside student object for compatibility
             }
           },
           { status: 200 }

@@ -24,6 +24,7 @@ function StudentSignupContent() {
     const [name, setName] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
+    const [agreedToTerms, setAgreedToTerms] = useState(false);
 
     // Handlers
     const handleSendOtp = async (e: React.FormEvent) => {
@@ -279,6 +280,21 @@ function StudentSignupContent() {
                                                 </button>
                                             </div>
                                         </div>
+                                    </div>
+
+                                    <div className="flex items-start gap-3 mt-4 p-4 rounded-xl bg-purple-500/10 border border-purple-500/20">
+                                        <div className="flex items-center h-5 mt-0.5">
+                                            <input
+                                                id="terms-checkbox"
+                                                type="checkbox"
+                                                checked={agreedToTerms}
+                                                onChange={(e) => setAgreedToTerms(e.target.checked)}
+                                                className="w-4 h-4 rounded border-gray-600 text-purple-600 focus:ring-purple-500 bg-gray-800"
+                                            />
+                                        </div>
+                                        <label htmlFor="terms-checkbox" className="text-sm text-gray-300">
+                                            I agree to the <Link href="/terms" className="text-purple-400 hover:text-purple-300 underline">Terms of Service</Link>, <Link href="/safety" className="text-purple-400 hover:text-purple-300 underline">Safety Guidelines</Link>, and <Link href="/privacy" className="text-purple-400 hover:text-purple-300 underline">Privacy Policy</Link>. I understand I am acting as an independent student guide.
+                                        </label>
                                     </div>
 
                                     <PrimaryCTAButton
