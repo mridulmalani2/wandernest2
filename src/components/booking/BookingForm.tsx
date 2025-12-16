@@ -25,6 +25,7 @@ export type BookingFormData = {
   preferredGender?: 'male' | 'female' | 'no_preference'
   serviceType: 'itinerary_help' | 'guided_experience' | ''
   interests: string[]
+  interestHighlights?: string
   hourlyRate?: number
   totalBudget?: number
   discoveryFeeConsent?: boolean
@@ -62,6 +63,7 @@ export function BookingForm() {
     preferredLanguages: [],
     serviceType: '',
     interests: [],
+    interestHighlights: '',
     discoveryFeeConsent: false,
     email: '',
     contactMethod: 'email',
@@ -204,6 +206,7 @@ export function BookingForm() {
           preferredGender: formData.preferredGender,
           serviceType: formData.serviceType,
           interests: formData.interests,
+          interestHighlights: formData.interestHighlights,
           budget: formData.totalBudget,
           discoveryFeeConsent: formData.discoveryFeeConsent,
           phone: formData.phone,
