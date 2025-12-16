@@ -15,11 +15,11 @@ export default function TouristLanding() {
           alt="Beautiful London Thames River with iconic architecture"
           fill
           priority
-          quality={70}
+          quality={60}
           sizes="100vw"
           className="object-cover"
         />
-        <div className="absolute inset-0 bg-black/30 backdrop-blur-[4px]" />
+        <div className="absolute inset-0 bg-black/45" />
         <div className="absolute inset-0 bg-gradient-to-br from-ui-blue-primary/20 via-ui-blue-accent/15 to-ui-purple-primary/20" />
       </div>
       <div className="absolute inset-0 pattern-dots opacity-15" />
@@ -84,7 +84,7 @@ export default function TouristLanding() {
                     />
                     <div className="absolute inset-0 bg-black/40"></div>
                   </div>
-                  <div className="relative z-10 p-8 h-full backdrop-blur-sm bg-white/10 border border-white/20 rounded-2xl group-hover:bg-white/15 transition-all">
+                  <div className="relative z-10 p-8 h-full bg-white/10 border border-white/20 rounded-2xl group-hover:bg-white/15 transition-all">
                     <div className="inline-flex p-4 rounded-2xl bg-white/10 text-white mb-6 group-hover:scale-105 transition-all duration-300 shadow-md border border-white/20">
                       <GraduationCap className="w-8 h-8" />
                     </div>
@@ -110,7 +110,7 @@ export default function TouristLanding() {
                     />
                     <div className="absolute inset-0 bg-black/40"></div>
                   </div>
-                  <div className="relative z-10 p-8 h-full backdrop-blur-sm bg-white/10 border border-white/20 rounded-2xl group-hover:bg-white/15 transition-all">
+                  <div className="relative z-10 p-8 h-full bg-white/10 border border-white/20 rounded-2xl group-hover:bg-white/15 transition-all">
                     <div className="inline-flex p-4 rounded-2xl bg-white/10 text-white mb-6 group-hover:scale-105 transition-all duration-300 shadow-md border border-white/20">
                       <MessageCircle className="w-8 h-8" />
                     </div>
@@ -136,7 +136,7 @@ export default function TouristLanding() {
                     />
                     <div className="absolute inset-0 bg-black/40"></div>
                   </div>
-                  <div className="relative z-10 p-8 h-full backdrop-blur-sm bg-white/10 border border-white/20 rounded-2xl group-hover:bg-white/15 transition-all">
+                  <div className="relative z-10 p-8 h-full bg-white/10 border border-white/20 rounded-2xl group-hover:bg-white/15 transition-all">
                     <div className="inline-flex p-4 rounded-2xl bg-white/10 text-white mb-6 group-hover:scale-105 transition-all duration-300 shadow-md border border-white/20">
                       <Star className="w-8 h-8" />
                     </div>
@@ -160,7 +160,7 @@ export default function TouristLanding() {
                 <div className="grid md:grid-cols-3 gap-8">
                   {/* Step 1 */}
                   <div className="text-center group">
-                    <div className="min-h-[120px] space-y-2 backdrop-blur-sm bg-white/10 rounded-xl p-5 border border-white/20 group-hover:bg-white/20 transition-all">
+                    <div className="min-h-[120px] space-y-2 bg-white/10 rounded-xl p-5 border border-white/20 group-hover:bg-white/20 transition-all">
                       <h3 className="font-bold text-lg text-white">Submit Your Request</h3>
                       <p className="text-sm text-white/90 leading-relaxed">
                         Tell us about your trip preferences, dates, and interests
@@ -170,7 +170,7 @@ export default function TouristLanding() {
 
                   {/* Step 2 */}
                   <div className="text-center group">
-                    <div className="min-h-[120px] space-y-2 backdrop-blur-sm bg-white/10 rounded-xl p-5 border border-white/20 group-hover:bg-white/20 transition-all">
+                    <div className="min-h-[120px] space-y-2 bg-white/10 rounded-xl p-5 border border-white/20 group-hover:bg-white/20 transition-all">
                       <h3 className="font-bold text-lg text-white">Get Matched with Guides</h3>
                       <p className="text-sm text-white/90 leading-relaxed">
                         We match you with verified student guides who fit your needs
@@ -180,7 +180,7 @@ export default function TouristLanding() {
 
                   {/* Step 3 */}
                   <div className="text-center group">
-                    <div className="min-h-[120px] space-y-2 backdrop-blur-sm bg-white/10 rounded-xl p-5 border border-white/20 group-hover:bg-white/20 transition-all">
+                    <div className="min-h-[120px] space-y-2 bg-white/10 rounded-xl p-5 border border-white/20 group-hover:bg-white/20 transition-all">
                       <h3 className="font-bold text-lg text-white">Experience the City</h3>
                       <p className="text-sm text-white/90 leading-relaxed">
                         Connect directly with your guide and enjoy an authentic local experience
@@ -193,7 +193,7 @@ export default function TouristLanding() {
               {/* Mobile Vertical Timeline */}
               <div className="md:hidden space-y-4 max-w-md mx-auto">
                 {/* Step 1 */}
-                <div className="space-y-2 backdrop-blur-sm bg-white/10 rounded-xl p-4 border border-white/20">
+                <div className="space-y-2 bg-white/10 rounded-xl p-4 border border-white/20">
                   <h3 className="font-bold text-base text-white">Submit Your Request</h3>
                   <p className="text-sm text-white/90 leading-relaxed">
                     Tell us about your trip preferences, dates, and interests
@@ -201,7 +201,7 @@ export default function TouristLanding() {
                 </div>
 
                 {/* Step 2 */}
-                <div className="space-y-2 backdrop-blur-sm bg-white/10 rounded-xl p-4 border border-white/20">
+                <div className="space-y-2 bg-white/10 rounded-xl p-4 border border-white/20">
                   <h3 className="font-bold text-base text-white">Get Matched with Guides</h3>
                   <p className="text-sm text-white/90 leading-relaxed">
                     We match you with verified student guides who fit your needs
@@ -209,7 +209,7 @@ export default function TouristLanding() {
                 </div>
 
                 {/* Step 3 */}
-                <div className="space-y-2 backdrop-blur-sm bg-white/10 rounded-xl p-4 border border-white/20">
+                <div className="space-y-2 bg-white/10 rounded-xl p-4 border border-white/20">
                   <h3 className="font-bold text-base text-white">Experience the City</h3>
                   <p className="text-sm text-white/90 leading-relaxed">
                     Connect directly with your guide and enjoy an authentic local experience
@@ -238,7 +238,7 @@ export default function TouristLanding() {
                       src="https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=600&q=80"
                       alt="Iconic Paris architecture and streets"
                       fill
-                      quality={75}
+                      quality={65}
                       sizes="(max-width: 768px) 100vw, 33vw"
                       className="object-cover group-hover:scale-110 transition-transform duration-700"
                       loading="lazy"
@@ -262,7 +262,7 @@ export default function TouristLanding() {
                       </h3>
 
                       {/* Description */}
-                      <p className="text-white/90 text-sm mb-4 leading-relaxed backdrop-blur-sm bg-black/20 px-4 py-3 rounded-xl inline-block">
+                      <p className="text-white/90 text-sm mb-4 leading-relaxed bg-black/25 px-4 py-3 rounded-xl inline-block">
                         Explore the City of Light with local students
                       </p>
 
@@ -275,7 +275,7 @@ export default function TouristLanding() {
                       </div>
 
                       {/* Hover Arrow */}
-                      <div className="absolute top-6 right-6 w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 border border-white/30">
+                      <div className="absolute top-6 right-6 w-12 h-12 rounded-full bg-white/25 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 border border-white/30">
                         <span className="text-white text-xl">→</span>
                       </div>
                     </div>
@@ -290,7 +290,7 @@ export default function TouristLanding() {
                       src="https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=600&q=80"
                       alt="Iconic London landmarks and architecture"
                       fill
-                      quality={75}
+                      quality={65}
                       sizes="(max-width: 768px) 100vw, 33vw"
                       className="object-cover group-hover:scale-110 transition-transform duration-700"
                       loading="lazy"
@@ -314,7 +314,7 @@ export default function TouristLanding() {
                       </h3>
 
                       {/* Description */}
-                      <p className="text-white/90 text-sm mb-4 leading-relaxed backdrop-blur-sm bg-black/20 px-4 py-3 rounded-xl inline-block">
+                      <p className="text-white/90 text-sm mb-4 leading-relaxed bg-black/25 px-4 py-3 rounded-xl inline-block">
                         Discover royal history and modern culture
                       </p>
 
@@ -327,7 +327,7 @@ export default function TouristLanding() {
                       </div>
 
                       {/* Hover Arrow */}
-                      <div className="absolute top-6 right-6 w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 border border-white/30">
+                      <div className="absolute top-6 right-6 w-12 h-12 rounded-full bg-white/25 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 border border-white/30">
                         <span className="text-white text-xl">→</span>
                       </div>
                     </div>
