@@ -167,11 +167,11 @@ export default function HowItWorksPage() {
       {/* Background */}
       <div className="absolute inset-0 bg-gray-900">
         <Image
-          src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f"
+          src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=1920&q=80"
           alt="Students and travelers exploring together"
           fill
           priority
-          quality={60}
+          quality={80}
           sizes="100vw"
           className="object-cover"
         />
