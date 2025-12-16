@@ -167,23 +167,23 @@ const FOUNDERS = [
   {
     name: 'Mridul Anil Malani',
     role: 'Founder',
-    description: 'Conceived the idea, built the primary MVP infrastructure, and leads TourWiseCo in a CEO & CFO-type leadership role.',
+    description: 'Built the primary MVP infrastructure and leads TourWiseCo in a CEO & CFO-type leadership role.',
     linkedin: 'https://www.linkedin.com/in/mridulmalani/',
-    image: 'https://media.licdn.com/dms/image/v2/D4E03AQEAD7kxQrToiQ/profile-displayphoto-scale_200_200/B4EZsQwy85HcAY-/0/1765512786450?e=2147483647&v=beta&t=M4tWwKx_4aJLIUME5ibtfZdF8IvpRaN1FiZaqY7F_mI'
+    image: '/images/founders/mridul.jpg'
   },
   {
     name: 'Aditeya Arya',
     role: 'Co-Founder',
     description: 'Contributed to data architecture and analytics, and leads as CXO & Head of Data Management.',
     linkedin: 'https://www.linkedin.com/in/aditeyaarya/',
-    image: 'https://media.licdn.com/dms/image/v2/D5603AQEZtfvJ-KmRPQ/profile-displayphoto-scale_200_200/B56Zl2tsDVJwAY-/0/1758633313608?e=2147483647&v=beta&t=KSs9729JiS5ZTD8F9cQfTNqgB69GmyJWCgodLuMzCTY'
+    image: '/images/founders/aditeya.jpg'
   },
   {
     name: 'Ajinkya Kamble',
     role: 'Co-Founder',
     description: 'Contributed to technology and product enhancement, and leads as CTO & Head of Product and Strategy.',
     linkedin: 'https://www.linkedin.com/in/ajinkya-kamble/',
-    image: 'https://media.licdn.com/dms/image/v2/D4D03AQFhpCZiTaNE2A/profile-displayphoto-scale_200_200/B4DZfbKFoKGgAY-/0/1751728545885?e=2147483647&v=beta&t=LPLIUXSComUSxtrW--N83PzOQhbU--1A81r7pb7VpgM'
+    image: '/images/founders/ajinkya.jpg'
   }
 ]
 
