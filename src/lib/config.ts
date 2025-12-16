@@ -103,7 +103,7 @@ function loadConfig(): AppConfig {
   const emailUser = process.env.EMAIL_USER || null
   const emailPass = process.env.EMAIL_PASS || null
   const emailFrom = process.env.EMAIL_FROM || 'TourWise <team@tourwiseco.com>'
-  const contactEmail = process.env.CONTACT_EMAIL || emailFrom
+  const contactEmail = process.env.CONTACT_EMAIL || 'team@tourwiseco.com'
   const resendApiKey = process.env.RESEND_API_KEY || null
 
   // Configured if Resend is set OR SMTP is set
