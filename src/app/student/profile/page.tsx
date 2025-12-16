@@ -28,6 +28,8 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 
 import { PrimaryCTAButton } from '@/components/ui/PrimaryCTAButton';
+import { MultiSelect } from '@/components/ui/MultiSelect';
+// import { toast } from 'sonner';
 import { InfoRow, SectionCard, StatCard, SkillChip } from '@/components/student/ProfileComponents';
 import { useRouter } from 'next/navigation';
 import Navigation from '@/components/Navigation';
@@ -129,23 +131,30 @@ const ProfileActions: React.FC<ProfileActionsProps> = ({
         <>
           <Button
             onClick={onCancel}
-            variant="outline"
+            variant="ghost"
             disabled={isSaving}
-            className="border-2 border-white/20 hover:border-white/40 bg-white/10 backdrop-blur transition-colors text-white hover:bg-white/20"
+            className="w-[160px] h-10 border border-white/20 bg-white/5 hover:bg-white/10 text-white rounded-xl backdrop-blur-md transition-all active:scale-95"
           >
             <X className="w-4 h-4 mr-2" />
             Cancel
           </Button>
-          <PrimaryCTAButton
+          <Button
             onClick={onSave}
             disabled={isSaving}
-            icon={Save}
-            variant="purple"
-            isLoading={isSaving}
-            loadingText="Saving..."
+            className="w-[160px] h-10 bg-gradient-to-r from-[#A66CFF] to-[#E85D9B] hover:shadow-[0_0_20px_rgba(166,108,255,0.4)] text-white border-0 rounded-xl transition-all active:scale-95 flex items-center justify-center gap-2"
           >
-            Save Changes
-          </PrimaryCTAButton>
+            {isSaving ? (
+              <>
+                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <span>Saving...</span>
+              </>
+            ) : (
+              <>
+                <Save className="w-4 h-4" />
+                <span>Save Changes</span>
+              </>
+            )}
+          </Button>
         </>
       )}
     </div>
@@ -156,6 +165,27 @@ const ProfileActions: React.FC<ProfileActionsProps> = ({
 const DARK_INPUT_CLASS = "w-full px-3 py-2 bg-[#ffffff10] border border-[#ffffff2e] text-white placeholder:text-gray-400 rounded-md focus:outline-none focus:border-[#A66CFF]/50 focus:ring-2 focus:ring-[#A66CFF]/20 transition-all";
 const DARK_LABEL_CLASS = "text-gray-300 font-medium mb-2 block";
 
+const COUNTRY_CODES = [
+  { code: '+1', country: 'US/CA' },
+  { code: '+44', country: 'UK' },
+  { code: '+33', country: 'FR' },
+  { code: '+86', country: 'CN' },
+  { code: '+91', country: 'IN' },
+  { code: '+49', country: 'DE' },
+  { code: '+81', country: 'JP' },
+  { code: '+971', country: 'UAE' },
+];
+
+const SKILL_OPTIONS = [
+  "Photography", "History", "Food & Culinary", "Nightlife", "Art & Museums",
+  "Hiking", "Shopping", "Language Exchange", "Local Culture", "Architecture"
+];
+
+const INTEREST_OPTIONS = [
+  "Music", "Sports", "Reading", "Travel", "Cooking", "Gaming",
+  "Movies", "Tech", "Fashion", "Nature"
+];
+
 export default function StudentProfilePage() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
@@ -163,6 +193,51 @@ export default function StudentProfilePage() {
   const [originalProfile, setOriginalProfile] = useState<StudentProfile | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [phoneCode, setPhoneCode] = useState('+86');
+
+  useEffect(() => {
+    if (currentProfile?.phoneNumber) {
+      const found = COUNTRY_CODES.find(c => currentProfile.phoneNumber?.startsWith(c.code));
+      if (found) {
+        setPhoneCode(found.code);
+      }
+    }
+  }, [currentProfile]);
+
+  const validateForm = () => {
+    if (!currentProfile?.name?.trim()) {
+      alert("Full Name is required");
+      return false;
+    }
+
+    if (currentProfile.dateOfBirth) {
+      const dob = new Date(currentProfile.dateOfBirth);
+      const today = new Date();
+      let age = today.getFullYear() - dob.getFullYear();
+      const m = today.getMonth() - dob.getMonth();
+      if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
+        age--;
+      }
+
+      if (age < 16) {
+        alert("You must be at least 16 years old.");
+        return false;
+      }
+      if (dob > today) {
+        alert("Date of birth cannot be in the future.");
+        return false;
+      }
+    }
+
+    if (currentProfile.phoneNumber) {
+      if (currentProfile.phoneNumber.length < 5) {
+        alert("Please enter a valid phone number.");
+        return false;
+      }
+    }
+
+    return true;
+  };
 
   useEffect(() => {
     fetchProfile();
@@ -209,6 +284,8 @@ export default function StudentProfilePage() {
   const handleSave = async () => {
     if (!currentProfile) return;
 
+    if (!validateForm()) return;
+
     setIsSaving(true);
     try {
       const res = await fetch('/api/student/profile', {
@@ -245,7 +322,7 @@ export default function StudentProfilePage() {
 
   return (
     <>
-      <Navigation />
+      <Navigation variant="student" />
       <div className="min-h-screen relative bg-neutral-900 text-white overflow-hidden font-sans selection:bg-purple-500/30">
 
         {/* Background */}
@@ -266,16 +343,18 @@ export default function StudentProfilePage() {
               </p>
             </div>
 
-            {/* Top Edit Button */}
-            <div className="hidden md:block">
-              <ProfileActions
-                isEditing={isEditing}
-                isSaving={isSaving}
-                onEdit={handleEdit}
-                onCancel={handleCancel}
-                onSave={handleSave}
-              />
-            </div>
+            {/* Top Edit Button - Only visible when NOT editing */}
+            {!isEditing && (
+              <div className="hidden md:block">
+                <ProfileActions
+                  isEditing={isEditing}
+                  isSaving={isSaving}
+                  onEdit={handleEdit}
+                  onCancel={handleCancel}
+                  onSave={handleSave}
+                />
+              </div>
+            )}
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -375,12 +454,26 @@ export default function StudentProfilePage() {
                       Phone Number
                     </Label>
                     {isEditing ? (
-                      <Input
-                        id="phoneNumber"
-                        value={currentProfile?.phoneNumber || ''}
-                        onChange={(e) => updateField('phoneNumber', e.target.value)}
-                        className={DARK_INPUT_CLASS}
-                      />
+                      <div className="flex gap-2">
+                        <select
+                          value={phoneCode}
+                          onChange={(e) => setPhoneCode(e.target.value)}
+                          className="px-3 py-2 bg-[#ffffff10] border border-[#ffffff2e] text-white rounded-md focus:outline-none focus:border-purple-500/50 appearance-none min-w-[80px]"
+                        >
+                          {COUNTRY_CODES.map((c) => (
+                            <option key={c.code} value={c.code} className="bg-neutral-900 text-white">
+                              {c.code} ({c.country})
+                            </option>
+                          ))}
+                        </select>
+                        <Input
+                          id="phoneNumber"
+                          value={currentProfile?.phoneNumber?.replace(phoneCode, '') || ''}
+                          onChange={(e) => updateField('phoneNumber', `${phoneCode}${e.target.value}`)}
+                          className={DARK_INPUT_CLASS}
+                          placeholder="Phone number"
+                        />
+                      </div>
                     ) : (
                       <InfoRow label="" icon={Phone}>
                         {currentProfile?.phoneNumber || 'Not provided'}
@@ -393,13 +486,16 @@ export default function StudentProfilePage() {
                       Date of Birth
                     </Label>
                     {isEditing ? (
-                      <Input
-                        id="dateOfBirth"
-                        type="date"
-                        value={currentProfile?.dateOfBirth ? new Date(currentProfile.dateOfBirth).toISOString().split('T')[0] : ''}
-                        onChange={(e) => updateField('dateOfBirth', e.target.value)}
-                        className={DARK_INPUT_CLASS}
-                      />
+                      <div className="relative">
+                        <Input
+                          id="dateOfBirth"
+                          type="date"
+                          value={currentProfile?.dateOfBirth ? new Date(currentProfile.dateOfBirth).toISOString().split('T')[0] : ''}
+                          onChange={(e) => updateField('dateOfBirth', e.target.value)}
+                          className={`${DARK_INPUT_CLASS} [color-scheme:dark] cursor-pointer`}
+                        />
+                        <Calendar className="absolute right-3 top-2.5 w-5 h-5 text-gray-400 pointer-events-none" />
+                      </div>
                     ) : (
                       <InfoRow label="" icon={Calendar}>
                         {currentProfile?.dateOfBirth ? new Date(currentProfile.dateOfBirth).toLocaleDateString() : 'Not provided'}
@@ -648,12 +744,11 @@ export default function StudentProfilePage() {
                       Skills
                     </Label>
                     {isEditing ? (
-                      <Input
-                        id="skills"
-                        value={currentProfile?.skills?.join(', ') || ''}
-                        onChange={(e) => updateField('skills', parseArrayInput(e.target.value))}
-                        className={DARK_INPUT_CLASS}
-                        placeholder="e.g., Photography, History, Food Tours"
+                      <MultiSelect
+                        options={SKILL_OPTIONS}
+                        selected={currentProfile?.skills || []}
+                        onChange={(selected) => updateField('skills', selected)}
+                        placeholder="Select or type skills..."
                       />
                     ) : (
                       <div className="flex flex-wrap gap-2">
@@ -673,12 +768,11 @@ export default function StudentProfilePage() {
                       Interests
                     </Label>
                     {isEditing ? (
-                      <Input
-                        id="interests"
-                        value={currentProfile?.interests?.join(', ') || ''}
-                        onChange={(e) => updateField('interests', parseArrayInput(e.target.value))}
-                        className={DARK_INPUT_CLASS}
-                        placeholder="e.g., Art, Music, Sports"
+                      <MultiSelect
+                        options={INTEREST_OPTIONS}
+                        selected={currentProfile?.interests || []}
+                        onChange={(selected) => updateField('interests', selected)}
+                        placeholder="Select or type interests..."
                       />
                     ) : (
                       <div className="flex flex-wrap gap-2">
@@ -802,24 +896,27 @@ export default function StudentProfilePage() {
                 </div>
               </SectionCard>
 
-              {/* Bottom Action Buttons in Edit Mode */}
-              {isEditing && (
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="glass-card rounded-2xl p-6 shadow-premium border border-white/60 backdrop-blur-lg"
-                >
-                  <div className="flex items-center justify-end gap-4">
-                    <ProfileActions
-                      isEditing={isEditing}
-                      isSaving={isSaving}
-                      onEdit={handleEdit}
-                      onCancel={handleCancel}
-                      onSave={handleSave}
-                    />
-                  </div>
-                </motion.div>
-              )}
+              {/* Sticky Bottom Action Bar in Edit Mode */}
+              <AnimatePresence>
+                {isEditing && (
+                  <motion.div
+                    initial={{ y: 100, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    exit={{ y: 100, opacity: 0 }}
+                    className="fixed bottom-0 left-0 right-0 z-50 p-4 border-t border-white/10 bg-neutral-900/90 backdrop-blur-xl shadow-2xl"
+                  >
+                    <div className="max-w-7xl mx-auto flex justify-end items-center gap-4 px-4 sm:px-6 lg:px-8">
+                      <ProfileActions
+                        isEditing={isEditing}
+                        isSaving={isSaving}
+                        onEdit={handleEdit}
+                        onCancel={handleCancel}
+                        onSave={handleSave}
+                      />
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
               {/* Bottom Spacing */}
               <div className="h-8" />

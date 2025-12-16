@@ -48,12 +48,15 @@ export async function GET() {
         }
 
         let studentName = null;
+        let profileCompleteness = null;
+
         if (studentId) {
           const student = await prisma.student.findUnique({
             where: { id: studentId },
-            select: { name: true }
+            select: { name: true, profileCompleteness: true }
           });
           studentName = student?.name;
+          profileCompleteness = student?.profileCompleteness;
         }
 
         return NextResponse.json(
@@ -62,7 +65,10 @@ export async function GET() {
             nextPath: '/student/dashboard',
             linkedExistingStudent: true,
             email: session.email,
-            student: { name: studentName }
+            student: {
+              name: studentName,
+              profileCompleteness: profileCompleteness
+            }
           },
           { status: 200 }
         );

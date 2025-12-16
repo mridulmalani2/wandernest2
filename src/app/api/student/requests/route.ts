@@ -58,8 +58,15 @@ export const GET = withStudent(async (request, studentAuth) => {
         };
     });
 
+    // Fetch profile completeness
+    const studentProfile = await prisma.student.findUnique({
+        where: { id: studentId },
+        select: { profileCompleteness: true }
+    });
+
     return NextResponse.json({
         success: true,
         requests,
+        profileCompleteness: studentProfile?.profileCompleteness || 0
     });
 });

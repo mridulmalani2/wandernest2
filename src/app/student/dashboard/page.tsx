@@ -7,6 +7,8 @@ import { FlowCard } from '@/components/ui/FlowCard';
 import { TrendingUp, Calendar, Users, Clock, MapPin, Star } from 'lucide-react';
 import Image from 'next/image';
 
+import { ProfileCompletionAlert } from '@/components/student/ProfileCompletionAlert';
+
 interface StudentRequest {
   id: string;
   touristName: string;
@@ -24,6 +26,7 @@ export default function StudentDashboard() {
   const router = useRouter();
   const [requests, setRequests] = useState<StudentRequest[]>([]);
   const [loading, setLoading] = useState(true);
+  const [profileCompleteness, setProfileCompleteness] = useState<number>(100); // Default to 100 to avoid flash
 
   useEffect(() => {
     const controller = new AbortController();
@@ -43,6 +46,9 @@ export default function StudentDashboard() {
           const data = await res.json();
           if (data.ok) {
             isAuthenticated = true;
+            if (data.student?.profileCompleteness !== undefined) {
+              setProfileCompleteness(data.student.profileCompleteness);
+            }
           }
         } catch (error: any) {
           if (error.name !== 'AbortError') {
@@ -50,6 +56,9 @@ export default function StudentDashboard() {
           }
         }
       }
+
+      // If aborted during auth check, stop here
+      if (controller.signal.aborted) return;
 
       if (!isAuthenticated) {
         // Use replace to avoid back button loops
@@ -69,6 +78,9 @@ export default function StudentDashboard() {
 
         const data = await res.json();
         setRequests(data.requests || []);
+        if (data.profileCompleteness !== undefined) {
+          setProfileCompleteness(data.profileCompleteness);
+        }
       } catch (error: any) {
         if (error.name !== 'AbortError') {
           console.error('Failed to fetch requests', error);
@@ -139,6 +151,10 @@ export default function StudentDashboard() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 pt-28 pb-12 relative z-10">
+
+        {/* Profile Completion Alert */}
+        <ProfileCompletionAlert completeness={profileCompleteness} />
+
         {/* Header */}
         <div className="mb-12">
           <h1 className="text-5xl font-light tracking-tight text-white mb-3">

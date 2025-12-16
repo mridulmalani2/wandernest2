@@ -11,6 +11,8 @@ import { withStudent } from '@/lib/api-wrappers';
 
 export const dynamic = 'force-dynamic';
 
+import { calculateProfileCompleteness } from '@/lib/student-utils';
+
 const DAYS_OF_WEEK = [
   'Monday',
   'Tuesday',
@@ -149,7 +151,12 @@ export const PUT = withStudent(async (request, studentAuth) => {
     const updateData: any = {};
     for (const field of allowedFields) {
       if (body[field] !== undefined) {
-        updateData[field] = body[field];
+        if (field === 'dateOfBirth' && body[field]) {
+          // Convert string date to Date object
+          updateData[field] = new Date(body[field]);
+        } else {
+          updateData[field] = body[field];
+        }
       }
     }
 
@@ -182,11 +189,24 @@ export const PUT = withStudent(async (request, studentAuth) => {
       );
     }
 
+    // Recalculate profile completeness
+    // Merge existing data with updates to calculate full picture
+    const mergedDataForCalculation = {
+      ...currentStudent,
+      ...(updateData as any),
+      // If availability is being updated, we could factor it in, but our helper currently 
+      // doesn't heavily weigh specific availability slots, just the main profile fields.
+      // If we wanted to, we could check if availability > 0.
+    };
+
+    const newCompleteness = calculateProfileCompleteness(mergedDataForCalculation);
+
     // Update the student profile
     const updatedStudent = await prisma.student.update({
       where: { email: studentEmail },
       data: {
         ...updateData,
+        profileCompleteness: newCompleteness,
         updatedAt: new Date(),
         // Update availability if provided
         ...(availabilityUpdate && {

@@ -181,28 +181,34 @@ export default function Navigation({ variant = 'default', showBackButton = false
                         Home
                       </Button>
                     </Link>
-                    <Link href="/tourist/dashboard">
-                      <Button variant="ghost" className="rounded-full px-4 py-2 h-auto text-blue-50 hover:bg-white/10 hover:text-white transition-all duration-200 hover:scale-105 active:scale-95 font-sans text-sm font-medium">
-                        <LayoutDashboard className="w-4 h-4 mr-2" />
-                        Dashboard
-                      </Button>
-                    </Link>
+                    {pathname !== '/tourist/dashboard' && (
+                      <Link href="/tourist/dashboard">
+                        <Button variant="ghost" className="rounded-full px-4 py-2 h-auto text-blue-50 hover:bg-white/10 hover:text-white transition-all duration-200 hover:scale-105 active:scale-95 font-sans text-sm font-medium">
+                          <LayoutDashboard className="w-4 h-4 mr-2" />
+                          Dashboard
+                        </Button>
+                      </Link>
+                    )}
                   </>
                 )}
                 {(session?.user?.userType === 'student' || studentSession) && (
                   <>
-                    <Link href="/student/dashboard">
-                      <Button variant="ghost" className="rounded-full px-4 py-2 h-auto text-blue-50 hover:bg-white/10 hover:text-white transition-all duration-200 hover:scale-105 active:scale-95 font-sans text-sm font-medium">
-                        <LayoutDashboard className="w-4 h-4 mr-2" />
-                        Dashboard
-                      </Button>
-                    </Link>
-                    <Link href="/student/profile">
-                      <Button variant="ghost" className="rounded-full px-4 py-2 h-auto text-blue-50 hover:bg-white/10 hover:text-white transition-all duration-200 hover:scale-105 active:scale-95 font-sans text-sm font-medium">
-                        <UserCircle className="w-4 h-4 mr-2" />
-                        Profile
-                      </Button>
-                    </Link>
+                    {pathname !== '/student/dashboard' && (
+                      <Link href="/student/dashboard">
+                        <Button variant="ghost" className="rounded-full px-4 py-2 h-auto text-blue-50 hover:bg-white/10 hover:text-white transition-all duration-200 hover:scale-105 active:scale-95 font-sans text-sm font-medium">
+                          <LayoutDashboard className="w-4 h-4 mr-2" />
+                          Dashboard
+                        </Button>
+                      </Link>
+                    )}
+                    {pathname !== '/student/profile' && (
+                      <Link href="/student/profile">
+                        <Button variant="ghost" className="rounded-full px-4 py-2 h-auto text-blue-50 hover:bg-white/10 hover:text-white transition-all duration-200 hover:scale-105 active:scale-95 font-sans text-sm font-medium">
+                          <UserCircle className="w-4 h-4 mr-2" />
+                          Profile
+                        </Button>
+                      </Link>
+                    )}
                   </>
                 )}
                 <div className="flex items-center space-x-2 pl-3 border-l border-white/20">
@@ -319,28 +325,34 @@ export default function Navigation({ variant = 'default', showBackButton = false
                         Home
                       </Button>
                     </Link>
-                    <Link href="/tourist/dashboard" onClick={() => setMobileMenuOpen(false)}>
-                      <Button variant="ghost" className="w-full justify-start rounded-full text-blue-50 hover:bg-white/10 hover:text-white transition-all font-sans text-sm font-medium">
-                        <LayoutDashboard className="w-4 h-4 mr-2" />
-                        Dashboard
-                      </Button>
-                    </Link>
+                    {pathname !== '/tourist/dashboard' && (
+                      <Link href="/tourist/dashboard" onClick={() => setMobileMenuOpen(false)}>
+                        <Button variant="ghost" className="w-full justify-start rounded-full text-blue-50 hover:bg-white/10 hover:text-white transition-all font-sans text-sm font-medium">
+                          <LayoutDashboard className="w-4 h-4 mr-2" />
+                          Dashboard
+                        </Button>
+                      </Link>
+                    )}
                   </>
                 )}
                 {(session?.user?.userType === 'student' || studentSession) && (
                   <>
-                    <Link href="/student/dashboard" onClick={() => setMobileMenuOpen(false)}>
-                      <Button variant="ghost" className="w-full justify-start rounded-full text-blue-50 hover:bg-white/10 hover:text-white transition-all font-sans text-sm font-medium">
-                        <LayoutDashboard className="w-4 h-4 mr-2" />
-                        Dashboard
-                      </Button>
-                    </Link>
-                    <Link href="/student/profile" onClick={() => setMobileMenuOpen(false)}>
-                      <Button variant="ghost" className="w-full justify-start rounded-full text-blue-50 hover:bg-white/10 hover:text-white transition-all font-sans text-sm font-medium">
-                        <UserCircle className="w-4 h-4 mr-2" />
-                        Profile
-                      </Button>
-                    </Link>
+                    {pathname !== '/student/dashboard' && (
+                      <Link href="/student/dashboard" onClick={() => setMobileMenuOpen(false)}>
+                        <Button variant="ghost" className="w-full justify-start rounded-full text-blue-50 hover:bg-white/10 hover:text-white transition-all font-sans text-sm font-medium">
+                          <LayoutDashboard className="w-4 h-4 mr-2" />
+                          Dashboard
+                        </Button>
+                      </Link>
+                    )}
+                    {pathname !== '/student/profile' && (
+                      <Link href="/student/profile" onClick={() => setMobileMenuOpen(false)}>
+                        <Button variant="ghost" className="w-full justify-start rounded-full text-blue-50 hover:bg-white/10 hover:text-white transition-all font-sans text-sm font-medium">
+                          <UserCircle className="w-4 h-4 mr-2" />
+                          Profile
+                        </Button>
+                      </Link>
+                    )}
                   </>
                 )}
                 <Button

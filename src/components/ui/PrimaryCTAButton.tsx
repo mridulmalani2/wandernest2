@@ -79,7 +79,7 @@ export function PrimaryCTAButton({
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 pointer-events-none" />
         )}
 
-        <div className={`relative flex items-center justify-center gap-2 sm:gap-3 ${className}`}>
+        <div className="relative flex items-center justify-center gap-2 sm:gap-3">
           {isLoading ? (
             <>
               <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24" fill="none">
@@ -111,7 +111,7 @@ export function PrimaryCTAButton({
       <Link
         href={href}
         onClick={(e) => onClick?.(e)}
-        className="group inline-block focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-white/50 focus-visible:ring-offset-4 focus-visible:ring-offset-transparent rounded-2xl transition-all"
+        className={`group inline-block focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-white/50 focus-visible:ring-offset-4 focus-visible:ring-offset-transparent rounded-2xl transition-all ${className}`}
       >
         {buttonContent}
       </Link>
@@ -128,7 +128,7 @@ export function PrimaryCTAButton({
         }
       }}
       disabled={isDisabled}
-      className="group inline-block cursor-pointer focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-white/50 focus-visible:ring-offset-4 focus-visible:ring-offset-transparent rounded-2xl transition-all disabled:cursor-not-allowed"
+      className={`group inline-block cursor-pointer focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-white/50 focus-visible:ring-offset-4 focus-visible:ring-offset-transparent rounded-2xl transition-all disabled:cursor-not-allowed ${className}`}
     >
       {buttonContent}
     </button>

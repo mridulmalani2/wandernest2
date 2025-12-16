@@ -69,32 +69,7 @@ const onboardingSchema = z.object({
   emergencyContactPhone: z.string().optional().refine((val) => !val || /^\+?[0-9\s\-\(\)]+$/.test(val), { message: "Invalid emergency contact phone" }),
 });
 
-// Helper function to calculate profile completeness
-function calculateProfileCompleteness(data: Record<string, unknown>): number {
-  const requiredFields = [
-    'name', 'dateOfBirth', 'gender', 'nationality', 'phoneNumber',
-    'city', 'campus', 'institute', 'programDegree', 'yearOfStudy',
-    'expectedGraduation', 'studentIdUrl', 'profilePhotoUrl'
-  ];
-
-  const arrayFields = ['languages'];
-  const booleanFields = [
-    'documentsOwnedConfirmation',
-    'verificationConsent',
-    'termsAccepted',
-    'safetyGuidelinesAccepted',
-    'independentGuideAcknowledged',
-  ];
-
-  let completed = 0;
-  const total = requiredFields.length + arrayFields.length + booleanFields.length + 1; // +1 for availability
-
-  requiredFields.forEach(field => { if (data[field]) completed++; });
-  arrayFields.forEach(field => { if (Array.isArray(data[field]) && (data[field] as unknown[]).length > 0) completed++; });
-  booleanFields.forEach(field => { if (data[field]) completed++; });
-
-  return Math.round((completed / total) * 100);
-}
+import { calculateProfileCompleteness } from '@/lib/student-utils';
 
 async function submitOnboarding(req: NextRequest) {
   const body = await req.json();
