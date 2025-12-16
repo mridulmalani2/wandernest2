@@ -17,6 +17,13 @@ type Props = {
 export function TripDetailsStep({ data, errors, updateData }: Props) {
   const [cities, setCities] = useState<{ value: string; label: string }[]>([])
 
+  const formatDateInput = (date: Date) => {
+    const year = date.getFullYear()
+    const month = `${date.getMonth() + 1}`.padStart(2, '0')
+    const day = `${date.getDate()}`.padStart(2, '0')
+    return `${year}-${month}-${day}`
+  }
+
   useEffect(() => {
     const controller = new AbortController()
 
@@ -32,10 +39,10 @@ export function TripDetailsStep({ data, errors, updateData }: Props) {
     return () => controller.abort()
   }, [])
 
-  const today = new Date().toISOString().split('T')[0]
+  const today = formatDateInput(new Date())
   const maxDate = new Date()
   maxDate.setMonth(maxDate.getMonth() + 6)
-  const maxDateStr = maxDate.toISOString().split('T')[0]
+  const maxDateStr = formatDateInput(maxDate)
 
   const TIME_OPTIONS = [
     { value: 'morning', label: 'Morning', time: '6am - 12pm', icon: Sun },
