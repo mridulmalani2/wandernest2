@@ -167,7 +167,7 @@ const FOUNDERS = [
   {
     name: 'Mridul Anil Malani',
     role: 'Founder',
-    description: 'Built the primary MVP infrastructure and leads TourWiseCo in a CEO & CFO-type leadership role.',
+    description: 'Conceived and built the primary MVP infrastructure, and leads as CEO & CFO.',
     linkedin: 'https://www.linkedin.com/in/mridulmalani/',
     image: '/images/founders/mridul.jpg'
   },
