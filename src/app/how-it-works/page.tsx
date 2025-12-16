@@ -180,17 +180,25 @@ export default function HowItWorksPage() {
       </div>
       <div className="absolute inset-0 pattern-dots opacity-10" />
 
-      {/* Structured Data for SEO */}
+      {/* Structured Data for SEO - Sanitized to prevent XSS */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
           __html: JSON.stringify(getWebsiteStructuredData())
+            .replace(/</g, '\\u003c')
+            .replace(/>/g, '\\u003e')
+            .replace(/&/g, '\\u0026')
+            .replace(/'/g, '\\u0027')
         }}
       />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
           __html: JSON.stringify(getOrganizationStructuredData())
+            .replace(/</g, '\\u003c')
+            .replace(/>/g, '\\u003e')
+            .replace(/&/g, '\\u0026')
+            .replace(/'/g, '\\u0027')
         }}
       />
 
