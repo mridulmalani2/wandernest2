@@ -36,7 +36,7 @@ const containerVariants = {
       delayChildren: 0.2
     }
   }
-}
+} as const
 
 const itemVariants = {
   hidden: { opacity: 0, y: 20 },
@@ -45,10 +45,10 @@ const itemVariants = {
     y: 0,
     transition: {
       duration: 0.5,
-      ease: "easeOut"
+      ease: [0.4, 0, 0.2, 1] as const // easeOut curve
     }
   }
-}
+} as const
 
 // Tourist USPs
 const TOURIST_USPS = [
