@@ -89,15 +89,23 @@ export async function POST(req: Request) {
     });
 
     // Check if user is new (no Student record yet) to send Welcome Email
-    // This runs asynchronously ensuring it doesn't block the response
+    console.log(`🔍 Checking if student exists for ${email} to potentially send welcome email...`);
     const existingStudent = await prisma.student.findUnique({
       where: { email },
       select: { id: true }
     });
 
     if (!existingStudent) {
-      // Fire and forget - don't await to keep login fast
-      sendWelcomeEmail(email).catch(err => console.error('Failed to send welcome email:', err));
+      console.log(`✨ New user detected! Sending welcome email to ${email}...`);
+      // Await this to ensure it sends before the function terminates (critical for serverless)
+      try {
+        await sendWelcomeEmail(email);
+        console.log(`✅ Welcome email sent to ${email}`);
+      } catch (emailErr) {
+        console.error('❌ Failed to send welcome email:', emailErr);
+      }
+    } else {
+      console.log(`ℹ️ User ${email} already has a student profile (ID: ${existingStudent.id}). Skipping welcome email.`);
     }
 
     return NextResponse.json({ success: true })
