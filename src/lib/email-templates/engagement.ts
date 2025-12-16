@@ -5,21 +5,21 @@ import { theme, StartupEmailLayout, escapeHtml, validateUrl } from './shared';
  * Tone: Warm, helpful.
  */
 export const getTourReminderHtml = (
-    name: string,
-    guideName: string,
-    city: string,
-    date: string,
-    time: string,
-    meetingPoint: string
+  name: string,
+  guideName: string,
+  city: string,
+  date: string,
+  time: string,
+  meetingPoint: string
 ) => {
-    const safeName = escapeHtml(name);
-    const safeGuide = escapeHtml(guideName);
-    const safeCity = escapeHtml(city);
-    const safeDate = escapeHtml(date);
-    const safeTime = escapeHtml(time);
-    const safeMeeting = escapeHtml(meetingPoint);
+  const safeName = escapeHtml(name);
+  const safeGuide = escapeHtml(guideName);
+  const safeCity = escapeHtml(city);
+  const safeDate = escapeHtml(date);
+  const safeTime = escapeHtml(time);
+  const safeMeeting = escapeHtml(meetingPoint);
 
-    const content = `
+  const content = `
     <div style="text-align: center;">
       <h2 style="margin: 0 0 16px; font-size: 24px; font-weight: 700; color: ${theme.colors.secondary};">
         Ready for Tomorrow, ${safeName}? 🎒
@@ -45,7 +45,7 @@ export const getTourReminderHtml = (
       </div>
     </div>
   `;
-    return StartupEmailLayout(content, 'Trip Reminder', `Your trip to ${safeCity} is tomorrow!`);
+  return StartupEmailLayout(content, 'Trip Reminder', `Your trip to ${safeCity} is tomorrow!`);
 };
 
 /**
@@ -53,8 +53,8 @@ export const getTourReminderHtml = (
  * Tone: Heartfelt, community-oriented.
  */
 export const getThankYouHtml = (name: string) => {
-    const safeName = escapeHtml(name);
-    const content = `
+  const safeName = escapeHtml(name);
+  const content = `
     <div style="text-align: center;">
       <h2 style="margin: 0 0 16px; font-size: 24px; font-weight: 700; color: ${theme.colors.secondary};">
         Hope You Had a Blast, ${safeName}! 🌟
@@ -69,7 +69,7 @@ export const getThankYouHtml = (name: string) => {
       </div>
     </div>
   `;
-    return StartupEmailLayout(content, 'Thanks for traveling with us!', 'We hope you made great memories.');
+  return StartupEmailLayout(content, 'Thanks for traveling with us!', 'We hope you made great memories.');
 };
 
 /**
@@ -77,15 +77,15 @@ export const getThankYouHtml = (name: string) => {
  * Tone: Friendly nudge.
  */
 export const getReviewRequestHtml = (
-    name: string,
-    guideName: string,
-    reviewUrl: string
+  name: string,
+  guideName: string,
+  reviewUrl: string
 ) => {
-    const safeName = escapeHtml(name);
-    const safeGuide = escapeHtml(guideName);
-    const safeUrl = validateUrl(reviewUrl);
+  const safeName = escapeHtml(name);
+  const safeGuide = escapeHtml(guideName);
+  const safeUrl = validateUrl(reviewUrl);
 
-    const content = `
+  const content = `
     <div style="text-align: center;">
       <div style="margin-bottom: 24px;">
         <span style="font-size: 32px; color: ${theme.colors.accent};">⭐⭐⭐⭐⭐</span>
@@ -104,5 +104,44 @@ export const getReviewRequestHtml = (
       </a>
     </div>
   `;
-    return StartupEmailLayout(content, 'Rate your experience', `How was your trip with ${safeGuide}?`);
+  return StartupEmailLayout(content, 'Rate your experience', `How was your trip with ${safeGuide}?`);
+};
+
+/**
+ * 13. Engagement Welcome Email
+ * Tone: Personal, curious, founder-led.
+ */
+export const getWelcomeEmailHtml = () => {
+  const content = `
+    <div style="text-align: center;">
+      <h2 style="margin: 0 0 16px; font-size: 24px; font-weight: 700; color: ${theme.colors.secondary};">
+        Welcome to the Community! 👋
+      </h2>
+      
+      <p style="margin: 0 0 24px; font-size: 16px; line-height: 1.6; color: ${theme.colors.textSecondary}; text-align: left;">
+        Hi there,
+      </p>
+
+      <p style="margin: 0 0 24px; font-size: 16px; line-height: 1.6; color: ${theme.colors.textSecondary}; text-align: left;">
+        I’m so glad you decided to join TourWise. We're building a community of students who want to share their world, and we're thrilled to have you.
+      </p>
+
+      <div style="background-color: ${theme.colors.background}; border-left: 4px solid ${theme.colors.primary}; padding: 16px 24px; margin-bottom: 32px; text-align: left;">
+        <p style="margin: 0; font-size: 16px; line-height: 1.6; color: ${theme.colors.secondary}; font-weight: 600;">
+          Quick question to kick things off: <br/>
+          <span style="color: ${theme.colors.primary};">What city are you most excited to guide strangers in?</span>
+        </p>
+      </div>
+
+      <p style="margin: 0 0 32px; font-size: 16px; line-height: 1.6; color: ${theme.colors.textSecondary}; text-align: left;">
+        Hit reply and let me know — I read every email and I'd love to hear from you.
+      </p>
+
+      <p style="margin: 0; font-size: 16px; line-height: 1.6; color: ${theme.colors.textSecondary}; text-align: left;">
+        Cheers,<br/>
+        <strong>The TourWise Team</strong>
+      </p>
+    </div>
+  `;
+  return StartupEmailLayout(content, 'Welcome to TourWise!', 'Quick question for you...');
 };

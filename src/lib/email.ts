@@ -11,7 +11,8 @@ import {
   getStudentMatchInvitationHtml,
   getTouristAcceptanceNotificationHtml,
   getStudentConfirmationHtml,
-  getContactFormEmailHtml
+  getContactFormEmailHtml,
+  getWelcomeEmailHtml
 } from '@/lib/email-templates'
 
 /**
@@ -211,13 +212,13 @@ async function sendEmail(
 
 export async function sendStudentOtpEmail(toEmail: string, otp: string) {
   // Use standardized OTP email template and subject
-  const html = getOtpEmailHtml(otp, 'Sign in as Student Guide', 'Enter this code to securely sign in to your account.')
-  const text = `Sign in as Student Guide\n\nEnter this code to securely sign in to your account:\n\n${otp}\n\nThis code expires in 10 minutes. If you didn't request this code, you can safely ignore this email.`
+  const html = getOtpEmailHtml(otp, 'Verify Your Account')
+  const text = `Here’s your secure sign-in code for TourWise:\n\n${otp}\n\nThis code expires in 10 minutes.\n\nIf you didn’t request this, you can ignore this email or reply and we’ll help you.`
 
   return sendEmail(
     {
       to: toEmail,
-      subject: 'Your TourWise verification code',
+      subject: 'Your TourWise sign-in code',
       html,
       text,
     },
@@ -335,13 +336,13 @@ export async function sendVerificationEmail(
   email: string,
   code: string
 ) {
-  const html = getOtpEmailHtml(code, 'Sign in as Student Guide', 'Enter this code to securely sign in to your account.')
-  const text = `Sign in as Student Guide\n\nEnter this code to securely sign in to your account:\n\n${code}\n\nThis code expires in 10 minutes. If you didn't request this code, you can safely ignore this email.`
+  const html = getOtpEmailHtml(code, 'Verify Your Account')
+  const text = `Here’s your secure sign-in code for TourWise:\n\n${code}\n\nThis code expires in 10 minutes.\n\nIf you didn’t request this, you can ignore this email or reply and we’ll help you.`
 
   return await sendEmail(
     {
       to: email,
-      subject: 'Your TourWise verification code',
+      subject: 'Your TourWise sign-in code',
       html,
       text,
     },
@@ -401,5 +402,21 @@ export async function sendContactFormEmails(data: {
       replyTo: data.email
     },
     'Contact Form Submission'
+  )
+}
+
+export async function sendWelcomeEmail(email: string) {
+  const html = getWelcomeEmailHtml()
+  // Plain text fallback
+  const text = `Hi there,\n\nI’m so glad you decided to join TourWise.\n\nQuick question to kick things off: What city are you most excited to guide strangers in?\n\nHit reply and let me know — I read every email.\n\nCheers,\nThe TourWise Team`
+
+  return sendEmail(
+    {
+      to: email,
+      subject: 'Welcome to TourWise! (Quick question)',
+      html,
+      text,
+    },
+    'Welcome Email'
   )
 }

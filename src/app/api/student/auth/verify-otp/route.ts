@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { cookies } from 'next/headers';
+import { sendWelcomeEmail } from '@/lib/email';
 
 export const dynamic = 'force-dynamic'
 
@@ -86,6 +87,18 @@ export async function POST(req: Request) {
       path: '/',
       maxAge: sessionDuration / 1000, // Convert to seconds for cookie
     });
+
+    // Check if user is new (no Student record yet) to send Welcome Email
+    // This runs asynchronously ensuring it doesn't block the response
+    const existingStudent = await prisma.student.findUnique({
+      where: { email },
+      select: { id: true }
+    });
+
+    if (!existingStudent) {
+      // Fire and forget - don't await to keep login fast
+      sendWelcomeEmail(email).catch(err => console.error('Failed to send welcome email:', err));
+    }
 
     return NextResponse.json({ success: true })
   } catch (err) {

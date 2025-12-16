@@ -5,11 +5,11 @@ import { theme, StartupEmailLayout, escapeHtml, baseUrl } from './shared';
  * Tone: Fast, minimal, trustworthy.
  */
 export const getOtpEmailHtml = (otp: string, title: string = 'Verify Your Account', subtitle: string = 'Welcome to TourWiseCo! Use this code to complete your signup.') => {
-    const safeTitle = escapeHtml(title);
-    const safeSubtitle = escapeHtml(subtitle);
-    const safeOtp = escapeHtml(otp);
+  const safeTitle = escapeHtml(title);
+  const safeSubtitle = escapeHtml(subtitle);
+  const safeOtp = escapeHtml(otp);
 
-    const content = `
+  const content = `
     <div style="text-align: center;">
     <div style="text-align: center;">
       <!-- Badge using Table for compatibility -->
@@ -17,7 +17,7 @@ export const getOtpEmailHtml = (otp: string, title: string = 'Verify Your Accoun
         <tr>
           <td style="padding: 12px 24px;">
             <span style="font-size: 32px; vertical-align: middle; margin-right: 12px;">👋</span>
-            <span style="font-size: 20px; font-weight: 700; color: ${theme.colors.success}; vertical-align: middle;">Welcome!!</span>
+            <span style="font-size: 20px; font-weight: 700; color: ${theme.colors.success}; vertical-align: middle;">Hello!</span>
           </td>
         </tr>
       </table>
@@ -26,19 +26,21 @@ export const getOtpEmailHtml = (otp: string, title: string = 'Verify Your Accoun
         ${safeTitle}
       </h1>
       <p style="margin: 0 0 32px; font-size: 16px; line-height: 1.6; color: ${theme.colors.textSecondary};">
-        ${safeSubtitle}
+        Here&rsquo;s your secure sign-in code for TourWise:
       </p>
       
       <div style="background-color: ${theme.colors.background}; border-radius: 16px; padding: 24px; margin-bottom: 32px; letter-spacing: 8px; font-family: 'Courier New', monospace; font-size: 36px; font-weight: 700; color: ${theme.colors.primary}; border: 2px dashed ${theme.colors.primary}; display: inline-block; min-width: 200px;">
         ${safeOtp}
       </div>
 
-      <p style="margin: 0; font-size: 14px; color: ${theme.colors.textSecondary};">
-        This code expires in 10 minutes. If you didn't request this, please ignore it.
+      <p style="margin: 0; font-size: 14px; color: ${theme.colors.textSecondary}; line-height: 1.6;">
+        This code expires in 10 minutes.<br/>
+        If you didn&rsquo;t request this, you can ignore this email<br/>
+        or <a href="mailto:support@tourwiseco.com" style="color: ${theme.colors.primary}; text-decoration: none;">reply and we&rsquo;ll help you</a>.
       </p>
     </div>
   `;
-    return StartupEmailLayout(content, safeTitle, `Your verification code is ${safeOtp}`);
+  return StartupEmailLayout(content, safeTitle, `Here is your secure code: ${safeOtp}`);
 };
 
 /**
@@ -46,7 +48,7 @@ export const getOtpEmailHtml = (otp: string, title: string = 'Verify Your Accoun
  * Tone: Calm, secure.
  */
 export const getLoginOtpEmailHtml = (otp: string) => {
-    return getOtpEmailHtml(otp, 'Secure Login', 'Use the code below to securely sign in to your account.');
+  return getOtpEmailHtml(otp, 'Secure Login', 'Use the code below to securely sign in to your account.');
 }
 
 /**
@@ -54,8 +56,8 @@ export const getLoginOtpEmailHtml = (otp: string) => {
  * Tone: Friendly, travel-inspired.
  */
 export const getTouristWelcomeHtml = (name: string) => {
-    const safeName = escapeHtml(name);
-    const content = `
+  const safeName = escapeHtml(name);
+  const content = `
     <div style="text-align: center;">
       <h1 style="margin: 0 0 16px; font-size: 26px; font-weight: 700; color: ${theme.colors.secondary};">
         Welcome to the Journey, ${safeName}! 🌍
@@ -78,7 +80,7 @@ export const getTouristWelcomeHtml = (name: string) => {
       </a>
     </div>
   `;
-    return StartupEmailLayout(content, 'Welcome to TourWiseCo', 'Ready to explore like a local?');
+  return StartupEmailLayout(content, 'Welcome to TourWiseCo', 'Ready to explore like a local?');
 }
 
 /**
@@ -86,8 +88,8 @@ export const getTouristWelcomeHtml = (name: string) => {
  * Tone: Supportive, empowering.
  */
 export const getStudentWelcomeHtml = (name: string) => {
-    const safeName = escapeHtml(name);
-    const content = `
+  const safeName = escapeHtml(name);
+  const content = `
     <div style="text-align: center;">
       <h1 style="margin: 0 0 16px; font-size: 26px; font-weight: 700; color: ${theme.colors.secondary};">
         You're an Ambassador Now, ${safeName}! 🎓
@@ -110,5 +112,5 @@ export const getStudentWelcomeHtml = (name: string) => {
       </a>
     </div>
   `;
-    return StartupEmailLayout(content, 'Welcome to the Team', 'Start your journey as a local guide.');
+  return StartupEmailLayout(content, 'Welcome to the Team', 'Start your journey as a local guide.');
 }
