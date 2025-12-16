@@ -174,14 +174,14 @@ const FOUNDERS = [
   {
     name: 'Aditeya Arya',
     role: 'Co-Founder',
-    description: 'Contributed to data architecture and analytics, and leads as CXO & Head of Data Management.',
+    description: 'Shaped TourWiseCo\'s data architecture and analytics foundations, and leads as CXO & Head of Data Management.',
     linkedin: 'https://www.linkedin.com/in/aditeyaarya/',
     image: '/images/founders/aditeya.jpg'
   },
   {
     name: 'Ajinkya Kamble',
     role: 'Co-Founder',
-    description: 'Contributed to technology and product enhancement, and leads as CTO & Head of Product and Strategy.',
+    description: 'Drove core technology development and product direction, and leads as CTO & Head of Product and Strategy.',
     linkedin: 'https://www.linkedin.com/in/ajinkya-kamble/',
     image: '/images/founders/ajinkya.jpg'
   }
