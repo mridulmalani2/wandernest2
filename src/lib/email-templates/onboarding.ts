@@ -36,7 +36,7 @@ export const getOtpEmailHtml = (otp: string, title: string = 'Verify Your Accoun
       <p style="margin: 0; font-size: 14px; color: ${theme.colors.textSecondary}; line-height: 1.6;">
         This code expires in 10 minutes.<br/>
         If you didn&rsquo;t request this, you can ignore this email<br/>
-        or <a href="mailto:support@tourwiseco.com" style="color: ${theme.colors.primary}; text-decoration: none;">reply and we&rsquo;ll help you</a>.
+        or <a href="mailto:team@tourwiseco.com" style="color: ${theme.colors.primary}; text-decoration: none;">reply and we&rsquo;ll help you</a>.
       </p>
     </div>
   `;
