@@ -30,7 +30,7 @@ export default function Footer({ variant = 'default' }: FooterProps) {
     <footer className="relative z-20 mt-auto">
       <div className="border-t border-white/20 bg-gradient-to-b from-black/10 to-black/20 backdrop-blur-md">
         <div className="container mx-auto px-4 py-12">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-12">
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-8 md:gap-10">
             {/* Brand Column */}
             <div className="md:col-span-2 space-y-4">
               <Link href="/" className="flex items-center space-x-2.5 group w-fit">
@@ -63,7 +63,7 @@ export default function Footer({ variant = 'default' }: FooterProps) {
                     href="/tourist"
                     className="text-sm text-white/80 hover:text-white transition-colors duration-200 inline-block hover:translate-x-1 transform"
                   >
-                    How it Works
+                    Explore as a Tourist
                   </Link>
                 </li>
                 <li>
@@ -106,6 +106,23 @@ export default function Footer({ variant = 'default' }: FooterProps) {
                   >
                     Contact us
                   </button>
+                </li>
+              </ul>
+            </div>
+
+            {/* About */}
+            <div className="space-y-4">
+              <h3 className="text-sm font-semibold text-white uppercase tracking-wider">
+                About
+              </h3>
+              <ul className="space-y-3">
+                <li>
+                  <Link
+                    href="/how-it-works"
+                    className="text-sm text-white/80 hover:text-white transition-colors duration-200 inline-block hover:translate-x-1 transform"
+                  >
+                    How TourWiseCo Works
+                  </Link>
                 </li>
               </ul>
             </div>
