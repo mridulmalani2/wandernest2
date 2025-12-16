@@ -1,10 +1,7 @@
-'use client'
-
 import Image from 'next/image'
 import Link from 'next/link'
 import Footer from '@/components/Footer'
 import {
-  MapPin,
   Users,
   Compass,
   Globe,
@@ -14,41 +11,14 @@ import {
   Sparkles,
   Heart,
   GraduationCap,
-  Clock,
   Wallet,
   Network,
-  CheckCircle2,
   ArrowRight,
   Star,
   MessageCircle,
   Linkedin
 } from 'lucide-react'
-import { motion } from 'framer-motion'
 import { getWebsiteStructuredData, getOrganizationStructuredData } from '@/lib/structuredData'
-
-// Animation variants for staggered animations
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.1,
-      delayChildren: 0.2
-    }
-  }
-} as const
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.5,
-      ease: [0.4, 0, 0.2, 1] as const // easeOut curve
-    }
-  }
-} as const
 
 // Tourist USPs
 const TOURIST_USPS = [
@@ -225,15 +195,10 @@ export default function HowItWorksPage() {
           <div className="max-w-6xl mx-auto space-y-20 md:space-y-32">
 
             {/* Hero Section */}
-            <motion.section
-              className="text-center space-y-6 md:space-y-8"
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, ease: "easeOut" }}
-            >
+            <section className="text-center space-y-6 md:space-y-8">
               <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-tight tracking-tight text-white text-shadow-lg">
                 How TourWiseCo Works:{' '}
-                <span className="block mt-2 bg-gradient-to-r from-purple-300 via-blue-300 to-purple-300 bg-clip-text text-transparent animate-gradient-shift">
+                <span className="block mt-2 bg-gradient-to-r from-purple-300 via-blue-300 to-purple-300 bg-clip-text text-transparent">
                   Student-Led Local Experiences
                 </span>
               </h1>
@@ -244,27 +209,17 @@ export default function HowItWorksPage() {
                 is through the eyes of someone who lives it every day.
               </p>
 
-              {/* Animated scroll indicator */}
-              <motion.div
-                className="pt-8"
-                animate={{ y: [0, 10, 0] }}
-                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-              >
+              {/* Scroll indicator - static now */}
+              <div className="pt-8">
                 <div className="inline-flex flex-col items-center gap-2 text-white/60">
                   <span className="text-sm font-medium">Learn more</span>
                   <ArrowRight className="w-5 h-5 rotate-90" />
                 </div>
-              </motion.div>
-            </motion.section>
+              </div>
+            </section>
 
             {/* Definition Section */}
-            <motion.section
-              className="relative"
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true, margin: "-100px" }}
-              transition={{ duration: 0.6 }}
-            >
+            <section className="relative">
               <div className="relative overflow-hidden backdrop-blur-lg bg-gradient-to-br from-white/10 to-white/5 border border-white/20 rounded-3xl shadow-2xl p-8 md:p-12">
                 <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-purple-500/20 to-blue-500/20 blur-3xl rounded-full -translate-y-1/2 translate-x-1/2" />
 
@@ -285,17 +240,11 @@ export default function HowItWorksPage() {
                   </p>
                 </div>
               </div>
-            </motion.section>
+            </section>
 
             {/* For Tourists Section */}
-            <motion.section
-              className="space-y-12"
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: "-100px" }}
-              variants={containerVariants}
-            >
-              <motion.div className="text-center space-y-4" variants={itemVariants}>
+            <section className="space-y-12">
+              <div className="text-center space-y-4">
                 <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-300 text-sm font-medium mb-4">
                   <Compass className="w-4 h-4" />
                   For Tourists
@@ -306,19 +255,12 @@ export default function HowItWorksPage() {
                 <p className="text-lg md:text-xl text-white/85 max-w-3xl mx-auto">
                   Discover cities authentically, affordably, and on your terms
                 </p>
-              </motion.div>
+              </div>
 
               {/* Tourist Steps */}
-              <motion.div
-                className="grid md:grid-cols-3 gap-6 lg:gap-8"
-                variants={containerVariants}
-              >
+              <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
                 {TOURIST_STEPS.map((step) => (
-                  <motion.div
-                    key={step.step}
-                    className="group relative"
-                    variants={itemVariants}
-                  >
+                  <div key={step.step} className="group relative">
                     <div className="relative h-full backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl p-8 hover:bg-white/15 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
                       <div className="absolute -top-4 -left-4 w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-white font-bold text-lg shadow-lg">
                         {step.step}
@@ -331,32 +273,19 @@ export default function HowItWorksPage() {
                         <p className="text-white/80 leading-relaxed">{step.description}</p>
                       </div>
                     </div>
-                  </motion.div>
+                  </div>
                 ))}
-              </motion.div>
+              </div>
 
               {/* Tourist USPs */}
-              <motion.div
-                className="space-y-6 pt-8"
-                variants={containerVariants}
-              >
-                <motion.h3
-                  className="text-2xl md:text-3xl font-bold text-center text-white"
-                  variants={itemVariants}
-                >
+              <div className="space-y-6 pt-8">
+                <h3 className="text-2xl md:text-3xl font-bold text-center text-white">
                   Why Travelers Choose TourWiseCo
-                </motion.h3>
+                </h3>
 
-                <motion.div
-                  className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"
-                  variants={containerVariants}
-                >
+                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
                   {TOURIST_USPS.map((usp, idx) => (
-                    <motion.div
-                      key={idx}
-                      className="group relative overflow-hidden"
-                      variants={itemVariants}
-                    >
+                    <div key={idx} className="group relative overflow-hidden">
                       <div className="relative h-full backdrop-blur-md bg-gradient-to-br from-white/10 to-white/5 border border-white/20 rounded-2xl p-6 hover:border-white/30 transition-all duration-300">
                         <div className={`inline-flex p-3 rounded-xl bg-gradient-to-br ${usp.color} text-white mb-4 shadow-lg`}>
                           <usp.icon className="w-5 h-5" />
@@ -364,11 +293,11 @@ export default function HowItWorksPage() {
                         <h4 className="text-lg font-bold text-white mb-2">{usp.title}</h4>
                         <p className="text-sm text-white/75 leading-relaxed">{usp.description}</p>
                       </div>
-                    </motion.div>
+                    </div>
                   ))}
-                </motion.div>
-              </motion.div>
-            </motion.section>
+                </div>
+              </div>
+            </section>
 
             {/* Decorative Divider */}
             <div className="relative py-4">
@@ -383,14 +312,8 @@ export default function HowItWorksPage() {
             </div>
 
             {/* For Students Section */}
-            <motion.section
-              className="space-y-12"
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: "-100px" }}
-              variants={containerVariants}
-            >
-              <motion.div className="text-center space-y-4" variants={itemVariants}>
+            <section className="space-y-12">
+              <div className="text-center space-y-4">
                 <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-500/20 border border-purple-400/30 text-purple-300 text-sm font-medium mb-4">
                   <GraduationCap className="w-4 h-4" />
                   For Students
@@ -401,19 +324,12 @@ export default function HowItWorksPage() {
                 <p className="text-lg md:text-xl text-white/85 max-w-3xl mx-auto">
                   Earn flexible income while sharing your city and culture
                 </p>
-              </motion.div>
+              </div>
 
               {/* Student Steps */}
-              <motion.div
-                className="grid md:grid-cols-3 gap-6 lg:gap-8"
-                variants={containerVariants}
-              >
+              <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
                 {STUDENT_STEPS.map((step) => (
-                  <motion.div
-                    key={step.step}
-                    className="group relative"
-                    variants={itemVariants}
-                  >
+                  <div key={step.step} className="group relative">
                     <div className="relative h-full backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl p-8 hover:bg-white/15 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
                       <div className="absolute -top-4 -left-4 w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-violet-500 flex items-center justify-center text-white font-bold text-lg shadow-lg">
                         {step.step}
@@ -426,32 +342,19 @@ export default function HowItWorksPage() {
                         <p className="text-white/80 leading-relaxed">{step.description}</p>
                       </div>
                     </div>
-                  </motion.div>
+                  </div>
                 ))}
-              </motion.div>
+              </div>
 
               {/* Student USPs */}
-              <motion.div
-                className="space-y-6 pt-8"
-                variants={containerVariants}
-              >
-                <motion.h3
-                  className="text-2xl md:text-3xl font-bold text-center text-white"
-                  variants={itemVariants}
-                >
+              <div className="space-y-6 pt-8">
+                <h3 className="text-2xl md:text-3xl font-bold text-center text-white">
                   Why Students Choose to Guide
-                </motion.h3>
+                </h3>
 
-                <motion.div
-                  className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"
-                  variants={containerVariants}
-                >
+                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
                   {STUDENT_USPS.map((usp, idx) => (
-                    <motion.div
-                      key={idx}
-                      className="group relative overflow-hidden"
-                      variants={itemVariants}
-                    >
+                    <div key={idx} className="group relative overflow-hidden">
                       <div className="relative h-full backdrop-blur-md bg-gradient-to-br from-white/10 to-white/5 border border-white/20 rounded-2xl p-6 hover:border-white/30 transition-all duration-300">
                         <div className={`inline-flex p-3 rounded-xl bg-gradient-to-br ${usp.color} text-white mb-4 shadow-lg`}>
                           <usp.icon className="w-5 h-5" />
@@ -459,21 +362,15 @@ export default function HowItWorksPage() {
                         <h4 className="text-lg font-bold text-white mb-2">{usp.title}</h4>
                         <p className="text-sm text-white/75 leading-relaxed">{usp.description}</p>
                       </div>
-                    </motion.div>
+                    </div>
                   ))}
-                </motion.div>
-              </motion.div>
-            </motion.section>
+                </div>
+              </div>
+            </section>
 
             {/* Who We Are Section */}
-            <motion.section
-              className="space-y-12"
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: "-100px" }}
-              variants={containerVariants}
-            >
-              <motion.div className="text-center space-y-4" variants={itemVariants}>
+            <section className="space-y-12">
+              <div className="text-center space-y-4">
                 <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 text-white/80 text-sm font-medium mb-4">
                   <Users className="w-4 h-4" />
                   Our Team
@@ -484,18 +381,11 @@ export default function HowItWorksPage() {
                 <p className="text-lg md:text-xl text-white/85 max-w-3xl mx-auto">
                   A small team passionate about authentic travel and student empowerment
                 </p>
-              </motion.div>
+              </div>
 
-              <motion.div
-                className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto"
-                variants={containerVariants}
-              >
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
                 {FOUNDERS.map((founder) => (
-                  <motion.div
-                    key={founder.name}
-                    className="group flex"
-                    variants={itemVariants}
-                  >
+                  <div key={founder.name} className="group flex">
                     <div className="relative flex-1 flex flex-col backdrop-blur-lg bg-gradient-to-br from-white/10 to-white/5 border border-white/20 rounded-3xl p-6 text-center hover:border-white/30 transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
                       {/* Profile Image */}
                       <div className="relative w-28 h-28 mx-auto mb-5">
@@ -507,6 +397,7 @@ export default function HowItWorksPage() {
                               width={112}
                               height={112}
                               className="w-full h-full object-cover"
+                              loading="lazy"
                             />
                           </div>
                         </div>
@@ -530,19 +421,13 @@ export default function HowItWorksPage() {
                         </a>
                       </div>
                     </div>
-                  </motion.div>
+                  </div>
                 ))}
-              </motion.div>
-            </motion.section>
+              </div>
+            </section>
 
             {/* Final CTA Section */}
-            <motion.section
-              className="text-center space-y-8 py-8"
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-            >
+            <section className="text-center space-y-8 py-8">
               <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white text-shadow-lg">
                 Ready to Experience Authentic Travel?
               </h2>
@@ -566,7 +451,7 @@ export default function HowItWorksPage() {
                   I&apos;m a Student
                 </Link>
               </div>
-            </motion.section>
+            </section>
 
           </div>
         </main>
