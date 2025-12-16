@@ -20,6 +20,10 @@ import {
 } from 'lucide-react'
 import { getWebsiteStructuredData, getOrganizationStructuredData } from '@/lib/structuredData'
 
+// Force static rendering and cache for 24 hours
+export const dynamic = 'force-static'
+export const revalidate = 86400
+
 // Tourist USPs
 const TOURIST_USPS = [
   {
@@ -161,13 +165,13 @@ export default function HowItWorksPage() {
   return (
     <div className="min-h-screen flex flex-col relative overflow-hidden">
       {/* Background */}
-      <div className="absolute inset-0">
+      <div className="absolute inset-0 bg-gray-900">
         <Image
-          src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=1920&q=80"
+          src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f"
           alt="Students and travelers exploring together"
           fill
           priority
-          quality={85}
+          quality={60}
           sizes="100vw"
           className="object-cover"
         />
