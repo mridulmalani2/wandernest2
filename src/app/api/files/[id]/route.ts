@@ -50,7 +50,7 @@ export async function GET(
 
             // Verify Student
             const { getValidStudentSession, readStudentTokenFromRequest } = await import('@/lib/student-auth');
-            const token = readStudentTokenFromRequest(req);
+            const token = await readStudentTokenFromRequest(req);
             const session = await getValidStudentSession(token);
 
             if (session && session.studentId === fileRecord.studentId) {

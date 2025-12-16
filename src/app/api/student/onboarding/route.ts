@@ -103,7 +103,7 @@ async function submitOnboarding(req: NextRequest) {
   const validatedData = onboardingSchema.parse(body);
 
   // Validate OTP-backed student session and ensure ownership
-  const sessionToken = readStudentTokenFromRequest(req);
+  const sessionToken = await readStudentTokenFromRequest(req);
   const session = await getValidStudentSession(sessionToken);
 
   if (!session || session.email !== validatedData.email) {

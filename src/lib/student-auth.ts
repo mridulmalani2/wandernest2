@@ -24,7 +24,7 @@ export async function getStudentFromSession(session: StudentSession): Promise<St
   return prisma.student.findUnique({ where: { email: session.email } })
 }
 
-export function readStudentTokenFromRequest(req: Request): string | undefined {
+export async function readStudentTokenFromRequest(req: Request): Promise<string | undefined> {
   // Route handlers in Next 14 expose request.cookies on NextRequest; fall back to headers
   // when only the standard Request object is available.
   const requestWithCookies = req as {
@@ -36,7 +36,10 @@ export function readStudentTokenFromRequest(req: Request): string | undefined {
   }
 
   const cookieHeader = req.headers.get('cookie')
-  if (!cookieHeader) return cookies().get('student_session_token')?.value
+  if (!cookieHeader) {
+    const cookieStore = await cookies()
+    return cookieStore.get('student_session_token')?.value
+  }
 
   const token = cookieHeader
     .split(';')
@@ -44,5 +47,7 @@ export function readStudentTokenFromRequest(req: Request): string | undefined {
     .find((entry) => entry.startsWith('student_session_token='))
     ?.split('=')[1]
 
-  return token || cookies().get('student_session_token')?.value
+  if (token) return token
+  const cookieStoreForFallback = await cookies()
+  return cookieStoreForFallback.get('student_session_token')?.value
 }

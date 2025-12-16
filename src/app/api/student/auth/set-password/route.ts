@@ -1,15 +1,16 @@
-
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { cookies } from 'next/headers'
 import bcrypt from 'bcryptjs'
+
+export const dynamic = 'force-dynamic'
 
 export async function POST(req: Request) {
     try {
         const { password } = await req.json()
 
         // 1. Verify Session
-        const cookieStore = cookies()
+        const cookieStore = await cookies()
         const token = cookieStore.get('student_session_token')?.value
 
         if (!token) {
