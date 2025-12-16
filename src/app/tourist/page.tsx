@@ -274,10 +274,6 @@ export default function TouristLanding() {
                           <Users className="w-4 h-4" />
                           <span>45+ guides</span>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                          <span>4.8 rating</span>
-                        </div>
                       </div>
 
                       {/* Hover Arrow */}
@@ -329,10 +325,6 @@ export default function TouristLanding() {
                         <div className="flex items-center gap-2">
                           <Users className="w-4 h-4" />
                           <span>60+ guides</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                          <span>4.9 rating</span>
                         </div>
                       </div>
 
