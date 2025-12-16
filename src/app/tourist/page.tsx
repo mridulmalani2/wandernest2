@@ -2,10 +2,8 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { Button } from '@/components/ui/button'
-import { GraduationCap, MessageCircle, Star, AlertTriangle, Send, Users, PartyPopper, MapPin, Calendar, TrendingUp } from 'lucide-react'
+import { GraduationCap, MessageCircle, Star, AlertTriangle, Users, MapPin } from 'lucide-react'
 import Footer from '@/components/Footer'
-import { motion } from 'framer-motion'
 import { PrimaryCTAButton } from '@/components/ui/PrimaryCTAButton'
 
 export default function TouristLanding() {
@@ -33,7 +31,7 @@ export default function TouristLanding() {
             <div className="text-center space-y-6 md:space-y-8 animate-slide-up-fade">
               <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold leading-tight tracking-tight text-white text-shadow-lg">
                 Experience{' '}
-                <span className="bg-gradient-to-r from-purple-300 via-blue-300 to-purple-300 bg-clip-text text-transparent animate-gradient-shift">
+                <span className="relative inline-block bg-gradient-to-r from-white via-sky-100 to-purple-200 bg-clip-text text-transparent animate-gradient-shift drop-shadow-[0_4px_14px_rgba(0,0,0,0.65)]">
                   Authentic Travel
                 </span>
                 <br />
@@ -274,10 +272,6 @@ export default function TouristLanding() {
                           <Users className="w-4 h-4" />
                           <span>45+ guides</span>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                          <span>4.8 rating</span>
-                        </div>
                       </div>
 
                       {/* Hover Arrow */}
@@ -329,10 +323,6 @@ export default function TouristLanding() {
                         <div className="flex items-center gap-2">
                           <Users className="w-4 h-4" />
                           <span>60+ guides</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                          <span>4.9 rating</span>
                         </div>
                       </div>
 
