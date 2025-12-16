@@ -13,7 +13,8 @@ async function getStudentDashboard(req: NextRequest) {
   const db = requireDatabase()
 
   // 1. Validate Session
-  const token = cookies().get('student_session_token')?.value
+  const cookieStore = await cookies()
+  const token = cookieStore.get('student_session_token')?.value
 
   if (!token) {
     throw new AppError(401, 'Unauthorized: No session token', 'UNAUTHORIZED')

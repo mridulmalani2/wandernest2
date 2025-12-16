@@ -130,7 +130,7 @@ export async function verifyStudent(request: NextRequest): Promise<{ authorized:
     let studentId: string | null = null;
 
     // 1. Try Custom OTP Session
-    const token = readStudentTokenFromRequest(request);
+    const token = await readStudentTokenFromRequest(request);
     const otpSession = await getValidStudentSession(token);
 
     if (otpSession) {

@@ -8,7 +8,7 @@ import { getValidStudentSession, readStudentTokenFromRequest } from '@/lib/stude
 export async function POST(req: NextRequest) {
   try {
     // SECURITY: Verify authentication - only authenticated students can upload
-    const token = readStudentTokenFromRequest(req);
+    const token = await readStudentTokenFromRequest(req);
     const session = await getValidStudentSession(token);
 
     if (!session) {
