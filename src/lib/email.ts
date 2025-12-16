@@ -117,6 +117,7 @@ async function sendEmail(
   const isTestKey = config.email.resendApiKey?.startsWith('re_test_');
   console.log(`   Resend API Key Type: ${config.email.resendApiKey ? (isTestKey ? '⚠️ TEST KEY (Sandbox Mode - Only sends to you)' : '✅ LIVE KEY') : '❌ NOT CONFIGURED'}`);
   console.log(`   Resend API Key Configured: ${!!config.email.resendApiKey}`);
+  console.log(`   From: ${config.email.from}`);
 
   // 1. Try Resend first
   if (resend) {
@@ -216,7 +217,7 @@ export async function sendStudentOtpEmail(toEmail: string, otp: string) {
   return sendEmail(
     {
       to: toEmail,
-      subject: 'Verification Code', // Changed from 'Your TourWiseCo sign-in code' to match sendVerificationEmail
+      subject: 'Your TourWise verification code',
       html,
       text,
     },
@@ -340,7 +341,7 @@ export async function sendVerificationEmail(
   return await sendEmail(
     {
       to: email,
-      subject: 'Verification Code',
+      subject: 'Your TourWise verification code',
       html,
       text,
     },
