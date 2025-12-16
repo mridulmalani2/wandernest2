@@ -173,7 +173,7 @@ export function PreferencesStep({ data, errors, updateData }: Props) {
                       <input
                         type="text"
                         placeholder="Search..."
-                        className="w-full pl-8 pr-3 py-2 text-sm bg-liquid-light rounded-xl focus:outline-none"
+                        className="w-full pl-8 pr-3 py-2 text-sm bg-liquid-light rounded-xl focus:outline-none text-gray-900 placeholder:text-gray-500"
                         value={languageSearch}
                         onChange={(e) => setLanguageSearch(e.target.value)}
                         onClick={(e) => e.stopPropagation()}
