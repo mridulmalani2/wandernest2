@@ -4,6 +4,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { BookingForm } from '@/components/booking/BookingForm'
 import Navigation from '@/components/Navigation'
+import Footer from '@/components/Footer'
 import { signIn, useSession } from 'next-auth/react'
 import { AlertTriangle, Loader2, LogIn, CheckCircle2 } from 'lucide-react'
 import { PrimaryCTAButton } from '@/components/ui/PrimaryCTAButton'
@@ -247,11 +248,9 @@ export default function BookingPage() {
         </main>
 
         {/* Footer */}
-        <footer className="border-t-2 glass-card-dark border-white/10 mt-16 animate-fade-in">
-          <div className="container mx-auto px-4 py-8 text-center text-gray-300">
-            <p>&copy; {new Date().getFullYear()} TourWiseCo. All rights reserved.</p>
-          </div>
-        </footer>
+        <div className="mt-16 animate-fade-in">
+          <Footer variant="minimal" />
+        </div>
       </div>
     </div>
   )
