@@ -15,7 +15,7 @@ export default function Footer({ variant = 'default' }: FooterProps) {
   if (variant === 'minimal') {
     return (
       <footer className="relative z-20 mt-auto">
-        <div className="border-t border-white/20 bg-black/20 backdrop-blur-md">
+        <div className="border-t border-white/20 bg-black/60 backdrop-blur-md">
           <div className="container mx-auto px-4 py-6 text-center">
             <p className="text-sm text-white/90 text-shadow-sm">
               © {currentYear} TourWiseCo. Connecting cultures, one guide at a time.
@@ -28,7 +28,7 @@ export default function Footer({ variant = 'default' }: FooterProps) {
 
   return (
     <footer className="relative z-20 mt-auto">
-      <div className="border-t border-white/20 bg-gradient-to-b from-black/10 to-black/20 backdrop-blur-md">
+      <div className="border-t border-white/20 bg-gradient-to-b from-black/50 to-black/70 backdrop-blur-md">
         <div className="container mx-auto px-4 py-12">
           <div className="grid grid-cols-1 md:grid-cols-5 gap-8 md:gap-10">
             {/* Brand Column */}
