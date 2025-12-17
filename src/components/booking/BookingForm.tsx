@@ -25,6 +25,7 @@ export type BookingFormData = {
   preferredGender?: 'male' | 'female' | 'no_preference'
   serviceType: 'itinerary_help' | 'guided_experience' | ''
   interests: string[]
+  interestHighlights?: string
   hourlyRate?: number
   totalBudget?: number
   discoveryFeeConsent?: boolean
@@ -62,6 +63,7 @@ export function BookingForm() {
     preferredLanguages: [],
     serviceType: '',
     interests: [],
+    interestHighlights: '',
     discoveryFeeConsent: false,
     email: '',
     contactMethod: 'email',
@@ -86,11 +88,20 @@ export function BookingForm() {
 
   const getStepErrors = (step: number, data: BookingFormData): Record<string, string> => {
     const newErrors: Record<string, string> = {}
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
 
     if (step === 1) {
       if (!data.city) newErrors.city = 'City is required'
       if (!data.dates.start) newErrors.dates = 'Start date is required'
       if (!data.preferredTime) newErrors.preferredTime = 'Time preference is required'
+      if (data.dates.start) {
+        const startDate = new Date(data.dates.start)
+        startDate.setHours(0, 0, 0, 0)
+        if (startDate < today) {
+          newErrors.dates = 'Start date cannot be in the past'
+        }
+      }
       if (data.numberOfGuests < 1 || data.numberOfGuests > 10) {
         newErrors.numberOfGuests = 'Guest count must be between 1 and 10'
       }
@@ -195,6 +206,7 @@ export function BookingForm() {
           preferredGender: formData.preferredGender,
           serviceType: formData.serviceType,
           interests: formData.interests,
+          interestHighlights: formData.interestHighlights,
           budget: formData.totalBudget,
           discoveryFeeConsent: formData.discoveryFeeConsent,
           phone: formData.phone,

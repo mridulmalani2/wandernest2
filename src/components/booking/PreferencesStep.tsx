@@ -173,7 +173,7 @@ export function PreferencesStep({ data, errors, updateData }: Props) {
                       <input
                         type="text"
                         placeholder="Search..."
-                        className="w-full pl-8 pr-3 py-2 text-sm bg-liquid-light rounded-xl focus:outline-none"
+                        className="w-full pl-8 pr-3 py-2 text-sm bg-liquid-light rounded-xl focus:outline-none text-gray-900 placeholder:text-gray-500"
                         value={languageSearch}
                         onChange={(e) => setLanguageSearch(e.target.value)}
                         onClick={(e) => e.stopPropagation()}
@@ -387,6 +387,19 @@ export function PreferencesStep({ data, errors, updateData }: Props) {
         {errors.interests && (
           <p className="text-xs font-light text-ui-error mt-2">{errors.interests}</p>
         )}
+      </div>
+
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <label className="text-sm font-light tracking-wide text-white/90">Specific event or highlight (optional)</label>
+          <span className="text-[11px] text-gray-400">Tell us what you’re excited to experience</span>
+        </div>
+        <textarea
+          value={data.interestHighlights || ''}
+          onChange={(e) => updateData({ interestHighlights: e.target.value })}
+          placeholder="e.g., Oktoberfest, a local food festival, or a landmark you've dreamed of visiting"
+          className="w-full rounded-2xl bg-white/5 border border-white/10 focus:border-white/40 focus:ring-2 focus:ring-white/20 transition-all text-sm text-white placeholder:text-white/50 px-4 py-3 min-h-[80px]"
+        />
       </div>
     </div>
   )

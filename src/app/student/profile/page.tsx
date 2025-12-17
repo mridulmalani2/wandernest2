@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import {
@@ -33,6 +33,7 @@ import { MultiSelect } from '@/components/ui/MultiSelect';
 import { InfoRow, SectionCard, StatCard, SkillChip } from '@/components/student/ProfileComponents';
 import { useRouter } from 'next/navigation';
 import Navigation from '@/components/Navigation';
+import { COUNTRY_CALLING_CODES, type CountryCallingCode } from '@/config/countryCallingCodes';
 
 interface StudentProfile {
   id: string;
@@ -165,17 +166,6 @@ const ProfileActions: React.FC<ProfileActionsProps> = ({
 const DARK_INPUT_CLASS = "w-full px-3 py-2 bg-[#ffffff10] border border-[#ffffff2e] text-white placeholder:text-gray-400 rounded-md focus:outline-none focus:border-[#A66CFF]/50 focus:ring-2 focus:ring-[#A66CFF]/20 transition-all";
 const DARK_LABEL_CLASS = "text-gray-300 font-medium mb-2 block";
 
-const COUNTRY_CODES = [
-  { code: '+1', country: 'US/CA' },
-  { code: '+44', country: 'UK' },
-  { code: '+33', country: 'FR' },
-  { code: '+86', country: 'CN' },
-  { code: '+91', country: 'IN' },
-  { code: '+49', country: 'DE' },
-  { code: '+81', country: 'JP' },
-  { code: '+971', country: 'UAE' },
-];
-
 const SKILL_OPTIONS = [
   "Photography", "History", "Food & Culinary", "Nightlife", "Art & Museums",
   "Hiking", "Shopping", "Language Exchange", "Local Culture", "Architecture"
@@ -193,16 +183,42 @@ export default function StudentProfilePage() {
   const [originalProfile, setOriginalProfile] = useState<StudentProfile | null>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [phoneCode, setPhoneCode] = useState('+86');
+  const [phoneCode, setPhoneCode] = useState('+1');
+  const countryCodeOptions = useMemo(() => {
+    const mergedByCode = COUNTRY_CALLING_CODES.reduce<Record<string, CountryCallingCode>>((acc, entry) => {
+      if (acc[entry.code]) {
+        acc[entry.code] = {
+          code: entry.code,
+          country: `${acc[entry.code].country}, ${entry.country}`
+        };
+      } else {
+        acc[entry.code] = entry;
+      }
+      return acc;
+    }, {});
+
+    return Object.values(mergedByCode).sort((a, b) => a.country.localeCompare(b.country));
+  }, []);
 
   useEffect(() => {
     if (currentProfile?.phoneNumber) {
-      const found = COUNTRY_CODES.find(c => currentProfile.phoneNumber?.startsWith(c.code));
+      const found = COUNTRY_CALLING_CODES.find(c => currentProfile.phoneNumber?.startsWith(c.code));
       if (found) {
         setPhoneCode(found.code);
       }
     }
   }, [currentProfile]);
+
+  const handlePhoneCodeChange = (newCode: string) => {
+    if (!currentProfile) return;
+    const currentNumber = currentProfile.phoneNumber || '';
+    const localPart = currentNumber.startsWith(phoneCode)
+      ? currentNumber.slice(phoneCode.length)
+      : currentNumber;
+
+    setPhoneCode(newCode);
+    updateField('phoneNumber', `${newCode}${localPart}`);
+  };
 
   const validateForm = () => {
     if (!currentProfile?.name?.trim()) {
@@ -457,11 +473,11 @@ export default function StudentProfilePage() {
                       <div className="flex gap-2">
                         <select
                           value={phoneCode}
-                          onChange={(e) => setPhoneCode(e.target.value)}
-                          className="px-3 py-2 bg-[#ffffff10] border border-[#ffffff2e] text-white rounded-md focus:outline-none focus:border-purple-500/50 appearance-none min-w-[80px]"
+                          onChange={(e) => handlePhoneCodeChange(e.target.value)}
+                          className="px-3 py-2 bg-[#ffffff10] border border-[#ffffff2e] text-white rounded-md focus:outline-none focus:border-purple-500/50 appearance-none min-w-[140px]"
                         >
-                          {COUNTRY_CODES.map((c) => (
-                            <option key={c.code} value={c.code} className="bg-neutral-900 text-white">
+                          {countryCodeOptions.map((c) => (
+                            <option key={`${c.code}-${c.country}`} value={c.code} className="bg-neutral-900 text-white">
                               {c.code} ({c.country})
                             </option>
                           ))}
