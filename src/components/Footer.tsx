@@ -16,6 +16,7 @@ export default function Footer({ variant = 'default' }: FooterProps) {
     return (
       <footer className="relative z-20 mt-auto">
         <div className="border-t border-white/20 bg-gradient-to-b from-black/85 via-black/80 to-black/70 backdrop-blur-md shadow-[0_0_40px_rgba(0,0,0,0.55)]">
+        <div className="border-t border-white/20 bg-black/60 backdrop-blur-md">
           <div className="container mx-auto px-4 py-6 text-center">
             <p className="text-sm text-white text-shadow-sm">
               © {currentYear} TourWiseCo. Connecting cultures, one guide at a time.
