@@ -82,14 +82,14 @@ export default function BookingPage() {
                   </PrimaryCTAButton>
                 </div>
 
-                <div className="text-center text-sm text-gray-400">
-                  <p>
+                <div className="text-center text-sm">
+                  <p className="inline-block px-3 py-2 rounded-xl bg-black/45 text-white/95 shadow-lg">
                     By signing in, you agree to our{' '}
-                    <Link href="/terms" className="text-blue-400 hover:underline">
+                    <Link href="/terms" className="text-blue-100 hover:text-white underline underline-offset-4">
                       Terms of Service
                     </Link>{' '}
                     and{' '}
-                    <Link href="/privacy" className="text-blue-400 hover:underline">
+                    <Link href="/privacy" className="text-blue-100 hover:text-white underline underline-offset-4">
                       Privacy Policy
                     </Link>
                   </p>
