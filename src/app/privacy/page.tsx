@@ -9,7 +9,7 @@ export default function PrivacyPolicy() {
   return (
     <div className="min-h-screen flex flex-col relative overflow-hidden bg-black">
       {/* Background Gradient */}
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px]" />
+      <div className="absolute inset-0 bg-gradient-to-b from-[#0a0718] via-[#0b0820] to-black opacity-90 backdrop-blur-[3px]" />
 
       <div className="relative z-10 flex flex-col min-h-screen">
         <Navigation variant="tourist" />
@@ -20,7 +20,7 @@ export default function PrivacyPolicy() {
             {/* Back Link */}
             <Link
               href="/"
-              className="inline-flex items-center gap-2 text-sm text-gray-400 hover:text-white mb-8 transition-colors"
+              className="inline-flex items-center gap-2 text-sm text-white hover:text-white mb-8 transition-colors"
             >
               <ArrowLeft className="w-4 h-4" />
               Back to Home
@@ -31,19 +31,19 @@ export default function PrivacyPolicy() {
               <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
                 Privacy Policy
               </h1>
-              <p className="text-lg text-gray-400">
+              <p className="text-lg text-white">
                 Last Updated: November 29, 2025
               </p>
             </div>
 
             {/* Privacy Content */}
-            <div className="prose prose-lg prose-invert max-w-none">
-              <div className="glass-card-dark rounded-xl shadow-premium border border-white/10 p-8 md:p-12 space-y-8">
+            <div className="prose prose-lg prose-invert max-w-none prose-headings:text-white prose-strong:text-white prose-p:text-white prose-li:text-white">
+              <div className="glass-card-dark rounded-xl shadow-premium border border-white/15 bg-black/70 p-8 md:p-12 space-y-8">
 
                 {/* Introduction */}
                 <section>
                   <h2 className="text-2xl font-bold text-white mb-4">1. Introduction</h2>
-                  <div className="space-y-4 text-gray-300 leading-relaxed">
+                  <div className="space-y-4 text-white leading-relaxed">
                     <p>
                       TourWiseCo ("we," "us," "our," or "the Platform") is committed to protecting your privacy and ensuring transparency in how we collect, use, store, and share your personal data. This Privacy Policy explains our data practices in compliance with the General Data Protection Regulation (GDPR) (EU) 2016/679, the UK GDPR as incorporated into the Data Protection Act 2018, the ePrivacy Directive 2002/58/EC, and other applicable data protection laws.
                     </p>
@@ -59,7 +59,7 @@ export default function PrivacyPolicy() {
                 {/* Data Controller */}
                 <section>
                   <h2 className="text-2xl font-bold text-white mb-4">2. Data Controller</h2>
-                  <div className="space-y-4 text-gray-300 leading-relaxed">
+                  <div className="space-y-4 text-white leading-relaxed">
                     <p>
                       For the purposes of the GDPR and UK GDPR, TourWiseCo is the data controller responsible for your personal data collected through the Platform.
                     </p>
@@ -81,7 +81,7 @@ export default function PrivacyPolicy() {
                 {/* Personal Data Collection */}
                 <section>
                   <h2 className="text-2xl font-bold text-white mb-4">3. Personal Data We Collect</h2>
-                  <div className="space-y-4 text-gray-300 leading-relaxed">
+                  <div className="space-y-4 text-white leading-relaxed">
                     <p>
                       We collect different categories of personal data depending on how you interact with our Platform.
                     </p>
@@ -159,7 +159,7 @@ export default function PrivacyPolicy() {
                 {/* Legal Basis */}
                 <section>
                   <h2 className="text-2xl font-bold text-white mb-4">4. Legal Basis for Processing Personal Data</h2>
-                  <div className="space-y-4 text-gray-300 leading-relaxed">
+                  <div className="space-y-4 text-white leading-relaxed">
                     <p>
                       Under the GDPR and UK GDPR, we must have a lawful basis to process your personal data. We process your personal data on the following legal grounds:
                     </p>
@@ -218,7 +218,7 @@ export default function PrivacyPolicy() {
                 {/* How We Use Data */}
                 <section>
                   <h2 className="text-2xl font-bold text-white mb-4">5. How We Use Your Personal Data</h2>
-                  <div className="space-y-4 text-gray-300 leading-relaxed">
+                  <div className="space-y-4 text-white leading-relaxed">
                     <p>
                       We use your personal data for the following purposes:
                     </p>
@@ -273,7 +273,7 @@ export default function PrivacyPolicy() {
                 {/* Data Sharing */}
                 <section>
                   <h2 className="text-2xl font-bold text-white mb-4">6. How We Share Your Personal Data</h2>
-                  <div className="space-y-4 text-gray-300 leading-relaxed">
+                  <div className="space-y-4 text-white leading-relaxed">
                     <p>
                       We do not sell your personal data to third parties. We share your personal data only in the limited circumstances described below:
                     </p>
@@ -334,7 +334,7 @@ export default function PrivacyPolicy() {
                 {/* International Transfers */}
                 <section>
                   <h2 className="text-2xl font-bold text-white mb-4">7. International Data Transfers</h2>
-                  <div className="space-y-4 text-gray-300 leading-relaxed">
+                  <div className="space-y-4 text-white leading-relaxed">
                     <p>
                       TourWiseCo operates in the European Union and United Kingdom. However, some of our service providers are located in countries outside the European Economic Area (EEA) and the United Kingdom, including the United States.
                     </p>
@@ -359,7 +359,7 @@ export default function PrivacyPolicy() {
                 {/* Data Retention */}
                 <section>
                   <h2 className="text-2xl font-bold text-white mb-4">8. Data Retention</h2>
-                  <div className="space-y-4 text-gray-300 leading-relaxed">
+                  <div className="space-y-4 text-white leading-relaxed">
                     <p>
                       We retain personal data only for as long as necessary to fulfill the purposes for which it was collected, comply with legal obligations, resolve disputes, and enforce our agreements.
                     </p>
@@ -439,7 +439,7 @@ export default function PrivacyPolicy() {
                 {/* Cookies */}
                 <section>
                   <h2 className="text-2xl font-bold text-white mb-4">9. Cookies and Tracking Technologies</h2>
-                  <div className="space-y-4 text-gray-300 leading-relaxed">
+                  <div className="space-y-4 text-white leading-relaxed">
                     <p>
                       We use cookies and similar tracking technologies in accordance with the ePrivacy Directive 2002/58/EC and GDPR.
                     </p>
@@ -523,7 +523,7 @@ export default function PrivacyPolicy() {
                 {/* Your Rights */}
                 <section>
                   <h2 className="text-2xl font-bold text-white mb-4">10. Your Data Protection Rights</h2>
-                  <div className="space-y-4 text-gray-300 leading-relaxed">
+                  <div className="space-y-4 text-white leading-relaxed">
                     <p>
                       Under the GDPR and UK GDPR, you have the following data protection rights. To exercise any of these rights, please contact us using the information in Section 14.
                     </p>
@@ -634,7 +634,7 @@ export default function PrivacyPolicy() {
                 {/* Data Security */}
                 <section>
                   <h2 className="text-2xl font-bold text-white mb-4">11. Data Security</h2>
-                  <div className="space-y-4 text-gray-300 leading-relaxed">
+                  <div className="space-y-4 text-white leading-relaxed">
                     <p>
                       We implement appropriate technical and organizational measures to protect personal data against unauthorized or unlawful processing, accidental loss, destruction, or damage.
                     </p>
@@ -686,7 +686,7 @@ export default function PrivacyPolicy() {
                 {/* Children's Privacy */}
                 <section>
                   <h2 className="text-2xl font-bold text-white mb-4">12. Children's Privacy</h2>
-                  <div className="space-y-4 text-gray-300 leading-relaxed">
+                  <div className="space-y-4 text-white leading-relaxed">
                     <p>
                       Our Platform is not intended for individuals under 18 years of age. We do not knowingly collect personal data from children under 18. Users must be at least 18 years old to create an account or use our Services.
                     </p>
@@ -702,7 +702,7 @@ export default function PrivacyPolicy() {
                 {/* Changes to Policy */}
                 <section>
                   <h2 className="text-2xl font-bold text-white mb-4">13. Changes to This Privacy Policy</h2>
-                  <div className="space-y-4 text-gray-300 leading-relaxed">
+                  <div className="space-y-4 text-white leading-relaxed">
                     <p>
                       We may update this Privacy Policy from time to time to reflect changes in our practices, legal requirements, or for other operational, legal, or regulatory reasons.
                     </p>
@@ -724,7 +724,7 @@ export default function PrivacyPolicy() {
                 {/* Contact Us */}
                 <section>
                   <h2 className="text-2xl font-bold text-white mb-4">14. Contact Us</h2>
-                  <div className="space-y-4 text-gray-300 leading-relaxed">
+                  <div className="space-y-4 text-white leading-relaxed">
                     <p>
                       If you have any questions, concerns, or requests regarding this Privacy Policy or our data practices, please contact us:
                     </p>
@@ -745,7 +745,7 @@ export default function PrivacyPolicy() {
                 {/* Additional Information for EEA/UK Users */}
                 <section>
                   <h2 className="text-2xl font-bold text-white mb-4">15. Additional Information for EEA and UK Users</h2>
-                  <div className="space-y-4 text-gray-300 leading-relaxed">
+                  <div className="space-y-4 text-white leading-relaxed">
                     <h3 className="text-xl font-semibold text-white mt-6 mb-3">15.1 Legal Basis Summary</h3>
                     <p>
                       This section summarizes the legal bases under which we process different categories of personal data:
@@ -812,7 +812,7 @@ export default function PrivacyPolicy() {
                 {/* Acknowledgment */}
                 <section className="bg-blue-900/20 rounded-lg p-6 border-l-4 border-blue-500">
                   <h3 className="text-lg font-bold text-white mb-3">Acknowledgment</h3>
-                  <p className="text-gray-300 leading-relaxed">
+                  <p className="text-white leading-relaxed">
                     BY USING THE TOURWISECO PLATFORM, YOU ACKNOWLEDGE THAT YOU HAVE READ AND UNDERSTOOD THIS PRIVACY POLICY AND CONSENT TO THE COLLECTION, USE, AND DISCLOSURE OF YOUR PERSONAL DATA AS DESCRIBED HEREIN.
                   </p>
                 </section>
