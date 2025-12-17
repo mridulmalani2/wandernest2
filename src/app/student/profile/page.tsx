@@ -57,6 +57,7 @@ interface StudentProfile {
   interests?: string[];
   servicesOffered?: string[];
   hourlyRate?: number;
+  hourlyRateCurrency?: 'GBP' | 'EUR';
   onlineServicesAvailable?: boolean;
   timezone?: string;
   preferredDurations?: string[];
@@ -265,8 +266,12 @@ export default function StudentProfilePage() {
       const res = await fetch('/api/student/profile');
       if (res.ok) {
         const data = await res.json();
-        setCurrentProfile(data.student);
-        setOriginalProfile(data.student);
+        const normalizedStudent: StudentProfile = {
+          ...data.student,
+          hourlyRateCurrency: data.student?.hourlyRateCurrency ?? 'GBP'
+        };
+        setCurrentProfile(normalizedStudent);
+        setOriginalProfile(normalizedStudent);
       } else {
         // Handle unauthorized or error
         if (res.status === 401) {
@@ -314,8 +319,12 @@ export default function StudentProfilePage() {
 
       if (res.ok) {
         const data = await res.json();
-        setOriginalProfile(data.student);
-        setCurrentProfile(data.student);
+        const updatedStudent: StudentProfile = {
+          ...data.student,
+          hourlyRateCurrency: data.student?.hourlyRateCurrency ?? currentProfile.hourlyRateCurrency ?? 'GBP'
+        };
+        setOriginalProfile(updatedStudent);
+        setCurrentProfile(updatedStudent);
         setIsEditing(false);
       } else {
         // Handle error
@@ -816,24 +825,36 @@ export default function StudentProfilePage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
                   <div>
                     <Label htmlFor={isEditing ? "hourlyRate" : undefined} className={DARK_LABEL_CLASS}>
-                      Hourly Rate (USD)
+                      Hourly Rate
                     </Label>
                     {isEditing ? (
-                      <Input
-                        id="hourlyRate"
-                        type="number"
-                        value={currentProfile?.hourlyRate?.toString() || ''}
-                        onChange={(e) => {
-                          const val = parseFloat(e.target.value);
-                          updateField('hourlyRate', isNaN(val) ? 0 : val);
-                        }}
-                        className={DARK_INPUT_CLASS}
-                        min="0"
-                        step="0.01"
-                      />
+                      <div className="grid grid-cols-2 gap-3">
+                        <select
+                          id="hourlyRateCurrency"
+                          value={currentProfile?.hourlyRateCurrency || 'GBP'}
+                          onChange={(e) => updateField('hourlyRateCurrency', e.target.value as StudentProfile['hourlyRateCurrency'])}
+                          className={`${DARK_INPUT_CLASS} appearance-none`}
+                        >
+                          <option value="GBP" className="bg-gray-900 text-white">GBP (£)</option>
+                          <option value="EUR" className="bg-gray-900 text-white">EUR (€)</option>
+                        </select>
+                        <Input
+                          id="hourlyRate"
+                          type="number"
+                          value={currentProfile?.hourlyRate?.toString() || ''}
+                          onChange={(e) => {
+                            const val = parseFloat(e.target.value);
+                            updateField('hourlyRate', isNaN(val) ? 0 : val);
+                          }}
+                          className={DARK_INPUT_CLASS}
+                          min="0"
+                          step="0.01"
+                          placeholder="0.00"
+                        />
+                      </div>
                     ) : (
                       <InfoRow label="" icon={DollarSign}>
-                        ${currentProfile?.hourlyRate || '0'} / hour
+                        {`${currentProfile?.hourlyRateCurrency === 'EUR' ? '€' : '£'}${currentProfile?.hourlyRate || '0'} / hour (${currentProfile?.hourlyRateCurrency || 'GBP'})`}
                       </InfoRow>
                     )}
                   </div>
