@@ -4,6 +4,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { BookingForm } from '@/components/booking/BookingForm'
 import Navigation from '@/components/Navigation'
+import Footer from '@/components/Footer'
 import { signIn, useSession } from 'next-auth/react'
 import { AlertTriangle, Loader2, LogIn, CheckCircle2 } from 'lucide-react'
 import { PrimaryCTAButton } from '@/components/ui/PrimaryCTAButton'
@@ -82,14 +83,14 @@ export default function BookingPage() {
                   </PrimaryCTAButton>
                 </div>
 
-                <div className="text-center text-sm text-gray-400">
-                  <p>
+                <div className="text-center text-sm">
+                  <p className="inline-block px-3 py-2 rounded-xl bg-black/45 text-white/95 shadow-lg">
                     By signing in, you agree to our{' '}
-                    <Link href="/terms" className="text-blue-400 hover:underline">
+                    <Link href="/terms" className="text-blue-100 hover:text-white underline underline-offset-4">
                       Terms of Service
                     </Link>{' '}
                     and{' '}
-                    <Link href="/privacy" className="text-blue-400 hover:underline">
+                    <Link href="/privacy" className="text-blue-100 hover:text-white underline underline-offset-4">
                       Privacy Policy
                     </Link>
                   </p>
@@ -247,11 +248,9 @@ export default function BookingPage() {
         </main>
 
         {/* Footer */}
-        <footer className="border-t-2 glass-card-dark border-white/10 mt-16 animate-fade-in">
-          <div className="container mx-auto px-4 py-8 text-center text-gray-300">
-            <p>&copy; {new Date().getFullYear()} TourWiseCo. All rights reserved.</p>
-          </div>
-        </footer>
+        <div className="mt-16 animate-fade-in">
+          <Footer variant="minimal" />
+        </div>
       </div>
     </div>
   )

@@ -2,6 +2,7 @@ import 'server-only'
 import nodemailer from 'nodemailer'
 import { Resend } from 'resend'
 import { config } from '@/lib/config'
+import { getBookingConfirmationHtml, getStudentWelcomeHtml } from '@/lib/email-templates'
 
 /**
  * STANDALONE TRANSACTIONAL EMAIL MODULE
@@ -186,7 +187,6 @@ async function sendTransactionalEmail(
  * Send booking confirmation email to tourist
  * Standalone implementation - does NOT depend on auth modules
  */
-import { getBookingConfirmationHtml } from '@/lib/email-templates'
 
 // ... (keep existing imports and code up to sendBookingConfirmation)
 
@@ -216,8 +216,6 @@ export async function sendBookingConfirmation(
 /**
  * Send welcome email to new student guide
  */
-import { getStudentWelcomeHtml } from '@/lib/email-templates'
-
 export async function sendStudentWelcomeEmail(
   email: string,
   name: string

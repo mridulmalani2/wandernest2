@@ -9,7 +9,7 @@ export default function PrivacyPolicy() {
   return (
     <div className="min-h-screen flex flex-col relative overflow-hidden bg-black">
       {/* Background Gradient */}
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px]" />
+      <div className="absolute inset-0 bg-gradient-to-b from-[#0a0718] via-[#0b0820] to-black opacity-90 backdrop-blur-[3px]" />
 
       <div className="relative z-10 flex flex-col min-h-screen">
         <Navigation variant="tourist" />
@@ -37,8 +37,8 @@ export default function PrivacyPolicy() {
             </div>
 
             {/* Privacy Content */}
-            <div className="prose prose-lg prose-invert max-w-none">
-              <div className="glass-card-dark rounded-xl shadow-premium border border-white/10 p-8 md:p-12 space-y-8">
+            <div className="prose prose-lg prose-invert max-w-none prose-headings:text-white prose-strong:text-white prose-p:text-gray-100 prose-li:text-gray-100">
+              <div className="glass-card-dark rounded-xl shadow-premium border border-white/15 bg-black/70 p-8 md:p-12 space-y-8">
 
                 {/* Introduction */}
                 <section>
