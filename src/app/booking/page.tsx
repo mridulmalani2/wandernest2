@@ -91,6 +91,14 @@ export default function BookingPage() {
                     </Link>{' '}
                     and{' '}
                     <Link href="/privacy" className="text-blue-100 hover:text-white underline underline-offset-4">
+                <div className="text-center text-sm text-white/85">
+                  <p>
+                    By signing in, you agree to our{' '}
+                    <Link href="/terms" className="text-blue-200 hover:text-blue-100 hover:underline">
+                      Terms of Service
+                    </Link>{' '}
+                    and{' '}
+                    <Link href="/privacy" className="text-blue-200 hover:text-blue-100 hover:underline">
                       Privacy Policy
                     </Link>
                   </p>
