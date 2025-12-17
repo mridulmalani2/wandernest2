@@ -120,7 +120,7 @@ export function SectionCard({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay }}
-      className="glass-card-dark rounded-3xl shadow-premium border border-white/10 backdrop-blur-lg overflow-hidden"
+      className="glass-card-dark rounded-3xl shadow-premium border border-white/10 backdrop-blur-lg overflow-visible"
     >
       {/* Gradient Accent Bar */}
       <div className={`h-1 bg-gradient-to-r ${accentGradient}`} />
