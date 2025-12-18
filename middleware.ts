@@ -14,12 +14,16 @@ export const config = {
     '/admin/:path*',
     '/student/dashboard/:path*',
     '/student/onboarding/:path*',
+    '/student/signin',
+    '/student/signup',
     '/tourist/dashboard/:path*',
   ]
 }
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
+  console.log(`[Middleware] Path: ${pathname}, Cookies: ${request.cookies.getAll().map(c => c.name).join(', ')}`);
+
   const host = request.headers.get('host')
   const adminHost = process.env.ADMIN_DASHBOARD_HOST
 
@@ -51,9 +55,18 @@ export async function middleware(request: NextRequest) {
 
     // SECURITY: Validate token format (UUID pattern) to reject malformed tokens early.
     // Full validation (database check) happens in the API/Page via /api/student/auth/session-status.
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    // REMOVED UUID check as tokens might be CUIDs check session-status for validity
+    /* const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
     if (!uuidRegex.test(studentSessionToken)) {
       return NextResponse.redirect(new URL('/student/signin', request.url))
+    } */
+  }
+
+  // Redirect authenticated students away from auth pages
+  if (pathname === '/student/signin' || pathname === '/student/signup') {
+    const studentSessionToken = request.cookies.get('student_session_token')?.value;
+    if (studentSessionToken) {
+      return NextResponse.redirect(new URL('/student/dashboard', request.url));
     }
   }
 

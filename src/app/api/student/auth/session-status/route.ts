@@ -81,10 +81,17 @@ export async function GET() {
     }
 
     // 2. No valid session found
-    return NextResponse.json(
+    const response = NextResponse.json(
       { ok: false, nextPath: '/student/signin', reason: 'NO_TOKEN' },
       { status: 200 }
     );
+
+    // If a token was present but invalid/expired, clear it to prevent loops
+    if (token) {
+      response.cookies.delete('student_session_token');
+    }
+
+    return response;
 
   } catch (error) {
     console.error('Error in /api/student/auth/session-status:', error);

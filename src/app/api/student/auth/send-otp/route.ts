@@ -14,6 +14,22 @@ export async function POST(req: Request) {
       )
     }
 
+    // Check if account already exists
+    const existingStudent = await prisma.student.findUnique({
+      where: { email },
+    });
+
+    if (existingStudent) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Account already exists. Please sign in.',
+          code: 'ACCOUNT_EXISTS'
+        },
+        { status: 400 }
+      );
+    }
+
     // 6-digit OTP using secure RNG
     const { randomInt } = await import('crypto');
     const code = randomInt(100000, 1000000).toString();
