@@ -163,9 +163,9 @@ const FOUNDERS = [
 
 export default function HowItWorksPage() {
   return (
-    <div className="min-h-screen flex flex-col relative overflow-hidden">
-      {/* Background */}
-      <div className="absolute inset-0 bg-gray-900">
+    <div className="min-h-screen flex flex-col relative overflow-hidden bg-gray-900">
+      {/* Background - Optimized: Removed backdrop-blur-[2px] which kills performance on large screens */}
+      <div className="absolute inset-0 z-0">
         <Image
           src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f"
           alt="Students and travelers exploring together"
@@ -173,12 +173,15 @@ export default function HowItWorksPage() {
           priority
           quality={60}
           sizes="100vw"
-          className="object-cover"
+          className="object-cover opacity-40"
         />
-        <div className="absolute inset-0 bg-black/55 backdrop-blur-[2px]" />
-        <div className="absolute inset-0 bg-gradient-to-br from-ui-purple-primary/20 via-ui-blue-primary/15 to-black/40" />
+        {/* Simplified overlay stack - single composite layer preferred */}
+        <div className="absolute inset-0 bg-gradient-to-br from-gray-900/90 via-gray-900/80 to-black/80" />
+        <div className="absolute inset-0 bg-gradient-to-br from-ui-purple-primary/10 via-ui-blue-primary/5 to-transparent mix-blend-overlay" />
       </div>
-      <div className="absolute inset-0 pattern-dots opacity-10" />
+
+      {/* Pattern - Low opacity, static */}
+      <div className="absolute inset-0 pattern-dots opacity-[0.03] z-0 pointer-events-none" />
 
       {/* Structured Data for SEO - Sanitized to prevent XSS */}
       <script
@@ -207,15 +210,15 @@ export default function HowItWorksPage() {
           <div className="max-w-6xl mx-auto space-y-20 md:space-y-32">
 
             {/* Hero Section */}
-            <section className="text-center space-y-6 md:space-y-8">
-              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-tight tracking-tight text-white text-shadow-lg">
+            <section className="text-center space-y-6 md:space-y-8 will-change-transform">
+              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-tight tracking-tight text-white drop-shadow-lg">
                 How TourWiseCo Works:{' '}
-                <span className="block mt-2 bg-gradient-to-r from-purple-300 via-blue-300 to-purple-300 bg-clip-text text-transparent">
+                <span className="block mt-2 bg-gradient-to-r from-purple-200 via-blue-200 to-purple-200 bg-clip-text text-transparent">
                   Student-Led Local Experiences
                 </span>
               </h1>
 
-              <p className="text-lg sm:text-xl md:text-2xl text-white/95 max-w-4xl mx-auto leading-relaxed font-medium text-shadow">
+              <p className="text-lg sm:text-xl md:text-2xl text-gray-200 max-w-4xl mx-auto leading-relaxed font-medium drop-shadow-md">
                 TourWiseCo is a marketplace that connects travelers with verified local university students
                 for authentic, personalized travel experiences. We believe the best way to explore a new city
                 is through the eyes of someone who lives it every day.
@@ -223,25 +226,25 @@ export default function HowItWorksPage() {
 
               {/* Scroll indicator - static now */}
               <div className="pt-8">
-                <div className="inline-flex flex-col items-center gap-2 text-white/60">
+                <div className="inline-flex flex-col items-center gap-2 text-white/50">
                   <span className="text-sm font-medium">Learn more</span>
                   <ArrowRight className="w-5 h-5 rotate-90" />
                 </div>
               </div>
             </section>
 
-            {/* Definition Section */}
-            <section className="relative">
-              <div className="relative overflow-hidden backdrop-blur-lg bg-gradient-to-br from-white/10 to-white/5 border border-white/20 rounded-3xl shadow-2xl p-8 md:p-12">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-purple-500/20 to-blue-500/20 blur-3xl rounded-full -translate-y-1/2 translate-x-1/2" />
+            {/* Definition Section - Optimized Glass */}
+            <section className="relative transform-gpu">
+              <div className="relative overflow-hidden bg-white/5 border border-white/10 rounded-3xl shadow-2xl p-8 md:p-12 backdrop-blur-md">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-purple-500/10 to-blue-500/10 blur-3xl rounded-full -translate-y-1/2 translate-x-1/2 pointer-events-none" />
 
                 <div className="relative z-10">
                   <h2 className="text-2xl md:text-3xl font-bold text-white mb-6 flex items-center gap-3">
-                    <Sparkles className="w-8 h-8 text-purple-400" />
+                    <Sparkles className="w-8 h-8 text-purple-300" />
                     What Are Student Guides?
                   </h2>
 
-                  <p className="text-base md:text-lg text-white/90 leading-relaxed max-w-4xl">
+                  <p className="text-base md:text-lg text-gray-200 leading-relaxed max-w-4xl">
                     <strong className="text-white">Student guides</strong> are verified university students who offer
                     personalized tours and local experiences in their city. Unlike traditional tour guides,
                     student guides share genuine insider knowledge — the coffee shops they study at, the
@@ -257,14 +260,14 @@ export default function HowItWorksPage() {
             {/* For Tourists Section */}
             <section className="space-y-12">
               <div className="text-center space-y-4">
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-300 text-sm font-medium mb-4">
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-400/20 text-blue-200 text-sm font-medium mb-4">
                   <Compass className="w-4 h-4" />
                   For Tourists
                 </div>
-                <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white text-shadow-lg">
+                <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white drop-shadow-lg">
                   How It Works for Travelers
                 </h2>
-                <p className="text-lg md:text-xl text-white/85 max-w-3xl mx-auto">
+                <p className="text-lg md:text-xl text-gray-300 max-w-3xl mx-auto">
                   Discover cities authentically, affordably, and on your terms
                 </p>
               </div>
@@ -272,17 +275,17 @@ export default function HowItWorksPage() {
               {/* Tourist Steps */}
               <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
                 {TOURIST_STEPS.map((step) => (
-                  <div key={step.step} className="group relative">
-                    <div className="relative h-full backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl p-8 hover:bg-white/15 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
-                      <div className="absolute -top-4 -left-4 w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-white font-bold text-lg shadow-lg">
+                  <div key={step.step} className="group relative transform-gpu hover:-translate-y-1 transition-transform duration-300 will-change-transform">
+                    <div className="relative h-full bg-white/5 border border-white/10 rounded-2xl p-8 hover:bg-white/10 transition-colors duration-300 backdrop-blur-sm">
+                      <div className="absolute -top-4 -left-4 w-12 h-12 rounded-full bg-gradient-to-br from-blue-600 to-cyan-600 flex items-center justify-center text-white font-bold text-lg shadow-lg">
                         {step.step}
                       </div>
                       <div className="pt-4">
-                        <div className="inline-flex p-3 rounded-xl bg-white/10 text-white mb-4 border border-white/10">
+                        <div className="inline-flex p-3 rounded-xl bg-white/5 text-blue-200 mb-4 border border-white/10">
                           <step.icon className="w-6 h-6" />
                         </div>
                         <h3 className="text-xl font-bold text-white mb-3">{step.title}</h3>
-                        <p className="text-white/80 leading-relaxed">{step.description}</p>
+                        <p className="text-gray-300 leading-relaxed">{step.description}</p>
                       </div>
                     </div>
                   </div>
@@ -297,13 +300,13 @@ export default function HowItWorksPage() {
 
                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
                   {TOURIST_USPS.map((usp, idx) => (
-                    <div key={idx} className="group relative overflow-hidden">
-                      <div className="relative h-full backdrop-blur-md bg-gradient-to-br from-white/10 to-white/5 border border-white/20 rounded-2xl p-6 hover:border-white/30 transition-all duration-300">
+                    <div key={idx} className="group relative overflow-hidden transform-gpu hover:border-white/30 transition-colors duration-300">
+                      <div className="relative h-full bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-sm">
                         <div className={`inline-flex p-3 rounded-xl bg-gradient-to-br ${usp.color} text-white mb-4 shadow-lg`}>
                           <usp.icon className="w-5 h-5" />
                         </div>
                         <h4 className="text-lg font-bold text-white mb-2">{usp.title}</h4>
-                        <p className="text-sm text-white/75 leading-relaxed">{usp.description}</p>
+                        <p className="text-sm text-gray-300 leading-relaxed">{usp.description}</p>
                       </div>
                     </div>
                   ))}
@@ -312,13 +315,13 @@ export default function HowItWorksPage() {
             </section>
 
             {/* Decorative Divider */}
-            <div className="relative py-4">
+            <div className="relative py-4 opacity-80">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-white/10" />
               </div>
               <div className="relative flex justify-center">
-                <div className="bg-gradient-to-r from-purple-500/20 via-blue-500/20 to-purple-500/20 backdrop-blur-sm px-8 py-2 rounded-full border border-white/10">
-                  <Globe className="w-6 h-6 text-white/60" />
+                <div className="bg-gray-900/50 px-8 py-2 rounded-full border border-white/10 backdrop-blur-sm">
+                  <Globe className="w-6 h-6 text-white/50" />
                 </div>
               </div>
             </div>
@@ -326,14 +329,14 @@ export default function HowItWorksPage() {
             {/* For Students Section */}
             <section className="space-y-12">
               <div className="text-center space-y-4">
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-500/20 border border-purple-400/30 text-purple-300 text-sm font-medium mb-4">
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-500/10 border border-purple-400/20 text-purple-200 text-sm font-medium mb-4">
                   <GraduationCap className="w-4 h-4" />
                   For Students
                 </div>
-                <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white text-shadow-lg">
+                <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white drop-shadow-lg">
                   How It Works for Student Guides
                 </h2>
-                <p className="text-lg md:text-xl text-white/85 max-w-3xl mx-auto">
+                <p className="text-lg md:text-xl text-gray-300 max-w-3xl mx-auto">
                   Earn flexible income while sharing your city and culture
                 </p>
               </div>
@@ -341,17 +344,17 @@ export default function HowItWorksPage() {
               {/* Student Steps */}
               <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
                 {STUDENT_STEPS.map((step) => (
-                  <div key={step.step} className="group relative">
-                    <div className="relative h-full backdrop-blur-md bg-white/10 border border-white/20 rounded-2xl p-8 hover:bg-white/15 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
-                      <div className="absolute -top-4 -left-4 w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-violet-500 flex items-center justify-center text-white font-bold text-lg shadow-lg">
+                  <div key={step.step} className="group relative transform-gpu hover:-translate-y-1 transition-transform duration-300 will-change-transform">
+                    <div className="relative h-full bg-white/5 border border-white/10 rounded-2xl p-8 hover:bg-white/10 transition-colors duration-300 backdrop-blur-sm">
+                      <div className="absolute -top-4 -left-4 w-12 h-12 rounded-full bg-gradient-to-br from-purple-600 to-violet-600 flex items-center justify-center text-white font-bold text-lg shadow-lg">
                         {step.step}
                       </div>
                       <div className="pt-4">
-                        <div className="inline-flex p-3 rounded-xl bg-white/10 text-white mb-4 border border-white/10">
+                        <div className="inline-flex p-3 rounded-xl bg-white/5 text-purple-200 mb-4 border border-white/10">
                           <step.icon className="w-6 h-6" />
                         </div>
                         <h3 className="text-xl font-bold text-white mb-3">{step.title}</h3>
-                        <p className="text-white/80 leading-relaxed">{step.description}</p>
+                        <p className="text-gray-300 leading-relaxed">{step.description}</p>
                       </div>
                     </div>
                   </div>
@@ -366,13 +369,13 @@ export default function HowItWorksPage() {
 
                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
                   {STUDENT_USPS.map((usp, idx) => (
-                    <div key={idx} className="group relative overflow-hidden">
-                      <div className="relative h-full backdrop-blur-md bg-gradient-to-br from-white/10 to-white/5 border border-white/20 rounded-2xl p-6 hover:border-white/30 transition-all duration-300">
+                    <div key={idx} className="group relative overflow-hidden transform-gpu hover:border-white/30 transition-colors duration-300">
+                      <div className="relative h-full bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur-sm">
                         <div className={`inline-flex p-3 rounded-xl bg-gradient-to-br ${usp.color} text-white mb-4 shadow-lg`}>
                           <usp.icon className="w-5 h-5" />
                         </div>
                         <h4 className="text-lg font-bold text-white mb-2">{usp.title}</h4>
-                        <p className="text-sm text-white/75 leading-relaxed">{usp.description}</p>
+                        <p className="text-sm text-gray-300 leading-relaxed">{usp.description}</p>
                       </div>
                     </div>
                   ))}
@@ -383,22 +386,22 @@ export default function HowItWorksPage() {
             {/* Who We Are Section */}
             <section className="space-y-12">
               <div className="text-center space-y-4">
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 text-white/80 text-sm font-medium mb-4">
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-white/70 text-sm font-medium mb-4">
                   <Users className="w-4 h-4" />
                   Our Team
                 </div>
-                <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white text-shadow-lg">
+                <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white drop-shadow-lg">
                   Who We Are
                 </h2>
-                <p className="text-lg md:text-xl text-white/85 max-w-3xl mx-auto">
+                <p className="text-lg md:text-xl text-gray-300 max-w-3xl mx-auto">
                   A small team passionate about authentic travel and student empowerment
                 </p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
                 {FOUNDERS.map((founder) => (
-                  <div key={founder.name} className="group flex">
-                    <div className="relative flex-1 flex flex-col backdrop-blur-lg bg-gradient-to-br from-white/10 to-white/5 border border-white/20 rounded-3xl p-6 text-center hover:border-white/30 transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl">
+                  <div key={founder.name} className="group flex transform-gpu hover:-translate-y-2 transition-transform duration-300 will-change-transform">
+                    <div className="relative flex-1 flex flex-col bg-white/5 border border-white/10 rounded-3xl p-6 text-center hover:bg-white/10 transition-colors duration-300 backdrop-blur-sm">
                       {/* Profile Image */}
                       <div className="relative w-28 h-28 mx-auto mb-5">
                         <div className="absolute inset-0 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 p-[2px]">
@@ -419,14 +422,14 @@ export default function HowItWorksPage() {
                       <div className="flex-1 flex flex-col">
                         <h3 className="text-xl font-bold text-white mb-1">{founder.name}</h3>
                         <p className="text-sm text-purple-300 font-medium mb-3">{founder.role}</p>
-                        <p className="text-sm text-white/70 leading-relaxed mb-4 flex-1">{founder.description}</p>
+                        <p className="text-sm text-gray-300 leading-relaxed mb-4 flex-1">{founder.description}</p>
 
                         {/* LinkedIn Link */}
                         <a
                           href={founder.linkedin}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-full bg-white/10 text-white/80 text-sm font-medium hover:bg-white/20 hover:text-white transition-all duration-200 border border-white/10 hover:border-white/20 mt-auto"
+                          className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-full bg-white/5 text-white/70 text-sm font-medium hover:bg-white/10 hover:text-white transition-colors duration-200 border border-white/10 hover:border-white/20 mt-auto"
                         >
                           <Linkedin className="w-4 h-4" />
                           LinkedIn
@@ -439,25 +442,25 @@ export default function HowItWorksPage() {
             </section>
 
             {/* Final CTA Section */}
-            <section className="text-center space-y-8 py-8">
-              <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white text-shadow-lg">
+            <section className="text-center space-y-8 py-8 transform-gpu">
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white drop-shadow-lg">
                 Ready to Experience Authentic Travel?
               </h2>
-              <p className="text-lg md:text-xl text-white/90 max-w-2xl mx-auto">
+              <p className="text-lg md:text-xl text-gray-200 max-w-2xl mx-auto">
                 Whether you&apos;re exploring a new city or sharing your own, TourWiseCo connects you to meaningful experiences.
               </p>
 
               <div className="flex flex-col sm:flex-row justify-center gap-4 pt-4">
                 <Link
                   href="/tourist"
-                  className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-semibold text-lg hover:opacity-90 transition-all duration-200 shadow-lg hover:shadow-xl hover:-translate-y-0.5"
+                  className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-semibold text-lg hover:brightness-110 transition-all duration-200 shadow-lg hover:shadow-blue-500/25 hover:-translate-y-0.5 will-change-transform"
                 >
                   <Compass className="w-5 h-5" />
                   I&apos;m a Traveler
                 </Link>
                 <Link
                   href="/student"
-                  className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-gradient-to-r from-purple-500 to-violet-500 text-white font-semibold text-lg hover:opacity-90 transition-all duration-200 shadow-lg hover:shadow-xl hover:-translate-y-0.5"
+                  className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-gradient-to-r from-purple-600 to-violet-600 text-white font-semibold text-lg hover:brightness-110 transition-all duration-200 shadow-lg hover:shadow-purple-500/25 hover:-translate-y-0.5 will-change-transform"
                 >
                   <GraduationCap className="w-5 h-5" />
                   I&apos;m a Student

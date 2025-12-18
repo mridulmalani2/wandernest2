@@ -52,33 +52,9 @@ if (config.email.isConfigured) {
       server: serverConfig,
       from: config.email.from,
       async sendVerificationRequest({ identifier: email, url, provider }) {
-        // ========================================================================
-        // STUDENT EMAIL DOMAIN VALIDATION
-        // ========================================================================
-        // Students can ONLY sign in with magic-link using verified educational
-        // email domains (e.g., .edu, .ac.uk, .edu.au, etc.).
-        //
-        // This server-side check ensures domain validation even if client-side
-        // validation is bypassed. The list of valid domains is maintained in
-        // src/lib/email-validation.ts
-        // ========================================================================
 
-        // Check if this is a student sign-in flow by examining the callback URL
-        const magicLinkUrl = new URL(url);
-        const callbackUrl = magicLinkUrl.searchParams.get('callbackUrl') || '';
-        const isStudentFlow = callbackUrl.includes('/student/auth-landing') || callbackUrl.includes('intent=student');
-
-        // Validate email domain for student flows
-        if (isStudentFlow && !isStudentEmail(email)) {
-          console.error('❌ Auth: Student sign-in rejected - invalid email domain:', email);
-          throw new Error(
-            `Invalid email domain. Students must use a university or institutional email address (e.g., .edu, .ac.uk, .edu.au). The email "${email}" is not from a recognized educational institution.`
-          );
-        }
-
-        if (config.app.isDevelopment && isStudentFlow) {
-          console.log('🎓 Auth: Student email validation passed:', email);
-        }
+        // Removed Legacy Student Domain Check
+        // Students now use /student/signup with OTP
 
         const { host } = new URL(url)
 
@@ -511,38 +487,18 @@ export const authOptions: NextAuthOptions = {
           const userType = dbUser?.userType || "tourist"
           session.user.userType = (userType === "student" || userType === "tourist") ? userType : "tourist"
 
-          if (userType === "student") {
-            // Check if student profile exists
-            if (user.email) {
-              const student = await prisma.student.findUnique({
-                where: { email: user.email },
-                select: {
-                  id: true,
-                  status: true,
-                  name: true,
-                  city: true,
-                },
-              })
+          // Legacy check for student type just in case, but mostly for Tourist
+          if (userType === "tourist" && user.email) {
+            const tourist = await prisma.tourist.findUnique({
+              where: { email: user.email },
+              select: {
+                id: true,
+                name: true,
+              },
+            })
 
-              // Add student info to session
-              session.user.studentId = student?.id
-              session.user.studentStatus = student?.status
-              session.user.hasCompletedOnboarding = !!student
-            }
-          } else {
-            // Check if tourist profile exists
-            if (user.email) {
-              const tourist = await prisma.tourist.findUnique({
-                where: { email: user.email },
-                select: {
-                  id: true,
-                  name: true,
-                },
-              })
-
-              // Add tourist info to session
-              session.user.touristId = tourist?.id
-            }
+            // Add tourist info to session
+            session.user.touristId = tourist?.id
           }
         }
         return session
@@ -606,24 +562,6 @@ export const authOptions: NextAuthOptions = {
 
           if (dbUser) {
             token.userType = dbUser.userType as 'student' | 'tourist'
-
-            // Check if student has completed onboarding
-            if (dbUser.userType === 'student' && dbUser.email) {
-              try {
-                const student = await prisma.student.findUnique({
-                  where: { email: dbUser.email },
-                  select: {
-                    id: true,
-                    status: true,
-                    city: true,
-                  },
-                })
-                token.hasCompletedOnboarding = !!student?.city // city is required field from onboarding
-              } catch (error) {
-                console.error('⚠️  Auth: Error fetching student onboarding status:', error)
-                token.hasCompletedOnboarding = false
-              }
-            }
           }
         }
 
