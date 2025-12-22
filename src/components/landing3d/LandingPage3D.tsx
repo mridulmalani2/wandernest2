@@ -2,43 +2,32 @@
 
 import { useRef, useState, useEffect, Suspense, lazy, Component, ReactNode } from 'react'
 import { Canvas } from '@react-three/fiber'
-import { LandingPage3DProps, ScrollState, PointerState } from './types'
-import { useScrollProgress, usePointerParallax, useDeviceCapabilities } from './hooks'
+import { Preload } from '@react-three/drei'
+import { LandingPage3DProps, PointerState } from './types'
+import { useScrollHijack, usePointerParallax, useDeviceCapabilities } from './hooks'
 import { LandingFallback } from './LandingFallback'
-
-// Lazy load the 3D scene
-const SpatialScene = lazy(() =>
-  import('./SpatialScene').then((mod) => ({ default: mod.SpatialScene }))
-)
+import {
+  AtmosphericBackground,
+  HeroSectionPhased,
+  PathwayCardsPhased,
+  ScrollProgressIndicator,
+} from './components'
+import WhyChooseCarousel from '@/components/WhyChooseCarousel'
+import DestinationsCarousel from '@/components/landing3d/components/DestinationsCarousel'
 
 /**
- * LandingPage3D - The main 3D landing page experience
+ * LandingPage3D - The main 3D landing page experience with scroll hijacking
  *
- * Architecture:
- * ┌─────────────────────────────────────────────────────────────────┐
- * │  LandingPage3D Container                                        │
- * │  ├── Scroll Container (height: 300vh)                          │
- * │  │   └── Fixed Canvas (sticky, full viewport)                  │
- * │  │       └── SpatialScene                                      │
- * │  │           ├── SpatialCamera (scroll-driven)                 │
- * │  │           ├── AtmosphericBackground                         │
- * │  │           ├── HeroSection3D                                 │
- * │  │           ├── PathwayCards3D                                │
- * │  │           └── FeatureConstellation                          │
- * │  └── HTML Accessibility Layer                                  │
- * └─────────────────────────────────────────────────────────────────┘
- *
- * Scroll Model:
- * - Container is 300vh tall (provides scrollable area)
- * - Canvas is position: sticky at top
- * - Scroll progress (0-1) drives camera position
- * - All 3D content is spatially distributed along camera path
- *
- * Performance:
- * - Device capability detection for graceful degradation
- * - Lazy loading of 3D components
- * - Error boundary for WebGL failures
- * - Static fallback for unsupported devices
+ * UX Flow:
+ * 1. Page loads with scroll locked to hero section
+ * 2. Scroll events progress through animation phases:
+ *    - Phase 1: Title animates in
+ *    - Phase 2: Subtitle animates in
+ *    - Phase 3: Description appears
+ *    - Phase 4: CTA cards animate into position
+ *    - Phase 5: Animation complete
+ * 3. After phase 5, scroll lock releases for normal page scrolling
+ * 4. Below the hero, a carousel section appears
  */
 
 // Error Boundary for WebGL failures
@@ -85,7 +74,7 @@ function LoadingPlaceholder() {
   )
 }
 
-// Accessibility HTML overlay (always present, visually hidden when 3D is active)
+// Accessibility HTML overlay
 function AccessibilityLayer({ is3DActive }: { is3DActive: boolean }) {
   return (
     <div
@@ -107,6 +96,63 @@ function AccessibilityLayer({ is3DActive }: { is3DActive: boolean }) {
   )
 }
 
+// The 3D scene during scroll hijacking
+function HeroScene({
+  currentPhase,
+  phaseProgress,
+  totalProgress,
+  pointerState,
+  isVisible,
+  isHijackComplete,
+}: {
+  currentPhase: number
+  phaseProgress: number
+  totalProgress: number
+  pointerState: PointerState
+  isVisible: boolean
+  isHijackComplete: boolean
+}) {
+  const pointerOffset = {
+    x: pointerState.smoothX,
+    y: pointerState.smoothY,
+  }
+
+  return (
+    <>
+      {/* Atmospheric background - always visible */}
+      <AtmosphericBackground
+        scrollProgress={0}
+        pointerOffset={pointerOffset}
+      />
+
+      {/* Hero Section with phased animations */}
+      <Suspense fallback={null}>
+        <HeroSectionPhased
+          currentPhase={currentPhase}
+          phaseProgress={phaseProgress}
+          totalProgress={totalProgress}
+          pointerOffset={pointerOffset}
+          isVisible={isVisible}
+          isHijackComplete={isHijackComplete}
+        />
+      </Suspense>
+
+      {/* Pathway Cards with phased animations */}
+      <Suspense fallback={null}>
+        <PathwayCardsPhased
+          currentPhase={currentPhase}
+          phaseProgress={phaseProgress}
+          pointerOffset={pointerOffset}
+          isHijackComplete={isHijackComplete}
+        />
+      </Suspense>
+
+      {/* Preload all assets */}
+      <Preload all />
+    </>
+  )
+}
+
 export function LandingPage3D({ className = '' }: LandingPage3DProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [isVisible, setIsVisible] = useState(false)
@@ -115,10 +161,8 @@ export function LandingPage3D({ className = '' }: LandingPage3DProps) {
   // Device capability detection
   const { canRender3D, isMobile, prefersReducedMotion, pixelRatio } = useDeviceCapabilities()
 
-  // Scroll tracking
-  const scrollState = useScrollProgress(containerRef, {
-    scrollHeight: 300, // 300vh total scroll area
-  })
+  // Scroll hijacking for hero animations
+  const hijackState = useScrollHijack(canRender3D && !prefersReducedMotion && isReady)
 
   // Pointer tracking for parallax
   const pointerState = usePointerParallax(canRender3D && !isMobile)
@@ -159,10 +203,17 @@ export function LandingPage3D({ className = '' }: LandingPage3DProps) {
     <div
       ref={containerRef}
       className={`relative ${className}`}
-      style={{ height: '300vh' }} // Scroll area
     >
-      {/* Fixed 3D Canvas */}
-      <div className="sticky top-0 left-0 w-full h-screen overflow-hidden">
+      {/* Hero Section with 3D Canvas - Fixed during scroll hijack */}
+      <div
+        className="relative w-full h-screen overflow-hidden"
+        style={{
+          position: hijackState.isLocked ? 'fixed' : 'relative',
+          top: hijackState.isLocked ? 0 : 'auto',
+          left: 0,
+          zIndex: hijackState.isLocked ? 10 : 1,
+        }}
+      >
         {!isReady ? (
           <LoadingPlaceholder />
         ) : (
@@ -170,7 +221,7 @@ export function LandingPage3D({ className = '' }: LandingPage3DProps) {
             <Suspense fallback={<LoadingPlaceholder />}>
               <Canvas
                 camera={{
-                  position: [0, 0, 15],
+                  position: [0, 0, 10],
                   fov: 50,
                   near: 0.1,
                   far: 100,
@@ -188,10 +239,13 @@ export function LandingPage3D({ className = '' }: LandingPage3DProps) {
                   gl.setClearColor(0x0a0a1a, 1)
                 }}
               >
-                <SpatialScene
-                  scrollState={scrollState}
+                <HeroScene
+                  currentPhase={hijackState.currentPhase}
+                  phaseProgress={hijackState.phaseProgress}
+                  totalProgress={hijackState.totalProgress}
                   pointerState={pointerState}
                   isVisible={isVisible}
+                  isHijackComplete={hijackState.isComplete}
                 />
               </Canvas>
             </Suspense>
@@ -199,13 +253,52 @@ export function LandingPage3D({ className = '' }: LandingPage3DProps) {
         )}
       </div>
 
+      {/* Spacer for when hero is fixed */}
+      {hijackState.isLocked && <div className="h-screen" />}
+
+      {/* Scroll Progress Indicator */}
+      <ScrollProgressIndicator
+        currentPhase={hijackState.currentPhase}
+        totalProgress={hijackState.totalProgress}
+        isComplete={hijackState.isComplete}
+        isVisible={isVisible && isReady}
+      />
+
+      {/* Content below hero - appears after scroll hijack completes */}
+      <div
+        className={`relative bg-gradient-to-b from-[#0a0a1a] via-[#0f0f2f] to-[#0a0a1a] transition-opacity duration-700 ${
+          hijackState.isComplete ? 'opacity-100' : 'opacity-0 pointer-events-none'
+        }`}
+        style={{
+          marginTop: hijackState.isLocked ? 0 : '-100vh',
+        }}
+      >
+        {/* Smooth transition gradient from hero */}
+        <div className="h-32 bg-gradient-to-b from-[#0a0a1a] to-transparent" />
+
+        {/* Destinations Carousel Section */}
+        <section className="py-16 px-4">
+          <DestinationsCarousel />
+        </section>
+
+        {/* Why Choose Us Carousel Section */}
+        <section className="py-16 px-4 bg-gradient-to-b from-transparent via-[#1a1a3a]/30 to-transparent">
+          <WhyChooseCarousel />
+        </section>
+
+        {/* Bottom spacing */}
+        <div className="h-32" />
+      </div>
+
       {/* Accessibility layer */}
       <AccessibilityLayer is3DActive={should3DRender} />
 
-      {/* Scroll progress indicator (optional, for debugging) */}
+      {/* Debug info (development only) */}
       {process.env.NODE_ENV === 'development' && (
-        <div className="fixed bottom-4 left-4 bg-black/50 text-white text-xs px-3 py-1.5 rounded-full z-50 font-mono">
-          Scroll: {(scrollState.progress * 100).toFixed(1)}%
+        <div className="fixed bottom-4 left-4 bg-black/70 text-white text-xs px-3 py-2 rounded-lg z-50 font-mono space-y-1">
+          <div>Phase: {hijackState.currentPhase} ({(hijackState.phaseProgress * 100).toFixed(0)}%)</div>
+          <div>Total: {(hijackState.totalProgress * 100).toFixed(1)}%</div>
+          <div>Locked: {hijackState.isLocked ? 'Yes' : 'No'}</div>
         </div>
       )}
     </div>
