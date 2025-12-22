@@ -5,28 +5,30 @@ import Footer from '@/components/Footer'
 import { getWebsiteStructuredData, getOrganizationStructuredData } from '@/lib/structuredData'
 import dynamic from 'next/dynamic'
 
-// Lazy load the 3D Hero - reduces initial bundle size significantly
+// Lazy load the 3D Landing Page - reduces initial bundle size significantly
 // Falls back to static version on mobile/low-end devices
-const Hero3D = dynamic(() => import('@/components/hero3d').then(mod => ({ default: mod.Hero3D })), {
-  loading: () => (
-    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-slate-900 animate-pulse" />
-  ),
-  ssr: false // 3D requires client-side rendering
-})
-
-// Lazy load WhyChooseCarousel - only when component is in view
-const WhyChooseCarousel = dynamic(() => import('@/components/WhyChooseCarousel'), {
-  loading: () => <div className="mt-14 lg:mt-20 h-[500px] animate-pulse bg-white/10 rounded-3xl" />,
-  ssr: false
-})
+const LandingPage3D = dynamic(
+  () => import('@/components/landing3d').then(mod => ({ default: mod.LandingPage3D })),
+  {
+    loading: () => (
+      <div className="min-h-screen bg-gradient-to-b from-[#0a0a1a] via-[#1a1a3a] to-[#0f0f2f] flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-12 h-12 border-2 border-white/20 border-t-white/80 rounded-full animate-spin mb-4 mx-auto" />
+          <p className="text-white/60 text-sm font-light">Loading experience...</p>
+        </div>
+      </div>
+    ),
+    ssr: false // 3D requires client-side rendering
+  }
+)
 
 /**
  * Main Landing Page Component
  *
- * Features a depth-based 3D hero section with:
- * - Real 3D image planes via Three.js
- * - Mouse-responsive parallax
- * - Scroll-triggered depth transitions
+ * Features a spatial 3D journey experience:
+ * - Scroll-driven camera movement through 3D space
+ * - Three distinct zones: Gateway (hero), Crossroads (CTAs), Constellation (features)
+ * - Mouse/touch parallax for depth feel
  * - Automatic fallback for mobile/low-end devices
  *
  * Includes SEO structured data and lazy-loaded components for performance.
@@ -50,18 +52,9 @@ export default function MainLanding() {
       {/* Fixed Navigation - overlays the 3D scene */}
       <Navigation variant="default" />
 
-      {/* 3D Hero Section - starts at viewport top, navigation overlays it */}
+      {/* 3D Spatial Landing Experience */}
       <main className="flex-1 relative">
-        <Hero3D />
-
-        {/* Why Choose Carousel - Below Hero */}
-        <section className="relative z-10 bg-gradient-to-b from-transparent via-black/80 to-black">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-14 lg:py-20">
-            <div className="max-w-6xl mx-auto">
-              <WhyChooseCarousel />
-            </div>
-          </div>
-        </section>
+        <LandingPage3D />
       </main>
 
       {/* Footer */}
