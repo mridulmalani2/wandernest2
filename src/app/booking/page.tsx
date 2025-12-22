@@ -82,8 +82,8 @@ export default function BookingPage() {
                   </PrimaryCTAButton>
                 </div>
 
-                <div className="text-center text-sm text-white/85">
-                  <p>
+                <div className="text-center text-sm text-white">
+                  <p className="text-center text-sm text-white">
                     By signing in, you agree to our{' '}
                     <Link href="/terms" className="text-blue-200 hover:text-blue-100 hover:underline">
                       Terms of Service
@@ -248,8 +248,8 @@ export default function BookingPage() {
 
         {/* Footer */}
         <footer className="border-t-2 glass-card-dark border-white/10 mt-16 animate-fade-in">
-          <div className="container mx-auto px-4 py-8 text-center text-gray-300">
-            <p>&copy; {new Date().getFullYear()} TourWiseCo. All rights reserved.</p>
+          <div className="container mx-auto px-4 py-8 text-center text-white">
+            <p className="text-center text-white">&copy; {new Date().getFullYear()} TourWiseCo. All rights reserved.</p>
           </div>
         </footer>
       </div>

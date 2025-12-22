@@ -20,7 +20,7 @@ export default function PrivacyPolicy() {
             {/* Back Link */}
             <Link
               href="/"
-              className="inline-flex items-center gap-2 text-sm text-gray-400 hover:text-white mb-8 transition-colors"
+              className="inline-flex items-center gap-2 text-sm text-white hover:text-gray-200 mb-8 transition-colors"
             >
               <ArrowLeft className="w-4 h-4" />
               Back to Home
@@ -31,7 +31,7 @@ export default function PrivacyPolicy() {
               <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
                 Privacy Policy
               </h1>
-              <p className="text-lg text-gray-400">
+              <p className="text-lg text-white">
                 Last Updated: November 29, 2025
               </p>
             </div>
@@ -43,14 +43,14 @@ export default function PrivacyPolicy() {
                 {/* Introduction */}
                 <section>
                   <h2 className="text-2xl font-bold text-white mb-4">1. Introduction</h2>
-                  <div className="space-y-4 text-gray-300 leading-relaxed">
-                    <p>
+                  <div className="space-y-4 text-white leading-relaxed">
+                    <p className='text-white'>
                       TourWiseCo ("we," "us," "our," or "the Platform") is committed to protecting your privacy and ensuring transparency in how we collect, use, store, and share your personal data. This Privacy Policy explains our data practices in compliance with the General Data Protection Regulation (GDPR) (EU) 2016/679, the UK GDPR as incorporated into the Data Protection Act 2018, the ePrivacy Directive 2002/58/EC, and other applicable data protection laws.
                     </p>
-                    <p>
+                    <p className='text-white'>
                       This Privacy Policy applies to all users of the TourWiseCo Platform, including tourists seeking local guide services ("Tourists") and university students offering guide services ("Student Guides" or "Guides").
                     </p>
-                    <p>
+                    <p className='text-white'>
                       By using our Platform, you acknowledge that you have read, understood, and agree to this Privacy Policy. If you do not agree with our practices, please do not use our Services.
                     </p>
                   </div>
@@ -59,19 +59,19 @@ export default function PrivacyPolicy() {
                 {/* Data Controller */}
                 <section>
                   <h2 className="text-2xl font-bold text-white mb-4">2. Data Controller</h2>
-                  <div className="space-y-4 text-gray-300 leading-relaxed">
-                    <p>
+                  <div className="space-y-4 text-white leading-relaxed">
+                    <p className='text-white'>
                       For the purposes of the GDPR and UK GDPR, TourWiseCo is the data controller responsible for your personal data collected through the Platform.
                     </p>
-                    <p>
+                    <p className='text-white'>
                       <strong>Contact Information:</strong><br />
                       You may contact us regarding data protection matters through the contact form available on our Platform, or by contacting our Data Protection Officer (DPO) through the same channel.
                     </p>
-                    <p>
+                    <p className='text-white'>
                       <strong>EU Representative:</strong><br />
                       TourWiseCo operates in France. Our primary operating location is Paris, France.
                     </p>
-                    <p>
+                    <p className='text-white'>
                       <strong>UK Representative:</strong><br />
                       TourWiseCo operates in the United Kingdom through our London operations.
                     </p>
@@ -81,13 +81,13 @@ export default function PrivacyPolicy() {
                 {/* Personal Data Collection */}
                 <section>
                   <h2 className="text-2xl font-bold text-white mb-4">3. Personal Data We Collect</h2>
-                  <div className="space-y-4 text-gray-300 leading-relaxed">
-                    <p>
+                  <div className="space-y-4 text-white leading-relaxed">
+                    <p className='text-white'>
                       We collect different categories of personal data depending on how you interact with our Platform.
                     </p>
 
                     <h3 className="text-xl font-semibold text-white mt-6 mb-3">3.1 Data Collected from All Users</h3>
-                    <p><strong>Account and Profile Information:</strong></p>
+                    <p className='text-white'><strong>Account and Profile Information:</strong></p>
                     <ul className="list-disc pl-6 space-y-2">
                       <li>Email address (required for account creation and authentication)</li>
                       <li>Name (first name and last name)</li>
@@ -96,14 +96,14 @@ export default function PrivacyPolicy() {
                       <li>Authentication tokens and session data</li>
                     </ul>
 
-                    <p className="mt-4"><strong>Communication Data:</strong></p>
+                    <p className="mt-4 text-white"><strong>Communication Data:</strong></p>
                     <ul className="list-disc pl-6 space-y-2">
                       <li>Messages exchanged through our Platform messaging system</li>
                       <li>Contact form submissions and support inquiries</li>
                       <li>Email communications (including magic link authentication emails)</li>
                     </ul>
 
-                    <p className="mt-4"><strong>Technical and Usage Data:</strong></p>
+                    <p className="mt-4 text-white"><strong>Technical and Usage Data:</strong></p>
                     <ul className="list-disc pl-6 space-y-2">
                       <li>IP address</li>
                       <li>Browser type and version</li>
@@ -144,7 +144,7 @@ export default function PrivacyPolicy() {
                     </ul>
 
                     <h3 className="text-xl font-semibold text-white mt-6 mb-3">3.4 Data We Do NOT Collect</h3>
-                    <p>
+                    <p className='text-white'>
                       We do NOT collect or process:
                     </p>
                     <ul className="list-disc pl-6 space-y-2">
@@ -159,13 +159,13 @@ export default function PrivacyPolicy() {
                 {/* Legal Basis */}
                 <section>
                   <h2 className="text-2xl font-bold text-white mb-4">4. Legal Basis for Processing Personal Data</h2>
-                  <div className="space-y-4 text-gray-300 leading-relaxed">
-                    <p>
+                  <div className="space-y-4 text-white leading-relaxed">
+                    <p className='text-white'>
                       Under the GDPR and UK GDPR, we must have a lawful basis to process your personal data. We process your personal data on the following legal grounds:
                     </p>
 
                     <h3 className="text-xl font-semibold text-white mt-6 mb-3">4.1 Performance of Contract (GDPR Article 6(1)(b))</h3>
-                    <p>
+                    <p className='text-white'>
                       Processing is necessary for the performance of our Terms of Service contract with you, including:
                     </p>
                     <ul className="list-disc pl-6 space-y-2">
@@ -178,7 +178,7 @@ export default function PrivacyPolicy() {
                     </ul>
 
                     <h3 className="text-xl font-semibold text-white mt-6 mb-3">4.2 Legitimate Interests (GDPR Article 6(1)(f))</h3>
-                    <p>
+                    <p className='text-white'>
                       Processing is necessary for our legitimate business interests, where such interests are not overridden by your data protection rights:
                     </p>
                     <ul className="list-disc pl-6 space-y-2">
@@ -190,7 +190,7 @@ export default function PrivacyPolicy() {
                     </ul>
 
                     <h3 className="text-xl font-semibold text-white mt-6 mb-3">4.3 Consent (GDPR Article 6(1)(a))</h3>
-                    <p>
+                    <p className='text-white'>
                       For certain processing activities, we obtain your explicit consent:
                     </p>
                     <ul className="list-disc pl-6 space-y-2">
@@ -198,12 +198,12 @@ export default function PrivacyPolicy() {
                       <li>Marketing communications (where required by law)</li>
                       <li>Sharing profile information with matched users</li>
                     </ul>
-                    <p>
+                    <p className='text-white'>
                       You have the right to withdraw consent at any time. Withdrawal does not affect the lawfulness of processing based on consent before withdrawal.
                     </p>
 
                     <h3 className="text-xl font-semibold text-white mt-6 mb-3">4.4 Legal Obligation (GDPR Article 6(1)(c))</h3>
-                    <p>
+                    <p className='text-white'>
                       Processing is necessary to comply with legal obligations, including:
                     </p>
                     <ul className="list-disc pl-6 space-y-2">
@@ -218,8 +218,8 @@ export default function PrivacyPolicy() {
                 {/* How We Use Data */}
                 <section>
                   <h2 className="text-2xl font-bold text-white mb-4">5. How We Use Your Personal Data</h2>
-                  <div className="space-y-4 text-gray-300 leading-relaxed">
-                    <p>
+                  <div className="space-y-4 text-white leading-relaxed">
+                    <p className='text-white'>
                       We use your personal data for the following purposes:
                     </p>
 
@@ -273,13 +273,13 @@ export default function PrivacyPolicy() {
                 {/* Data Sharing */}
                 <section>
                   <h2 className="text-2xl font-bold text-white mb-4">6. How We Share Your Personal Data</h2>
-                  <div className="space-y-4 text-gray-300 leading-relaxed">
-                    <p>
+                  <div className="space-y-4 text-gray-100 leading-relaxed">
+                    <p className='text-white'>
                       We do not sell your personal data to third parties. We share your personal data only in the limited circumstances described below:
                     </p>
 
                     <h3 className="text-xl font-semibold text-white mt-6 mb-3">6.1 With Other Users</h3>
-                    <p>
+                    <p className='text-white'>
                       When our matching algorithm identifies a suitable match, we share relevant profile information:
                     </p>
                     <ul className="list-disc pl-6 space-y-2">
@@ -289,7 +289,7 @@ export default function PrivacyPolicy() {
                     </ul>
 
                     <h3 className="text-xl font-semibold text-white mt-6 mb-3">6.2 Service Providers and Data Processors</h3>
-                    <p>
+                    <p className='text-white'>
                       We engage trusted third-party service providers to assist with Platform operations. These processors have access to personal data only as necessary to perform their functions and are contractually obligated to protect your data in accordance with GDPR Article 28:
                     </p>
                     <ul className="list-disc pl-6 space-y-2">
@@ -302,7 +302,7 @@ export default function PrivacyPolicy() {
                     </ul>
 
                     <h3 className="text-xl font-semibold text-white mt-6 mb-3">6.3 Legal Obligations and Safety</h3>
-                    <p>
+                    <p className='text-white'>
                       We may disclose personal data when required by law or when we believe in good faith that disclosure is necessary to:
                     </p>
                     <ul className="list-disc pl-6 space-y-2">
@@ -315,17 +315,17 @@ export default function PrivacyPolicy() {
                     </ul>
 
                     <h3 className="text-xl font-semibold text-white mt-6 mb-3">6.4 Business Transfers</h3>
-                    <p>
+                    <p className='text-white'>
                       In the event of a merger, acquisition, reorganization, sale of assets, or bankruptcy, your personal data may be transferred to the successor entity. We will notify you via email and/or a prominent notice on our Platform before your personal data is transferred and becomes subject to a different privacy policy.
                     </p>
 
                     <h3 className="text-xl font-semibold text-white mt-6 mb-3">6.5 With Your Consent</h3>
-                    <p>
+                    <p className='text-white'>
                       We may share personal data for purposes not described in this Privacy Policy when we obtain your explicit consent to do so.
                     </p>
 
                     <h3 className="text-xl font-semibold text-white mt-6 mb-3">6.6 Aggregated and Anonymized Data</h3>
-                    <p>
+                    <p className='text-white'>
                       We may share aggregated or anonymized data that cannot reasonably be used to identify you, such as statistical trends, platform metrics, or research findings. This data is not considered personal data under GDPR.
                     </p>
                   </div>
@@ -334,13 +334,13 @@ export default function PrivacyPolicy() {
                 {/* International Transfers */}
                 <section>
                   <h2 className="text-2xl font-bold text-white mb-4">7. International Data Transfers</h2>
-                  <div className="space-y-4 text-gray-300 leading-relaxed">
-                    <p>
+                  <div className="space-y-4 text-gray-100 leading-relaxed">
+                    <p className='text-white'>
                       TourWiseCo operates in the European Union and United Kingdom. However, some of our service providers are located in countries outside the European Economic Area (EEA) and the United Kingdom, including the United States.
                     </p>
 
                     <h3 className="text-xl font-semibold text-white mt-6 mb-3">7.1 Safeguards for International Transfers</h3>
-                    <p>
+                    <p className='text-white'>
                       When we transfer personal data to countries that do not provide an adequate level of data protection as determined by the European Commission or UK authorities, we implement appropriate safeguards in accordance with GDPR Chapter V:
                     </p>
                     <ul className="list-disc pl-6 space-y-2">
@@ -350,7 +350,7 @@ export default function PrivacyPolicy() {
                     </ul>
 
                     <h3 className="text-xl font-semibold text-white mt-6 mb-3">7.2 Your Rights Regarding International Transfers</h3>
-                    <p>
+                    <p className='text-white'>
                       You have the right to obtain information about the safeguards we have in place for international transfers. You may request a copy of the relevant safeguard mechanisms by contacting us using the details in Section 14.
                     </p>
                   </div>
@@ -359,8 +359,8 @@ export default function PrivacyPolicy() {
                 {/* Data Retention */}
                 <section>
                   <h2 className="text-2xl font-bold text-white mb-4">8. Data Retention</h2>
-                  <div className="space-y-4 text-gray-300 leading-relaxed">
-                    <p>
+                  <div className="space-y-4 text-gray-100 leading-relaxed">
+                    <p className='text-white'>
                       We retain personal data only for as long as necessary to fulfill the purposes for which it was collected, comply with legal obligations, resolve disputes, and enforce our agreements.
                     </p>
 
@@ -418,7 +418,7 @@ export default function PrivacyPolicy() {
                     </table>
 
                     <h3 className="text-xl font-semibold text-white mt-6 mb-3">8.2 Retention Criteria</h3>
-                    <p>
+                    <p className='text-white'>
                       We determine retention periods based on:
                     </p>
                     <ul className="list-disc pl-6 space-y-2">
@@ -430,7 +430,7 @@ export default function PrivacyPolicy() {
                     </ul>
 
                     <h3 className="text-xl font-semibold text-white mt-6 mb-3">8.3 Secure Deletion</h3>
-                    <p>
+                    <p className='text-white'>
                       When personal data is no longer required, we securely delete or anonymize it using industry-standard methods to prevent recovery or reconstruction. Backups containing deleted data are retained for disaster recovery purposes but are securely overwritten according to our backup rotation schedule (maximum 90 days).
                     </p>
                   </div>
@@ -439,20 +439,20 @@ export default function PrivacyPolicy() {
                 {/* Cookies */}
                 <section>
                   <h2 className="text-2xl font-bold text-white mb-4">9. Cookies and Tracking Technologies</h2>
-                  <div className="space-y-4 text-gray-300 leading-relaxed">
-                    <p>
+                  <div className="space-y-4 text-gray-100 leading-relaxed">
+                    <p className='text-white'>
                       We use cookies and similar tracking technologies in accordance with the ePrivacy Directive 2002/58/EC and GDPR.
                     </p>
 
                     <h3 className="text-xl font-semibold text-white mt-6 mb-3">9.1 What Are Cookies?</h3>
-                    <p>
+                    <p className='text-white'>
                       Cookies are small text files stored on your device when you visit our Platform. They help us recognize you, remember your preferences, and improve your experience.
                     </p>
 
                     <h3 className="text-xl font-semibold text-white mt-6 mb-3">9.2 Types of Cookies We Use</h3>
 
-                    <p className="font-semibold">Strictly Necessary Cookies (No consent required)</p>
-                    <p>These cookies are essential for the Platform to function and cannot be disabled:</p>
+                    <p className="font-semibold text-white">Strictly Necessary Cookies (No consent required)</p>
+                    <p className='text-white'>These cookies are essential for the Platform to function and cannot be disabled:</p>
                     <ul className="list-disc pl-6 space-y-2">
                       <li><strong>Authentication cookies:</strong> Keep you logged in and manage your session</li>
                       <li><strong>Security cookies:</strong> Detect and prevent fraudulent activity</li>
@@ -460,28 +460,28 @@ export default function PrivacyPolicy() {
                       <li><strong>Load balancing cookies:</strong> Ensure Platform stability and performance</li>
                     </ul>
 
-                    <p className="font-semibold mt-4">Functional Cookies (Consent required)</p>
-                    <p>These cookies enhance functionality and personalization:</p>
+                    <p className="font-semibold text-white mt-4">Functional Cookies (Consent required)</p>
+                    <p className='text-white'>These cookies enhance functionality and personalization:</p>
                     <ul className="list-disc pl-6 space-y-2">
                       <li><strong>Preference cookies:</strong> Remember your language, location, and display settings</li>
                       <li><strong>UI state cookies:</strong> Preserve your navigation and form input state</li>
                     </ul>
 
-                    <p className="font-semibold mt-4">Analytics Cookies (Consent required)</p>
-                    <p>These cookies help us understand how users interact with the Platform:</p>
+                    <p className="font-semibold text-white mt-4">Analytics Cookies (Consent required)</p>
+                    <p className='text-white'>These cookies help us understand how users interact with the Platform:</p>
                     <ul className="list-disc pl-6 space-y-2">
                       <li><strong>Google Analytics:</strong> Tracks page views, user journeys, and engagement metrics</li>
                       <li><strong>Performance monitoring:</strong> Identifies technical issues and slow-loading pages</li>
                     </ul>
-                    <p>
+                    <p className='text-white'>
                       Analytics cookies are only placed with your explicit consent. IP addresses are anonymized. You can withdraw consent at any time through our cookie preference center.
                     </p>
 
-                    <p className="font-semibold mt-4">Marketing Cookies (Consent required)</p>
-                    <p>We do NOT currently use marketing or advertising cookies. Should this change in the future, we will obtain your explicit consent before placing such cookies.</p>
+                    <p className="font-semibold text-white mt-4">Marketing Cookies (Consent required)</p>
+                    <p className='text-white'>We do NOT currently use marketing or advertising cookies. Should this change in the future, we will obtain your explicit consent before placing such cookies.</p>
 
                     <h3 className="text-xl font-semibold text-white mt-6 mb-3">9.3 Third-Party Cookies</h3>
-                    <p>
+                    <p className='text-white'>
                       When you use OAuth authentication (Google, Microsoft), these providers may set their own cookies subject to their privacy policies:
                     </p>
                     <ul className="list-disc pl-6 space-y-2">
@@ -490,7 +490,7 @@ export default function PrivacyPolicy() {
                     </ul>
 
                     <h3 className="text-xl font-semibold text-white mt-6 mb-3">9.4 Managing Cookies</h3>
-                    <p>
+                    <p className='text-white'>
                       You can control cookies through:
                     </p>
                     <ul className="list-disc pl-6 space-y-2">
@@ -504,12 +504,12 @@ export default function PrivacyPolicy() {
                         </ul>
                       </li>
                     </ul>
-                    <p>
+                    <p className='text-white'>
                       Blocking strictly necessary cookies will prevent you from using certain essential features of the Platform.
                     </p>
 
                     <h3 className="text-xl font-semibold text-white mt-6 mb-3">9.5 Other Tracking Technologies</h3>
-                    <p>
+                    <p className='text-white'>
                       In addition to cookies, we may use:
                     </p>
                     <ul className="list-disc pl-6 space-y-2">
@@ -523,13 +523,13 @@ export default function PrivacyPolicy() {
                 {/* Your Rights */}
                 <section>
                   <h2 className="text-2xl font-bold text-white mb-4">10. Your Data Protection Rights</h2>
-                  <div className="space-y-4 text-gray-300 leading-relaxed">
-                    <p>
+                  <div className="space-y-4 text-gray-100 leading-relaxed text-white">
+                    <p className='text-white'>
                       Under the GDPR and UK GDPR, you have the following data protection rights. To exercise any of these rights, please contact us using the information in Section 14.
                     </p>
 
                     <h3 className="text-xl font-semibold text-white mt-6 mb-3">10.1 Right of Access (Article 15)</h3>
-                    <p>
+                    <p className='text-white'>
                       You have the right to request a copy of the personal data we hold about you. We will provide:
                     </p>
                     <ul className="list-disc pl-6 space-y-2">
@@ -537,17 +537,17 @@ export default function PrivacyPolicy() {
                       <li>A copy of your personal data in a commonly used electronic format</li>
                       <li>Information about the purposes of processing, categories of data, recipients, retention periods, and your rights</li>
                     </ul>
-                    <p>
+                    <p className='text-white'>
                       We will respond within one month of your request. The first copy is provided free of charge; additional copies may incur a reasonable administrative fee.
                     </p>
 
                     <h3 className="text-xl font-semibold text-white mt-6 mb-3">10.2 Right to Rectification (Article 16)</h3>
-                    <p>
+                    <p className='text-white'>
                       You have the right to request correction of inaccurate or incomplete personal data. You can update most information directly through your account settings. For data you cannot modify yourself, contact us, and we will update it promptly.
                     </p>
 
                     <h3 className="text-xl font-semibold text-white mt-6 mb-3">10.3 Right to Erasure / "Right to be Forgotten" (Article 17)</h3>
-                    <p>
+                    <p className='text-white'>
                       You have the right to request deletion of your personal data in certain circumstances:
                     </p>
                     <ul className="list-disc pl-6 space-y-2">
@@ -557,7 +557,7 @@ export default function PrivacyPolicy() {
                       <li>The data was unlawfully processed</li>
                       <li>Deletion is required to comply with a legal obligation</li>
                     </ul>
-                    <p>
+                    <p className='text-white'>
                       This right is not absolute. We may retain data where necessary to:
                     </p>
                     <ul className="list-disc pl-6 space-y-2">
@@ -567,7 +567,7 @@ export default function PrivacyPolicy() {
                     </ul>
 
                     <h3 className="text-xl font-semibold text-white mt-6 mb-3">10.4 Right to Restriction of Processing (Article 18)</h3>
-                    <p>
+                    <p className='text-white'>
                       You have the right to request that we restrict processing of your personal data in certain situations:
                     </p>
                     <ul className="list-disc pl-6 space-y-2">
@@ -578,7 +578,7 @@ export default function PrivacyPolicy() {
                     </ul>
 
                     <h3 className="text-xl font-semibold text-white mt-6 mb-3">10.5 Right to Data Portability (Article 20)</h3>
-                    <p>
+                    <p className='text-white'>
                       You have the right to receive your personal data in a structured, commonly used, machine-readable format (e.g., JSON or CSV) and to transmit it to another controller. This right applies where:
                     </p>
                     <ul className="list-disc pl-6 space-y-2">
@@ -587,7 +587,7 @@ export default function PrivacyPolicy() {
                     </ul>
 
                     <h3 className="text-xl font-semibold text-white mt-6 mb-3">10.6 Right to Object (Article 21)</h3>
-                    <p>
+                    <p className='text-white'>
                       You have the right to object to processing based on legitimate interests or for direct marketing purposes:
                     </p>
                     <ul className="list-disc pl-6 space-y-2">
@@ -596,10 +596,10 @@ export default function PrivacyPolicy() {
                     </ul>
 
                     <h3 className="text-xl font-semibold text-white mt-6 mb-3">10.7 Rights Related to Automated Decision-Making (Article 22)</h3>
-                    <p>
+                    <p className='text-white'>
                       You have the right not to be subject to decisions based solely on automated processing, including profiling, that produce legal effects or similarly significantly affect you.
                     </p>
-                    <p>
+                    <p className='text-white'>
                       Our matching algorithm uses automated processing to suggest suitable Student Guides based on preferences. However:
                     </p>
                     <ul className="list-disc pl-6 space-y-2">
@@ -607,17 +607,17 @@ export default function PrivacyPolicy() {
                       <li>You are not obligated to accept suggested matches</li>
                       <li>The algorithm does not make legally binding decisions</li>
                     </ul>
-                    <p>
+                    <p className='text-white'>
                       If you have concerns about our matching algorithm, you may contact us to request human review and explanation of matching logic.
                     </p>
 
                     <h3 className="text-xl font-semibold text-white mt-6 mb-3">10.8 Right to Withdraw Consent</h3>
-                    <p>
+                    <p className='text-white'>
                       Where processing is based on consent, you have the right to withdraw consent at any time. Withdrawal does not affect the lawfulness of processing before withdrawal. You can withdraw consent through account settings or by contacting us.
                     </p>
 
                     <h3 className="text-xl font-semibold text-white mt-6 mb-3">10.9 Right to Lodge a Complaint</h3>
-                    <p>
+                    <p className='text-white'>
                       You have the right to lodge a complaint with a supervisory authority if you believe our processing of your personal data violates data protection law.
                     </p>
                     <ul className="list-disc pl-6 space-y-2">
@@ -625,7 +625,7 @@ export default function PrivacyPolicy() {
                       <li><strong>United Kingdom:</strong> Information Commissioner's Office (ICO) – <a href="https://ico.org.uk/" className="text-blue-400 hover:underline" target="_blank" rel="noopener noreferrer">ico.org.uk</a></li>
                       <li><strong>Other EU Member States:</strong> Contact your local data protection authority</li>
                     </ul>
-                    <p>
+                    <p className='text-white'>
                       We encourage you to contact us first so we can address your concerns directly.
                     </p>
                   </div>
@@ -634,8 +634,8 @@ export default function PrivacyPolicy() {
                 {/* Data Security */}
                 <section>
                   <h2 className="text-2xl font-bold text-white mb-4">11. Data Security</h2>
-                  <div className="space-y-4 text-gray-300 leading-relaxed">
-                    <p>
+                  <div className="space-y-4 text-gray-100 leading-relaxed">
+                    <p className='text-white'>
                       We implement appropriate technical and organizational measures to protect personal data against unauthorized or unlawful processing, accidental loss, destruction, or damage.
                     </p>
 
@@ -661,7 +661,7 @@ export default function PrivacyPolicy() {
                     </ul>
 
                     <h3 className="text-xl font-semibold text-white mt-6 mb-3">11.3 Data Breach Notification</h3>
-                    <p>
+                    <p className='text-white'>
                       In the event of a personal data breach that is likely to result in a risk to your rights and freedoms, we will:
                     </p>
                     <ul className="list-disc pl-6 space-y-2">
@@ -671,7 +671,7 @@ export default function PrivacyPolicy() {
                     </ul>
 
                     <h3 className="text-xl font-semibold text-white mt-6 mb-3">11.4 Limitations</h3>
-                    <p>
+                    <p className='text-white'>
                       While we implement robust security measures, no system is completely secure. You are responsible for:
                     </p>
                     <ul className="list-disc pl-6 space-y-2">
@@ -686,14 +686,14 @@ export default function PrivacyPolicy() {
                 {/* Children's Privacy */}
                 <section>
                   <h2 className="text-2xl font-bold text-white mb-4">12. Children's Privacy</h2>
-                  <div className="space-y-4 text-gray-300 leading-relaxed">
-                    <p>
+                  <div className="space-y-4 text-gray-100 leading-relaxed">
+                    <p className='text-white'>
                       Our Platform is not intended for individuals under 18 years of age. We do not knowingly collect personal data from children under 18. Users must be at least 18 years old to create an account or use our Services.
                     </p>
-                    <p>
+                    <p className='text-white'>
                       If we become aware that we have inadvertently collected personal data from a child under 18, we will take immediate steps to delete such data from our systems.
                     </p>
-                    <p>
+                    <p className='text-white'>
                       If you believe we have collected data from a child under 18, please contact us immediately using the contact information in Section 14.
                     </p>
                   </div>
@@ -702,11 +702,11 @@ export default function PrivacyPolicy() {
                 {/* Changes to Policy */}
                 <section>
                   <h2 className="text-2xl font-bold text-white mb-4">13. Changes to This Privacy Policy</h2>
-                  <div className="space-y-4 text-gray-300 leading-relaxed">
-                    <p>
+                  <div className="space-y-4 text-gray-100 leading-relaxed">
+                    <p className='text-white'>
                       We may update this Privacy Policy from time to time to reflect changes in our practices, legal requirements, or for other operational, legal, or regulatory reasons.
                     </p>
-                    <p>
+                    <p className='text-white'>
                       When we make material changes to this Privacy Policy, we will:
                     </p>
                     <ul className="list-disc pl-6 space-y-2">
@@ -715,7 +715,7 @@ export default function PrivacyPolicy() {
                       <li>Display a prominent notice on the Platform</li>
                       <li>Where required by law, obtain your consent to the updated Privacy Policy</li>
                     </ul>
-                    <p>
+                    <p className='text-white'>
                       We encourage you to review this Privacy Policy periodically. Your continued use of the Platform after changes are posted constitutes your acceptance of the updated Privacy Policy, unless additional consent is required by law.
                     </p>
                   </div>
@@ -724,19 +724,19 @@ export default function PrivacyPolicy() {
                 {/* Contact Us */}
                 <section>
                   <h2 className="text-2xl font-bold text-white mb-4">14. Contact Us</h2>
-                  <div className="space-y-4 text-gray-300 leading-relaxed">
-                    <p>
+                  <div className="space-y-4 text-gray-100 leading-relaxed">
+                    <p className='text-white'>
                       If you have any questions, concerns, or requests regarding this Privacy Policy or our data practices, please contact us:
                     </p>
                     <ul className="list-disc pl-6 space-y-2">
                       <li><strong>By contact form:</strong> Available on our Platform (preferred method)</li>
                       <li><strong>Data Protection Officer:</strong> You may contact our Data Protection Officer through the Platform contact form, marking your message "Attn: Data Protection Officer"</li>
                     </ul>
-                    <p className="font-semibold mt-4">
+                    <p className="font-semibold mt-4 text-white">
                       TourWiseCo<br />
                       Operating in Paris, France and London, United Kingdom
                     </p>
-                    <p>
+                    <p className='text-white'>
                       We will respond to all legitimate requests within one month, as required by GDPR Article 12(3). In complex cases, we may extend this period by an additional two months and will inform you of such extension.
                     </p>
                   </div>
@@ -745,9 +745,9 @@ export default function PrivacyPolicy() {
                 {/* Additional Information for EEA/UK Users */}
                 <section>
                   <h2 className="text-2xl font-bold text-white mb-4">15. Additional Information for EEA and UK Users</h2>
-                  <div className="space-y-4 text-gray-300 leading-relaxed">
+                  <div className="space-y-4 text-gray-100 leading-relaxed">
                     <h3 className="text-xl font-semibold text-white mt-6 mb-3">15.1 Legal Basis Summary</h3>
-                    <p>
+                    <p className='text-white'>
                       This section summarizes the legal bases under which we process different categories of personal data:
                     </p>
                     <table className="min-w-full border border-white/10 text-sm mt-4">
@@ -798,12 +798,12 @@ export default function PrivacyPolicy() {
                     </table>
 
                     <h3 className="text-xl font-semibold text-white mt-6 mb-3">15.2 Representative for UK GDPR</h3>
-                    <p>
+                    <p className='text-white'>
                       TourWiseCo operates in the United Kingdom and is directly subject to UK GDPR. Our London operations serve as the point of contact for UK data protection matters.
                     </p>
 
                     <h3 className="text-xl font-semibold text-white mt-6 mb-3">15.3 Cross-Border Data Sharing Within EEA/UK</h3>
-                    <p>
+                    <p className='text-white'>
                       Data may be transferred between our operations in France and the United Kingdom. Such transfers within the EEA and between the EEA and UK benefit from adequacy protections and do not require additional safeguards.
                     </p>
                   </div>
@@ -812,7 +812,7 @@ export default function PrivacyPolicy() {
                 {/* Acknowledgment */}
                 <section className="bg-blue-900/20 rounded-lg p-6 border-l-4 border-blue-500">
                   <h3 className="text-lg font-bold text-white mb-3">Acknowledgment</h3>
-                  <p className="text-gray-300 leading-relaxed">
+                  <p className="text-white leading-relaxed">
                     BY USING THE TOURWISECO PLATFORM, YOU ACKNOWLEDGE THAT YOU HAVE READ AND UNDERSTOOD THIS PRIVACY POLICY AND CONSENT TO THE COLLECTION, USE, AND DISCLOSURE OF YOUR PERSONAL DATA AS DESCRIBED HEREIN.
                   </p>
                 </section>
