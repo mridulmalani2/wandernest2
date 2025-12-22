@@ -12,8 +12,7 @@ import {
   PathwayCardsPhased,
   ScrollProgressIndicator,
 } from './components'
-import WhyChooseCarousel from '@/components/WhyChooseCarousel'
-import DestinationsCarousel from '@/components/landing3d/components/DestinationsCarousel'
+import UserJourney3D from '@/components/landing3d/components/UserJourney3D'
 
 /**
  * LandingPage3D - The main 3D landing page experience with scroll hijacking
@@ -273,21 +272,11 @@ export function LandingPage3D({ className = '' }: LandingPage3DProps) {
           marginTop: hijackState.isLocked ? 0 : '-100vh',
         }}
       >
-        {/* Smooth transition gradient from hero */}
-        <div className="h-32 bg-gradient-to-b from-[#0a0a1a] to-transparent" />
+        {/* Immersive User Journey - Scroll-driven 3D experience */}
+        <UserJourney3D />
 
-        {/* Destinations Carousel Section */}
-        <section className="py-16 px-4">
-          <DestinationsCarousel />
-        </section>
-
-        {/* Why Choose Us Carousel Section */}
-        <section className="py-16 px-4 bg-gradient-to-b from-transparent via-[#1a1a3a]/30 to-transparent">
-          <WhyChooseCarousel />
-        </section>
-
-        {/* Bottom spacing */}
-        <div className="h-32" />
+        {/* Bottom spacing before footer */}
+        <div className="h-32 bg-gradient-to-b from-[#0a0a1a] to-[#0a0a1a]" />
       </div>
 
       {/* Accessibility layer */}
@@ -298,7 +287,7 @@ export function LandingPage3D({ className = '' }: LandingPage3DProps) {
         <div className="fixed bottom-4 left-4 bg-black/70 text-white text-xs px-3 py-2 rounded-lg z-50 font-mono space-y-1">
           <div>Phase: {hijackState.currentPhase} ({(hijackState.phaseProgress * 100).toFixed(0)}%)</div>
           <div>Total: {(hijackState.totalProgress * 100).toFixed(1)}%</div>
-          <div>Locked: {hijackState.isLocked ? 'Yes' : 'No'}</div>
+          <div>Locked: {hijackState.isLocked ? 'Yes' : 'No'} | Dir: {hijackState.direction}</div>
         </div>
       )}
     </div>

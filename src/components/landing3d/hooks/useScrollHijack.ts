@@ -28,13 +28,16 @@ export interface ScrollHijackState {
   totalProgress: number // 0-1 overall progress through all phases
   cumulativeDelta: number
   isComplete: boolean
+  direction: 'forward' | 'reverse' | 'none'
 }
 
 /**
  * useScrollHijack - Captures scroll events and converts them to animation phases
  *
- * Instead of scrolling the page, scroll events progress through animation phases.
- * Once all phases are complete, normal scrolling is restored.
+ * Bidirectional support:
+ * - Scroll down: Progress through animation phases forward
+ * - Scroll up (when at top of page): Reverse through animation phases
+ * - Normal scrolling enabled only when animation is complete and not at top
  */
 export function useScrollHijack(enabled: boolean = true): ScrollHijackState {
   const [state, setState] = useState<ScrollHijackState>({
@@ -44,17 +47,20 @@ export function useScrollHijack(enabled: boolean = true): ScrollHijackState {
     totalProgress: 0,
     cumulativeDelta: 0,
     isComplete: false,
+    direction: 'forward',
   })
 
   const cumulativeDeltaRef = useRef(0)
-  const lastPhaseTimeRef = useRef(0)
   const isLockedRef = useRef(true)
+  const isCompleteRef = useRef(false)
   const touchStartYRef = useRef(0)
   const animationFrameRef = useRef<number>()
+  const lastScrollYRef = useRef(0)
+
+  const maxThreshold = ANIMATION_PHASES[ANIMATION_PHASES.length - 1].threshold
 
   // Calculate phase from cumulative delta
   const calculatePhase = useCallback((delta: number) => {
-    const maxThreshold = ANIMATION_PHASES[ANIMATION_PHASES.length - 1].threshold
     const clampedDelta = Math.max(0, Math.min(delta, maxThreshold))
 
     // Find current phase
@@ -88,81 +94,167 @@ export function useScrollHijack(enabled: boolean = true): ScrollHijackState {
       totalProgress: Math.min(1, totalProgress),
       isComplete,
     }
-  }, [])
+  }, [maxThreshold])
+
+  // Re-engage scroll hijack for reverse animation
+  const reengageForReverse = useCallback(() => {
+    if (!enabled) return
+
+    isLockedRef.current = true
+    isCompleteRef.current = false
+    cumulativeDeltaRef.current = maxThreshold // Start from complete
+
+    setState(prev => ({
+      ...prev,
+      isLocked: true,
+      isComplete: false,
+      direction: 'reverse',
+      cumulativeDelta: maxThreshold,
+    }))
+  }, [enabled, maxThreshold])
 
   // Handle scroll/wheel events
   const handleWheel = useCallback((e: WheelEvent) => {
-    if (!enabled || !isLockedRef.current) return
+    if (!enabled) return
+
+    const delta = Math.abs(e.deltaY) > Math.abs(e.deltaX) ? e.deltaY : e.deltaX
+    const scrollingUp = delta < 0
+    const scrollingDown = delta > 0
+    const atTopOfPage = window.scrollY <= 5
+
+    // If animation is complete and user scrolls up while at top of page
+    if (isCompleteRef.current && scrollingUp && atTopOfPage) {
+      e.preventDefault()
+      e.stopPropagation()
+      reengageForReverse()
+      return
+    }
+
+    // If not locked, allow normal scrolling
+    if (!isLockedRef.current) return
 
     e.preventDefault()
     e.stopPropagation()
 
-    // Accumulate scroll delta
-    const delta = Math.abs(e.deltaY) > Math.abs(e.deltaX) ? e.deltaY : e.deltaX
-
-    // Only allow forward progression (downward scroll)
-    if (delta > 0) {
-      cumulativeDeltaRef.current += delta * 0.5 // Dampen for smoother progression
-    } else {
-      // Allow some backward scrolling but with more resistance
-      cumulativeDeltaRef.current = Math.max(0, cumulativeDeltaRef.current + delta * 0.2)
+    // Update cumulative delta based on direction
+    if (scrollingDown) {
+      cumulativeDeltaRef.current += Math.abs(delta) * 0.5
+    } else if (scrollingUp) {
+      cumulativeDeltaRef.current -= Math.abs(delta) * 0.5
     }
 
+    // Clamp to valid range
+    cumulativeDeltaRef.current = Math.max(0, Math.min(maxThreshold, cumulativeDeltaRef.current))
+
     const phaseData = calculatePhase(cumulativeDeltaRef.current)
+    const direction = scrollingDown ? 'forward' : scrollingUp ? 'reverse' : 'none'
+
+    // Determine if we should unlock
+    const shouldUnlock = phaseData.isComplete && direction === 'forward'
+    const shouldStayLocked = !phaseData.isComplete || (phaseData.isComplete && direction === 'reverse')
+
+    // If reversing back to start, unlock in reverse direction
+    const reversedToStart = direction === 'reverse' && cumulativeDeltaRef.current <= 0
 
     setState(prev => ({
       ...prev,
       ...phaseData,
       cumulativeDelta: cumulativeDeltaRef.current,
-      isLocked: !phaseData.isComplete,
+      isLocked: shouldStayLocked && !reversedToStart,
+      direction,
     }))
 
-    if (phaseData.isComplete) {
+    if (shouldUnlock) {
       isLockedRef.current = false
+      isCompleteRef.current = true
     }
-  }, [enabled, calculatePhase])
+
+    if (reversedToStart) {
+      isLockedRef.current = false
+      isCompleteRef.current = false
+    }
+  }, [enabled, calculatePhase, reengageForReverse, maxThreshold])
 
   // Handle touch events
   const handleTouchStart = useCallback((e: TouchEvent) => {
-    if (!enabled || !isLockedRef.current) return
+    if (!enabled) return
     touchStartYRef.current = e.touches[0].clientY
+    lastScrollYRef.current = window.scrollY
   }, [enabled])
 
   const handleTouchMove = useCallback((e: TouchEvent) => {
-    if (!enabled || !isLockedRef.current) return
-
-    e.preventDefault()
+    if (!enabled) return
 
     const touchY = e.touches[0].clientY
     const delta = touchStartYRef.current - touchY
     touchStartYRef.current = touchY
 
-    // Only allow forward progression (upward swipe = positive delta)
-    if (delta > 0) {
-      cumulativeDeltaRef.current += delta * 1.5 // Increase sensitivity for touch
-    } else {
-      cumulativeDeltaRef.current = Math.max(0, cumulativeDeltaRef.current + delta * 0.3)
+    const scrollingUp = delta < 0
+    const scrollingDown = delta > 0
+    const atTopOfPage = window.scrollY <= 5
+
+    // If animation is complete and user scrolls up while at top
+    if (isCompleteRef.current && scrollingUp && atTopOfPage) {
+      e.preventDefault()
+      reengageForReverse()
+      return
     }
 
+    if (!isLockedRef.current) return
+
+    e.preventDefault()
+
+    // Update cumulative delta
+    if (scrollingDown) {
+      cumulativeDeltaRef.current += Math.abs(delta) * 1.5
+    } else if (scrollingUp) {
+      cumulativeDeltaRef.current -= Math.abs(delta) * 1.5
+    }
+
+    cumulativeDeltaRef.current = Math.max(0, Math.min(maxThreshold, cumulativeDeltaRef.current))
+
     const phaseData = calculatePhase(cumulativeDeltaRef.current)
+    const direction = scrollingDown ? 'forward' : scrollingUp ? 'reverse' : 'none'
+
+    const shouldUnlock = phaseData.isComplete && direction === 'forward'
+    const reversedToStart = direction === 'reverse' && cumulativeDeltaRef.current <= 0
 
     setState(prev => ({
       ...prev,
       ...phaseData,
       cumulativeDelta: cumulativeDeltaRef.current,
-      isLocked: !phaseData.isComplete,
+      isLocked: !shouldUnlock && !reversedToStart,
+      direction,
     }))
 
-    if (phaseData.isComplete) {
+    if (shouldUnlock) {
       isLockedRef.current = false
+      isCompleteRef.current = true
     }
-  }, [enabled, calculatePhase])
+
+    if (reversedToStart) {
+      isLockedRef.current = false
+      isCompleteRef.current = false
+    }
+  }, [enabled, calculatePhase, reengageForReverse, maxThreshold])
 
   // Prevent default scroll when locked
   const preventScroll = useCallback((e: Event) => {
     if (isLockedRef.current && enabled) {
       e.preventDefault()
     }
+  }, [enabled])
+
+  // Monitor scroll position for re-engagement
+  useEffect(() => {
+    if (!enabled) return
+
+    const checkScrollPosition = () => {
+      lastScrollYRef.current = window.scrollY
+    }
+
+    window.addEventListener('scroll', checkScrollPosition, { passive: true })
+    return () => window.removeEventListener('scroll', checkScrollPosition)
   }, [enabled])
 
   // Lock/unlock body scroll
@@ -174,7 +266,9 @@ export function useScrollHijack(enabled: boolean = true): ScrollHijackState {
 
     if (state.isLocked) {
       document.body.style.overflow = 'hidden'
-      window.scrollTo(0, 0)
+      if (state.direction === 'forward' || cumulativeDeltaRef.current === 0) {
+        window.scrollTo(0, 0)
+      }
     } else {
       document.body.style.overflow = ''
     }
@@ -182,38 +276,68 @@ export function useScrollHijack(enabled: boolean = true): ScrollHijackState {
     return () => {
       document.body.style.overflow = ''
     }
-  }, [enabled, state.isLocked])
+  }, [enabled, state.isLocked, state.direction])
 
   // Setup event listeners
   useEffect(() => {
     if (!enabled) return
 
-    // Use passive: false to allow preventDefault
     window.addEventListener('wheel', handleWheel, { passive: false })
     window.addEventListener('touchstart', handleTouchStart, { passive: true })
     window.addEventListener('touchmove', handleTouchMove, { passive: false })
     window.addEventListener('scroll', preventScroll, { passive: false })
 
-    // Prevent keyboard scrolling while locked
+    // Keyboard navigation
     const handleKeydown = (e: KeyboardEvent) => {
-      if (!isLockedRef.current) return
       const scrollKeys = ['ArrowDown', 'ArrowUp', 'PageDown', 'PageUp', 'Space', 'Home', 'End']
-      if (scrollKeys.includes(e.key)) {
+
+      if (!scrollKeys.includes(e.key)) return
+
+      const atTopOfPage = window.scrollY <= 5
+      const goingUp = e.key === 'ArrowUp' || e.key === 'PageUp' || e.key === 'Home'
+      const goingDown = e.key === 'ArrowDown' || e.key === 'PageDown' || e.key === 'Space' || e.key === 'End'
+
+      // Re-engage for reverse on up key at top
+      if (isCompleteRef.current && goingUp && atTopOfPage) {
         e.preventDefault()
-        // Simulate scroll for keyboard input
-        if (e.key === 'ArrowDown' || e.key === 'PageDown' || e.key === 'Space') {
-          cumulativeDeltaRef.current += 100
-          const phaseData = calculatePhase(cumulativeDeltaRef.current)
-          setState(prev => ({
-            ...prev,
-            ...phaseData,
-            cumulativeDelta: cumulativeDeltaRef.current,
-            isLocked: !phaseData.isComplete,
-          }))
-          if (phaseData.isComplete) {
-            isLockedRef.current = false
-          }
-        }
+        reengageForReverse()
+        return
+      }
+
+      if (!isLockedRef.current) return
+
+      e.preventDefault()
+
+      if (goingDown) {
+        cumulativeDeltaRef.current += 100
+      } else if (goingUp) {
+        cumulativeDeltaRef.current -= 100
+      }
+
+      cumulativeDeltaRef.current = Math.max(0, Math.min(maxThreshold, cumulativeDeltaRef.current))
+
+      const phaseData = calculatePhase(cumulativeDeltaRef.current)
+      const direction = goingDown ? 'forward' : 'reverse'
+
+      const shouldUnlock = phaseData.isComplete && direction === 'forward'
+      const reversedToStart = direction === 'reverse' && cumulativeDeltaRef.current <= 0
+
+      setState(prev => ({
+        ...prev,
+        ...phaseData,
+        cumulativeDelta: cumulativeDeltaRef.current,
+        isLocked: !shouldUnlock && !reversedToStart,
+        direction,
+      }))
+
+      if (shouldUnlock) {
+        isLockedRef.current = false
+        isCompleteRef.current = true
+      }
+
+      if (reversedToStart) {
+        isLockedRef.current = false
+        isCompleteRef.current = false
       }
     }
 
@@ -229,7 +353,7 @@ export function useScrollHijack(enabled: boolean = true): ScrollHijackState {
         cancelAnimationFrame(animationFrameRef.current)
       }
     }
-  }, [enabled, handleWheel, handleTouchStart, handleTouchMove, preventScroll, calculatePhase])
+  }, [enabled, handleWheel, handleTouchStart, handleTouchMove, preventScroll, calculatePhase, reengageForReverse, maxThreshold])
 
   return state
 }
