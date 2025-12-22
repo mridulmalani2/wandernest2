@@ -5,29 +5,32 @@ import Footer from '@/components/Footer'
 import { getWebsiteStructuredData, getOrganizationStructuredData } from '@/lib/structuredData'
 import dynamic from 'next/dynamic'
 
-// Lazy load the 3D Hero - reduces initial bundle size significantly
+// Lazy load the Spatial 3D Landing Page - reduces initial bundle size significantly
 // Falls back to static version on mobile/low-end devices
-const Hero3D = dynamic(() => import('@/components/hero3d').then(mod => ({ default: mod.Hero3D })), {
-  loading: () => (
-    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-slate-900 animate-pulse" />
-  ),
-  ssr: false // 3D requires client-side rendering
-})
-
-// Lazy load WhyChooseCarousel - only when component is in view
-const WhyChooseCarousel = dynamic(() => import('@/components/WhyChooseCarousel'), {
-  loading: () => <div className="mt-14 lg:mt-20 h-[500px] animate-pulse bg-white/10 rounded-3xl" />,
-  ssr: false
-})
+const LandingPage3D = dynamic(
+  () => import('@/components/spatial-landing').then(mod => ({ default: mod.LandingPage3D })),
+  {
+    loading: () => (
+      <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-slate-900 animate-pulse" />
+    ),
+    ssr: false // 3D requires client-side rendering
+  }
+)
 
 /**
  * Main Landing Page Component
  *
- * Features a depth-based 3D hero section with:
- * - Real 3D image planes via Three.js
- * - Mouse-responsive parallax
- * - Scroll-triggered depth transitions
+ * Features a fully spatial, 3D-native landing page experience:
+ * - Single persistent Three.js canvas for entire experience
+ * - Scroll drives camera movement through Z-space
+ * - Sections are positioned in real 3D depth
+ * - Text and UI exist as physical objects in 3D
+ * - Mouse parallax for depth perception
+ * - Cinematic section transitions
  * - Automatic fallback for mobile/low-end devices
+ *
+ * The page feels like the user is moving through a 3D scene,
+ * not scrolling a document. Spatial storytelling with UI.
  *
  * Includes SEO structured data and lazy-loaded components for performance.
  */
@@ -36,7 +39,7 @@ export default function MainLanding() {
   const organizationData = getOrganizationStructuredData()
 
   return (
-    <div className="min-h-screen flex flex-col relative overflow-hidden">
+    <div className="min-h-screen flex flex-col relative">
       {/* SEO Structured Data */}
       <script
         type="application/ld+json"
@@ -47,24 +50,15 @@ export default function MainLanding() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationData) }}
       />
 
-      {/* Fixed Navigation - overlays the 3D scene */}
+      {/* Fixed Navigation - overlays the 3D scene at z-index 50 */}
       <Navigation variant="default" />
 
-      {/* 3D Hero Section - starts at viewport top, navigation overlays it */}
+      {/* Spatial 3D Landing Experience */}
       <main className="flex-1 relative">
-        <Hero3D />
-
-        {/* Why Choose Carousel - Below Hero */}
-        <section className="relative z-10 bg-gradient-to-b from-transparent via-black/80 to-black">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-14 lg:py-20">
-            <div className="max-w-6xl mx-auto">
-              <WhyChooseCarousel />
-            </div>
-          </div>
-        </section>
+        <LandingPage3D />
       </main>
 
-      {/* Footer */}
+      {/* Footer - positioned at end of scroll */}
       <Footer />
     </div>
   )
