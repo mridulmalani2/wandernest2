@@ -20,7 +20,6 @@ interface JourneySection {
   description: string
   accentColor: string
   secondaryColor: string
-  icon: string
   image: string
 }
 
@@ -33,7 +32,6 @@ const journeySections: JourneySection[] = [
     description: 'Match with student guides from your home country who speak your language and understand your culture.',
     accentColor: '#6B8DD6',
     secondaryColor: '#9B7BD6',
-    icon: '🌍',
     image: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=800&q=80',
   },
   {
@@ -44,7 +42,6 @@ const journeySections: JourneySection[] = [
     description: 'Every recommendation comes from lived experience. The café where locals actually go. The viewpoint not on Instagram.',
     accentColor: '#9B7BD6',
     secondaryColor: '#D67B8D',
-    icon: '✨',
     image: 'https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=800&q=80',
   },
   {
@@ -55,7 +52,6 @@ const journeySections: JourneySection[] = [
     description: 'Custom itineraries. Public transport mastered. Hidden gems discovered. Someone who actually shows you around.',
     accentColor: '#D67B8D',
     secondaryColor: '#6BD6C5',
-    icon: '🗺️',
     image: 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800&q=80',
   },
   {
@@ -66,7 +62,6 @@ const journeySections: JourneySection[] = [
     description: 'Share your city. Meet travelers. Earn more than double what typical campus jobs pay. Flexible hours.',
     accentColor: '#6BD6C5',
     secondaryColor: '#6B8DD6',
-    icon: '🎓',
     image: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800&q=80',
   },
 ]
@@ -159,20 +154,6 @@ function JourneyCard({ section, isActive, offset, onClick, index, totalCards }: 
             }}
           />
 
-          {/* Icon Badge */}
-          <div
-            className="absolute top-4 left-4 w-12 h-12 md:w-14 md:h-14 rounded-2xl flex items-center justify-center text-xl md:text-2xl transition-transform duration-300"
-            style={{
-              background: `linear-gradient(135deg, ${section.accentColor}70, ${section.secondaryColor}70)`,
-              backdropFilter: 'blur(10px)',
-              border: `1px solid ${section.accentColor}50`,
-              boxShadow: `0 8px 24px ${section.accentColor}40`,
-              transform: isActive ? 'scale(1)' : 'scale(0.9)',
-            }}
-          >
-            {section.icon}
-          </div>
-
           {/* Card Index */}
           <div
             className="absolute top-4 right-4 font-mono text-sm transition-opacity duration-300"
@@ -196,23 +177,36 @@ function JourneyCard({ section, isActive, offset, onClick, index, totalCards }: 
             {section.tagline}
           </div>
 
-          {/* Headlines */}
-          <h3 className="mb-2">
+          {/* Headlines - Funky style */}
+          <h3 className="mb-3">
             <span
-              className="block text-xl md:text-2xl font-serif font-bold leading-tight"
+              className="block text-2xl md:text-3xl leading-tight"
               style={{
-                background: isActive
-                  ? `linear-gradient(135deg, #ffffff 0%, ${section.accentColor} 100%)`
-                  : 'linear-gradient(135deg, rgba(255,255,255,0.8), rgba(255,255,255,0.5))',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
+                fontFamily: '"Brush Script MT", "Segoe Script", "Bradley Hand", cursive',
+                fontWeight: 400,
+                color: isActive ? '#ffffff' : 'rgba(255,255,255,0.6)',
+                textShadow: isActive
+                  ? `2px 2px 0 ${section.accentColor}60, -1px -1px 0 ${section.secondaryColor}40`
+                  : 'none',
+                letterSpacing: '0.02em',
+                transform: isActive ? 'rotate(-1deg)' : 'none',
+                display: 'inline-block',
+                transition: 'all 0.3s ease',
               }}
             >
               {section.headline}
             </span>
             <span
-              className="block text-lg md:text-xl font-light"
-              style={{ color: isActive ? section.secondaryColor : 'rgba(155,123,214,0.6)' }}
+              className="block text-xl md:text-2xl mt-1"
+              style={{
+                fontFamily: '"Brush Script MT", "Segoe Script", "Bradley Hand", cursive',
+                fontWeight: 400,
+                color: isActive ? section.secondaryColor : 'rgba(155,123,214,0.5)',
+                textShadow: isActive ? `1px 1px 0 ${section.accentColor}30` : 'none',
+                transform: isActive ? 'rotate(0.5deg)' : 'none',
+                display: 'inline-block',
+                transition: 'all 0.3s ease',
+              }}
             >
               {section.subheadline}
             </span>
