@@ -1,25 +1,16 @@
 'use client'
 
-import { useRef, useState, useEffect, useCallback, useMemo } from 'react'
-import { Canvas, useFrame, useThree } from '@react-three/fiber'
-import { Html, Float, Sphere, MeshDistortMaterial } from '@react-three/drei'
-import { Group, Vector3, Color } from 'three'
+import { useRef, useState, useCallback, useEffect } from 'react'
+import Image from 'next/image'
 
 /**
- * UserJourney3D - Immersive scroll-driven user journey
+ * UserJourney3D - Horizontal 3D Carousel
  *
- * Four engaging sections highlighting USPs:
- * 1. Cultural Connection - Students from your home country
- * 2. Lived Experience - Real recommendations, not commercial
- * 3. Personal Concierge - Itinerary, transport, guidance
- * 4. Student Opportunity - Earn more than campus jobs
- *
- * Features:
- * - 3D animated backgrounds per section
- * - Varied typography (big/small, different weights)
- * - Floating elements and particle effects
- * - Scroll-driven transitions
- * - Engaging micro-interactions
+ * A gamified horizontal carousel showing USPs in a 3D space:
+ * - Current section is centered and fully visible
+ * - Adjacent sections are visible with glassmorphic blur
+ * - Horizontal scroll/swipe to navigate
+ * - 3D perspective with depth effect
  */
 
 interface JourneySection {
@@ -31,28 +22,31 @@ interface JourneySection {
   accentColor: string
   secondaryColor: string
   icon: string
+  image: string
 }
 
 const journeySections: JourneySection[] = [
   {
     id: 'cultural',
     tagline: 'FEEL AT HOME',
-    headline: 'Connect with Your Culture',
-    subheadline: 'Abroad',
+    headline: 'Connect with',
+    subheadline: 'Your Culture Abroad',
     description: 'Match with student guides from your home country who speak your language and understand your culture.',
     accentColor: '#6B8DD6',
     secondaryColor: '#9B7BD6',
     icon: '🌍',
+    image: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=800&q=80',
   },
   {
     id: 'authentic',
     tagline: 'SKIP THE TOURIST TRAPS',
     headline: 'Real Experiences',
     subheadline: 'Not Reviews',
-    description: 'Every recommendation comes from lived experience. The café where locals actually go. The viewpoint that\'s not on Instagram.',
+    description: 'Every recommendation comes from lived experience. The café where locals actually go. The viewpoint not on Instagram.',
     accentColor: '#9B7BD6',
     secondaryColor: '#D67B8D',
     icon: '✨',
+    image: 'https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=800&q=80',
   },
   {
     id: 'concierge',
@@ -63,499 +57,446 @@ const journeySections: JourneySection[] = [
     accentColor: '#D67B8D',
     secondaryColor: '#6BD6C5',
     icon: '🗺️',
+    image: 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800&q=80',
   },
   {
     id: 'student',
     tagline: "WHAT'S MORE?",
     headline: 'Students Earn',
-    subheadline: '2x Campus Jobs',
-    description: 'Share your city. Meet travelers. Earn more than double what typical campus jobs pay. Flexible hours around your schedule.',
+    subheadline: '2× Campus Jobs',
+    description: 'Share your city. Meet travelers. Earn more than double what typical campus jobs pay. Flexible hours.',
     accentColor: '#6BD6C5',
     secondaryColor: '#6B8DD6',
     icon: '🎓',
+    image: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800&q=80',
   },
 ]
 
-// Floating orb component for 3D background
-function FloatingOrb({
-  position,
-  color,
-  scale = 1,
-  speed = 1,
-  distort = 0.4,
-}: {
-  position: [number, number, number]
-  color: string
-  scale?: number
-  speed?: number
-  distort?: number
-}) {
-  const meshRef = useRef<any>(null)
-
-  useFrame((state) => {
-    if (!meshRef.current) return
-    const time = state.clock.elapsedTime * speed
-    meshRef.current.position.y = position[1] + Math.sin(time) * 0.3
-    meshRef.current.position.x = position[0] + Math.cos(time * 0.7) * 0.2
-    meshRef.current.rotation.x = Math.sin(time * 0.5) * 0.2
-    meshRef.current.rotation.z = Math.cos(time * 0.3) * 0.2
-  })
-
-  return (
-    <Sphere ref={meshRef} args={[1, 32, 32]} position={position} scale={scale}>
-      <MeshDistortMaterial
-        color={color}
-        transparent
-        opacity={0.6}
-        distort={distort}
-        speed={2}
-        roughness={0.2}
-      />
-    </Sphere>
-  )
-}
-
-// Particle field for atmospheric effect
-function ParticleField({ color, count = 50 }: { color: string; count?: number }) {
-  const points = useMemo(() => {
-    const positions: number[] = []
-    for (let i = 0; i < count; i++) {
-      positions.push(
-        (Math.random() - 0.5) * 20,
-        (Math.random() - 0.5) * 20,
-        (Math.random() - 0.5) * 10
-      )
-    }
-    return new Float32Array(positions)
-  }, [count])
-
-  const ref = useRef<any>(null)
-
-  useFrame((state) => {
-    if (!ref.current) return
-    ref.current.rotation.y = state.clock.elapsedTime * 0.02
-    ref.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.01) * 0.1
-  })
-
-  return (
-    <points ref={ref}>
-      <bufferGeometry>
-        <bufferAttribute
-          attach="attributes-position"
-          count={count}
-          array={points}
-          itemSize={3}
-        />
-      </bufferGeometry>
-      <pointsMaterial
-        color={color}
-        size={0.05}
-        transparent
-        opacity={0.6}
-        sizeAttenuation
-      />
-    </points>
-  )
-}
-
-// 3D Scene for each section
-function JourneyScene({
-  section,
-  progress,
-}: {
+interface CardProps {
   section: JourneySection
-  progress: number
-}) {
-  const groupRef = useRef<Group>(null)
-
-  useFrame(() => {
-    if (!groupRef.current) return
-    groupRef.current.rotation.y = progress * 0.5
-  })
-
-  return (
-    <group ref={groupRef}>
-      <ParticleField color={section.accentColor} count={80} />
-      <FloatingOrb
-        position={[-3, 1, -2]}
-        color={section.accentColor}
-        scale={0.8}
-        speed={0.8}
-      />
-      <FloatingOrb
-        position={[3, -1, -3]}
-        color={section.secondaryColor}
-        scale={0.6}
-        speed={1.2}
-      />
-      <FloatingOrb
-        position={[0, 2, -4]}
-        color={section.accentColor}
-        scale={0.4}
-        speed={1}
-        distort={0.6}
-      />
-    </group>
-  )
-}
-
-// Individual journey section content
-function JourneySectionContent({
-  section,
-  index,
-  isActive,
-  progress,
-}: {
-  section: JourneySection
+  position: 'far-left' | 'left' | 'center' | 'right' | 'far-right'
+  onClick: () => void
   index: number
-  isActive: boolean
-  progress: number
-}) {
-  const isStudentSection = section.id === 'student'
+  totalCards: number
+}
 
-  // Animation states based on progress
-  const opacity = isActive ? 1 : 0
-  const translateY = isActive ? 0 : 50
-  const scale = isActive ? 1 : 0.9
+function JourneyCard({ section, position, onClick, index, totalCards }: CardProps) {
+  const isCenter = position === 'center'
+  const isAdjacent = position === 'left' || position === 'right'
+  const isFar = position === 'far-left' || position === 'far-right'
+  const isStudentCard = section.id === 'student'
+
+  // Position transforms for 3D carousel effect
+  const transforms: Record<string, { x: string; z: string; rotateY: string; scale: string; opacity: number }> = {
+    'far-left': { x: '-180%', z: '-300px', rotateY: '45deg', scale: '0.6', opacity: 0.3 },
+    'left': { x: '-85%', z: '-150px', rotateY: '25deg', scale: '0.85', opacity: 0.7 },
+    'center': { x: '0%', z: '0px', rotateY: '0deg', scale: '1', opacity: 1 },
+    'right': { x: '85%', z: '-150px', rotateY: '-25deg', scale: '0.85', opacity: 0.7 },
+    'far-right': { x: '180%', z: '-300px', rotateY: '-45deg', scale: '0.6', opacity: 0.3 },
+  }
+
+  const transform = transforms[position]
 
   return (
     <div
-      className="absolute inset-0 flex items-center justify-center px-6 md:px-12 transition-all duration-700 ease-out"
+      className={`absolute left-1/2 top-1/2 w-[340px] md:w-[420px] transition-all duration-700 ease-out ${
+        isCenter ? 'cursor-default z-30' : 'cursor-pointer z-10'
+      }`}
       style={{
-        opacity,
-        transform: `translateY(${translateY}px) scale(${scale})`,
-        pointerEvents: isActive ? 'auto' : 'none',
+        transform: `
+          translateX(calc(-50% + ${transform.x}))
+          translateY(-50%)
+          translateZ(${transform.z})
+          rotateY(${transform.rotateY})
+          scale(${transform.scale})
+        `,
+        opacity: transform.opacity,
+        filter: isCenter ? 'none' : `blur(${isFar ? '8px' : '3px'})`,
+        pointerEvents: isCenter ? 'auto' : isAdjacent ? 'auto' : 'none',
       }}
+      onClick={!isCenter ? onClick : undefined}
     >
-      <div className="max-w-4xl w-full text-center">
-        {/* Tagline */}
-        <div
-          className="mb-4 transition-all duration-500 delay-100"
-          style={{
-            opacity: isActive ? 1 : 0,
-            transform: `translateY(${isActive ? 0 : 20}px)`,
-          }}
-        >
-          <span
-            className="inline-block px-4 py-1.5 rounded-full text-xs font-bold tracking-[0.3em] uppercase"
+      {/* Card Container */}
+      <div
+        className="relative rounded-3xl overflow-hidden"
+        style={{
+          background: isCenter
+            ? `linear-gradient(135deg, ${section.accentColor}15, ${section.secondaryColor}10)`
+            : 'rgba(255,255,255,0.05)',
+          backdropFilter: isCenter ? 'blur(20px)' : 'blur(10px)',
+          border: `1px solid ${isCenter ? section.accentColor + '40' : 'rgba(255,255,255,0.1)'}`,
+          boxShadow: isCenter
+            ? `0 25px 50px -12px rgba(0,0,0,0.5), 0 0 80px ${section.accentColor}20`
+            : '0 10px 30px -10px rgba(0,0,0,0.3)',
+        }}
+      >
+        {/* Image Section */}
+        <div className="relative h-48 md:h-56 overflow-hidden">
+          <Image
+            src={section.image}
+            alt={section.headline}
+            fill
+            sizes="420px"
+            className="object-cover"
             style={{
-              background: `linear-gradient(135deg, ${section.accentColor}30, ${section.secondaryColor}30)`,
+              filter: isCenter ? 'none' : 'grayscale(50%)',
+            }}
+          />
+          <div
+            className="absolute inset-0"
+            style={{
+              background: `linear-gradient(180deg, transparent 0%, ${section.accentColor}40 50%, #0a0a1a 100%)`,
+            }}
+          />
+
+          {/* Icon Badge */}
+          <div
+            className="absolute top-4 left-4 w-14 h-14 rounded-2xl flex items-center justify-center text-2xl"
+            style={{
+              background: `linear-gradient(135deg, ${section.accentColor}60, ${section.secondaryColor}60)`,
+              backdropFilter: 'blur(10px)',
               border: `1px solid ${section.accentColor}40`,
-              color: section.accentColor,
-            }}
-          >
-            {section.tagline}
-          </span>
-        </div>
-
-        {/* Main headline with varied typography */}
-        <h2
-          className="transition-all duration-500 delay-200"
-          style={{
-            opacity: isActive ? 1 : 0,
-            transform: `translateY(${isActive ? 0 : 30}px)`,
-          }}
-        >
-          <span
-            className="block font-serif font-bold tracking-tight leading-none"
-            style={{
-              fontSize: 'clamp(2.5rem, 8vw, 5rem)',
-              background: `linear-gradient(135deg, #ffffff 0%, ${section.accentColor} 100%)`,
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              textShadow: `0 0 80px ${section.accentColor}40`,
-            }}
-          >
-            {section.headline}
-          </span>
-          <span
-            className="block font-light tracking-wide mt-2"
-            style={{
-              fontSize: 'clamp(1.5rem, 5vw, 3rem)',
-              color: section.secondaryColor,
-              textShadow: `0 0 40px ${section.secondaryColor}30`,
-            }}
-          >
-            {section.subheadline}
-          </span>
-        </h2>
-
-        {/* Icon */}
-        <div
-          className="my-8 transition-all duration-500 delay-300"
-          style={{
-            opacity: isActive ? 1 : 0,
-            transform: `scale(${isActive ? 1 : 0.5}) translateY(${isActive ? 0 : 20}px)`,
-          }}
-        >
-          <span
-            className="inline-block text-6xl md:text-7xl animate-float"
-            style={{
-              filter: `drop-shadow(0 0 30px ${section.accentColor}60)`,
+              boxShadow: `0 8px 32px ${section.accentColor}40`,
             }}
           >
             {section.icon}
-          </span>
+          </div>
+
+          {/* Card Index */}
+          <div className="absolute top-4 right-4 font-mono text-white/40 text-sm">
+            {String(index + 1).padStart(2, '0')}/{String(totalCards).padStart(2, '0')}
+          </div>
         </div>
 
-        {/* Description */}
-        <p
-          className="text-white/70 max-w-xl mx-auto leading-relaxed transition-all duration-500 delay-400"
-          style={{
-            fontSize: 'clamp(1rem, 2.5vw, 1.25rem)',
-            opacity: isActive ? 1 : 0,
-            transform: `translateY(${isActive ? 0 : 20}px)`,
-          }}
-        >
-          {section.description}
-        </p>
-
-        {/* CTA for student section */}
-        {isStudentSection && (
+        {/* Content Section */}
+        <div className="p-6 md:p-8">
+          {/* Tagline */}
           <div
-            className="mt-10 transition-all duration-500 delay-500"
+            className="inline-block px-3 py-1 rounded-full text-[10px] font-bold tracking-[0.2em] uppercase mb-4"
             style={{
-              opacity: isActive ? 1 : 0,
-              transform: `translateY(${isActive ? 0 : 20}px)`,
+              background: `${section.accentColor}20`,
+              color: section.accentColor,
+              border: `1px solid ${section.accentColor}30`,
             }}
           >
+            {section.tagline}
+          </div>
+
+          {/* Headlines */}
+          <h3 className="mb-1">
+            <span
+              className="block text-2xl md:text-3xl font-serif font-bold"
+              style={{
+                background: `linear-gradient(135deg, #ffffff, ${section.accentColor})`,
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+              }}
+            >
+              {section.headline}
+            </span>
+            <span
+              className="block text-xl md:text-2xl font-light"
+              style={{ color: section.secondaryColor }}
+            >
+              {section.subheadline}
+            </span>
+          </h3>
+
+          {/* Description */}
+          <p className="text-white/60 text-sm md:text-base leading-relaxed mt-4">
+            {section.description}
+          </p>
+
+          {/* CTA for student card */}
+          {isStudentCard && isCenter && (
             <a
               href="/student"
-              className="inline-flex items-center gap-2 px-8 py-4 rounded-full font-semibold text-lg transition-all duration-300 hover:scale-105 hover:shadow-2xl"
+              className="inline-flex items-center gap-2 mt-6 px-6 py-3 rounded-full font-semibold text-sm transition-all duration-300 hover:scale-105"
               style={{
                 background: `linear-gradient(135deg, ${section.accentColor}, ${section.secondaryColor})`,
                 color: '#0a0a1a',
-                boxShadow: `0 10px 40px ${section.accentColor}40`,
+                boxShadow: `0 8px 32px ${section.accentColor}40`,
               }}
             >
               Become a Guide
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
               </svg>
             </a>
-          </div>
+          )}
+        </div>
+
+        {/* Glassmorphic overlay for non-center cards */}
+        {!isCenter && (
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background: 'rgba(10, 10, 26, 0.3)',
+              backdropFilter: 'blur(2px)',
+            }}
+          />
         )}
       </div>
     </div>
   )
 }
 
-// Progress indicator
-function JourneyProgress({
-  currentSection,
-  totalSections,
-  sections,
-}: {
-  currentSection: number
-  totalSections: number
-  sections: JourneySection[]
-}) {
-  return (
-    <div className="fixed right-6 top-1/2 -translate-y-1/2 z-50 hidden md:flex flex-col items-center gap-3">
-      {sections.map((section, index) => {
-        const isActive = index === currentSection
-        const isPast = index < currentSection
-
-        return (
-          <div
-            key={section.id}
-            className="relative group"
-          >
-            {/* Connecting line */}
-            {index < totalSections - 1 && (
-              <div
-                className="absolute top-full left-1/2 -translate-x-1/2 w-0.5 h-3"
-                style={{
-                  background: isPast || isActive
-                    ? `linear-gradient(180deg, ${section.accentColor}, ${sections[index + 1]?.accentColor || section.accentColor})`
-                    : 'rgba(255,255,255,0.2)',
-                }}
-              />
-            )}
-
-            {/* Dot */}
-            <button
-              className="relative w-3 h-3 rounded-full transition-all duration-300"
-              style={{
-                background: isActive
-                  ? section.accentColor
-                  : isPast
-                  ? section.accentColor + '80'
-                  : 'rgba(255,255,255,0.3)',
-                boxShadow: isActive ? `0 0 20px ${section.accentColor}` : 'none',
-                transform: isActive ? 'scale(1.5)' : 'scale(1)',
-              }}
-            >
-              {/* Pulse effect for active */}
-              {isActive && (
-                <span
-                  className="absolute inset-0 rounded-full animate-ping"
-                  style={{
-                    background: section.accentColor,
-                    opacity: 0.5,
-                  }}
-                />
-              )}
-            </button>
-
-            {/* Label on hover */}
-            <div
-              className="absolute right-full mr-3 top-1/2 -translate-y-1/2 px-3 py-1 rounded-lg bg-black/80 text-white text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
-              style={{ borderColor: section.accentColor + '40', borderWidth: 1 }}
-            >
-              {section.tagline}
-            </div>
-          </div>
-        )
-      })}
-    </div>
-  )
-}
-
-// Scroll prompt
-function ScrollPrompt({ show }: { show: boolean }) {
-  return (
-    <div
-      className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 transition-all duration-500"
-      style={{
-        opacity: show ? 1 : 0,
-        transform: `translateY(${show ? 0 : 20}px)`,
-      }}
-    >
-      <div className="flex flex-col items-center gap-2 animate-bounce">
-        <span className="text-white/50 text-xs uppercase tracking-widest">Keep Scrolling</span>
-        <svg className="w-5 h-5 text-white/50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-        </svg>
-      </div>
-    </div>
-  )
-}
-
-// Main component
 export default function UserJourney3D() {
   const containerRef = useRef<HTMLDivElement>(null)
-  const [currentSection, setCurrentSection] = useState(0)
-  const [sectionProgress, setSectionProgress] = useState(0)
-  const [isInView, setIsInView] = useState(false)
+  const [currentIndex, setCurrentIndex] = useState(0)
+  const [isDragging, setIsDragging] = useState(false)
+  const [startX, setStartX] = useState(0)
+  const [dragDelta, setDragDelta] = useState(0)
 
-  // Calculate current section based on scroll
-  const handleScroll = useCallback(() => {
-    if (!containerRef.current) return
+  const totalSections = journeySections.length
 
-    const rect = containerRef.current.getBoundingClientRect()
-    const containerTop = rect.top
-    const containerHeight = rect.height
-    const viewportHeight = window.innerHeight
+  // Navigate to specific index
+  const goToIndex = useCallback((index: number) => {
+    const clampedIndex = Math.max(0, Math.min(totalSections - 1, index))
+    setCurrentIndex(clampedIndex)
+  }, [totalSections])
 
-    // Calculate how far through the container we've scrolled
-    const scrollProgress = Math.max(0, Math.min(1,
-      (-containerTop) / (containerHeight - viewportHeight)
-    ))
+  // Get position for each card relative to current index
+  const getPosition = (cardIndex: number): 'far-left' | 'left' | 'center' | 'right' | 'far-right' => {
+    const diff = cardIndex - currentIndex
+    if (diff === 0) return 'center'
+    if (diff === -1) return 'left'
+    if (diff === 1) return 'right'
+    if (diff < -1) return 'far-left'
+    return 'far-right'
+  }
 
-    // Determine which section we're in
-    const sectionCount = journeySections.length
-    const rawSection = scrollProgress * sectionCount
-    const section = Math.min(sectionCount - 1, Math.floor(rawSection))
-    const progress = rawSection - section
-
-    setCurrentSection(section)
-    setSectionProgress(progress)
-
-    // Check if in view
-    setIsInView(containerTop < viewportHeight && containerTop + containerHeight > 0)
+  // Mouse/Touch handlers
+  const handleDragStart = useCallback((clientX: number) => {
+    setIsDragging(true)
+    setStartX(clientX)
+    setDragDelta(0)
   }, [])
 
+  const handleDragMove = useCallback((clientX: number) => {
+    if (!isDragging) return
+    const delta = clientX - startX
+    setDragDelta(delta)
+  }, [isDragging, startX])
+
+  const handleDragEnd = useCallback(() => {
+    if (!isDragging) return
+    setIsDragging(false)
+
+    // Threshold for navigation (50px)
+    if (dragDelta < -50 && currentIndex < totalSections - 1) {
+      goToIndex(currentIndex + 1)
+    } else if (dragDelta > 50 && currentIndex > 0) {
+      goToIndex(currentIndex - 1)
+    }
+
+    setDragDelta(0)
+  }, [isDragging, dragDelta, currentIndex, totalSections, goToIndex])
+
+  // Mouse events
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    e.preventDefault()
+    handleDragStart(e.clientX)
+  }, [handleDragStart])
+
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    handleDragMove(e.clientX)
+  }, [handleDragMove])
+
+  const handleMouseUp = useCallback(() => {
+    handleDragEnd()
+  }, [handleDragEnd])
+
+  const handleMouseLeave = useCallback(() => {
+    handleDragEnd()
+  }, [handleDragEnd])
+
+  // Touch events
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    handleDragStart(e.touches[0].clientX)
+  }, [handleDragStart])
+
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    handleDragMove(e.touches[0].clientX)
+  }, [handleDragMove])
+
+  const handleTouchEnd = useCallback(() => {
+    handleDragEnd()
+  }, [handleDragEnd])
+
+  // Wheel navigation
+  const handleWheel = useCallback((e: WheelEvent) => {
+    e.preventDefault()
+
+    // Use horizontal scroll or vertical scroll
+    const delta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY
+
+    if (delta > 30 && currentIndex < totalSections - 1) {
+      goToIndex(currentIndex + 1)
+    } else if (delta < -30 && currentIndex > 0) {
+      goToIndex(currentIndex - 1)
+    }
+  }, [currentIndex, totalSections, goToIndex])
+
+  // Keyboard navigation
   useEffect(() => {
-    window.addEventListener('scroll', handleScroll, { passive: true })
-    handleScroll() // Initial call
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+        goToIndex(currentIndex + 1)
+      } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+        goToIndex(currentIndex - 1)
+      }
+    }
 
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [handleScroll])
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [currentIndex, goToIndex])
 
-  const currentJourneySection = journeySections[currentSection]
+  // Add wheel listener
+  useEffect(() => {
+    const container = containerRef.current
+    if (!container) return
+
+    container.addEventListener('wheel', handleWheel, { passive: false })
+    return () => container.removeEventListener('wheel', handleWheel)
+  }, [handleWheel])
+
+  const currentSection = journeySections[currentIndex]
 
   return (
-    <div
-      ref={containerRef}
-      className="relative"
-      style={{ height: `${journeySections.length * 100}vh` }}
-    >
-      {/* Sticky container */}
-      <div className="sticky top-0 h-screen overflow-hidden">
-        {/* 3D Background */}
-        <div className="absolute inset-0">
-          <Canvas
-            camera={{ position: [0, 0, 8], fov: 50 }}
-            gl={{ alpha: true, antialias: true }}
-            dpr={[1, 2]}
-          >
-            <ambientLight intensity={0.5} />
-            <pointLight position={[10, 10, 10]} intensity={0.5} />
-            {currentJourneySection && (
-              <JourneyScene
-                section={currentJourneySection}
-                progress={sectionProgress}
-              />
-            )}
-          </Canvas>
-        </div>
+    <div className="relative py-20 overflow-hidden">
+      {/* Background gradient based on current section */}
+      <div
+        className="absolute inset-0 transition-all duration-1000"
+        style={{
+          background: `radial-gradient(ellipse at 50% 50%, ${currentSection.accentColor}15 0%, transparent 60%)`,
+        }}
+      />
 
-        {/* Gradient overlay */}
+      {/* Section Title */}
+      <div className="text-center mb-12 px-4 relative z-10">
+        <h2 className="text-3xl md:text-4xl font-serif font-bold text-white mb-3">
+          Why TourWiseCo?
+        </h2>
+        <p className="text-white/60 text-base md:text-lg">
+          Swipe to discover what makes us different
+        </p>
+      </div>
+
+      {/* 3D Carousel Container */}
+      <div
+        ref={containerRef}
+        className={`relative h-[550px] md:h-[620px] ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
+        style={{
+          perspective: '1200px',
+          perspectiveOrigin: '50% 50%',
+        }}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseLeave}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+      >
+        {/* Cards */}
         <div
-          className="absolute inset-0 transition-colors duration-1000"
+          className="absolute inset-0"
           style={{
-            background: `radial-gradient(circle at 50% 50%, transparent 0%, ${currentJourneySection?.accentColor}10 50%, #0a0a1a 100%)`,
+            transformStyle: 'preserve-3d',
           }}
-        />
-
-        {/* Content sections */}
-        <div className="relative h-full">
+        >
           {journeySections.map((section, index) => (
-            <JourneySectionContent
+            <JourneyCard
               key={section.id}
               section={section}
+              position={getPosition(index)}
+              onClick={() => goToIndex(index)}
               index={index}
-              isActive={index === currentSection}
-              progress={sectionProgress}
+              totalCards={totalSections}
             />
           ))}
         </div>
-
-        {/* Progress indicator */}
-        <JourneyProgress
-          currentSection={currentSection}
-          totalSections={journeySections.length}
-          sections={journeySections}
-        />
-
-        {/* Scroll prompt - show only for non-last sections */}
-        <ScrollPrompt show={isInView && currentSection < journeySections.length - 1} />
-
-        {/* Section counter */}
-        <div className="absolute bottom-8 left-8 text-white/30 text-sm font-mono">
-          <span style={{ color: currentJourneySection?.accentColor }}>
-            {String(currentSection + 1).padStart(2, '0')}
-          </span>
-          <span className="mx-2">/</span>
-          <span>{String(journeySections.length).padStart(2, '0')}</span>
-        </div>
       </div>
 
-      {/* CSS for float animation */}
-      <style jsx global>{`
-        @keyframes float {
-          0%, 100% {
-            transform: translateY(0px);
-          }
-          50% {
-            transform: translateY(-10px);
-          }
-        }
-        .animate-float {
-          animation: float 3s ease-in-out infinite;
-        }
-      `}</style>
+      {/* Navigation Dots */}
+      <div className="flex justify-center items-center gap-3 mt-8">
+        {journeySections.map((section, index) => (
+          <button
+            key={section.id}
+            onClick={() => goToIndex(index)}
+            className={`relative transition-all duration-300 ${
+              index === currentIndex ? 'w-10' : 'w-3'
+            } h-3 rounded-full`}
+            style={{
+              background: index === currentIndex
+                ? `linear-gradient(90deg, ${section.accentColor}, ${section.secondaryColor})`
+                : 'rgba(255,255,255,0.3)',
+              boxShadow: index === currentIndex ? `0 0 20px ${section.accentColor}60` : 'none',
+            }}
+            aria-label={`Go to ${section.headline}`}
+          >
+            {index === currentIndex && (
+              <span
+                className="absolute inset-0 rounded-full animate-ping"
+                style={{
+                  background: section.accentColor,
+                  opacity: 0.3,
+                }}
+              />
+            )}
+          </button>
+        ))}
+      </div>
+
+      {/* Navigation Arrows */}
+      <div className="absolute top-1/2 left-4 right-4 -translate-y-1/2 flex justify-between pointer-events-none z-40">
+        <button
+          onClick={() => goToIndex(currentIndex - 1)}
+          disabled={currentIndex === 0}
+          className={`pointer-events-auto p-3 md:p-4 rounded-full backdrop-blur-md transition-all duration-300 ${
+            currentIndex === 0
+              ? 'opacity-30 cursor-not-allowed'
+              : 'opacity-70 hover:opacity-100 hover:scale-110'
+          }`}
+          style={{
+            background: 'rgba(255,255,255,0.1)',
+            border: '1px solid rgba(255,255,255,0.2)',
+          }}
+        >
+          <svg className="w-5 h-5 md:w-6 md:h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+
+        <button
+          onClick={() => goToIndex(currentIndex + 1)}
+          disabled={currentIndex === totalSections - 1}
+          className={`pointer-events-auto p-3 md:p-4 rounded-full backdrop-blur-md transition-all duration-300 ${
+            currentIndex === totalSections - 1
+              ? 'opacity-30 cursor-not-allowed'
+              : 'opacity-70 hover:opacity-100 hover:scale-110'
+          }`}
+          style={{
+            background: 'rgba(255,255,255,0.1)',
+            border: '1px solid rgba(255,255,255,0.2)',
+          }}
+        >
+          <svg className="w-5 h-5 md:w-6 md:h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+      </div>
+
+      {/* Swipe Hint */}
+      <div className="text-center mt-6 md:hidden">
+        <span className="text-white/40 text-sm flex items-center justify-center gap-2">
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+          </svg>
+          Swipe to explore
+        </span>
+      </div>
     </div>
   )
 }
