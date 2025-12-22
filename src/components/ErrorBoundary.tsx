@@ -140,7 +140,7 @@ export function EmptyState({
 }: {
   title?: string;
   description?: string;
-  icon?: React.ElementType;
+  icon?: React.ComponentType<{ className?: string }>;
   action?: ReactNode;
 }) {
   return (
