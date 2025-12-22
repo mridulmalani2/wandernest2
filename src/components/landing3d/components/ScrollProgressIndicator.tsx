@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { ANIMATION_PHASES } from '../hooks'
 
 interface ScrollProgressIndicatorProps {
@@ -19,6 +19,7 @@ interface ScrollProgressIndicatorProps {
  * - Gentle floating animation (not harsh bouncing)
  * - Fades out when animation begins or completes
  * - Shows phase progress dots
+ * - Hides when user scrolls past section 1
  */
 export function ScrollProgressIndicator({
   currentPhase,
@@ -28,10 +29,25 @@ export function ScrollProgressIndicator({
 }: ScrollProgressIndicatorProps) {
   const [opacity, setOpacity] = useState(0)
   const [shouldRender, setShouldRender] = useState(true)
+  const [isScrolledPast, setIsScrolledPast] = useState(false)
 
-  // Fade in after mount, fade out when scrolling starts or completes
+  // Monitor scroll position to hide when scrolled past section 1
   useEffect(() => {
-    if (!isVisible || isComplete) {
+    const handleScroll = () => {
+      // Hide if scrolled more than 50px past the hero section
+      const scrolledPast = window.scrollY > 50
+      setIsScrolledPast(scrolledPast)
+    }
+
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    handleScroll() // Check initial position
+
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  // Fade in after mount, fade out when scrolling starts, completes, or scrolled past
+  useEffect(() => {
+    if (!isVisible || isComplete || isScrolledPast) {
       setOpacity(0)
       const timer = setTimeout(() => setShouldRender(false), 500)
       return () => clearTimeout(timer)
@@ -41,14 +57,14 @@ export function ScrollProgressIndicator({
 
     // Delay initial fade in
     const timer = setTimeout(() => {
-      // Only show if we haven't started scrolling yet
-      if (currentPhase <= 1) {
+      // Only show if we haven't started scrolling yet and not scrolled past
+      if (currentPhase <= 1 && !isScrolledPast) {
         setOpacity(1)
       }
     }, 800)
 
     return () => clearTimeout(timer)
-  }, [isVisible, isComplete, currentPhase])
+  }, [isVisible, isComplete, currentPhase, isScrolledPast])
 
   // Fade out as user starts scrolling
   useEffect(() => {

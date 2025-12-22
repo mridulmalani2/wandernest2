@@ -137,22 +137,32 @@ export function HeroSectionPhased({
   const groupRef = useRef<Group>(null)
 
   // Calculate visibility for each element based on phase
+  // Text should fade OUT during phase 3-4 to avoid overlapping CTA cards
   const titleOpacity = useMemo(() => {
     if (currentPhase < 1) return phaseProgress * 0.3
     if (currentPhase === 1) return 0.3 + phaseProgress * 0.7
-    return 1
+    if (currentPhase === 2) return 1
+    // Start fading out during phase 3, gone by phase 4
+    if (currentPhase === 3) return 1 - phaseProgress * 0.7
+    if (currentPhase >= 4) return 0.3 - phaseProgress * 0.3
+    return 0
   }, [currentPhase, phaseProgress])
 
   const subtitleOpacity = useMemo(() => {
     if (currentPhase < 2) return 0
     if (currentPhase === 2) return phaseProgress
-    return 1
+    // Fade out faster than title
+    if (currentPhase === 3) return 1 - phaseProgress * 0.8
+    if (currentPhase >= 4) return 0.2 - phaseProgress * 0.2
+    return 0
   }, [currentPhase, phaseProgress])
 
   const descriptionOpacity = useMemo(() => {
     if (currentPhase < 3) return 0
-    if (currentPhase === 3) return phaseProgress
-    return 1
+    if (currentPhase === 3) return phaseProgress * 0.8 // Fade in but not fully
+    // Fade out immediately when CTA cards start appearing
+    if (currentPhase >= 4) return (0.8 - phaseProgress * 0.8)
+    return 0
   }, [currentPhase, phaseProgress])
 
   // For orbs visibility
@@ -168,23 +178,32 @@ export function HeroSectionPhased({
     return Math.max(0, 1 - totalProgress * 2)
   }, [isHijackComplete, totalProgress])
 
-  // Entrance animation progress
+  // Entrance/exit animation progress - text moves up as it fades out
   const titleEntranceY = useMemo(() => {
     if (currentPhase < 1) return 30
     if (currentPhase === 1) return 30 * (1 - phaseProgress)
-    return 0
+    if (currentPhase === 2) return 0
+    // Move up as it fades out
+    if (currentPhase === 3) return -phaseProgress * 40
+    if (currentPhase >= 4) return -40 - phaseProgress * 20
+    return -60
   }, [currentPhase, phaseProgress])
 
   const subtitleEntranceY = useMemo(() => {
     if (currentPhase < 2) return 20
     if (currentPhase === 2) return 20 * (1 - phaseProgress)
-    return 0
+    // Move up faster than title
+    if (currentPhase === 3) return -phaseProgress * 50
+    if (currentPhase >= 4) return -50 - phaseProgress * 30
+    return -80
   }, [currentPhase, phaseProgress])
 
   const descriptionEntranceY = useMemo(() => {
     if (currentPhase < 3) return 15
-    if (currentPhase === 3) return 15 * (1 - phaseProgress)
-    return 0
+    if (currentPhase === 3) return 15 * (1 - phaseProgress) - phaseProgress * 30
+    // Move up immediately when CTA appears
+    if (currentPhase >= 4) return -30 - phaseProgress * 40
+    return -70
   }, [currentPhase, phaseProgress])
 
   // Scale effect
