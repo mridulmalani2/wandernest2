@@ -6,11 +6,10 @@ import Image from 'next/image'
 /**
  * UserJourney3D - Horizontal 3D Carousel
  *
- * A gamified horizontal carousel showing USPs in a 3D space:
+ * A gamified horizontal carousel showing USPs:
  * - Current section is centered and fully visible
- * - Adjacent sections are visible with glassmorphic blur
+ * - Adjacent sections visible with glassmorphic blur
  * - Horizontal scroll/swipe to navigate
- * - 3D perspective with depth effect
  */
 
 interface JourneySection {
@@ -74,120 +73,137 @@ const journeySections: JourneySection[] = [
 
 interface CardProps {
   section: JourneySection
-  position: 'far-left' | 'left' | 'center' | 'right' | 'far-right'
+  isActive: boolean
+  offset: number // -2, -1, 0, 1, 2
   onClick: () => void
   index: number
   totalCards: number
 }
 
-function JourneyCard({ section, position, onClick, index, totalCards }: CardProps) {
-  const isCenter = position === 'center'
-  const isAdjacent = position === 'left' || position === 'right'
-  const isFar = position === 'far-left' || position === 'far-right'
+function JourneyCard({ section, isActive, offset, onClick, index, totalCards }: CardProps) {
   const isStudentCard = section.id === 'student'
 
-  // Position transforms for 3D carousel effect
-  const transforms: Record<string, { x: string; z: string; rotateY: string; scale: string; opacity: number }> = {
-    'far-left': { x: '-180%', z: '-300px', rotateY: '45deg', scale: '0.6', opacity: 0.3 },
-    'left': { x: '-85%', z: '-150px', rotateY: '25deg', scale: '0.85', opacity: 0.7 },
-    'center': { x: '0%', z: '0px', rotateY: '0deg', scale: '1', opacity: 1 },
-    'right': { x: '85%', z: '-150px', rotateY: '-25deg', scale: '0.85', opacity: 0.7 },
-    'far-right': { x: '180%', z: '-300px', rotateY: '-45deg', scale: '0.6', opacity: 0.3 },
+  // Calculate visual properties based on offset
+  const getCardStyle = () => {
+    const absOffset = Math.abs(offset)
+
+    // Position calculation
+    const baseTranslate = offset * 380 // px between cards
+
+    // Scale based on distance from center
+    const scale = offset === 0 ? 1 : absOffset === 1 ? 0.88 : 0.75
+
+    // Rotation for 3D effect
+    const rotateY = offset === 0 ? 0 : offset > 0 ? -15 : 15
+
+    // Opacity
+    const opacity = offset === 0 ? 1 : absOffset === 1 ? 0.7 : 0.4
+
+    // Z-index (center card on top)
+    const zIndex = 10 - absOffset
+
+    // Blur for non-active cards
+    const blur = offset === 0 ? 0 : absOffset === 1 ? 2 : 6
+
+    return {
+      transform: `translateX(${baseTranslate}px) scale(${scale}) rotateY(${rotateY}deg)`,
+      opacity,
+      zIndex,
+      filter: blur > 0 ? `blur(${blur}px)` : 'none',
+    }
   }
 
-  const transform = transforms[position]
+  const style = getCardStyle()
 
   return (
     <div
-      className={`absolute left-1/2 top-1/2 w-[340px] md:w-[420px] transition-all duration-700 ease-out ${
-        isCenter ? 'cursor-default z-30' : 'cursor-pointer z-10'
+      className={`absolute left-1/2 top-0 w-[340px] md:w-[380px] -ml-[170px] md:-ml-[190px] transition-all duration-500 ease-out ${
+        isActive ? 'cursor-default' : 'cursor-pointer'
       }`}
       style={{
-        transform: `
-          translateX(calc(-50% + ${transform.x}))
-          translateY(-50%)
-          translateZ(${transform.z})
-          rotateY(${transform.rotateY})
-          scale(${transform.scale})
-        `,
-        opacity: transform.opacity,
-        filter: isCenter ? 'none' : `blur(${isFar ? '8px' : '3px'})`,
-        pointerEvents: isCenter ? 'auto' : isAdjacent ? 'auto' : 'none',
+        ...style,
+        transformStyle: 'preserve-3d',
       }}
-      onClick={!isCenter ? onClick : undefined}
+      onClick={!isActive ? onClick : undefined}
     >
       {/* Card Container */}
       <div
         className="relative rounded-3xl overflow-hidden"
         style={{
-          background: isCenter
-            ? `linear-gradient(135deg, ${section.accentColor}15, ${section.secondaryColor}10)`
-            : 'rgba(255,255,255,0.05)',
-          backdropFilter: isCenter ? 'blur(20px)' : 'blur(10px)',
-          border: `1px solid ${isCenter ? section.accentColor + '40' : 'rgba(255,255,255,0.1)'}`,
-          boxShadow: isCenter
-            ? `0 25px 50px -12px rgba(0,0,0,0.5), 0 0 80px ${section.accentColor}20`
-            : '0 10px 30px -10px rgba(0,0,0,0.3)',
+          background: isActive
+            ? `linear-gradient(145deg, ${section.accentColor}20, ${section.secondaryColor}15, rgba(10,10,26,0.95))`
+            : 'rgba(20, 20, 40, 0.8)',
+          border: `1px solid ${isActive ? section.accentColor + '50' : 'rgba(255,255,255,0.1)'}`,
+          boxShadow: isActive
+            ? `0 25px 60px -15px rgba(0,0,0,0.5), 0 0 60px ${section.accentColor}25, inset 0 1px 0 rgba(255,255,255,0.1)`
+            : '0 15px 40px -10px rgba(0,0,0,0.4)',
         }}
       >
         {/* Image Section */}
-        <div className="relative h-48 md:h-56 overflow-hidden">
+        <div className="relative h-44 md:h-52 overflow-hidden">
           <Image
             src={section.image}
             alt={section.headline}
             fill
-            sizes="420px"
-            className="object-cover"
+            sizes="400px"
+            className="object-cover transition-all duration-500"
             style={{
-              filter: isCenter ? 'none' : 'grayscale(50%)',
+              filter: isActive ? 'saturate(1.1)' : 'saturate(0.7) brightness(0.8)',
             }}
           />
+          {/* Gradient overlay */}
           <div
             className="absolute inset-0"
             style={{
-              background: `linear-gradient(180deg, transparent 0%, ${section.accentColor}40 50%, #0a0a1a 100%)`,
+              background: `linear-gradient(180deg, transparent 20%, ${section.accentColor}30 60%, rgba(10,10,26,1) 100%)`,
             }}
           />
 
           {/* Icon Badge */}
           <div
-            className="absolute top-4 left-4 w-14 h-14 rounded-2xl flex items-center justify-center text-2xl"
+            className="absolute top-4 left-4 w-12 h-12 md:w-14 md:h-14 rounded-2xl flex items-center justify-center text-xl md:text-2xl transition-transform duration-300"
             style={{
-              background: `linear-gradient(135deg, ${section.accentColor}60, ${section.secondaryColor}60)`,
+              background: `linear-gradient(135deg, ${section.accentColor}70, ${section.secondaryColor}70)`,
               backdropFilter: 'blur(10px)',
-              border: `1px solid ${section.accentColor}40`,
-              boxShadow: `0 8px 32px ${section.accentColor}40`,
+              border: `1px solid ${section.accentColor}50`,
+              boxShadow: `0 8px 24px ${section.accentColor}40`,
+              transform: isActive ? 'scale(1)' : 'scale(0.9)',
             }}
           >
             {section.icon}
           </div>
 
           {/* Card Index */}
-          <div className="absolute top-4 right-4 font-mono text-white/40 text-sm">
+          <div
+            className="absolute top-4 right-4 font-mono text-sm transition-opacity duration-300"
+            style={{ color: isActive ? 'rgba(255,255,255,0.6)' : 'rgba(255,255,255,0.3)' }}
+          >
             {String(index + 1).padStart(2, '0')}/{String(totalCards).padStart(2, '0')}
           </div>
         </div>
 
         {/* Content Section */}
-        <div className="p-6 md:p-8">
+        <div className="p-5 md:p-6">
           {/* Tagline */}
           <div
-            className="inline-block px-3 py-1 rounded-full text-[10px] font-bold tracking-[0.2em] uppercase mb-4"
+            className="inline-block px-3 py-1 rounded-full text-[10px] font-bold tracking-[0.2em] uppercase mb-3"
             style={{
-              background: `${section.accentColor}20`,
+              background: `${section.accentColor}25`,
               color: section.accentColor,
-              border: `1px solid ${section.accentColor}30`,
+              border: `1px solid ${section.accentColor}40`,
             }}
           >
             {section.tagline}
           </div>
 
           {/* Headlines */}
-          <h3 className="mb-1">
+          <h3 className="mb-2">
             <span
-              className="block text-2xl md:text-3xl font-serif font-bold"
+              className="block text-xl md:text-2xl font-serif font-bold leading-tight"
               style={{
-                background: `linear-gradient(135deg, #ffffff, ${section.accentColor})`,
+                background: isActive
+                  ? `linear-gradient(135deg, #ffffff 0%, ${section.accentColor} 100%)`
+                  : 'linear-gradient(135deg, rgba(255,255,255,0.8), rgba(255,255,255,0.5))',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
               }}
@@ -195,27 +211,30 @@ function JourneyCard({ section, position, onClick, index, totalCards }: CardProp
               {section.headline}
             </span>
             <span
-              className="block text-xl md:text-2xl font-light"
-              style={{ color: section.secondaryColor }}
+              className="block text-lg md:text-xl font-light"
+              style={{ color: isActive ? section.secondaryColor : 'rgba(155,123,214,0.6)' }}
             >
               {section.subheadline}
             </span>
           </h3>
 
           {/* Description */}
-          <p className="text-white/60 text-sm md:text-base leading-relaxed mt-4">
+          <p
+            className="text-sm md:text-base leading-relaxed transition-colors duration-300"
+            style={{ color: isActive ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.4)' }}
+          >
             {section.description}
           </p>
 
           {/* CTA for student card */}
-          {isStudentCard && isCenter && (
+          {isStudentCard && isActive && (
             <a
               href="/student"
-              className="inline-flex items-center gap-2 mt-6 px-6 py-3 rounded-full font-semibold text-sm transition-all duration-300 hover:scale-105"
+              className="inline-flex items-center gap-2 mt-5 px-5 py-2.5 rounded-full font-semibold text-sm transition-all duration-300 hover:scale-105 hover:shadow-lg"
               style={{
                 background: `linear-gradient(135deg, ${section.accentColor}, ${section.secondaryColor})`,
                 color: '#0a0a1a',
-                boxShadow: `0 8px 32px ${section.accentColor}40`,
+                boxShadow: `0 8px 24px ${section.accentColor}50`,
               }}
             >
               Become a Guide
@@ -225,17 +244,6 @@ function JourneyCard({ section, position, onClick, index, totalCards }: CardProp
             </a>
           )}
         </div>
-
-        {/* Glassmorphic overlay for non-center cards */}
-        {!isCenter && (
-          <div
-            className="absolute inset-0 pointer-events-none"
-            style={{
-              background: 'rgba(10, 10, 26, 0.3)',
-              backdropFilter: 'blur(2px)',
-            }}
-          />
-        )}
       </div>
     </div>
   )
@@ -247,6 +255,7 @@ export default function UserJourney3D() {
   const [isDragging, setIsDragging] = useState(false)
   const [startX, setStartX] = useState(0)
   const [dragDelta, setDragDelta] = useState(0)
+  const lastWheelTime = useRef(0)
 
   const totalSections = journeySections.length
 
@@ -256,247 +265,202 @@ export default function UserJourney3D() {
     setCurrentIndex(clampedIndex)
   }, [totalSections])
 
-  // Get position for each card relative to current index
-  const getPosition = (cardIndex: number): 'far-left' | 'left' | 'center' | 'right' | 'far-right' => {
-    const diff = cardIndex - currentIndex
-    if (diff === 0) return 'center'
-    if (diff === -1) return 'left'
-    if (diff === 1) return 'right'
-    if (diff < -1) return 'far-left'
-    return 'far-right'
-  }
-
-  // Mouse/Touch handlers
-  const handleDragStart = useCallback((clientX: number) => {
+  // Mouse handlers
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
     setIsDragging(true)
-    setStartX(clientX)
+    setStartX(e.clientX)
     setDragDelta(0)
   }, [])
 
-  const handleDragMove = useCallback((clientX: number) => {
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
     if (!isDragging) return
-    const delta = clientX - startX
-    setDragDelta(delta)
+    setDragDelta(e.clientX - startX)
   }, [isDragging, startX])
 
-  const handleDragEnd = useCallback(() => {
+  const handleMouseUp = useCallback(() => {
     if (!isDragging) return
     setIsDragging(false)
 
-    // Threshold for navigation (50px)
-    if (dragDelta < -50 && currentIndex < totalSections - 1) {
+    if (dragDelta < -60 && currentIndex < totalSections - 1) {
       goToIndex(currentIndex + 1)
-    } else if (dragDelta > 50 && currentIndex > 0) {
+    } else if (dragDelta > 60 && currentIndex > 0) {
       goToIndex(currentIndex - 1)
     }
-
     setDragDelta(0)
   }, [isDragging, dragDelta, currentIndex, totalSections, goToIndex])
 
-  // Mouse events
-  const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    e.preventDefault()
-    handleDragStart(e.clientX)
-  }, [handleDragStart])
-
-  const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    handleDragMove(e.clientX)
-  }, [handleDragMove])
-
-  const handleMouseUp = useCallback(() => {
-    handleDragEnd()
-  }, [handleDragEnd])
-
-  const handleMouseLeave = useCallback(() => {
-    handleDragEnd()
-  }, [handleDragEnd])
-
-  // Touch events
+  // Touch handlers
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
-    handleDragStart(e.touches[0].clientX)
-  }, [handleDragStart])
+    setIsDragging(true)
+    setStartX(e.touches[0].clientX)
+    setDragDelta(0)
+  }, [])
 
   const handleTouchMove = useCallback((e: React.TouchEvent) => {
-    handleDragMove(e.touches[0].clientX)
-  }, [handleDragMove])
+    if (!isDragging) return
+    setDragDelta(e.touches[0].clientX - startX)
+  }, [isDragging, startX])
 
   const handleTouchEnd = useCallback(() => {
-    handleDragEnd()
-  }, [handleDragEnd])
+    handleMouseUp()
+  }, [handleMouseUp])
 
-  // Wheel navigation
-  const handleWheel = useCallback((e: WheelEvent) => {
-    e.preventDefault()
-
-    // Use horizontal scroll or vertical scroll
-    const delta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY
-
-    if (delta > 30 && currentIndex < totalSections - 1) {
-      goToIndex(currentIndex + 1)
-    } else if (delta < -30 && currentIndex > 0) {
-      goToIndex(currentIndex - 1)
-    }
-  }, [currentIndex, totalSections, goToIndex])
-
-  // Keyboard navigation
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
-        goToIndex(currentIndex + 1)
-      } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
-        goToIndex(currentIndex - 1)
-      }
-    }
-
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [currentIndex, goToIndex])
-
-  // Add wheel listener
+  // Wheel handler with debounce
   useEffect(() => {
     const container = containerRef.current
     if (!container) return
 
+    const handleWheel = (e: WheelEvent) => {
+      e.preventDefault()
+
+      const now = Date.now()
+      if (now - lastWheelTime.current < 300) return // Debounce
+
+      const delta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY
+
+      if (delta > 20) {
+        goToIndex(currentIndex + 1)
+        lastWheelTime.current = now
+      } else if (delta < -20) {
+        goToIndex(currentIndex - 1)
+        lastWheelTime.current = now
+      }
+    }
+
     container.addEventListener('wheel', handleWheel, { passive: false })
     return () => container.removeEventListener('wheel', handleWheel)
-  }, [handleWheel])
+  }, [currentIndex, goToIndex])
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowRight') goToIndex(currentIndex + 1)
+      if (e.key === 'ArrowLeft') goToIndex(currentIndex - 1)
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [currentIndex, goToIndex])
 
   const currentSection = journeySections[currentIndex]
 
   return (
-    <div className="relative py-20 overflow-hidden">
-      {/* Background gradient based on current section */}
+    <div className="relative py-16 md:py-20">
+      {/* Background glow */}
       <div
-        className="absolute inset-0 transition-all duration-1000"
+        className="absolute inset-0 transition-all duration-700 pointer-events-none"
         style={{
-          background: `radial-gradient(ellipse at 50% 50%, ${currentSection.accentColor}15 0%, transparent 60%)`,
+          background: `radial-gradient(ellipse 80% 50% at 50% 50%, ${currentSection.accentColor}15 0%, transparent 70%)`,
         }}
       />
 
       {/* Section Title */}
-      <div className="text-center mb-12 px-4 relative z-10">
-        <h2 className="text-3xl md:text-4xl font-serif font-bold text-white mb-3">
+      <div className="text-center mb-10 md:mb-12 px-4 relative z-10">
+        <h2 className="text-2xl md:text-4xl font-serif font-bold text-white mb-2">
           Why TourWiseCo?
         </h2>
-        <p className="text-white/60 text-base md:text-lg">
+        <p className="text-white/50 text-sm md:text-base">
           Swipe to discover what makes us different
         </p>
       </div>
 
-      {/* 3D Carousel Container */}
+      {/* Carousel Container */}
       <div
         ref={containerRef}
-        className={`relative h-[550px] md:h-[620px] ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
-        style={{
-          perspective: '1200px',
-          perspectiveOrigin: '50% 50%',
-        }}
+        className={`relative h-[480px] md:h-[520px] overflow-hidden ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
+        style={{ perspective: '1000px' }}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseLeave}
+        onMouseLeave={handleMouseUp}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
       >
-        {/* Cards */}
-        <div
-          className="absolute inset-0"
-          style={{
-            transformStyle: 'preserve-3d',
-          }}
-        >
-          {journeySections.map((section, index) => (
-            <JourneyCard
-              key={section.id}
-              section={section}
-              position={getPosition(index)}
-              onClick={() => goToIndex(index)}
-              index={index}
-              totalCards={totalSections}
-            />
-          ))}
+        {/* Cards Container */}
+        <div className="relative h-full w-full" style={{ transformStyle: 'preserve-3d' }}>
+          {journeySections.map((section, index) => {
+            const offset = index - currentIndex
+            // Only render cards within range
+            if (Math.abs(offset) > 2) return null
+
+            return (
+              <JourneyCard
+                key={section.id}
+                section={section}
+                isActive={index === currentIndex}
+                offset={offset}
+                onClick={() => goToIndex(index)}
+                index={index}
+                totalCards={totalSections}
+              />
+            )
+          })}
         </div>
       </div>
 
       {/* Navigation Dots */}
-      <div className="flex justify-center items-center gap-3 mt-8">
+      <div className="flex justify-center items-center gap-2 md:gap-3 mt-8">
         {journeySections.map((section, index) => (
           <button
             key={section.id}
             onClick={() => goToIndex(index)}
-            className={`relative transition-all duration-300 ${
-              index === currentIndex ? 'w-10' : 'w-3'
-            } h-3 rounded-full`}
+            className={`relative h-2.5 md:h-3 rounded-full transition-all duration-300 ${
+              index === currentIndex ? 'w-8 md:w-10' : 'w-2.5 md:w-3'
+            }`}
             style={{
               background: index === currentIndex
                 ? `linear-gradient(90deg, ${section.accentColor}, ${section.secondaryColor})`
-                : 'rgba(255,255,255,0.3)',
-              boxShadow: index === currentIndex ? `0 0 20px ${section.accentColor}60` : 'none',
+                : 'rgba(255,255,255,0.25)',
+              boxShadow: index === currentIndex ? `0 0 15px ${section.accentColor}60` : 'none',
             }}
             aria-label={`Go to ${section.headline}`}
-          >
-            {index === currentIndex && (
-              <span
-                className="absolute inset-0 rounded-full animate-ping"
-                style={{
-                  background: section.accentColor,
-                  opacity: 0.3,
-                }}
-              />
-            )}
-          </button>
+          />
         ))}
       </div>
 
       {/* Navigation Arrows */}
-      <div className="absolute top-1/2 left-4 right-4 -translate-y-1/2 flex justify-between pointer-events-none z-40">
-        <button
-          onClick={() => goToIndex(currentIndex - 1)}
-          disabled={currentIndex === 0}
-          className={`pointer-events-auto p-3 md:p-4 rounded-full backdrop-blur-md transition-all duration-300 ${
-            currentIndex === 0
-              ? 'opacity-30 cursor-not-allowed'
-              : 'opacity-70 hover:opacity-100 hover:scale-110'
-          }`}
-          style={{
-            background: 'rgba(255,255,255,0.1)',
-            border: '1px solid rgba(255,255,255,0.2)',
-          }}
-        >
-          <svg className="w-5 h-5 md:w-6 md:h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-          </svg>
-        </button>
+      <button
+        onClick={() => goToIndex(currentIndex - 1)}
+        disabled={currentIndex === 0}
+        className={`absolute left-2 md:left-6 top-1/2 -translate-y-1/2 z-20 p-3 md:p-4 rounded-full transition-all duration-300 ${
+          currentIndex === 0
+            ? 'opacity-20 cursor-not-allowed'
+            : 'opacity-60 hover:opacity-100 hover:scale-110'
+        }`}
+        style={{
+          background: 'rgba(255,255,255,0.1)',
+          backdropFilter: 'blur(10px)',
+          border: '1px solid rgba(255,255,255,0.15)',
+        }}
+      >
+        <svg className="w-5 h-5 md:w-6 md:h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+        </svg>
+      </button>
 
-        <button
-          onClick={() => goToIndex(currentIndex + 1)}
-          disabled={currentIndex === totalSections - 1}
-          className={`pointer-events-auto p-3 md:p-4 rounded-full backdrop-blur-md transition-all duration-300 ${
-            currentIndex === totalSections - 1
-              ? 'opacity-30 cursor-not-allowed'
-              : 'opacity-70 hover:opacity-100 hover:scale-110'
-          }`}
-          style={{
-            background: 'rgba(255,255,255,0.1)',
-            border: '1px solid rgba(255,255,255,0.2)',
-          }}
-        >
-          <svg className="w-5 h-5 md:w-6 md:h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-          </svg>
-        </button>
-      </div>
+      <button
+        onClick={() => goToIndex(currentIndex + 1)}
+        disabled={currentIndex === totalSections - 1}
+        className={`absolute right-2 md:right-6 top-1/2 -translate-y-1/2 z-20 p-3 md:p-4 rounded-full transition-all duration-300 ${
+          currentIndex === totalSections - 1
+            ? 'opacity-20 cursor-not-allowed'
+            : 'opacity-60 hover:opacity-100 hover:scale-110'
+        }`}
+        style={{
+          background: 'rgba(255,255,255,0.1)',
+          backdropFilter: 'blur(10px)',
+          border: '1px solid rgba(255,255,255,0.15)',
+        }}
+      >
+        <svg className="w-5 h-5 md:w-6 md:h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+        </svg>
+      </button>
 
-      {/* Swipe Hint */}
-      <div className="text-center mt-6 md:hidden">
-        <span className="text-white/40 text-sm flex items-center justify-center gap-2">
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
-          </svg>
-          Swipe to explore
-        </span>
-      </div>
+      {/* Mobile swipe hint */}
+      <p className="text-center text-white/30 text-xs mt-4 md:hidden">
+        ← Swipe to explore →
+      </p>
     </div>
   )
 }
