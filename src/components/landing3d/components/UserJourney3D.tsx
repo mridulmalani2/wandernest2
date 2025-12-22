@@ -177,34 +177,25 @@ function JourneyCard({ section, isActive, offset, onClick, index, totalCards }: 
             {section.tagline}
           </div>
 
-          {/* Headlines - Funky style */}
-          <h3 className="mb-3">
+          {/* Headlines - Engaging typography */}
+          <h3 className="mb-4">
             <span
-              className="block text-2xl md:text-3xl leading-tight"
+              className="block text-2xl md:text-3xl font-bold leading-tight tracking-tight"
               style={{
-                fontFamily: '"Brush Script MT", "Segoe Script", "Bradley Hand", cursive',
-                fontWeight: 400,
+                fontFamily: 'Georgia, "Times New Roman", serif',
                 color: isActive ? '#ffffff' : 'rgba(255,255,255,0.6)',
-                textShadow: isActive
-                  ? `2px 2px 0 ${section.accentColor}60, -1px -1px 0 ${section.secondaryColor}40`
-                  : 'none',
-                letterSpacing: '0.02em',
-                transform: isActive ? 'rotate(-1deg)' : 'none',
-                display: 'inline-block',
+                letterSpacing: '-0.02em',
                 transition: 'all 0.3s ease',
               }}
             >
               {section.headline}
             </span>
             <span
-              className="block text-xl md:text-2xl mt-1"
+              className="block text-xl md:text-2xl font-light mt-1 italic"
               style={{
-                fontFamily: '"Brush Script MT", "Segoe Script", "Bradley Hand", cursive',
-                fontWeight: 400,
-                color: isActive ? section.secondaryColor : 'rgba(155,123,214,0.5)',
-                textShadow: isActive ? `1px 1px 0 ${section.accentColor}30` : 'none',
-                transform: isActive ? 'rotate(0.5deg)' : 'none',
-                display: 'inline-block',
+                fontFamily: 'Georgia, "Times New Roman", serif',
+                color: isActive ? section.accentColor : 'rgba(155,123,214,0.5)',
+                letterSpacing: '0.01em',
                 transition: 'all 0.3s ease',
               }}
             >
