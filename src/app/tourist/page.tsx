@@ -222,13 +222,8 @@ export default function TouristLanding() {
 
             {/* City Destination Cards - Enhanced Design */}
             <div className="space-y-8 pt-8 animate-fade-in-up delay-700">
-              <div className="text-center space-y-4">
+              <div className="text-center">
                 <h2 className="text-4xl md:text-5xl font-bold text-white text-shadow-lg">Choose Your Destination</h2>
-                <div className="inline-block backdrop-blur-md bg-white/20 px-6 py-3 rounded-full border border-white/30">
-                  <p className="text-white font-medium text-lg">
-                    ✨ Currently available in Paris and London
-                  </p>
-                </div>
               </div>
 
               <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
