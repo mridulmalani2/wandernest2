@@ -56,6 +56,7 @@ export function useScrollHijack(enabled: boolean = true): ScrollHijackState {
   const touchStartYRef = useRef(0)
   const animationFrameRef = useRef<number>()
   const lastScrollYRef = useRef(0)
+  const previousOverflowRef = useRef<string>('')
 
   const maxThreshold = ANIMATION_PHASES[ANIMATION_PHASES.length - 1].threshold
 
@@ -170,24 +171,24 @@ export function useScrollHijack(enabled: boolean = true): ScrollHijackState {
     // If reversing back to start, stay locked but reset to initial state
     const reversedToStart = direction === 'reverse' && cumulativeDeltaRef.current <= 0
 
+    // Update refs BEFORE setState to ensure event handlers see consistent state
+    if (shouldUnlock) {
+      isLockedRef.current = false
+      isCompleteRef.current = true
+    } else if (reversedToStart) {
+      // When reversed to start, stay locked and ready for forward animation
+      isLockedRef.current = true
+      isCompleteRef.current = false
+    }
+
     setState(prev => ({
       ...prev,
       ...phaseData,
       cumulativeDelta: cumulativeDeltaRef.current,
-      isLocked: shouldStayLocked || reversedToStart, // Keep locked when at start
+      isLocked: isLockedRef.current, // Use ref value for consistency
+      isComplete: isCompleteRef.current,
       direction,
     }))
-
-    if (shouldUnlock) {
-      isLockedRef.current = false
-      isCompleteRef.current = true
-    }
-
-    // When reversed to start, stay locked and ready for forward animation
-    if (reversedToStart) {
-      isLockedRef.current = true
-      isCompleteRef.current = false
-    }
   }, [enabled, calculatePhase, reengageForReverse, maxThreshold])
 
   // Handle touch events
@@ -247,24 +248,23 @@ export function useScrollHijack(enabled: boolean = true): ScrollHijackState {
     const shouldUnlock = phaseData.isComplete && direction === 'forward'
     const reversedToStart = direction === 'reverse' && cumulativeDeltaRef.current <= 0
 
+    // Update refs BEFORE setState to ensure event handlers see consistent state
+    if (shouldUnlock) {
+      isLockedRef.current = false
+      isCompleteRef.current = true
+    } else if (reversedToStart) {
+      isLockedRef.current = true
+      isCompleteRef.current = false
+    }
+
     setState(prev => ({
       ...prev,
       ...phaseData,
       cumulativeDelta: cumulativeDeltaRef.current,
-      isLocked: !shouldUnlock || reversedToStart,
+      isLocked: isLockedRef.current,
+      isComplete: isCompleteRef.current,
       direction,
     }))
-
-    if (shouldUnlock) {
-      isLockedRef.current = false
-      isCompleteRef.current = true
-    }
-
-    // When reversed to start, stay locked
-    if (reversedToStart) {
-      isLockedRef.current = true
-      isCompleteRef.current = false
-    }
   }, [enabled, calculatePhase, reengageForReverse, maxThreshold])
 
   // Prevent default scroll when locked
@@ -286,24 +286,40 @@ export function useScrollHijack(enabled: boolean = true): ScrollHijackState {
     return () => window.removeEventListener('scroll', checkScrollPosition)
   }, [enabled])
 
-  // Lock/unlock body scroll
+  // Lock/unlock body scroll - store and restore previous overflow value
   useEffect(() => {
     if (!enabled) {
-      document.body.style.overflow = ''
+      // Restore previous overflow if we stored one
+      if (previousOverflowRef.current !== '') {
+        document.body.style.overflow = previousOverflowRef.current
+        previousOverflowRef.current = ''
+      }
       return
     }
 
     if (state.isLocked) {
+      // Store current overflow before overwriting
+      if (previousOverflowRef.current === '') {
+        previousOverflowRef.current = document.body.style.overflow || ''
+      }
       document.body.style.overflow = 'hidden'
       if (state.direction === 'forward' || cumulativeDeltaRef.current === 0) {
         window.scrollTo(0, 0)
       }
     } else {
-      document.body.style.overflow = ''
+      // Restore previous overflow
+      document.body.style.overflow = previousOverflowRef.current || ''
+      previousOverflowRef.current = ''
     }
 
     return () => {
-      document.body.style.overflow = ''
+      // Cleanup: restore previous overflow
+      if (previousOverflowRef.current !== '') {
+        document.body.style.overflow = previousOverflowRef.current
+        previousOverflowRef.current = ''
+      } else {
+        document.body.style.overflow = ''
+      }
     }
   }, [enabled, state.isLocked, state.direction])
 
@@ -364,24 +380,23 @@ export function useScrollHijack(enabled: boolean = true): ScrollHijackState {
       const shouldUnlock = phaseData.isComplete && direction === 'forward'
       const reversedToStart = direction === 'reverse' && cumulativeDeltaRef.current <= 0
 
+      // Update refs BEFORE setState to ensure event handlers see consistent state
+      if (shouldUnlock) {
+        isLockedRef.current = false
+        isCompleteRef.current = true
+      } else if (reversedToStart) {
+        isLockedRef.current = true
+        isCompleteRef.current = false
+      }
+
       setState(prev => ({
         ...prev,
         ...phaseData,
         cumulativeDelta: cumulativeDeltaRef.current,
-        isLocked: !shouldUnlock || reversedToStart,
+        isLocked: isLockedRef.current,
+        isComplete: isCompleteRef.current,
         direction,
       }))
-
-      if (shouldUnlock) {
-        isLockedRef.current = false
-        isCompleteRef.current = true
-      }
-
-      // When reversed to start, stay locked
-      if (reversedToStart) {
-        isLockedRef.current = true
-        isCompleteRef.current = false
-      }
     }
 
     window.addEventListener('keydown', handleKeydown)
