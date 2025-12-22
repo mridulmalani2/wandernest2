@@ -1,5 +1,8 @@
 export { SpatialCamera } from './SpatialCamera'
 export { AtmosphericBackground } from './AtmosphericBackground'
 export { HeroSection3D } from './HeroSection3D'
+export { HeroSectionPhased } from './HeroSectionPhased'
 export { PathwayCard3D, PathwayCards3D } from './PathwayCard3D'
+export { PathwayCardsPhased } from './PathwayCardsPhased'
 export { FeatureConstellation } from './FeatureConstellation'
+export { ScrollProgressIndicator } from './ScrollProgressIndicator'
