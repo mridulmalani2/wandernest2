@@ -3,6 +3,7 @@
 import { useRef, useState, useEffect, Suspense, Component, ReactNode } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { Preload } from '@react-three/drei'
+import Image from 'next/image'
 import { LandingPage3DProps, PointerState } from './types'
 import { useScrollHijack, usePointerParallax, useDeviceCapabilities } from './hooks'
 import { LandingFallback } from './LandingFallback'
@@ -479,7 +480,28 @@ export function LandingPage3D({ className = '' }: LandingPage3DProps) {
           zIndex: hijackState.isLocked ? 20 : 1,
         }}
       >
-        {/* 3D Canvas */}
+        {/* Paris Night Background Image */}
+        <div className="absolute inset-0 z-0">
+          <Image
+            src="https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=1920&q=80"
+            alt="Paris at night"
+            fill
+            priority
+            className="object-cover"
+            style={{
+              filter: 'brightness(0.3) saturate(0.8)',
+            }}
+          />
+          {/* Dark overlay gradient for depth */}
+          <div
+            className="absolute inset-0"
+            style={{
+              background: 'linear-gradient(180deg, rgba(10,10,26,0.7) 0%, rgba(10,10,26,0.4) 40%, rgba(10,10,26,0.8) 100%)',
+            }}
+          />
+        </div>
+
+        {/* 3D Canvas - transparent background to show Paris image */}
         {!isReady ? (
           <LoadingPlaceholder />
         ) : (
@@ -496,8 +518,8 @@ export function LandingPage3D({ className = '' }: LandingPage3DProps) {
                 dpr={[1, Math.min(pixelRatio, 2)]}
                 frameloop="always"
                 resize={{ scroll: false, debounce: { scroll: 50, resize: 0 } }}
-                onCreated={({ gl }) => gl.setClearColor(0x0a0a1a, 1)}
-                className="!absolute inset-0"
+                className="!absolute inset-0 z-10"
+                style={{ background: 'transparent' }}
               >
                 <HeroScene
                   currentPhase={hijackState.currentPhase}

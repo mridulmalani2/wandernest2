@@ -299,31 +299,8 @@ export default function UserJourney3D() {
     handleMouseUp()
   }, [handleMouseUp])
 
-  // Wheel handler with debounce
-  useEffect(() => {
-    const container = containerRef.current
-    if (!container) return
-
-    const handleWheel = (e: WheelEvent) => {
-      e.preventDefault()
-
-      const now = Date.now()
-      if (now - lastWheelTime.current < 300) return // Debounce
-
-      const delta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY
-
-      if (delta > 20) {
-        goToIndex(currentIndex + 1)
-        lastWheelTime.current = now
-      } else if (delta < -20) {
-        goToIndex(currentIndex - 1)
-        lastWheelTime.current = now
-      }
-    }
-
-    container.addEventListener('wheel', handleWheel, { passive: false })
-    return () => container.removeEventListener('wheel', handleWheel)
-  }, [currentIndex, goToIndex])
+  // Wheel handler REMOVED - vertical scroll should NOT change carousel
+  // Only horizontal swipe/drag and arrow keys navigate the carousel
 
   // Keyboard navigation
   useEffect(() => {

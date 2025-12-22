@@ -130,6 +130,20 @@ export function useScrollHijack(enabled: boolean = true): ScrollHijackState {
       return
     }
 
+    // If not locked but at initial state (reversed to start), re-engage for forward scroll
+    if (!isLockedRef.current && !isCompleteRef.current && scrollingDown && atTopOfPage && cumulativeDeltaRef.current <= 0) {
+      e.preventDefault()
+      e.stopPropagation()
+      isLockedRef.current = true
+      cumulativeDeltaRef.current = 0
+      setState(prev => ({
+        ...prev,
+        isLocked: true,
+        direction: 'forward',
+      }))
+      return
+    }
+
     // If not locked, allow normal scrolling
     if (!isLockedRef.current) return
 
@@ -153,14 +167,14 @@ export function useScrollHijack(enabled: boolean = true): ScrollHijackState {
     const shouldUnlock = phaseData.isComplete && direction === 'forward'
     const shouldStayLocked = !phaseData.isComplete || (phaseData.isComplete && direction === 'reverse')
 
-    // If reversing back to start, unlock in reverse direction
+    // If reversing back to start, stay locked but reset to initial state
     const reversedToStart = direction === 'reverse' && cumulativeDeltaRef.current <= 0
 
     setState(prev => ({
       ...prev,
       ...phaseData,
       cumulativeDelta: cumulativeDeltaRef.current,
-      isLocked: shouldStayLocked && !reversedToStart,
+      isLocked: shouldStayLocked || reversedToStart, // Keep locked when at start
       direction,
     }))
 
@@ -169,8 +183,9 @@ export function useScrollHijack(enabled: boolean = true): ScrollHijackState {
       isCompleteRef.current = true
     }
 
+    // When reversed to start, stay locked and ready for forward animation
     if (reversedToStart) {
-      isLockedRef.current = false
+      isLockedRef.current = true
       isCompleteRef.current = false
     }
   }, [enabled, calculatePhase, reengageForReverse, maxThreshold])
@@ -200,6 +215,19 @@ export function useScrollHijack(enabled: boolean = true): ScrollHijackState {
       return
     }
 
+    // If not locked but at initial state, re-engage for forward scroll
+    if (!isLockedRef.current && !isCompleteRef.current && scrollingDown && atTopOfPage && cumulativeDeltaRef.current <= 0) {
+      e.preventDefault()
+      isLockedRef.current = true
+      cumulativeDeltaRef.current = 0
+      setState(prev => ({
+        ...prev,
+        isLocked: true,
+        direction: 'forward',
+      }))
+      return
+    }
+
     if (!isLockedRef.current) return
 
     e.preventDefault()
@@ -223,7 +251,7 @@ export function useScrollHijack(enabled: boolean = true): ScrollHijackState {
       ...prev,
       ...phaseData,
       cumulativeDelta: cumulativeDeltaRef.current,
-      isLocked: !shouldUnlock && !reversedToStart,
+      isLocked: !shouldUnlock || reversedToStart,
       direction,
     }))
 
@@ -232,8 +260,9 @@ export function useScrollHijack(enabled: boolean = true): ScrollHijackState {
       isCompleteRef.current = true
     }
 
+    // When reversed to start, stay locked
     if (reversedToStart) {
-      isLockedRef.current = false
+      isLockedRef.current = true
       isCompleteRef.current = false
     }
   }, [enabled, calculatePhase, reengageForReverse, maxThreshold])
@@ -304,6 +333,19 @@ export function useScrollHijack(enabled: boolean = true): ScrollHijackState {
         return
       }
 
+      // Re-engage for forward if at initial state
+      if (!isLockedRef.current && !isCompleteRef.current && goingDown && atTopOfPage && cumulativeDeltaRef.current <= 0) {
+        e.preventDefault()
+        isLockedRef.current = true
+        cumulativeDeltaRef.current = 0
+        setState(prev => ({
+          ...prev,
+          isLocked: true,
+          direction: 'forward',
+        }))
+        return
+      }
+
       if (!isLockedRef.current) return
 
       e.preventDefault()
@@ -326,7 +368,7 @@ export function useScrollHijack(enabled: boolean = true): ScrollHijackState {
         ...prev,
         ...phaseData,
         cumulativeDelta: cumulativeDeltaRef.current,
-        isLocked: !shouldUnlock && !reversedToStart,
+        isLocked: !shouldUnlock || reversedToStart,
         direction,
       }))
 
@@ -335,8 +377,9 @@ export function useScrollHijack(enabled: boolean = true): ScrollHijackState {
         isCompleteRef.current = true
       }
 
+      // When reversed to start, stay locked
       if (reversedToStart) {
-        isLockedRef.current = false
+        isLockedRef.current = true
         isCompleteRef.current = false
       }
     }

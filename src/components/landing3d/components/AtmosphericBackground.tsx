@@ -204,58 +204,18 @@ function GradientPlane() {
   )
 }
 
-// Nebula accent planes for color depth
-function NebulaPlane({
-  position,
-  color,
-  scale,
-  rotation,
-}: {
-  position: [number, number, number]
-  color: string
-  scale: number
-  rotation: number
-}) {
-  const meshRef = useRef<Mesh>(null)
-
-  useFrame((state) => {
-    if (!meshRef.current) return
-    const time = state.clock.elapsedTime
-    meshRef.current.rotation.z = rotation + Math.sin(time * 0.1) * 0.05
-  })
-
-  return (
-    <mesh ref={meshRef} position={position} scale={scale}>
-      <circleGeometry args={[1, 32]} />
-      <meshBasicMaterial
-        color={color}
-        transparent
-        opacity={0.15}
-        depthWrite={false}
-      />
-    </mesh>
-  )
-}
-
 /**
  * Main AtmosphericBackground component
+ * Clean night sky with stars floating over Paris background image
+ * No gradient plane - the image shows through the transparent canvas
  */
 export function AtmosphericBackground(props: AtmosphericBackgroundProps) {
   return (
     <group>
-      {/* Background gradient */}
-      <GradientPlane />
-
-      {/* Nebula accent colors */}
-      <NebulaPlane position={[-8, 5, -25]} color={COLORS.purplePrimary} scale={12} rotation={0.2} />
-      <NebulaPlane position={[10, -3, -20]} color={COLORS.bluePrimary} scale={10} rotation={-0.3} />
-      <NebulaPlane position={[-5, -8, -30]} color={COLORS.blueAccent} scale={15} rotation={0.1} />
-      <NebulaPlane position={[8, 8, -35]} color={COLORS.purpleAccent} scale={8} rotation={-0.2} />
-
-      {/* Star field */}
+      {/* Star field - constellations floating over Paris */}
       <StarField {...props} />
 
-      {/* Ambient particles */}
+      {/* Ambient particles - distant stars */}
       <AmbientParticles {...props} />
     </group>
   )
