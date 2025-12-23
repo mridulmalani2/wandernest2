@@ -26,19 +26,34 @@ export interface AutoMatchResult {
 }
 
 /**
- * Safely extract error message without exposing stack traces or internal details
+ * Safely extract error category without exposing internal details
+ * SECURITY: Returns only generic safe messages, never raw error messages or DB identifiers
  */
 function sanitizeError(err: unknown): string {
   if (err instanceof Prisma.PrismaClientKnownRequestError) {
-    // Handle known Prisma errors with safe messages
-    if (err.code === 'P2002') {
-      return 'Duplicate record exists';
+    // SECURITY: Map error codes to generic messages, don't expose codes
+    switch (err.code) {
+      case 'P2002':
+        return 'Duplicate record';
+      case 'P2025':
+        return 'Record not found';
+      case 'P2003':
+      case 'P2014':
+        return 'Invalid reference';
+      default:
+        return 'Database operation failed';
     }
-    return `Database error: ${err.code}`;
   }
+  if (err instanceof Prisma.PrismaClientValidationError) {
+    return 'Invalid data format';
+  }
+  if (err instanceof Prisma.PrismaClientInitializationError) {
+    return 'Database connection failed';
+  }
+  // SECURITY: Never return raw error messages - they can contain SQL, identifiers, etc.
   if (err instanceof Error) {
-    // Only return message, not stack trace
-    return err.message;
+    // Only return generic category, not the actual message
+    return 'Operation failed';
   }
   return 'Unknown error';
 }
