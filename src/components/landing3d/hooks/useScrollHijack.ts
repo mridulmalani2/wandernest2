@@ -12,14 +12,21 @@ export interface AnimationPhase {
   duration: number  // Minimum time to stay in this phase (ms)
 }
 
+// Thresholds calibrated for ~3 scroll actions to complete:
+// - Wheel: 300 / 0.5 multiplier = 600 wheel delta (~4-5 scroll clicks)
+// - Touch: 300 / 1.5 multiplier = 200px touch movement (~2-3 swipes)
+// - Keyboard: 300 / 100 per key = 3 key presses
 export const ANIMATION_PHASES: AnimationPhase[] = [
   { id: 0, name: 'initial', threshold: 0, duration: 0 },
-  { id: 1, name: 'title', threshold: 100, duration: 300 },
-  { id: 2, name: 'subtitle', threshold: 250, duration: 300 },
-  { id: 3, name: 'description', threshold: 400, duration: 300 },
-  { id: 4, name: 'cta-cards', threshold: 600, duration: 500 },
-  { id: 5, name: 'complete', threshold: 800, duration: 0 },
+  { id: 1, name: 'title', threshold: 60, duration: 150 },
+  { id: 2, name: 'subtitle', threshold: 120, duration: 150 },
+  { id: 3, name: 'description', threshold: 180, duration: 150 },
+  { id: 4, name: 'cta-cards', threshold: 240, duration: 200 },
+  { id: 5, name: 'complete', threshold: 300, duration: 0 },
 ]
+
+// Minimum time at 100% progress before unlocking (prevents accidental unlocks)
+const UNLOCK_HYSTERESIS_MS = 100
 
 export interface ScrollHijackState {
   isLocked: boolean
@@ -57,8 +64,28 @@ export function useScrollHijack(enabled: boolean = true): ScrollHijackState {
   const animationFrameRef = useRef<number>()
   const lastScrollYRef = useRef(0)
   const previousOverflowRef = useRef<string>('')
+  // Track when we first reach complete phase for hysteresis
+  const completePhaseStartTimeRef = useRef<number | null>(null)
 
   const maxThreshold = ANIMATION_PHASES[ANIMATION_PHASES.length - 1].threshold
+
+  // Check if unlock hysteresis has been satisfied
+  const canUnlock = useCallback((isComplete: boolean, direction: string): boolean => {
+    if (!isComplete || direction !== 'forward') {
+      completePhaseStartTimeRef.current = null
+      return false
+    }
+
+    const now = performance.now()
+    if (completePhaseStartTimeRef.current === null) {
+      // First time reaching complete phase
+      completePhaseStartTimeRef.current = now
+      return false
+    }
+
+    // Check if we've been at complete phase long enough
+    return (now - completePhaseStartTimeRef.current) >= UNLOCK_HYSTERESIS_MS
+  }, [])
 
   // Calculate phase from cumulative delta
   const calculatePhase = useCallback((delta: number) => {
@@ -164,9 +191,8 @@ export function useScrollHijack(enabled: boolean = true): ScrollHijackState {
     const phaseData = calculatePhase(cumulativeDeltaRef.current)
     const direction = scrollingDown ? 'forward' : scrollingUp ? 'reverse' : 'none'
 
-    // Determine if we should unlock
-    const shouldUnlock = phaseData.isComplete && direction === 'forward'
-    const shouldStayLocked = !phaseData.isComplete || (phaseData.isComplete && direction === 'reverse')
+    // Determine if we should unlock (with hysteresis to prevent accidental unlocks)
+    const shouldUnlock = canUnlock(phaseData.isComplete, direction)
 
     // If reversing back to start, stay locked but reset to initial state
     const reversedToStart = direction === 'reverse' && cumulativeDeltaRef.current <= 0
@@ -175,10 +201,12 @@ export function useScrollHijack(enabled: boolean = true): ScrollHijackState {
     if (shouldUnlock) {
       isLockedRef.current = false
       isCompleteRef.current = true
+      completePhaseStartTimeRef.current = null
     } else if (reversedToStart) {
       // When reversed to start, stay locked and ready for forward animation
       isLockedRef.current = true
       isCompleteRef.current = false
+      completePhaseStartTimeRef.current = null
     }
 
     setState(prev => ({
@@ -189,7 +217,7 @@ export function useScrollHijack(enabled: boolean = true): ScrollHijackState {
       isComplete: isCompleteRef.current,
       direction,
     }))
-  }, [enabled, calculatePhase, reengageForReverse, maxThreshold])
+  }, [enabled, calculatePhase, reengageForReverse, maxThreshold, canUnlock])
 
   // Handle touch events
   const handleTouchStart = useCallback((e: TouchEvent) => {
@@ -245,16 +273,19 @@ export function useScrollHijack(enabled: boolean = true): ScrollHijackState {
     const phaseData = calculatePhase(cumulativeDeltaRef.current)
     const direction = scrollingDown ? 'forward' : scrollingUp ? 'reverse' : 'none'
 
-    const shouldUnlock = phaseData.isComplete && direction === 'forward'
+    // Use hysteresis for unlock to prevent accidental unlocks
+    const shouldUnlock = canUnlock(phaseData.isComplete, direction)
     const reversedToStart = direction === 'reverse' && cumulativeDeltaRef.current <= 0
 
     // Update refs BEFORE setState to ensure event handlers see consistent state
     if (shouldUnlock) {
       isLockedRef.current = false
       isCompleteRef.current = true
+      completePhaseStartTimeRef.current = null
     } else if (reversedToStart) {
       isLockedRef.current = true
       isCompleteRef.current = false
+      completePhaseStartTimeRef.current = null
     }
 
     setState(prev => ({
@@ -265,7 +296,7 @@ export function useScrollHijack(enabled: boolean = true): ScrollHijackState {
       isComplete: isCompleteRef.current,
       direction,
     }))
-  }, [enabled, calculatePhase, reengageForReverse, maxThreshold])
+  }, [enabled, calculatePhase, reengageForReverse, maxThreshold, canUnlock])
 
   // Prevent default scroll when locked
   const preventScroll = useCallback((e: Event) => {
@@ -377,16 +408,19 @@ export function useScrollHijack(enabled: boolean = true): ScrollHijackState {
       const phaseData = calculatePhase(cumulativeDeltaRef.current)
       const direction = goingDown ? 'forward' : 'reverse'
 
-      const shouldUnlock = phaseData.isComplete && direction === 'forward'
+      // Use hysteresis for unlock to prevent accidental unlocks
+      const shouldUnlock = canUnlock(phaseData.isComplete, direction)
       const reversedToStart = direction === 'reverse' && cumulativeDeltaRef.current <= 0
 
       // Update refs BEFORE setState to ensure event handlers see consistent state
       if (shouldUnlock) {
         isLockedRef.current = false
         isCompleteRef.current = true
+        completePhaseStartTimeRef.current = null
       } else if (reversedToStart) {
         isLockedRef.current = true
         isCompleteRef.current = false
+        completePhaseStartTimeRef.current = null
       }
 
       setState(prev => ({
@@ -411,7 +445,7 @@ export function useScrollHijack(enabled: boolean = true): ScrollHijackState {
         cancelAnimationFrame(animationFrameRef.current)
       }
     }
-  }, [enabled, handleWheel, handleTouchStart, handleTouchMove, preventScroll, calculatePhase, reengageForReverse, maxThreshold])
+  }, [enabled, handleWheel, handleTouchStart, handleTouchMove, preventScroll, calculatePhase, reengageForReverse, maxThreshold, canUnlock])
 
   return state
 }

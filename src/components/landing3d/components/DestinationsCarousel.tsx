@@ -238,7 +238,11 @@ export default function DestinationsCarousel() {
   const [velocity, setVelocity] = useState(0)
   const lastXRef = useRef(0)
   const lastTimeRef = useRef(0)
-  const animationFrameRef = useRef<number>()
+  const animationFrameRef = useRef<number | null>(null)
+  const isAnimatingRef = useRef(false)
+
+  // Max velocity to prevent jumpy scrolling from fast flicks
+  const MAX_VELOCITY = 50
 
   // Update scroll progress
   const updateScrollProgress = useCallback(() => {
@@ -249,31 +253,60 @@ export default function DestinationsCarousel() {
     setScrollProgress(maxScroll > 0 ? sl / maxScroll : 0)
   }, [])
 
-  // Momentum scrolling
-  useEffect(() => {
-    if (isDragging || Math.abs(velocity) < 0.5) return
+  // Start momentum animation - called when drag ends
+  const startMomentumAnimation = useCallback((initialVelocity: number) => {
+    // Guard: don't start if already animating or velocity is too low
+    if (isAnimatingRef.current || Math.abs(initialVelocity) < 0.5) {
+      setVelocity(0)
+      return
+    }
+
+    // Cancel any existing animation
+    if (animationFrameRef.current !== null) {
+      cancelAnimationFrame(animationFrameRef.current)
+      animationFrameRef.current = null
+    }
+
+    isAnimatingRef.current = true
+    let animationVelocity = initialVelocity
 
     const animate = () => {
-      if (!scrollContainerRef.current) return
+      if (!scrollContainerRef.current) {
+        // Container missing - clean up
+        isAnimatingRef.current = false
+        animationFrameRef.current = null
+        setVelocity(0)
+        return
+      }
 
-      scrollContainerRef.current.scrollLeft += velocity
-      setVelocity((v) => v * 0.95) // Friction
+      scrollContainerRef.current.scrollLeft += animationVelocity
+      animationVelocity *= 0.95 // Apply friction locally
 
       updateScrollProgress()
 
-      if (Math.abs(velocity) > 0.5) {
+      if (Math.abs(animationVelocity) > 0.5) {
         animationFrameRef.current = requestAnimationFrame(animate)
+      } else {
+        // Animation complete - clean up
+        isAnimatingRef.current = false
+        animationFrameRef.current = null
+        setVelocity(0)
       }
     }
 
     animationFrameRef.current = requestAnimationFrame(animate)
+  }, [updateScrollProgress])
 
+  // Cleanup animation on unmount
+  useEffect(() => {
     return () => {
-      if (animationFrameRef.current) {
+      if (animationFrameRef.current !== null) {
         cancelAnimationFrame(animationFrameRef.current)
+        animationFrameRef.current = null
       }
+      isAnimatingRef.current = false
     }
-  }, [isDragging, velocity, updateScrollProgress])
+  }, [])
 
   // Mouse/touch handlers for drag scrolling
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
@@ -297,12 +330,15 @@ export default function DestinationsCarousel() {
 
       scrollContainerRef.current.scrollLeft = scrollLeft - walk
 
-      // Calculate velocity for momentum
+      // Calculate velocity for momentum (clamped to prevent jumpy scrolling)
       const now = performance.now()
       const dt = now - lastTimeRef.current
       if (dt > 0) {
         const dx = e.pageX - lastXRef.current
-        setVelocity(-dx / dt * 15)
+        const rawVelocity = -dx / dt * 15
+        // Clamp velocity to prevent extreme values from fast flicks
+        const clampedVelocity = Math.max(-MAX_VELOCITY, Math.min(MAX_VELOCITY, rawVelocity))
+        setVelocity(clampedVelocity)
       }
       lastXRef.current = e.pageX
       lastTimeRef.current = now
@@ -314,11 +350,17 @@ export default function DestinationsCarousel() {
 
   const handleMouseUp = useCallback(() => {
     setIsDragging(false)
-  }, [])
+    // Start momentum animation with current velocity
+    startMomentumAnimation(velocity)
+  }, [velocity, startMomentumAnimation])
 
   const handleMouseLeave = useCallback(() => {
-    setIsDragging(false)
-  }, [])
+    if (isDragging) {
+      setIsDragging(false)
+      // Start momentum animation with current velocity
+      startMomentumAnimation(velocity)
+    }
+  }, [isDragging, velocity, startMomentumAnimation])
 
   // Touch handlers
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
@@ -341,12 +383,15 @@ export default function DestinationsCarousel() {
 
       scrollContainerRef.current.scrollLeft = scrollLeft - walk
 
-      // Calculate velocity
+      // Calculate velocity (clamped to prevent jumpy scrolling)
       const now = performance.now()
       const dt = now - lastTimeRef.current
       if (dt > 0) {
         const dx = e.touches[0].pageX - lastXRef.current
-        setVelocity(-dx / dt * 15)
+        const rawVelocity = -dx / dt * 15
+        // Clamp velocity to prevent extreme values from fast flicks
+        const clampedVelocity = Math.max(-MAX_VELOCITY, Math.min(MAX_VELOCITY, rawVelocity))
+        setVelocity(clampedVelocity)
       }
       lastXRef.current = e.touches[0].pageX
       lastTimeRef.current = now
@@ -358,7 +403,9 @@ export default function DestinationsCarousel() {
 
   const handleTouchEnd = useCallback(() => {
     setIsDragging(false)
-  }, [])
+    // Start momentum animation with current velocity
+    startMomentumAnimation(velocity)
+  }, [velocity, startMomentumAnimation])
 
   // Handle native scroll
   const handleScroll = useCallback(() => {
