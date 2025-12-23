@@ -43,10 +43,16 @@ export async function verifyAdmin(request: NextRequest): Promise<{ authorized: b
   try {
     const authHeader = request.headers.get('authorization')
     const cookieToken = request.cookies.get('admin-token')?.value
-    const token =
-      authHeader && authHeader.startsWith('Bearer ')
-        ? authHeader.substring(7)
-        : cookieToken
+
+    // SECURITY FIX: Case-insensitive Bearer token extraction
+    // Handles: "Bearer TOKEN", "bearer TOKEN", "BEARER TOKEN"
+    let headerToken: string | null = null
+    if (authHeader) {
+      const match = authHeader.match(/^bearer\s+(.+)$/i)
+      headerToken = match ? match[1].trim() : null
+    }
+
+    const token = headerToken || cookieToken
 
     if (!token) {
       return { authorized: false, error: 'Authentication failed' }
