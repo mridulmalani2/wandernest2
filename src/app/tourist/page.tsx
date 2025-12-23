@@ -1,11 +1,7 @@
-'use client'
-
 import Link from 'next/link'
 import Image from 'next/image'
-import { Button } from '@/components/ui/button'
-import { GraduationCap, MessageCircle, Star, AlertTriangle, Send, Users, PartyPopper, MapPin, Calendar, TrendingUp } from 'lucide-react'
+import { GraduationCap, MessageCircle, Star, AlertTriangle, Users, MapPin } from 'lucide-react'
 import Footer from '@/components/Footer'
-import { motion } from 'framer-motion'
 import { PrimaryCTAButton } from '@/components/ui/PrimaryCTAButton'
 
 export default function TouristLanding() {
@@ -30,12 +26,9 @@ export default function TouristLanding() {
         {/* Hero Section - Optimized for mobile: reduced padding */}
         <main className="flex-1 container mx-auto px-4 pt-24 pb-8 md:pt-32 md:pb-16">
           <div className="max-w-5xl mx-auto space-y-10 md:space-y-16">
-            <div className="text-center space-y-6 md:space-y-8 animate-slide-up-fade">
-              <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold leading-tight tracking-tight text-white text-shadow-lg">
-                Experience{' '}
-                <span className="relative inline-block bg-gradient-to-r from-white via-sky-100 to-purple-200 bg-clip-text text-transparent animate-gradient-shift drop-shadow-[0_4px_14px_rgba(0,0,0,0.65)]">
-                  Authentic Travel
-                </span>
+            <div className="text-center space-y-6 md:space-y-8 will-change-transform">
+              <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold leading-[1.2] tracking-tight text-white text-shadow-lg">
+                Experience Authentic Travel
                 <br />
                 with Local Student Guides
               </h1>
@@ -50,7 +43,7 @@ export default function TouristLanding() {
                 Choose a guide from your home country for added comfort, or explore connections with local students—it&apos;s entirely up to you.
               </p>
 
-              <div className="flex justify-center gap-3 sm:gap-4 pt-4 animate-fade-in-up delay-300">
+              <div className="flex justify-center gap-3 sm:gap-4 pt-6">
                 <PrimaryCTAButton
                   href="/booking"
                   showArrow
@@ -63,7 +56,7 @@ export default function TouristLanding() {
             </div>
 
             {/* Features */}
-            <div className="pt-8 animate-fade-in-up delay-400">
+            <div className="pt-12">
               <div className="text-center space-y-3 mb-12">
                 <h2 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-white text-shadow-lg">
                   Why Choose TourWiseCo?
@@ -73,7 +66,7 @@ export default function TouristLanding() {
                 </p>
               </div>
               <div className="grid md:grid-cols-3 gap-6 lg:gap-8 max-w-6xl mx-auto">
-                <div className="group rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 relative overflow-hidden h-full">
+                <div className="group rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 relative overflow-hidden h-full min-h-[280px] transform-gpu">
                   <div className="absolute inset-0">
                     <Image
                       src="https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=800&q=80"
@@ -82,7 +75,6 @@ export default function TouristLanding() {
                       quality={60}
                       sizes="(max-width: 768px) 100vw, 33vw"
                       className="object-cover"
-                      loading="lazy"
                     />
                     <div className="absolute inset-0 bg-black/40"></div>
                   </div>
@@ -99,7 +91,7 @@ export default function TouristLanding() {
                   </div>
                 </div>
 
-                <div className="group rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 relative overflow-hidden h-full">
+                <div className="group rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 relative overflow-hidden h-full min-h-[280px] transform-gpu">
                   <div className="absolute inset-0">
                     <Image
                       src="https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=800&q=80"
@@ -108,7 +100,6 @@ export default function TouristLanding() {
                       quality={60}
                       sizes="(max-width: 768px) 100vw, 33vw"
                       className="object-cover"
-                      loading="lazy"
                     />
                     <div className="absolute inset-0 bg-black/40"></div>
                   </div>
@@ -125,7 +116,7 @@ export default function TouristLanding() {
                   </div>
                 </div>
 
-                <div className="group rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 relative overflow-hidden h-full">
+                <div className="group rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 relative overflow-hidden h-full min-h-[280px] transform-gpu">
                   <div className="absolute inset-0">
                     <Image
                       src="https://images.unsplash.com/photo-1533929736458-ca588d08c8be?w=800&q=80"
@@ -134,7 +125,6 @@ export default function TouristLanding() {
                       quality={60}
                       sizes="(max-width: 768px) 100vw, 33vw"
                       className="object-cover"
-                      loading="lazy"
                     />
                     <div className="absolute inset-0 bg-black/40"></div>
                   </div>
@@ -154,7 +144,7 @@ export default function TouristLanding() {
             </div>
 
             {/* How It Works Section - Compact & Consistent */}
-            <div className="space-y-6 pt-8 animate-fade-in-up delay-500">
+            <div className="space-y-6 pt-12 transform-gpu">
               <h2 className="text-3xl md:text-4xl font-bold text-center text-white text-shadow-lg">How It Works</h2>
 
               {/* Desktop Timeline */}
@@ -220,15 +210,15 @@ export default function TouristLanding() {
               </div>
             </div>
 
-            {/* City Destination Cards - Enhanced Design */}
-            <div className="space-y-8 pt-8 animate-fade-in-up delay-700">
+            {/* City Destination Cards */}
+            <div className="space-y-8 pt-12">
               <div className="text-center">
                 <h2 className="text-4xl md:text-5xl font-bold text-white text-shadow-lg">Choose Your Destination</h2>
               </div>
 
               <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
                 {/* Paris Card */}
-                <Link href="/booking" className="group block">
+                <Link href="/booking" className="group block transform-gpu">
                   <div className="relative h-96 rounded-3xl overflow-hidden shadow-premium hover:shadow-elevated transition-all duration-500 hover:-translate-y-2">
                     {/* Background Image */}
                     <Image
@@ -236,9 +226,8 @@ export default function TouristLanding() {
                       alt="Iconic Paris architecture and streets"
                       fill
                       quality={75}
-                      sizes="(max-width: 768px) 100vw, 33vw"
-                      className="object-cover group-hover:scale-110 transition-transform duration-700"
-                      loading="lazy"
+                      sizes="(max-width: 768px) 100vw, 50vw"
+                      className="object-cover group-hover:scale-105 transition-transform duration-500"
                     />
 
                     {/* Gradient Overlays */}
@@ -280,7 +269,7 @@ export default function TouristLanding() {
                 </Link>
 
                 {/* London Card */}
-                <Link href="/booking" className="group block">
+                <Link href="/booking" className="group block transform-gpu">
                   <div className="relative h-96 rounded-3xl overflow-hidden shadow-premium hover:shadow-elevated transition-all duration-500 hover:-translate-y-2">
                     {/* Background Image */}
                     <Image
@@ -288,9 +277,8 @@ export default function TouristLanding() {
                       alt="Iconic London landmarks and architecture"
                       fill
                       quality={75}
-                      sizes="(max-width: 768px) 100vw, 33vw"
-                      className="object-cover group-hover:scale-110 transition-transform duration-700"
-                      loading="lazy"
+                      sizes="(max-width: 768px) 100vw, 50vw"
+                      className="object-cover group-hover:scale-105 transition-transform duration-500"
                     />
 
                     {/* Gradient Overlays */}
@@ -334,8 +322,8 @@ export default function TouristLanding() {
               </div>
             </div>
 
-            {/* Marketplace Disclaimer - Enhanced Glass */}
-            <div className="mt-16 max-w-3xl mx-auto animate-fade-in-up delay-800">
+            {/* Marketplace Disclaimer */}
+            <div className="mt-16 max-w-3xl mx-auto transform-gpu">
               <div className="relative overflow-hidden backdrop-blur-md bg-white/5 border border-white/10 rounded-3xl shadow-premium hover:shadow-elevated transition-all duration-300">
                 <div className="relative p-6 md:p-8">
                   <div className="flex flex-col md:flex-row md:items-start gap-6">
