@@ -1,20 +1,39 @@
 # robots.txt for TourWiseCo
+# https://tourwiseco.vercel.app
+
 User-agent: *
 Allow: /
 Allow: /tourist
 Allow: /student
 Allow: /booking
+Allow: /how-it-works
+Allow: /privacy
+Allow: /terms
+Allow: /referral-policy
 
 # Disallow private/authenticated pages
 Disallow: /admin/
 Disallow: /api/
 Disallow: /student/dashboard
 Disallow: /student/onboarding
+Disallow: /student/signin
+Disallow: /student/signup
+Disallow: /student/reset-password
+Disallow: /student/auth-landing
+Disallow: /student/profile
 Disallow: /tourist/dashboard
+Disallow: /tourist/signin
+Disallow: /tourist/auth-landing
 Disallow: /matches/
 Disallow: /payment/
+Disallow: /booking/success
+Disallow: /booking/pending
+Disallow: /booking/select-guide
 
-# Crawl delay
+# Disallow Next.js internal routes
+Disallow: /_next/
+
+# Crawl delay for respectful crawling
 Crawl-delay: 1
 
 # Sitemap location

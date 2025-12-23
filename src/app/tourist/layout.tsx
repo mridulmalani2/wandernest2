@@ -23,6 +23,20 @@ export const metadata: Metadata = {
     title: 'For Tourists - Find Local Student Guides | TourWiseCo',
     description: 'Experience authentic travel with verified local student guides. Discover hidden gems and explore cities like a local.',
   },
+  alternates: {
+    canonical: 'https://tourwiseco.vercel.app/tourist',
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
 }
 
 export default function TouristLayout({
