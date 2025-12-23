@@ -136,9 +136,9 @@ function JourneyCarousel({ triggerTransition }: { triggerTransition: (path: stri
   const currentSection = journeySections[currentIndex]
 
   return (
-    <section className="relative py-12 px-4">
+    <section className="relative py-12 px-4 bg-[#0a0a1a]">
       {/* London Night Background Image */}
-      <div className="absolute inset-0 z-0 overflow-hidden">
+      <div className="absolute inset-0 z-0 overflow-hidden bg-gradient-to-b from-[#0a0a1a] via-[#0f0f2f] to-[#0a0a1a]">
         <Image
           src="https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=1200&q=60"
           alt=""

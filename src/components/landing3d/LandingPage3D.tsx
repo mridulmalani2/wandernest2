@@ -565,10 +565,10 @@ export function LandingPage3D({ className = '' }: LandingPage3DProps) {
       {/* SECTION 2: Horizontal 3D Carousel           */}
       {/* ============================================ */}
       <section
-        className="relative min-h-screen"
+        className="relative min-h-screen bg-[#0a0a1a]"
       >
         {/* London Night Background Image */}
-        <div className="absolute inset-0 z-0">
+        <div className="absolute inset-0 z-0 bg-gradient-to-b from-[#0a0a1a] via-[#0f0f2f] to-[#0a0a1a]">
           <Image
             src="https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=1920&q=80"
             alt="London at night"
