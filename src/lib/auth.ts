@@ -5,31 +5,39 @@ import bcryptjs from 'bcryptjs'
 /**
  * Token verification result types
  * SECURITY: Allows callers to distinguish between error types for proper handling
+ * Note: Configuration errors (missing/short JWT_SECRET) throw instead of returning an error type
  */
 export type TokenVerificationResult =
   | { valid: true; payload: jwt.JwtPayload | string }
-  | { valid: false; error: 'expired' | 'invalid' | 'malformed' | 'config_error' }
+  | { valid: false; error: 'expired' | 'invalid' | 'malformed' }
+
+/**
+ * Minimum required length for JWT_SECRET
+ * SECURITY: Secrets shorter than this are vulnerable to brute force attacks
+ */
+const MIN_JWT_SECRET_LENGTH = 32
 
 /**
  * Check if JWT_SECRET is configured
  * SECURITY: Use this to fail fast during startup/health checks
  */
 export function isJWTConfigured(): boolean {
-  return !!process.env.JWT_SECRET && process.env.JWT_SECRET.length >= 32
+  return !!process.env.JWT_SECRET && process.env.JWT_SECRET.length >= MIN_JWT_SECRET_LENGTH
 }
 
 /**
  * Get JWT_SECRET with validation at runtime
- * SECURITY: Throws if not configured - callers must handle this
+ * SECURITY: Throws if not configured OR if secret is too short
+ * This behavior matches isJWTConfigured() for consistency
  */
 function getJWTSecret(): string {
   const secret = process.env.JWT_SECRET
   if (!secret) {
     throw new Error('JWT_SECRET environment variable is required but not set')
   }
-  // SECURITY: Warn if secret is too short (vulnerable to brute force)
-  if (secret.length < 32) {
-    console.warn('SECURITY WARNING: JWT_SECRET should be at least 32 characters')
+  // SECURITY: Reject secrets that are too short (vulnerable to brute force)
+  if (secret.length < MIN_JWT_SECRET_LENGTH) {
+    throw new Error(`JWT_SECRET must be at least ${MIN_JWT_SECRET_LENGTH} characters (got ${secret.length})`)
   }
   return secret
 }
