@@ -29,6 +29,7 @@ interface Student {
   bio?: string
   city: string
   priceRange?: { min: number; max: number }
+  approvalReminderSentAt?: string
   createdAt: string
 }
 
@@ -177,6 +178,9 @@ export default function ApprovalQueue({ students, onApprove, onReject, onBulkApp
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Applied
                 </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Status
+                </th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Actions
                 </th>
@@ -208,6 +212,20 @@ export default function ApprovalQueue({ students, onApprove, onReject, onBulkApp
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {new Date(student.createdAt).toLocaleDateString()}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    {student.approvalReminderSentAt ? (
+                      <div className="flex items-center gap-2">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                          🔔 Reminder Sent
+                        </span>
+                        <span className="text-xs text-gray-500">
+                          {new Date(student.approvalReminderSentAt).toLocaleDateString()}
+                        </span>
+                      </div>
+                    ) : (
+                      <span className="text-xs text-gray-400">-</span>
+                    )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <button

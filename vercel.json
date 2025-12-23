@@ -3,6 +3,12 @@
   "regions": [
     "iad1"
   ],
+  "crons": [
+    {
+      "path": "/api/cron/approval-follow-up",
+      "schedule": "0 9 * * *"
+    }
+  ],
   "functions": {
     "app/api/cities/route.ts": {
       "maxDuration": 5,

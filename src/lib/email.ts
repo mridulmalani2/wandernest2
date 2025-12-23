@@ -12,7 +12,8 @@ import {
   getTouristAcceptanceNotificationHtml,
   getStudentConfirmationHtml,
   getContactFormEmailHtml,
-  getWelcomeEmailHtml
+  getWelcomeEmailHtml,
+  getAdminApprovalReminderHtml
 } from '@/lib/email-templates'
 
 /**
@@ -213,7 +214,7 @@ async function sendEmail(
 export async function sendStudentOtpEmail(toEmail: string, otp: string) {
   // Use standardized OTP email template and subject
   const html = getOtpEmailHtml(otp, 'Verify Your Account')
-  const text = `Here’s your secure sign-in code for TourWise:\n\n${otp}\n\nThis code expires in 10 minutes.\n\nIf you didn’t request this, you can ignore this email or reply and we’ll help you.`
+  const text = `Here's your secure sign-in code for TourWise:\n\n${otp}\n\nThis code expires in 10 minutes.\n\nIf you didn't request this, you can ignore this email or reply and we'll help you.`
 
   return sendEmail(
     {
@@ -337,7 +338,7 @@ export async function sendVerificationEmail(
   code: string
 ) {
   const html = getOtpEmailHtml(code, 'Verify Your Account')
-  const text = `Here’s your secure sign-in code for TourWise:\n\n${code}\n\nThis code expires in 10 minutes.\n\nIf you didn’t request this, you can ignore this email or reply and we’ll help you.`
+  const text = `Here's your secure sign-in code for TourWise:\n\n${code}\n\nThis code expires in 10 minutes.\n\nIf you didn't request this, you can ignore this email or reply and we'll help you.`
 
   return await sendEmail(
     {
@@ -408,7 +409,7 @@ export async function sendContactFormEmails(data: {
 export async function sendWelcomeEmail(email: string) {
   const html = getWelcomeEmailHtml()
   // Plain text fallback
-  const text = `Hi there,\n\nI’m so glad you decided to join TourWise.\n\nQuick question to kick things off: What city are you most excited to guide strangers in?\n\nHit reply and let me know — I read every email.\n\nCheers,\nThe TourWise Team`
+  const text = `Hi there,\n\nI'm so glad you decided to join TourWise.\n\nQuick question to kick things off: What city are you most excited to guide strangers in?\n\nHit reply and let me know — I read every email.\n\nCheers,\nThe TourWise Team`
 
   return sendEmail(
     {
@@ -420,3 +421,68 @@ export async function sendWelcomeEmail(email: string) {
     'Welcome Email'
   )
 }
+
+/**
+ * Send approval reminder to admins when a student requests re-approval
+ */
+export async function sendAdminApprovalReminder(student: {
+  id: string
+  name: string
+  email: string
+  city: string
+  institute: string
+  createdAt: Date
+}) {
+  const appliedDate = new Date(student.createdAt).toLocaleDateString('en-US', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric'
+  })
+
+  const html = getAdminApprovalReminderHtml(
+    student.name,
+    student.email,
+    student.id,
+    student.city,
+    student.institute,
+    appliedDate
+  )
+
+  const text = `Approval Reminder\n\nA student has requested re-approval:\n\nName: ${student.name}\nEmail: ${student.email}\nCity: ${student.city}\nInstitute: ${student.institute}\nApplied: ${appliedDate}\n\nPlease review their application at ${getBaseUrl()}/admin/approvals`
+
+  // Send to multiple admin recipients
+  const adminEmails = [
+    'mridul.malani@hec.edu',
+    'ajinkyakamble332@gmail.com'
+  ]
+
+  const results = await Promise.allSettled(
+    adminEmails.map(email =>
+      sendEmail(
+        {
+          to: email,
+          subject: `🔔 Approval Reminder: ${student.name} (${student.city})`,
+          html,
+          text,
+        },
+        `Admin Approval Reminder to ${email}`
+      )
+    )
+  )
+
+  // Log any failures
+  results.forEach((result, index) => {
+    if (result.status === 'rejected') {
+      console.error(`Failed to send reminder to ${adminEmails[index]}:`, result.reason)
+    }
+  })
+
+  // Return success if at least one email was sent successfully
+  const successCount = results.filter(r => r.status === 'fulfilled' && r.value.success).length
+  return {
+    success: successCount > 0,
+    sentTo: successCount,
+    total: adminEmails.length
+  }
+}
+

@@ -4,3 +4,4 @@ export * from './booking';
 export * from './payment';
 export * from './engagement';
 export * from './contact';
+export * from './admin';

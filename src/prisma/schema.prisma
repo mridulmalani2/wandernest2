@@ -106,6 +106,7 @@ model Student {
   // System Fields
   status            StudentStatus @default(PENDING_APPROVAL)
   approvalReminderSentAt DateTime? // Timestamp when student requested approval reminder
+  approvalFollowUpReminderSentAt DateTime? // Timestamp when automated 3-day follow-up was sent
   profileCompleteness Float? // 0-100 percentage
   priceRange        Json?    // {min: number, max: number} - legacy field
 

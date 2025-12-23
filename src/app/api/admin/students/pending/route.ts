@@ -55,6 +55,7 @@ export async function GET(request: NextRequest) {
         phoneNumber: true,
         dateOfBirth: true,
         priceRange: true,
+        approvalReminderSentAt: true,
         createdAt: true,
       },
     })
