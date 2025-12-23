@@ -8,7 +8,7 @@ import { TrendingUp, Calendar, Users, Clock, MapPin, Star } from 'lucide-react';
 import Image from 'next/image';
 
 import { ProfileCompletionAlert } from '@/components/student/ProfileCompletionAlert';
-import { StudentPendingState } from '@/components/student/StudentPendingState';
+import { PendingStatusAlert } from '@/components/student/PendingStatusAlert';
 
 interface StudentRequest {
   id: string;
@@ -139,9 +139,7 @@ export default function StudentDashboard() {
     );
   }
 
-  if (studentStatus === 'PENDING_APPROVAL') {
-    return <StudentPendingState />;
-  }
+
 
   const stats = {
     pending: requests.filter(r => r.status === 'pending').length,
@@ -189,6 +187,9 @@ export default function StudentDashboard() {
 
         {/* Profile Completion Alert */}
         <ProfileCompletionAlert completeness={profileCompleteness} />
+
+        {/* Pending Status Alert */}
+        {studentStatus === 'PENDING_APPROVAL' && <PendingStatusAlert />}
 
         {/* Header */}
         <div className="mb-12">

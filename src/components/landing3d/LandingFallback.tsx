@@ -5,6 +5,8 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { Plane, GraduationCap, ChevronDown } from 'lucide-react'
 import { motion } from 'framer-motion'
+import { WarpTransition } from '@/components/transitions/WarpTransition'
+import { useWarpNavigation } from '@/hooks/useWarpNavigation'
 
 /**
  * LandingFallback - Enhanced mobile version matching desktop aesthetics
@@ -157,7 +159,7 @@ function StarField() {
 // JOURNEY CAROUSEL (Why TourWiseCo?)
 // ============================================
 
-function JourneyCarousel() {
+function JourneyCarousel({ triggerTransition }: { triggerTransition: (path: string) => void }) {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isDragging, setIsDragging] = useState(false)
   const [startX, setStartX] = useState(0)
@@ -296,8 +298,8 @@ function JourneyCarousel() {
 
                   {/* CTA for student card */}
                   {section.id === 'student' && (
-                    <Link
-                      href="/student"
+                    <button
+                      onClick={() => triggerTransition('/student')}
                       className="inline-flex items-center gap-2 mt-4 px-4 py-2 rounded-full font-semibold text-sm transition-transform active:scale-95"
                       style={{
                         background: `linear-gradient(135deg, ${section.accentColor}, ${section.secondaryColor})`,
@@ -308,7 +310,7 @@ function JourneyCarousel() {
                       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                       </svg>
-                    </Link>
+                    </button>
                   )}
                 </div>
               </div>
@@ -449,8 +451,13 @@ function DestinationsCarousel() {
 // ============================================
 
 export function LandingFallback() {
+  const { isTransitioning, triggerTransition } = useWarpNavigation()
+
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#0a0a1a]">
+      {/* Warp overlay */}
+      <WarpTransition isActive={isTransitioning} />
+
       {/* Paris Night Background */}
       <div className="fixed inset-0 z-0">
         <Image
@@ -513,15 +520,15 @@ export function LandingFallback() {
                 <span className="ml-1">→</span>
               </Link>
 
-              <Link
-                href="/student"
+              <button
+                onClick={() => triggerTransition('/student')}
                 className="group relative inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-gradient-to-r from-[#A66CFF] to-[#E85D9B] rounded-xl font-medium text-white shadow-lg overflow-hidden transition-all duration-300 active:scale-95"
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
                 <GraduationCap className="w-5 h-5" />
                 <span>I&apos;m a Student</span>
                 <span className="ml-1">→</span>
-              </Link>
+              </button>
             </motion.div>
           </motion.div>
 
@@ -540,7 +547,7 @@ export function LandingFallback() {
         </section>
 
         {/* Journey Carousel - Why TourWiseCo? */}
-        <JourneyCarousel />
+        <JourneyCarousel triggerTransition={triggerTransition} />
 
         {/* Destinations Carousel */}
         <DestinationsCarousel />
@@ -571,14 +578,14 @@ export function LandingFallback() {
                 <span>→</span>
               </Link>
 
-              <Link
-                href="/student"
+              <button
+                onClick={() => triggerTransition('/student')}
                 className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl font-medium text-white transition-all duration-300 active:scale-95"
               >
                 <GraduationCap className="w-4 h-4" />
                 <span>Become a Guide</span>
                 <span>→</span>
-              </Link>
+              </button>
             </div>
           </motion.div>
         </section>

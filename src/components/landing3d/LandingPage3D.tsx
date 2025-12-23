@@ -14,6 +14,8 @@ import {
   ScrollProgressIndicator,
 } from './components'
 import UserJourney3D from '@/components/landing3d/components/UserJourney3D'
+import { WarpTransition } from '@/components/transitions/WarpTransition'
+import { useWarpNavigation } from '@/hooks/useWarpNavigation'
 
 /**
  * LandingPage3D - Two-Section Landing Page
@@ -102,6 +104,7 @@ function HeroScene({
   pointerState,
   isVisible,
   isHijackComplete,
+  onStudentClick,
 }: {
   currentPhase: number
   phaseProgress: number
@@ -109,6 +112,7 @@ function HeroScene({
   pointerState: PointerState
   isVisible: boolean
   isHijackComplete: boolean
+  onStudentClick?: () => void
 }) {
   const pointerOffset = {
     x: pointerState.smoothX,
@@ -134,6 +138,7 @@ function HeroScene({
           phaseProgress={phaseProgress}
           pointerOffset={pointerOffset}
           isHijackComplete={isHijackComplete}
+          onStudentClick={onStudentClick}
         />
       </Suspense>
       <Preload all />
@@ -266,8 +271,8 @@ function SectionTransition() {
       {/* Main popup card */}
       <div
         className={`relative z-10 transition-all duration-1000 ease-out ${isVisible
-            ? 'opacity-100 translate-y-0 scale-100'
-            : 'opacity-0 translate-y-12 scale-95'
+          ? 'opacity-100 translate-y-0 scale-100'
+          : 'opacity-0 translate-y-12 scale-95'
           }`}
         style={{
           perspective: '1000px',

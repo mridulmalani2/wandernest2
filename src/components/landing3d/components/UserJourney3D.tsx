@@ -73,9 +73,10 @@ interface CardProps {
   onClick: () => void
   index: number
   totalCards: number
+  onActionClick?: () => void
 }
 
-function JourneyCard({ section, isActive, offset, onClick, index, totalCards }: CardProps) {
+function JourneyCard({ section, isActive, offset, onClick, index, totalCards, onActionClick }: CardProps) {
   const isStudentCard = section.id === 'student'
 
   // Calculate visual properties based on offset
@@ -112,9 +113,8 @@ function JourneyCard({ section, isActive, offset, onClick, index, totalCards }: 
 
   return (
     <div
-      className={`absolute left-1/2 top-0 w-[340px] md:w-[380px] -ml-[170px] md:-ml-[190px] transition-all duration-500 ease-out ${
-        isActive ? 'cursor-default' : 'cursor-pointer'
-      }`}
+      className={`absolute left-1/2 top-0 w-[340px] md:w-[380px] -ml-[170px] md:-ml-[190px] transition-all duration-500 ease-out ${isActive ? 'cursor-default' : 'cursor-pointer'
+        }`}
       style={{
         ...style,
         transformStyle: 'preserve-3d',
@@ -213,20 +213,26 @@ function JourneyCard({ section, isActive, offset, onClick, index, totalCards }: 
 
           {/* CTA for student card */}
           {isStudentCard && isActive && (
-            <a
-              href="/student"
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                if (onActionClick) onActionClick();
+                else window.location.href = '/student';
+              }}
               className="inline-flex items-center gap-2 mt-5 px-5 py-2.5 rounded-full font-semibold text-sm transition-all duration-300 hover:scale-105 hover:shadow-lg"
               style={{
                 background: `linear-gradient(135deg, ${section.accentColor}, ${section.secondaryColor})`,
                 color: '#0a0a1a',
                 boxShadow: `0 8px 24px ${section.accentColor}50`,
+                border: 'none',
+                cursor: 'pointer'
               }}
             >
               Become a Guide
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
               </svg>
-            </a>
+            </button>
           )}
         </div>
       </div>
@@ -234,7 +240,7 @@ function JourneyCard({ section, isActive, offset, onClick, index, totalCards }: 
   )
 }
 
-export default function UserJourney3D() {
+export default function UserJourney3D({ onStudentClick }: { onStudentClick?: () => void }) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isDragging, setIsDragging] = useState(false)
@@ -352,6 +358,7 @@ export default function UserJourney3D() {
                 isActive={index === currentIndex}
                 offset={offset}
                 onClick={() => goToIndex(index)}
+                onActionClick={section.id === 'student' ? onStudentClick : undefined}
                 index={index}
                 totalCards={totalSections}
               />
@@ -366,9 +373,8 @@ export default function UserJourney3D() {
           <button
             key={section.id}
             onClick={() => goToIndex(index)}
-            className={`relative h-2.5 md:h-3 rounded-full transition-all duration-300 ${
-              index === currentIndex ? 'w-8 md:w-10' : 'w-2.5 md:w-3'
-            }`}
+            className={`relative h-2.5 md:h-3 rounded-full transition-all duration-300 ${index === currentIndex ? 'w-8 md:w-10' : 'w-2.5 md:w-3'
+              }`}
             style={{
               background: index === currentIndex
                 ? `linear-gradient(90deg, ${section.accentColor}, ${section.secondaryColor})`
@@ -384,11 +390,10 @@ export default function UserJourney3D() {
       <button
         onClick={() => goToIndex(currentIndex - 1)}
         disabled={currentIndex === 0}
-        className={`absolute left-2 md:left-6 top-1/2 -translate-y-1/2 z-20 p-3 md:p-4 rounded-full transition-all duration-300 ${
-          currentIndex === 0
-            ? 'opacity-20 cursor-not-allowed'
-            : 'opacity-60 hover:opacity-100 hover:scale-110'
-        }`}
+        className={`absolute left-2 md:left-6 top-1/2 -translate-y-1/2 z-20 p-3 md:p-4 rounded-full transition-all duration-300 ${currentIndex === 0
+          ? 'opacity-20 cursor-not-allowed'
+          : 'opacity-60 hover:opacity-100 hover:scale-110'
+          }`}
         style={{
           background: 'rgba(255,255,255,0.1)',
           backdropFilter: 'blur(10px)',
@@ -403,11 +408,10 @@ export default function UserJourney3D() {
       <button
         onClick={() => goToIndex(currentIndex + 1)}
         disabled={currentIndex === totalSections - 1}
-        className={`absolute right-2 md:right-6 top-1/2 -translate-y-1/2 z-20 p-3 md:p-4 rounded-full transition-all duration-300 ${
-          currentIndex === totalSections - 1
-            ? 'opacity-20 cursor-not-allowed'
-            : 'opacity-60 hover:opacity-100 hover:scale-110'
-        }`}
+        className={`absolute right-2 md:right-6 top-1/2 -translate-y-1/2 z-20 p-3 md:p-4 rounded-full transition-all duration-300 ${currentIndex === totalSections - 1
+          ? 'opacity-20 cursor-not-allowed'
+          : 'opacity-60 hover:opacity-100 hover:scale-110'
+          }`}
         style={{
           background: 'rgba(255,255,255,0.1)',
           backdropFilter: 'blur(10px)',

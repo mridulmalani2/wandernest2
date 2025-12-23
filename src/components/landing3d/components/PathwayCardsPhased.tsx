@@ -26,6 +26,7 @@ interface PathwayCardPhasedProps {
   phaseProgress: number
   pointerOffset: { x: number; y: number }
   isHijackComplete: boolean
+  onClick?: () => void
 }
 
 const CARD_CONFIG = {
@@ -59,6 +60,7 @@ function PathwayCardPhased({
   phaseProgress,
   pointerOffset,
   isHijackComplete,
+  onClick,
 }: PathwayCardPhasedProps) {
   const config = CARD_CONFIG[type]
   const groupRef = useRef<Group>(null)
@@ -153,6 +155,12 @@ function PathwayCardPhased({
 
   const handleClick = () => {
     if (visibility < 0.5) return
+
+    if (onClick) {
+      onClick()
+      return
+    }
+
     if (typeof window !== 'undefined') {
       window.location.href = config.href
     }
@@ -278,11 +286,13 @@ export function PathwayCardsPhased({
   phaseProgress,
   pointerOffset,
   isHijackComplete,
+  onStudentClick,
 }: {
   currentPhase: number
   phaseProgress: number
   pointerOffset: { x: number; y: number }
   isHijackComplete: boolean
+  onStudentClick?: () => void
 }) {
   return (
     <group position={[0, -0.5, 2]}>
