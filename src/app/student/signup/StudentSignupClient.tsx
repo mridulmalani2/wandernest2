@@ -68,6 +68,13 @@ export default function StudentSignupClient() {
     const handleFinalSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError(null);
+
+        // Validate terms acceptance
+        if (!agreedToTerms) {
+            setError('You must agree to the Terms of Service, Safety Guidelines, and Privacy Policy to continue.');
+            return;
+        }
+
         setLoading(true);
 
         try {
@@ -302,13 +309,14 @@ export default function StudentSignupClient() {
                                             />
                                         </div>
                                         <label htmlFor="terms-checkbox" className="text-sm text-gray-300">
-                                            I agree to the <Link href="/terms" className="text-purple-400 hover:text-purple-300 underline">Terms of Service</Link>, <Link href="/safety" className="text-purple-400 hover:text-purple-300 underline">Safety Guidelines</Link>, and <Link href="/privacy" className="text-purple-400 hover:text-purple-300 underline">Privacy Policy</Link>. I understand I am acting as an independent student guide.
+                                            I agree to the <Link href="/terms" target="_blank" className="text-purple-400 hover:text-purple-300 underline">Terms of Service</Link>, <Link href="/safety" target="_blank" className="text-purple-400 hover:text-purple-300 underline">Safety Guidelines</Link>, and <Link href="/privacy" target="_blank" className="text-purple-400 hover:text-purple-300 underline">Privacy Policy</Link>. I understand I am acting as an independent student guide.
                                         </label>
                                     </div>
 
                                     <PrimaryCTAButton
                                         type="submit"
                                         isLoading={loading}
+                                        disabled={!agreedToTerms || loading}
                                         variant="purple"
                                         className="w-full justify-center"
                                     >
