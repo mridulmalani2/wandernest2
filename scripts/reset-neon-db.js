@@ -285,5 +285,11 @@ async function resetDatabase() {
 // Run the reset
 resetDatabase().catch(error => {
   console.error('\n❌ Unexpected error occurred during execution');
+  if (error && error.message) {
+    console.error(`   Message: ${error.message}`);
+  }
+  if (error && error.stack) {
+    console.error('   Stack:', error.stack);
+  }
   process.exitCode = 1;
 });
