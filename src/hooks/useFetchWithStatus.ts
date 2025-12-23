@@ -97,13 +97,101 @@ interface CacheEntry<T> {
 }
 
 const cache = new Map<string, CacheEntry<unknown>>();
+const MAX_CACHE_ENTRIES = 100;
+const MAX_SLEEP_MS = 60_000;
+const DEFAULT_RETRY_DELAY_MS = 1_000;
+
+const REDACTED_VALUE = '[REDACTED]';
+const SENSITIVE_KEY_PATTERN =
+  /(password|token|secret|authorization|cookie|session|api[_-]?key|access[_-]?key|refresh[_-]?token)/i;
+
+function isSensitiveKey(key: string): boolean {
+  return SENSITIVE_KEY_PATTERN.test(key);
+}
+
+function sanitizeParams(params: Record<string, unknown>): Record<string, unknown> {
+  const sanitizeValue = (value: unknown, key?: string, seen?: WeakSet<object>): unknown => {
+    if (key && isSensitiveKey(key)) {
+      return REDACTED_VALUE;
+    }
+
+    if (value && typeof value === 'object') {
+      if (!seen) {
+        seen = new WeakSet<object>();
+      }
+      if (seen.has(value as object)) {
+        return '[Circular]';
+      }
+      seen.add(value as object);
+
+      if (Array.isArray(value)) {
+        return value.map((item) => sanitizeValue(item, undefined, seen));
+      }
+
+      const entries = Object.entries(value as Record<string, unknown>)
+        .filter(([, entryValue]) => entryValue !== undefined)
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([entryKey, entryValue]) => [entryKey, sanitizeValue(entryValue, entryKey, seen)]);
+
+      return Object.fromEntries(entries);
+    }
+
+    return value;
+  };
+
+  return sanitizeValue(params) as Record<string, unknown>;
+}
+
+function stableStringify(value: unknown): string {
+  if (value === undefined) return '';
+  try {
+    return JSON.stringify(value);
+  } catch {
+    return '"[Unserializable]"';
+  }
+}
+
+function safeClone<T>(value: T): T {
+  if (typeof structuredClone === 'function') {
+    try {
+      return structuredClone(value);
+    } catch {
+      return value;
+    }
+  }
+
+  try {
+    return JSON.parse(JSON.stringify(value)) as T;
+  } catch {
+    return value;
+  }
+}
+
+function pruneCache(now: number): void {
+  for (const [key, entry] of cache.entries()) {
+    if (now - entry.timestamp > entry.ttl) {
+      cache.delete(key);
+    }
+  }
+
+  if (cache.size > MAX_CACHE_ENTRIES) {
+    const entries = Array.from(cache.entries()).sort(
+      (a, b) => a[1].timestamp - b[1].timestamp
+    );
+    const toRemove = cache.size - MAX_CACHE_ENTRIES;
+    for (let i = 0; i < toRemove; i += 1) {
+      cache.delete(entries[i][0]);
+    }
+  }
+}
 
 function getCacheKey(url: string, params?: Record<string, unknown>): string {
-  const paramStr = params ? JSON.stringify(params) : '';
+  const paramStr = params ? stableStringify(sanitizeParams(params)) : '';
   return `${url}:${paramStr}`;
 }
 
 function getFromCache<T>(key: string): T | null {
+  pruneCache(Date.now());
   const entry = cache.get(key) as CacheEntry<T> | undefined;
   if (!entry) return null;
 
@@ -113,27 +201,19 @@ function getFromCache<T>(key: string): T | null {
     return null;
   }
 
-  return entry.data;
+  return safeClone(entry.data);
 }
 
 function setCache<T>(key: string, data: T, ttl: number): void {
   if (ttl <= 0) return;
 
   cache.set(key, {
-    data,
+    data: safeClone(data),
     timestamp: Date.now(),
     ttl,
   });
 
-  // Cleanup old entries periodically
-  if (cache.size > 100) {
-    const now = Date.now();
-    for (const [k, v] of cache.entries()) {
-      if (now - v.timestamp > v.ttl) {
-        cache.delete(k);
-      }
-    }
-  }
+  pruneCache(Date.now());
 }
 
 // ============================================
@@ -146,7 +226,10 @@ function buildUrl(
 ): string {
   if (!params) return baseUrl;
 
-  const searchParams = new URLSearchParams();
+  const [baseWithoutHash, hashFragment] = baseUrl.split('#');
+  const [path, existingQuery] = baseWithoutHash.split('?');
+
+  const searchParams = new URLSearchParams(existingQuery || '');
   for (const [key, value] of Object.entries(params)) {
     if (value !== undefined && value !== null) {
       searchParams.set(key, String(value));
@@ -154,11 +237,43 @@ function buildUrl(
   }
 
   const queryString = searchParams.toString();
-  return queryString ? `${baseUrl}?${queryString}` : baseUrl;
+  const rebuilt = queryString ? `${path}?${queryString}` : path;
+  return hashFragment ? `${rebuilt}#${hashFragment}` : rebuilt;
 }
 
-async function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+async function sleep(ms: number, signal?: AbortSignal): Promise<void> {
+  const safeMs = Number.isFinite(ms) && ms >= 0
+    ? Math.min(ms, MAX_SLEEP_MS)
+    : DEFAULT_RETRY_DELAY_MS;
+
+  if (signal?.aborted) {
+    const abortError = new Error('Aborted');
+    abortError.name = 'AbortError';
+    throw abortError;
+  }
+
+  return new Promise((resolve, reject) => {
+    if (signal) {
+      let timer: ReturnType<typeof setTimeout>;
+      const onAbort = () => {
+        clearTimeout(timer);
+        const abortError = new Error('Aborted');
+        abortError.name = 'AbortError';
+        signal.removeEventListener('abort', onAbort);
+        reject(abortError);
+      };
+
+      timer = setTimeout(() => {
+        signal.removeEventListener('abort', onAbort);
+        resolve();
+      }, safeMs);
+
+      signal.addEventListener('abort', onAbort, { once: true });
+      return;
+    }
+
+    setTimeout(resolve, safeMs);
+  });
 }
 
 // ============================================
@@ -324,7 +439,24 @@ export function useFetchWithStatus<T = unknown>(
           `Fetch failed, retrying (${retryAttemptRef.current}/${retryCount}) in ${delay}ms`
         );
 
-        await sleep(delay);
+        try {
+          await sleep(delay, controller.signal);
+        } catch (sleepError) {
+          if (sleepError instanceof Error && sleepError.name === 'AbortError') {
+            return;
+          }
+          const sleepMessage =
+            sleepError instanceof Error ? sleepError.message : 'Retry delay failed';
+          setState({
+            data: null,
+            status: 'error',
+            loading: false,
+            error: sleepMessage,
+            isValidating: false,
+          });
+          onError?.(sleepMessage);
+          return;
+        }
 
         if (isMountedRef.current) {
           fetchData();
@@ -454,7 +586,7 @@ export function usePaginated<T>(
       limit: pageSize,
       ...additionalParams,
     },
-    deps: [page, JSON.stringify(additionalParams)],
+    deps: [page, stableStringify(sanitizeParams(additionalParams ?? {}))],
     ...fetchOptions,
   });
 
