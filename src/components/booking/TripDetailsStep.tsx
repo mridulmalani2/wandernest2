@@ -27,14 +27,20 @@ export function TripDetailsStep({ data, errors, updateData }: Props) {
   useEffect(() => {
     const controller = new AbortController()
 
-    fetch('/api/cities', { signal: controller.signal })
-      .then((res) => res.json())
-      .then((data) => setCities(data.cities))
-      .catch((err) => {
-        if (err.name !== 'AbortError') {
-          console.error('Error fetching cities:', err)
+    const loadCities = async () => {
+      try {
+        const response = await fetch('/api/cities', { signal: controller.signal })
+        if (!response.ok) return
+        const data = await response.json().catch(() => null)
+        if (data && Array.isArray(data.cities)) {
+          setCities(data.cities)
         }
-      })
+      } catch (err) {
+        if (err instanceof Error && err.name === 'AbortError') return
+      }
+    }
+
+    loadCities()
 
     return () => controller.abort()
   }, [])
@@ -111,7 +117,12 @@ export function TripDetailsStep({ data, errors, updateData }: Props) {
             min={1}
             max={10}
             value={data.numberOfGuests}
-            onChange={(e) => updateData({ numberOfGuests: parseInt(e.target.value) })}
+            onChange={(e) => {
+              const parsed = Number.parseInt(e.target.value, 10)
+              if (Number.isFinite(parsed)) {
+                updateData({ numberOfGuests: parsed })
+              }
+            }}
             error={errors.numberOfGuests}
             icon={Users}
             placeholder="1-10"
@@ -207,6 +218,7 @@ export function TripDetailsStep({ data, errors, updateData }: Props) {
             onChange={(e) => updateData({ accessibilityNeeds: e.target.value })}
             rows={3}
             placeholder="Any special requirements..."
+            maxLength={500}
             className={cn(
               'w-full bg-transparent px-0 py-2 text-base font-light',
               'text-white placeholder:text-white/30',

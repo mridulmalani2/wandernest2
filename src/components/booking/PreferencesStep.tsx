@@ -62,17 +62,21 @@ export function PreferencesStep({ data, errors, updateData }: Props) {
   )
 
   const handleDurationChange = (value: number | undefined) => {
+    const safeValue = typeof value === 'number' && Number.isFinite(value) && value >= 0
+      ? value
+      : undefined
     if (data.serviceType === 'itinerary_help') {
-      updateData({ callDurationMinutes: value })
+      updateData({ callDurationMinutes: safeValue })
     } else {
       updateData({
-        tourDurationHours: value,
-        totalBudget: value && data.hourlyRate ? value * data.hourlyRate : 0
+        tourDurationHours: safeValue,
+        totalBudget: safeValue && data.hourlyRate ? safeValue * data.hourlyRate : 0
       })
     }
   }
 
   const handleRateChange = (value: number) => {
+    if (!Number.isFinite(value) || value < 0) return
     updateData({
       hourlyRate: value,
       totalBudget: data.tourDurationHours ? data.tourDurationHours * value : 0
@@ -294,7 +298,10 @@ export function PreferencesStep({ data, errors, updateData }: Props) {
               max={12}
               placeholder="e.g. 3"
               value={data.tourDurationHours || ''}
-              onChange={(e) => handleDurationChange(e.target.value ? parseInt(e.target.value) : undefined)}
+              onChange={(e) => {
+                const parsed = e.target.value ? Number.parseInt(e.target.value, 10) : undefined
+                handleDurationChange(Number.isFinite(parsed) ? parsed : undefined)
+              }}
               helperText="How long do you need the guide?"
             />
 
@@ -337,7 +344,10 @@ export function PreferencesStep({ data, errors, updateData }: Props) {
               max={120}
               placeholder="e.g. 30"
               value={data.callDurationMinutes || ''}
-              onChange={(e) => handleDurationChange(e.target.value ? parseInt(e.target.value) : undefined)}
+              onChange={(e) => {
+                const parsed = e.target.value ? Number.parseInt(e.target.value, 10) : undefined
+                handleDurationChange(Number.isFinite(parsed) ? parsed : undefined)
+              }}
             />
 
             <div className="space-y-1">

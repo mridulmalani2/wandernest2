@@ -120,6 +120,7 @@ model Student {
   availability      StudentAvailability[]
   unavailabilityExceptions UnavailabilityException[]
   requestSelections RequestSelection[]
+  assignedRequests  TouristRequest[] @relation("AssignedStudent")
   reviews           Review[]
   reports           Report[]
 
@@ -212,6 +213,7 @@ model TouristRequest {
 
   status            RequestStatus @default(PENDING)
   assignedStudentId String?
+  assignedStudent   Student? @relation("AssignedStudent", fields: [assignedStudentId], references: [id])
 
   selections        RequestSelection[]
   review            Review?

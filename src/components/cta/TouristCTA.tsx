@@ -13,13 +13,13 @@ import CTATileBase from './CTATileBase'
  * - Hover reveals: Description and explore arrow with smooth 150ms transition
  * - Fully clickable: Entire tile acts as navigation link
  *
- * Background image source: Unsplash - Traveler with backpack exploring city
+ * Background image source: Local asset in /public/images/backgrounds
  */
 export default function TouristCTA() {
   return (
     <Link href="/tourist" className="block">
       <CTATileBase
-        backgroundImage="https://images.unsplash.com/photo-1506012787146-f92b2d7d6d96?w=1200&q=85"
+        backgroundImage="/images/backgrounds/london-blur.jpg"
         imageAlt="Traveler standing on mountain overlooking scenic European landscape"
         headline="Tourist"
         description="Explore with a local student guide. Personalized and authentic experiences."

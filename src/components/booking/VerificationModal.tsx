@@ -26,6 +26,36 @@ export function VerificationModal({ email, formData, onSuccess, onClose }: Props
   const [attemptsRemaining, setAttemptsRemaining] = useState(3)
   const inputRefs = useRef<(HTMLInputElement | null)[]>([])
 
+  const buildPayload = () => ({
+    email,
+    city: formData.city,
+    dates: formData.dates,
+    preferredTime: formData.preferredTime,
+    numberOfGuests: formData.numberOfGuests,
+    groupType: formData.groupType,
+    preferredNationality: formData.preferredNationality,
+    preferredLanguages: formData.preferredLanguages,
+    preferredGender: formData.preferredGender,
+    serviceType: formData.serviceType,
+    interests: formData.interests,
+    budget: formData.totalBudget,
+    phone: formData.phone,
+    whatsapp: formData.whatsapp,
+    contactMethod: formData.contactMethod,
+    tripNotes: formData.tripNotes,
+    accessibilityNeeds: formData.accessibilityNeeds,
+  })
+
+  const parseResponse = async (response: Response) => {
+    const text = await response.text()
+    if (!text) return null
+    try {
+      return JSON.parse(text)
+    } catch {
+      return null
+    }
+  }
+
   useEffect(() => {
     // Focus first input on mount
     inputRefs.current[0]?.focus()
@@ -83,20 +113,20 @@ export function VerificationModal({ email, formData, onSuccess, onClose }: Props
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          ...formData,
+          ...buildPayload(),
           code: verificationCode,
         }),
       })
 
-      const data = await response.json()
+      const data = await parseResponse(response)
 
-      if (data.success) {
+      if (response.ok && data?.success) {
         onSuccess(data.requestId)
       } else {
-        if (data.action === 'regenerate') {
+        if (data?.action === 'regenerate') {
           setError('Code expired. Please request a new one.')
           setAttemptsRemaining(0)
-        } else if (data.attemptsRemaining !== undefined) {
+        } else if (data?.attemptsRemaining !== undefined) {
           setAttemptsRemaining(data.attemptsRemaining)
           setError(`Incorrect code. ${data.attemptsRemaining} attempts remaining.`)
           setCode(['', '', '', '', '', ''])
@@ -106,7 +136,6 @@ export function VerificationModal({ email, formData, onSuccess, onClose }: Props
         }
       }
     } catch (error) {
-      console.error('Verification error:', error)
       setError('An error occurred. Please try again.')
     } finally {
       setIsVerifying(false)
@@ -123,12 +152,12 @@ export function VerificationModal({ email, formData, onSuccess, onClose }: Props
       const response = await fetch('/api/tourist/request/initiate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(buildPayload()),
       })
 
-      const data = await response.json()
+      const data = await parseResponse(response)
 
-      if (!data.success) {
+      if (!response.ok || !data?.success) {
         setError('Failed to resend code. Please try again.')
       }
     } catch (error) {

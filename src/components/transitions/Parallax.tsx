@@ -58,6 +58,8 @@ export function ParallaxImage({
           src={src}
           alt={alt}
           className="w-full h-full object-cover"
+          referrerPolicy="no-referrer"
+          crossOrigin="anonymous"
         />
         {overlayClassName && (
           <div className={`absolute inset-0 ${overlayClassName}`} />

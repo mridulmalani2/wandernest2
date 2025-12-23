@@ -29,7 +29,12 @@ export default function GuideSelection({
       try {
         setLoading(true)
         setError(null)
-        const response = await fetch(`/api/matches?requestId=${requestId}`, {
+        const trimmedRequestId = requestId.trim()
+        if (!trimmedRequestId) {
+          setError('Missing request details. Please refresh the page.')
+          return
+        }
+        const response = await fetch(`/api/matches?requestId=${encodeURIComponent(trimmedRequestId)}`, {
           signal: controller.signal
         })
 
@@ -37,12 +42,14 @@ export default function GuideSelection({
           throw new Error('Failed to fetch matches')
         }
 
-        const data: MatchResponse = await response.json()
+        const data: MatchResponse | null = await response.json().catch(() => null)
+        if (!data || !Array.isArray(data.matches)) {
+          throw new Error('Invalid match response')
+        }
         setGuides(data.matches)
         setError(null)
       } catch (err) {
         if (err instanceof Error && err.name === 'AbortError') return
-        console.error('Fetch error:', err)
         setError('Unable to load guides. Please try again later.')
       } finally {
         if (!controller.signal.aborted) {
@@ -76,6 +83,18 @@ export default function GuideSelection({
       return
     }
 
+    const trimmedRequestId = requestId.trim()
+    if (!trimmedRequestId) {
+      setError('Missing request details. Please refresh the page.')
+      return
+    }
+
+    const selectedGuideIds = Array.from(selectedGuides).filter((id) => typeof id === 'string' && id.length > 0)
+    if (selectedGuideIds.length === 0) {
+      setError('Please select at least one guide')
+      return
+    }
+
     try {
       setSubmitting(true)
       setError(null)
@@ -85,8 +104,8 @@ export default function GuideSelection({
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          requestId,
-          selectedGuideIds: Array.from(selectedGuides)
+          requestId: trimmedRequestId,
+          selectedGuideIds
         })
       })
 
@@ -94,16 +113,17 @@ export default function GuideSelection({
         throw new Error('Failed to save selections')
       }
 
-      const data = await response.json()
+      const data = await response.json().catch(() => null)
 
-      if (data.success) {
+      if (data && data.success) {
         setSuccessMsg('Your guide selections have been saved!')
         if (onSelectionComplete) {
-          onSelectionComplete(Array.from(selectedGuides))
+          onSelectionComplete(selectedGuideIds)
         }
+      } else {
+        setError('Failed to save selections. Please try again.')
       }
     } catch (err) {
-      console.error('Submit error:', err)
       setError('Failed to save selections. Please try again.')
     } finally {
       setSubmitting(false)

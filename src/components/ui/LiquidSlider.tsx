@@ -31,9 +31,16 @@ export function LiquidSlider({
     disabled,
     className,
 }: LiquidSliderProps) {
-    const recommendedPosition = recommendedValue
-        ? ((recommendedValue - min) / (max - min)) * 100
-        : null;
+    const safeMin = Number.isFinite(min) ? min : 0;
+    const safeMax = Number.isFinite(max) ? max : 100;
+    const hasRange = safeMax !== safeMin;
+    const safeValue = Array.isArray(value) && value.length > 0 && Number.isFinite(value[0])
+        ? value[0]
+        : safeMin;
+    const recommendedPosition =
+        typeof recommendedValue === 'number' && Number.isFinite(recommendedValue) && hasRange
+            ? Math.min(100, Math.max(0, ((recommendedValue - safeMin) / (safeMax - safeMin)) * 100))
+            : null;
 
     return (
         <div className={cn('space-y-3', className)}>
@@ -47,7 +54,7 @@ export function LiquidSlider({
                     )}
                     {showValue && (
                         <span className="text-lg font-normal text-white">
-                            {formatValue(value[0])}
+                            {formatValue(safeValue)}
                         </span>
                     )}
                 </div>
@@ -58,8 +65,8 @@ export function LiquidSlider({
                 <SliderPrimitive.Root
                     value={value}
                     onValueChange={onValueChange}
-                    min={min}
-                    max={max}
+                    min={safeMin}
+                    max={safeMax}
                     step={step}
                     disabled={disabled}
                     className="relative flex w-full touch-none select-none items-center"
@@ -100,8 +107,8 @@ export function LiquidSlider({
 
             {/* Min/Max Labels */}
             <div className="flex justify-between text-xs font-light text-white/50">
-                <span>{formatValue(min)}</span>
-                <span>{formatValue(max)}</span>
+                <span>{formatValue(safeMin)}</span>
+                <span>{formatValue(safeMax)}</span>
             </div>
         </div>
     );

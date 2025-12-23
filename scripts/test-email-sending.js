@@ -6,10 +6,9 @@ async function testEmail() {
 
     const apiKey = process.env.RESEND_API_KEY;
     const fromAddress = process.env.EMAIL_FROM;
-    const toAddress = process.env.CONTACT_EMAIL || 'tourwiseco@gmail.com'; // Default to their gmail if not set
+    const toAddress = process.env.CONTACT_EMAIL;
 
     console.log(`API Key present: ${!!apiKey}`);
-    if (apiKey) console.log(`API Key prefix: ${apiKey.substring(0, 4)}...`);
     console.log(`From Address: ${fromAddress}`);
     console.log(`To Address: ${toAddress}`);
 
@@ -23,30 +22,38 @@ async function testEmail() {
         return;
     }
 
+    if (!toAddress) {
+        console.error('❌ ERROR: CONTACT_EMAIL is missing in .env file');
+        return;
+    }
+
     const resend = new Resend(apiKey);
 
     console.log('\nAttempting to send test email...');
 
     try {
-        const { data, error } = await resend.emails.send({
+        const response = await resend.emails.send({
             from: fromAddress,
             to: toAddress,
             subject: 'Test Email from TourWise Debugger',
             html: '<strong>It works!</strong> This is a test email to verify your Resend configuration.',
         });
 
-        if (error) {
+        if (response && response.error) {
             console.error('❌ FAILED to send email.');
-            console.error('Error Name:', error.name);
-            console.error('Error Message:', error.message);
-            console.error('Full Error:', JSON.stringify(error, null, 2));
+            console.error('Error Name:', response.error.name);
+            console.error('Error Message:', response.error.message);
         } else {
             console.log('✅ SUCCESS! Email sent.');
-            console.log('Message ID:', data.id);
+            const messageId = response && response.data ? response.data.id : response.id;
+            if (messageId) {
+                console.log('Message ID:', messageId);
+            }
         }
     } catch (err) {
         console.error('❌ EXCEPTION occurred during sending:');
-        console.error(err);
+        const message = err instanceof Error ? err.message : 'Unknown error';
+        console.error(message);
     }
 }
 
