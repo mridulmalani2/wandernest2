@@ -1,4 +1,5 @@
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
   "regions": [
     "iad1"
   ],
@@ -97,6 +98,15 @@
         {
           "key": "Cache-Control",
           "value": "public, max-age=300, stale-while-revalidate=600"
+        }
+      ]
+    },
+    {
+      "source": "/how-it-works",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=3600, stale-while-revalidate=86400"
         }
       ]
     },

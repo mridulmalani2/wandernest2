@@ -37,6 +37,20 @@ export const metadata: Metadata = {
     title: 'How TourWiseCo Works - Student-Led Local Travel Experiences',
     description: 'Learn how TourWiseCo connects tourists with verified local student guides for authentic, personalized travel experiences.',
   },
+  alternates: {
+    canonical: 'https://tourwiseco.vercel.app/how-it-works',
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
 }
 
 export default function HowItWorksLayout({
