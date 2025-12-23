@@ -7,13 +7,31 @@ import { Clock, CheckCircle, RefreshCw, Mail, AlertTriangle } from 'lucide-react
 export function PendingStatusAlert() {
     const [reminderSent, setReminderSent] = useState(false);
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     const handleReraiseRequest = async () => {
         setLoading(true);
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        setReminderSent(true);
-        setLoading(false);
+        setError(null);
+
+        try {
+            const res = await fetch('/api/student/reraise-approval', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+            });
+
+            const data = await res.json();
+
+            if (!res.ok || !data.success) {
+                throw new Error(data.error || 'Failed to send reminder');
+            }
+
+            setReminderSent(true);
+        } catch (err: any) {
+            console.error('Error sending reminder:', err);
+            setError(err.message || 'Failed to send reminder. Please try again.');
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -59,6 +77,10 @@ export function PendingStatusAlert() {
                         <p className="text-xs text-gray-500">
                             Waiting longer than 3 days?
                         </p>
+
+                        {error && (
+                            <p className="text-xs text-red-400 mb-2">{error}</p>
+                        )}
 
                         {!reminderSent ? (
                             <button

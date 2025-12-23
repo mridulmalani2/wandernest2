@@ -189,11 +189,8 @@ export default function StudentDashboard() {
         {/* Profile Completion Alert */}
         <ProfileCompletionAlert completeness={profileCompleteness} />
 
-        {/* Pending Status Alert */}
-        {studentStatus === 'PENDING_APPROVAL' && <PendingStatusAlert />}
-
         {/* Header */}
-        <div className="mb-12">
+        <div className="mb-6">
           <h1 className="text-5xl font-light tracking-tight text-white mb-3">
             Welcome back, {session?.user?.name?.split(' ')[0] || 'Guide'}
           </h1>
@@ -253,84 +250,91 @@ export default function StudentDashboard() {
           </FlowCard>
         </div>
 
-        {/* Requests List */}
-        <div className="space-y-6">
-          <h2 className="text-2xl font-light text-white">Your Requests</h2>
 
-          {requests.length === 0 ? (
-            <FlowCard padding="lg" variant="dark">
-              <div className="text-center py-12">
-                <div className="h-16 w-16 rounded-full bg-white/10 mx-auto mb-4 flex items-center justify-center">
-                  <Calendar className="h-8 w-8 text-white" />
+        {/* Requests List - Only show when approved */}
+        {studentStatus === 'APPROVED' && (
+          <div className="space-y-6">
+            <h2 className="text-2xl font-light text-white">Your Requests</h2>
+
+            {requests.length === 0 ? (
+              <FlowCard padding="lg" variant="dark">
+                <div className="text-center py-12">
+                  <div className="h-16 w-16 rounded-full bg-white/10 mx-auto mb-4 flex items-center justify-center">
+                    <Calendar className="h-8 w-8 text-white" />
+                  </div>
+                  <h3 className="text-xl font-medium text-white mb-2">No requests yet</h3>
+                  <p className="text-gray-400 font-light">
+                    Your booking requests will appear here once tourists start submitting them
+                  </p>
                 </div>
-                <h3 className="text-xl font-medium text-white mb-2">No requests yet</h3>
-                <p className="text-gray-400 font-light">
-                  Your booking requests will appear here once tourists start submitting them
-                </p>
-              </div>
-            </FlowCard>
-          ) : (
-            <div className="grid grid-cols-1 gap-4">
-              {requests.map((request) => (
-                <FlowCard key={request.id} padding="lg" hover variant="dark">
-                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                    <div className="flex-1 space-y-3">
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <h3 className="text-lg font-medium text-white">
-                            {request.touristName}
-                          </h3>
-                          <div className="flex items-center gap-2 mt-1">
-                            <span className={`text-xs px-3 py-1 rounded-full border font-medium capitalize ${getStatusColor(request.status)}`}>
-                              {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
+              </FlowCard>
+            ) : (
+              <div className="grid grid-cols-1 gap-4">
+                {requests.map((request) => (
+                  <FlowCard key={request.id} padding="lg" hover variant="dark">
+                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                      <div className="flex-1 space-y-3">
+                        <div className="flex items-start justify-between">
+                          <div>
+                            <h3 className="text-lg font-medium text-white">
+                              {request.touristName}
+                            </h3>
+                            <div className="flex items-center gap-2 mt-1">
+                              <span className={`text-xs px-3 py-1 rounded-full border font-medium capitalize ${getStatusColor(request.status)}`}>
+                                {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                          <div className="flex items-center gap-2 text-gray-400">
+                            <MapPin className="h-4 w-4 shrink-0" />
+                            <span className="font-light capitalize">{request.city}</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-gray-400">
+                            <Calendar className="h-4 w-4 shrink-0" />
+                            <span className="font-light">
+                              {new Date(request.dates.start).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
                             </span>
+                          </div>
+                          <div className="flex items-center gap-2 text-gray-400">
+                            <Users className="h-4 w-4 shrink-0" />
+                            <span className="font-light">{request.numberOfGuests} guests</span>
+                          </div>
+                          <div className="text-lg font-medium text-white">
+                            €{request.totalBudget}
                           </div>
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                        <div className="flex items-center gap-2 text-gray-400">
-                          <MapPin className="h-4 w-4 shrink-0" />
-                          <span className="font-light capitalize">{request.city}</span>
+                      {request.status === 'pending' && (
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => console.log('Accept', request.id)}
+                            className="px-6 py-2 rounded-full bg-white text-black hover:shadow-md transition-all duration-300 font-medium"
+                          >
+                            Accept
+                          </button>
+                          <button
+                            onClick={() => console.log('Decline', request.id)}
+                            className="px-6 py-2 rounded-full border-2 border-white/20 text-white hover:bg-white/10 transition-all duration-300"
+                          >
+                            Decline
+                          </button>
                         </div>
-                        <div className="flex items-center gap-2 text-gray-400">
-                          <Calendar className="h-4 w-4 shrink-0" />
-                          <span className="font-light">
-                            {new Date(request.dates.start).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-2 text-gray-400">
-                          <Users className="h-4 w-4 shrink-0" />
-                          <span className="font-light">{request.numberOfGuests} guests</span>
-                        </div>
-                        <div className="text-lg font-medium text-white">
-                          €{request.totalBudget}
-                        </div>
-                      </div>
+                      )}
                     </div>
+                  </FlowCard>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
-                    {request.status === 'pending' && (
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => console.log('Accept', request.id)}
-                          className="px-6 py-2 rounded-full bg-white text-black hover:shadow-md transition-all duration-300 font-medium"
-                        >
-                          Accept
-                        </button>
-                        <button
-                          onClick={() => console.log('Decline', request.id)}
-                          className="px-6 py-2 rounded-full border-2 border-white/20 text-white hover:bg-white/10 transition-all duration-300"
-                        >
-                          Decline
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                </FlowCard>
-              ))}
-            </div>
-          )}
-        </div>
+        {/* Pending Status Alert - Positioned at bottom for better visual hierarchy */}
+        {studentStatus === 'PENDING_APPROVAL' && <PendingStatusAlert />}
+
       </div>
       <Footer variant="minimal" />
     </div>

@@ -385,9 +385,7 @@ export default function StudentProfilePage() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Left Column - Profile Card */}
             <div className="lg:col-span-1 space-y-6">
-              <div className="glass-card rounded-2xl p-6 md:p-8 flex flex-col items-center text-center relative overflow-hidden group border border-white/10 backdrop-blur-md bg-white/5">
-                <div className="absolute inset-0 bg-gradient-to-b from-purple-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-
+              <div className="glass-card-dark rounded-2xl p-6 md:p-8 flex flex-col items-center text-center relative overflow-hidden group border border-white/10 backdrop-blur-md">               <div className="absolute inset-0 bg-gradient-to-b from-purple-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 <div className="relative mb-6">
                   <div className="w-32 h-32 rounded-full overflow-hidden ring-4 ring-white/10 shadow-2xl relative">
                     {currentProfile?.profilePhotoUrl ? (
@@ -790,7 +788,7 @@ export default function StudentProfilePage() {
 
                   <div>
                     <Label htmlFor={isEditing ? "interests" : undefined} className={DARK_LABEL_CLASS}>
-                      Interests
+                      Interests <span className="text-red-400">*</span>
                     </Label>
                     {isEditing ? (
                       <MultiSelect
@@ -825,7 +823,7 @@ export default function StudentProfilePage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
                   <div>
                     <Label htmlFor={isEditing ? "hourlyRate" : undefined} className={DARK_LABEL_CLASS}>
-                      Hourly Rate
+                      Hourly Rate <span className="text-red-400">*</span>
                     </Label>
                     {isEditing ? (
                       <div className="grid grid-cols-2 gap-3">
@@ -897,7 +895,7 @@ export default function StudentProfilePage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
                   <div>
                     <Label htmlFor={isEditing ? "emergencyContactName" : undefined} className={DARK_LABEL_CLASS}>
-                      Contact Name
+                      Contact Name <span className="text-red-400">*</span>
                     </Label>
                     {isEditing ? (
                       <Input
@@ -915,7 +913,7 @@ export default function StudentProfilePage() {
 
                   <div>
                     <Label htmlFor={isEditing ? "emergencyContactPhone" : undefined} className={DARK_LABEL_CLASS}>
-                      Contact Phone
+                      Contact Phone <span className="text-red-400">*</span>
                     </Label>
                     {isEditing ? (
                       <Input
