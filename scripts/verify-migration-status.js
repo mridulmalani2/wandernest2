@@ -50,11 +50,17 @@ async function verifyMigrationStatus() {
   let localMigrations = [];
 
   try {
-    localMigrations = fs.readdirSync(migrationsDir)
-      .filter(item => {
-        const fullPath = path.join(migrationsDir, item);
-        return fs.statSync(fullPath).isDirectory() && item !== 'migration_lock.toml';
+    const entries = fs.readdirSync(migrationsDir, { withFileTypes: true });
+    localMigrations = entries
+      .filter(entry => {
+        // Ignore symlinks to avoid traversing outside the project or following malicious links
+        if (entry.isSymbolicLink()) {
+          return false;
+        }
+
+        return entry.isDirectory() && entry.name !== 'migration_lock.toml';
       })
+      .map(entry => entry.name)
       .sort();
 
     if (localMigrations.length === 0) {
