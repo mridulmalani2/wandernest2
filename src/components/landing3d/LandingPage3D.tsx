@@ -565,8 +565,29 @@ export function LandingPage3D({ className = '' }: LandingPage3DProps) {
       {/* SECTION 2: Horizontal 3D Carousel           */}
       {/* ============================================ */}
       <section
-        className="relative min-h-screen bg-gradient-to-b from-[#0a0a1a] via-[#0f0f2f] to-[#0a0a1a]"
+        className="relative min-h-screen"
       >
+        {/* London Night Background Image */}
+        <div className="absolute inset-0 z-0">
+          <Image
+            src="https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=1920&q=80"
+            alt="London at night"
+            fill
+            priority
+            className="object-cover"
+            style={{
+              filter: 'brightness(0.3) saturate(0.8)',
+            }}
+          />
+          {/* Dark overlay gradient for depth */}
+          <div
+            className="absolute inset-0"
+            style={{
+              background: 'linear-gradient(180deg, rgba(10,10,26,0.7) 0%, rgba(10,10,26,0.4) 40%, rgba(10,10,26,0.8) 100%)',
+            }}
+          />
+        </div>
+
         {/* The Horizontal Carousel */}
         <UserJourney3D />
 

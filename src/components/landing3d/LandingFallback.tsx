@@ -137,6 +137,21 @@ function JourneyCarousel({ triggerTransition }: { triggerTransition: (path: stri
 
   return (
     <section className="relative py-12 px-4">
+      {/* London Night Background Image */}
+      <div className="absolute inset-0 z-0 overflow-hidden">
+        <Image
+          src="https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=1200&q=60"
+          alt=""
+          fill
+          className="object-cover"
+          style={{
+            filter: 'brightness(0.3) saturate(0.8)',
+          }}
+          priority
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0a0a1a]/70 via-[#0a0a1a]/40 to-[#0a0a1a]/80" />
+      </div>
+
       {/* Background glow */}
       <div
         className="absolute inset-0 transition-all duration-700 pointer-events-none"
