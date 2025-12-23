@@ -1,4 +1,3 @@
-import Link from 'next/link'
 import Image from 'next/image'
 import Footer from '@/components/Footer'
 import FAQAccordion from '@/components/shared/FAQAccordion'
@@ -6,12 +5,15 @@ import { studentFAQs } from '@/lib/faq/data'
 import { DollarSign, Clock, Users, Check } from 'lucide-react'
 import { PrimaryCTAButton } from '@/components/ui/PrimaryCTAButton'
 
+// Force static rendering and cache for 24 hours - prevents hydration issues
+export const dynamic = 'force-static'
+export const revalidate = 86400
+
 const FEATURES = [
   {
     icon: DollarSign,
     title: 'High Earnings',
     desc: 'Earn significantly more than standard campus jobs. Set your own rates.',
-    groupHoverColor: 'text-green-300',
     imgSrc: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=800&q=80',
     alt: 'Person calculating earnings'
   },
@@ -19,7 +21,6 @@ const FEATURES = [
     icon: Clock,
     title: 'Total Flexibility',
     desc: 'Work around your class schedule. You choose when you\'re available.',
-    groupHoverColor: 'text-blue-300',
     imgSrc: 'https://images.unsplash.com/photo-1506784983877-45594efa4cbe?w=800&q=80',
     alt: 'Student planning schedule'
   },
@@ -27,7 +28,6 @@ const FEATURES = [
     icon: Users,
     title: 'Build Network',
     desc: 'Connect with professionals and travelers from your home country.',
-    groupHoverColor: 'text-purple-300',
     imgSrc: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=800&q=80',
     alt: 'People networking'
   }
@@ -57,45 +57,46 @@ const COMMITMENT_ITEMS = [
 
 export default function StudentLandingPage() {
   return (
-    <div className="min-h-screen flex flex-col relative overflow-hidden">
-      <div className="absolute inset-0">
+    <div className="min-h-screen flex flex-col relative overflow-hidden bg-gray-900">
+      {/* Background - Optimized: Removed backdrop-blur which kills performance on large screens */}
+      <div className="absolute inset-0 z-0">
         <Image
           src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=1920&q=80"
           alt="Students collaborating on campus"
           fill
           priority
-          quality={85}
+          quality={60}
           sizes="100vw"
-          className="object-cover"
+          className="object-cover opacity-40"
         />
-        <div className="absolute inset-0 bg-black/50 backdrop-blur-[2px]" />
-        <div className="absolute inset-0 bg-gradient-to-br from-ui-purple-primary/20 via-ui-blue-primary/15 to-black/40" />
+        {/* Simplified overlay stack - single composite layer preferred */}
+        <div className="absolute inset-0 bg-gradient-to-br from-gray-900/90 via-gray-900/80 to-black/80" />
+        <div className="absolute inset-0 bg-gradient-to-br from-ui-purple-primary/10 via-ui-blue-primary/5 to-transparent mix-blend-overlay" />
       </div>
-      <div className="absolute inset-0 pattern-dots opacity-15" />
+      {/* Pattern - Low opacity, static */}
+      <div className="absolute inset-0 pattern-dots opacity-[0.03] z-0 pointer-events-none" />
 
       <div className="relative z-10 flex flex-col min-h-screen">
         {/* Hero Section */}
-        {/* Hero Section */}
         <main className="flex-1 container mx-auto px-4 pt-24 pb-8 md:pt-32 md:pb-16">
-          <div className="max-w-5xl mx-auto space-y-10 md:space-y-16">
+          <div className="max-w-5xl mx-auto space-y-16 md:space-y-20">
 
             {/* Hero Text */}
-            <div className="text-center space-y-6 md:space-y-8 animate-slide-up-fade">
-              <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold leading-tight tracking-tight text-white text-shadow-lg">
-                Earn Money{' '}
-                <span className="bg-gradient-to-r from-purple-300 via-blue-300 to-purple-300 bg-clip-text text-transparent animate-gradient-shift">
-                  Sharing Your City
-                </span>
+            <section className="text-center space-y-6 md:space-y-8 will-change-transform">
+              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-tight tracking-tight text-white drop-shadow-lg">
+                Earn Money Sharing Your City
                 <br />
-                with Visitors from Home
+                <span className="text-gray-200">
+                  with Visitors from Home
+                </span>
               </h1>
 
-              <p className="text-lg sm:text-xl md:text-2xl text-white max-w-3xl mx-auto leading-relaxed font-medium text-shadow">
+              <p className="text-lg sm:text-xl md:text-2xl text-gray-200 max-w-3xl mx-auto leading-relaxed font-medium drop-shadow-md">
                 Turn your local knowledge into income. Host visitors from your home country,
                 earn more than campus jobs, and build your network.
               </p>
 
-              <div className="flex justify-center gap-3 sm:gap-4 pt-4 animate-fade-in-up delay-300">
+              <div className="flex justify-center gap-3 sm:gap-4 pt-6">
                 <PrimaryCTAButton
                   href="/student/onboarding"
                   showArrow
@@ -105,61 +106,63 @@ export default function StudentLandingPage() {
                   Start Earning Today
                 </PrimaryCTAButton>
               </div>
-            </div>
+            </section>
 
             {/* Features - Image Cards */}
-            <div className="pt-8 animate-fade-in-up delay-400">
-              <div className="text-center space-y-3 mb-12">
-                <h2 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-white text-shadow-lg">
+            <section className="transform-gpu">
+              <div className="text-center space-y-4 mb-12">
+                <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white drop-shadow-lg">
                   Why Guide with TourWiseCo?
                 </h2>
-                <p className="text-base md:text-lg text-white/90 text-shadow max-w-2xl mx-auto">
+                <p className="text-lg md:text-xl text-gray-300 max-w-2xl mx-auto">
                   Flexible, high-paying, and culturally rewarding
                 </p>
               </div>
               <div className="grid md:grid-cols-3 gap-6 lg:gap-8 max-w-6xl mx-auto">
                 {FEATURES.map((feature, idx) => (
-                  <div key={idx} className="group rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 relative overflow-hidden h-full">
-                    <div className="absolute inset-0">
-                      <Image
-                        src={feature.imgSrc}
-                        alt={feature.alt}
-                        fill
-                        quality={60}
-                        sizes="(max-width: 768px) 100vw, 33vw"
-                        className="object-cover"
-                        loading="lazy"
-                      />
-                      <div className="absolute inset-0 bg-black/50"></div>
-                    </div>
-                    <div className="relative z-10 p-8 h-full backdrop-blur-sm bg-white/10 border border-white/20 rounded-2xl group-hover:bg-white/15 transition-all">
-                      <div className="inline-flex p-4 rounded-2xl bg-white/10 text-white mb-6 group-hover:scale-105 transition-all duration-300 shadow-md border border-white/20">
-                        <feature.icon className="w-8 h-8" />
+                  <div key={idx} className="group relative transform-gpu hover:-translate-y-1 transition-transform duration-300 will-change-transform">
+                    <div className="relative h-full bg-white/5 border border-white/10 rounded-2xl overflow-hidden hover:bg-white/10 transition-colors duration-300 backdrop-blur-sm">
+                      {/* Background image - preloaded */}
+                      <div className="absolute inset-0">
+                        <Image
+                          src={feature.imgSrc}
+                          alt={feature.alt}
+                          fill
+                          quality={60}
+                          sizes="(max-width: 768px) 100vw, 33vw"
+                          className="object-cover opacity-30"
+                          priority={idx < 3}
+                        />
                       </div>
-                      <h3 className={`text-xl font-bold mb-3 text-white group-hover:${feature.groupHoverColor} transition-colors`}>
-                        {feature.title}
-                      </h3>
-                      <p className="text-base text-white/90 leading-relaxed">
-                        {feature.desc}
-                      </p>
+                      <div className="relative z-10 p-8 h-full">
+                        <div className="inline-flex p-4 rounded-2xl bg-white/10 text-white mb-6 shadow-md border border-white/10">
+                          <feature.icon className="w-8 h-8" />
+                        </div>
+                        <h3 className="text-xl font-bold mb-3 text-white">
+                          {feature.title}
+                        </h3>
+                        <p className="text-base text-gray-300 leading-relaxed">
+                          {feature.desc}
+                        </p>
+                      </div>
                     </div>
                   </div>
                 ))}
               </div>
-            </div>
+            </section>
 
             {/* How It Works - Timeline Style */}
-            <div className="space-y-6 pt-8 animate-fade-in-up delay-500">
-              <h2 className="text-3xl md:text-4xl font-bold text-center text-white text-shadow-lg">How It Works</h2>
+            <section className="space-y-8 transform-gpu">
+              <h2 className="text-3xl md:text-4xl font-bold text-center text-white drop-shadow-lg">How It Works</h2>
 
               {/* Desktop Timeline */}
               <div className="hidden md:block relative max-w-4xl mx-auto">
                 <div className="grid md:grid-cols-3 gap-8">
                   {HOW_IT_WORKS_STEPS.map((step, idx) => (
-                    <div key={idx} className="text-center group">
-                      <div className="min-h-[120px] space-y-2 backdrop-blur-sm bg-white/10 rounded-xl p-5 border border-white/20 group-hover:bg-white/20 transition-all">
+                    <div key={idx} className="text-center group transform-gpu hover:-translate-y-1 transition-transform duration-300 will-change-transform">
+                      <div className="min-h-[120px] space-y-2 bg-white/5 rounded-xl p-5 border border-white/10 hover:bg-white/10 transition-colors duration-300 backdrop-blur-sm">
                         <h3 className="font-bold text-lg text-white">{step.title}</h3>
-                        <p className="text-sm text-white/90 leading-relaxed">
+                        <p className="text-sm text-gray-300 leading-relaxed">
                           {step.text}
                         </p>
                       </div>
@@ -171,22 +174,22 @@ export default function StudentLandingPage() {
               {/* Mobile Vertical Timeline */}
               <div className="md:hidden space-y-4 max-w-md mx-auto">
                 {HOW_IT_WORKS_STEPS.map((step, idx) => (
-                  <div key={idx} className="space-y-2 backdrop-blur-sm bg-white/10 rounded-xl p-4 border border-white/20">
+                  <div key={idx} className="space-y-2 bg-white/5 rounded-xl p-4 border border-white/10 backdrop-blur-sm">
                     <h3 className="font-bold text-base text-white">{step.title}</h3>
-                    <p className="text-sm text-white/90 leading-relaxed">
+                    <p className="text-sm text-gray-300 leading-relaxed">
                       {step.text}
                     </p>
                   </div>
                 ))}
               </div>
-            </div>
+            </section>
 
             {/* FAQ Section */}
-            <FAQAccordion faqs={studentFAQs} className="py-20 animate-fade-in-up delay-700" />
+            <FAQAccordion faqs={studentFAQs} className="py-16" />
 
-            {/* Student Guide Commitment - Enhanced Glass */}
-            <div className="mt-16 max-w-3xl mx-auto animate-fade-in-up delay-800">
-              <div className="relative overflow-hidden backdrop-blur-md bg-white/5 border border-white/10 rounded-3xl shadow-premium hover:shadow-elevated transition-all duration-300">
+            {/* Student Guide Commitment */}
+            <section className="max-w-3xl mx-auto transform-gpu">
+              <div className="relative overflow-hidden bg-white/5 border border-white/10 rounded-3xl shadow-2xl backdrop-blur-md">
                 <div className="relative p-6 md:p-8">
                   <div className="flex flex-col md:flex-row md:items-start gap-6">
                     {/* Icon Section */}
@@ -206,7 +209,7 @@ export default function StudentLandingPage() {
 
                       {/* Main Text */}
                       <div className="space-y-4">
-                        <p className="text-sm md:text-base text-white/80 leading-relaxed font-light">
+                        <p className="text-sm md:text-base text-gray-300 leading-relaxed">
                           <strong className="text-white font-medium">As a TourWiseCo guide, you are your own boss.</strong> We connect you with tourists, but you are responsible for:
                         </p>
 
@@ -217,13 +220,13 @@ export default function StudentLandingPage() {
                               <div className="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0 border border-white/10">
                                 <Check className="w-3 h-3 text-white" />
                               </div>
-                              <span className="text-sm text-white/70 font-light">{item}</span>
+                              <span className="text-sm text-gray-400">{item}</span>
                             </div>
                           ))}
                         </div>
 
                         {/* Footer Note */}
-                        <p className="text-xs md:text-sm text-white/60 leading-relaxed italic border-l-2 border-white/20 pl-4">
+                        <p className="text-xs md:text-sm text-gray-400 leading-relaxed italic border-l-2 border-white/20 pl-4">
                           TourWiseCo takes 0% commission from your earnings. You keep 100% of what you charge.
                         </p>
                       </div>
@@ -231,15 +234,17 @@ export default function StudentLandingPage() {
                   </div>
                 </div>
               </div>
-            </div>
+            </section>
 
             {/* Final CTA */}
-            <div className="text-center space-y-8 py-16 animate-fade-in-up delay-1000">
-              <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white text-shadow-lg">Ready to Start?</h2>
-              <p className="text-xl md:text-2xl text-white/95 max-w-2xl mx-auto leading-relaxed font-medium text-shadow">
+            <section className="text-center space-y-8 py-8 transform-gpu">
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white drop-shadow-lg">
+                Ready to Start?
+              </h2>
+              <p className="text-lg md:text-xl text-gray-200 max-w-2xl mx-auto leading-relaxed">
                 Join hundreds of students earning flexible income today.
               </p>
-              <div className="flex justify-center mt-4">
+              <div className="flex justify-center pt-4">
                 <PrimaryCTAButton
                   href="/student/onboarding"
                   showArrow
@@ -249,7 +254,7 @@ export default function StudentLandingPage() {
                   Create Student Profile
                 </PrimaryCTAButton>
               </div>
-            </div>
+            </section>
 
           </div>
         </main>
