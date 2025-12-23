@@ -14,11 +14,11 @@ export interface AnimationPhase {
 
 export const ANIMATION_PHASES: AnimationPhase[] = [
   { id: 0, name: 'initial', threshold: 0, duration: 0 },
-  { id: 1, name: 'title', threshold: 100, duration: 300 },
-  { id: 2, name: 'subtitle', threshold: 250, duration: 300 },
-  { id: 3, name: 'description', threshold: 400, duration: 300 },
-  { id: 4, name: 'cta-cards', threshold: 600, duration: 500 },
-  { id: 5, name: 'complete', threshold: 800, duration: 0 },
+  { id: 1, name: 'title', threshold: 50, duration: 200 },
+  { id: 2, name: 'subtitle', threshold: 100, duration: 200 },
+  { id: 3, name: 'description', threshold: 150, duration: 200 },
+  { id: 4, name: 'cta-cards', threshold: 200, duration: 300 },
+  { id: 5, name: 'complete', threshold: 250, duration: 0 },
 ]
 
 export interface ScrollHijackState {

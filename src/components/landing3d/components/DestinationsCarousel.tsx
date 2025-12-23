@@ -249,20 +249,26 @@ export default function DestinationsCarousel() {
     setScrollProgress(maxScroll > 0 ? sl / maxScroll : 0)
   }, [])
 
-  // Momentum scrolling
+  // Momentum scrolling - use local variable to avoid re-render loop
   useEffect(() => {
     if (isDragging || Math.abs(velocity) < 0.5) return
+
+    // Capture velocity locally to avoid state updates breaking animation
+    let animationVelocity = velocity
 
     const animate = () => {
       if (!scrollContainerRef.current) return
 
-      scrollContainerRef.current.scrollLeft += velocity
-      setVelocity((v) => v * 0.95) // Friction
+      scrollContainerRef.current.scrollLeft += animationVelocity
+      animationVelocity *= 0.95 // Apply friction locally
 
       updateScrollProgress()
 
-      if (Math.abs(velocity) > 0.5) {
+      if (Math.abs(animationVelocity) > 0.5) {
         animationFrameRef.current = requestAnimationFrame(animate)
+      } else {
+        // Only update state when animation completes
+        setVelocity(0)
       }
     }
 
@@ -273,7 +279,8 @@ export default function DestinationsCarousel() {
         cancelAnimationFrame(animationFrameRef.current)
       }
     }
-  }, [isDragging, velocity, updateScrollProgress])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isDragging])
 
   // Mouse/touch handlers for drag scrolling
   const handleMouseDown = useCallback((e: React.MouseEvent) => {

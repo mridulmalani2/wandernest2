@@ -212,8 +212,8 @@ export function ScrollProgressIndicator({
         </div>
       </div>
 
-      {/* CSS Keyframes */}
-      <style jsx>{`
+      {/* CSS Keyframes - must be global for inline animation styles to reference */}
+      <style jsx global>{`
         @keyframes gentleFloat {
           0%, 100% {
             transform: translateY(0);

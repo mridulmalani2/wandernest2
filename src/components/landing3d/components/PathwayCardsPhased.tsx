@@ -256,13 +256,13 @@ function PathwayCardPhased({
         </div>
       </Html>
 
-      {/* Border glow on hover */}
+      {/* Border glow on hover - use state for re-render trigger */}
       <mesh position={[0, 0, 0.045]} visible={isHovered}>
         <planeGeometry args={[2.05, 2.65]} />
         <meshBasicMaterial
           color={config.glowColor}
           transparent
-          opacity={0.15 * hoverProgress.current}
+          opacity={isHovered ? 0.15 : 0}
           depthWrite={false}
         />
       </mesh>
