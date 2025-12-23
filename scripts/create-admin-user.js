@@ -36,6 +36,12 @@ function log(message, color = colors.reset) {
   console.log(`${color}${message}${colors.reset}`);
 }
 
+const MAX_PASSWORD_LENGTH = 128;
+
+function normalizeEmail(email) {
+  return String(email).trim().toLowerCase();
+}
+
 /**
  * Validate email format
  */
@@ -53,127 +59,149 @@ function isValidEmail(email) {
  * - At least one number
  */
 function isValidPassword(password) {
+  if (typeof password !== 'string') {
+    return { valid: false, reason: 'Password must be a string value' };
+  }
+  if (password.length === 0) {
+    return { valid: false, reason: 'Password cannot be empty' };
+  }
   if (password.length < 12) {
     return { valid: false, reason: 'Password must be at least 12 characters long' };
   }
-  if (!/[A-Z]/.test(password)) {
+  if (password.length > MAX_PASSWORD_LENGTH) {
+    return { valid: false, reason: `Password must be at most ${MAX_PASSWORD_LENGTH} characters long` };
+  }
+  if (!/\p{Lu}/u.test(password)) {
     return { valid: false, reason: 'Password must contain at least one uppercase letter' };
   }
-  if (!/[a-z]/.test(password)) {
+  if (!/\p{Ll}/u.test(password)) {
     return { valid: false, reason: 'Password must contain at least one lowercase letter' };
   }
-  if (!/[0-9]/.test(password)) {
+  if (!/\p{Nd}/u.test(password)) {
     return { valid: false, reason: 'Password must contain at least one number' };
   }
   return { valid: true };
 }
 
 async function main() {
-  log('\n🔐 Admin User Management Script', colors.cyan);
-  log('=' .repeat(50), colors.cyan);
+  let shouldExitWithError = false;
 
-  const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
-  const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
-  const ADMIN_NAME = process.env.ADMIN_NAME || 'Admin User';
+  try {
+    log('\n🔐 Admin User Management Script', colors.cyan);
+    log('=' .repeat(50), colors.cyan);
 
-  // Validate required environment variables
-  if (!ADMIN_EMAIL || !ADMIN_PASSWORD) {
-    log('\n❌ Error: Missing required environment variables', colors.red);
-    log('   Required:', colors.yellow);
-    log('   - ADMIN_EMAIL: The admin email address', colors.yellow);
-    log('   - ADMIN_PASSWORD: The admin password', colors.yellow);
-    log('\n   Example usage:', colors.cyan);
-    log('   ADMIN_EMAIL=admin@example.com ADMIN_PASSWORD=YourSecurePass123 npm run create-admin', colors.cyan);
-    process.exit(1);
-  }
+    const ADMIN_EMAIL = process.env.ADMIN_EMAIL;
+    const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+    const ADMIN_NAME = process.env.ADMIN_NAME || 'Admin User';
 
-  // Validate email format
-  if (!isValidEmail(ADMIN_EMAIL)) {
-    log('\n❌ Error: Invalid email format', colors.red);
-    log(`   Provided: ${ADMIN_EMAIL}`, colors.yellow);
-    process.exit(1);
-  }
+    // Validate required environment variables
+    if (!ADMIN_EMAIL || !ADMIN_PASSWORD) {
+      log('\n❌ Error: Missing required environment variables', colors.red);
+      log('   Required:', colors.yellow);
+      log('   - ADMIN_EMAIL: The admin email address', colors.yellow);
+      log('   - ADMIN_PASSWORD: The admin password', colors.yellow);
+      log('\n   Example usage:', colors.cyan);
+      log('   ADMIN_EMAIL=admin@example.com ADMIN_PASSWORD=YourSecurePass123 npm run create-admin', colors.cyan);
+      shouldExitWithError = true;
+      return;
+    }
 
-  // Validate password strength
-  const passwordValidation = isValidPassword(ADMIN_PASSWORD);
-  if (!passwordValidation.valid) {
-    log('\n❌ Error: Password does not meet security requirements', colors.red);
-    log(`   ${passwordValidation.reason}`, colors.yellow);
-    log('\n   Password requirements:', colors.cyan);
-    log('   - At least 12 characters', colors.cyan);
-    log('   - At least one uppercase letter (A-Z)', colors.cyan);
-    log('   - At least one lowercase letter (a-z)', colors.cyan);
-    log('   - At least one number (0-9)', colors.cyan);
-    process.exit(1);
-  }
+    const normalizedEmail = normalizeEmail(ADMIN_EMAIL);
 
-  log('\n✅ Input validation passed', colors.green);
+    // Validate email format
+    if (!isValidEmail(normalizedEmail)) {
+      log('\n❌ Error: Invalid email format', colors.red);
+      log(`   Provided: ${normalizedEmail}`, colors.yellow);
+      shouldExitWithError = true;
+      return;
+    }
 
-  // Hash password with bcrypt
-  log('🔒 Hashing password...', colors.cyan);
-  const passwordHash = await bcrypt.hash(ADMIN_PASSWORD, 10);
+    // Validate password strength
+    const passwordValidation = isValidPassword(ADMIN_PASSWORD);
+    if (!passwordValidation.valid) {
+      log('\n❌ Error: Password does not meet security requirements', colors.red);
+      log(`   ${passwordValidation.reason}`, colors.yellow);
+      log('\n   Password requirements:', colors.cyan);
+      log('   - At least 12 characters', colors.cyan);
+      log(`   - At most ${MAX_PASSWORD_LENGTH} characters`, colors.cyan);
+      log('   - At least one uppercase letter', colors.cyan);
+      log('   - At least one lowercase letter', colors.cyan);
+      log('   - At least one number', colors.cyan);
+      shouldExitWithError = true;
+      return;
+    }
 
-  // Check if admin exists
-  const existingAdmin = await prisma.admin.findUnique({
-    where: { email: ADMIN_EMAIL },
-    select: { id: true, email: true, role: true, isActive: true },
-  });
+    log('\n✅ Input validation passed', colors.green);
 
-  let admin;
+    // Hash password with bcrypt
+    log('🔒 Hashing password...', colors.cyan);
+    const passwordHash = await bcrypt.hash(ADMIN_PASSWORD, 10);
 
-  if (existingAdmin) {
-    log(`\n📋 Existing admin found: ${existingAdmin.email}`, colors.yellow);
-    log(`   Current role: ${existingAdmin.role}`, colors.yellow);
-    log(`   Active: ${existingAdmin.isActive}`, colors.yellow);
-
-    // Update existing admin but DO NOT change the role (security measure)
-    admin = await prisma.admin.update({
-      where: { email: ADMIN_EMAIL },
-      data: {
-        passwordHash,
-        name: ADMIN_NAME,
-        isActive: true,
-      },
-      select: { id: true, email: true, name: true, role: true },
+    // Check if admin exists
+    const existingAdmin = await prisma.admin.findUnique({
+      where: { email: normalizedEmail },
+      select: { id: true, email: true, role: true, isActive: true },
     });
 
-    log('\n✅ Admin account updated successfully', colors.green);
-    log('   ⚠️  Note: Role was NOT changed (security policy)', colors.yellow);
-  } else {
-    // Create new admin with SUPER_ADMIN role
-    admin = await prisma.admin.create({
-      data: {
-        email: ADMIN_EMAIL,
-        passwordHash,
-        name: ADMIN_NAME,
-        role: 'SUPER_ADMIN',
-        isActive: true,
-      },
-      select: { id: true, email: true, name: true, role: true },
-    });
+    let admin;
 
-    log('\n✅ New admin account created successfully', colors.green);
-  }
+    if (existingAdmin) {
+      log(`\n📋 Existing admin found: ${existingAdmin.email}`, colors.yellow);
+      log(`   Current role: ${existingAdmin.role}`, colors.yellow);
+      log(`   Active: ${existingAdmin.isActive}`, colors.yellow);
 
-  log('\n📋 Admin Details:', colors.cyan);
-  log(`   Email: ${admin.email}`, colors.cyan);
-  log(`   Name: ${admin.name}`, colors.cyan);
-  log(`   Role: ${admin.role}`, colors.cyan);
-  log('\n');
-}
+      // Update existing admin but DO NOT change the role (security measure)
+      admin = await prisma.admin.update({
+        where: { email: normalizedEmail },
+        data: {
+          passwordHash,
+          name: ADMIN_NAME,
+          isActive: true,
+        },
+        select: { id: true, email: true, name: true, role: true },
+      });
 
-main()
-  .catch((error) => {
+      log('\n✅ Admin account updated successfully', colors.green);
+      log('   ⚠️  Note: Role was NOT changed (security policy)', colors.yellow);
+    } else {
+      // Create new admin with SUPER_ADMIN role
+      admin = await prisma.admin.create({
+        data: {
+          email: normalizedEmail,
+          passwordHash,
+          name: ADMIN_NAME,
+          role: 'SUPER_ADMIN',
+          isActive: true,
+        },
+        select: { id: true, email: true, name: true, role: true },
+      });
+
+      log('\n✅ New admin account created successfully', colors.green);
+    }
+
+    log('\n📋 Admin Details:', colors.cyan);
+    log(`   Email: ${admin.email}`, colors.cyan);
+    log(`   Name: ${admin.name}`, colors.cyan);
+    log(`   Role: ${admin.role}`, colors.cyan);
+    log('\n');
+  } catch (error) {
+    shouldExitWithError = true;
     log('\n❌ Failed to manage admin user', colors.red);
-    // Log only safe error details (no stack traces or sensitive info)
-    if (error.code) {
+    if (error && error.message) {
+      log(`   Message: ${error.message}`, colors.yellow);
+    }
+    if (error && error.code) {
       log(`   Error code: ${error.code}`, colors.yellow);
       if (error.code === 'P2002') {
         log('   A unique constraint was violated (email may already exist)', colors.yellow);
       }
     }
-    process.exitCode = 1;
-  })
-  .finally(async () => {
+  } finally {
     await prisma.$disconnect();
-  });
+    if (shouldExitWithError) {
+      process.exit(1);
+    }
+  }
+}
+
+main();
