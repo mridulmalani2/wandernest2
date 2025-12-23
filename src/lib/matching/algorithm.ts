@@ -274,7 +274,8 @@ function calculateScore(
   let score = 0
 
   // 1. Availability match (40 points)
-  if (checkAvailability(student, request.dates)) {
+  // Pass preferredTime for time-of-day validation
+  if (checkAvailability(student, request.dates, request.preferredTime)) {
     score += 40
   }
 
@@ -304,7 +305,7 @@ function calculateScore(
 
   // BONUS: Language match (+5 per language, max +15)
   if (request.preferredLanguages && request.preferredLanguages.length > 0) {
-    const languageMatches = request.preferredLanguages.filter((lang) =>
+    const languageMatches = request.preferredLanguages.filter((lang: string) =>
       student.languages.includes(lang)
     ).length
     score += Math.min(languageMatches * 5, 15)
@@ -314,33 +315,126 @@ function calculateScore(
 }
 
 /**
+ * Helper to validate a Date object is valid (not Invalid Date)
+ */
+function isValidDate(date: Date): boolean {
+  return date instanceof Date && !isNaN(date.getTime())
+}
+
+/**
+ * Helper to parse time string "HH:MM" to minutes since midnight
+ */
+function parseTimeToMinutes(time: string): number | null {
+  if (!time || typeof time !== 'string') return null
+  const match = time.match(/^(\d{1,2}):(\d{2})$/)
+  if (!match) return null
+  const hours = parseInt(match[1], 10)
+  const minutes = parseInt(match[2], 10)
+  if (hours < 0 || hours > 23 || minutes < 0 || minutes > 59) return null
+  return hours * 60 + minutes
+}
+
+/**
  * Check if guide is available for requested dates
  * Uses Set for O(1) day-of-week lookup
+ *
+ * SECURITY: Validates all inputs, rejects invalid/empty date ranges
+ * CORRECTNESS: Also checks time-of-day availability when preferredTime is provided
  */
 function checkAvailability(
   student: { availability?: StudentAvailability[] },
-  requestedDates: Prisma.JsonValue
+  requestedDates: Prisma.JsonValue,
+  preferredTime?: string
 ): boolean {
   try {
     if (!student.availability || student.availability.length === 0) {
       return false
     }
 
-    // Parse requested dates
-    const dates = typeof requestedDates === 'string'
-      ? JSON.parse(requestedDates)
-      : requestedDates
+    // Parse requested dates with validation
+    let dates: { start?: string; end?: string; date?: string }
+    try {
+      dates = typeof requestedDates === 'string'
+        ? JSON.parse(requestedDates)
+        : (requestedDates as { start?: string; end?: string; date?: string })
+    } catch {
+      logger.warn('Failed to parse requestedDates JSON')
+      return false
+    }
 
-    // Build set of available days for O(1) lookup
-    const availableDays = new Set(
-      student.availability.map((a) => a.dayOfWeek)
-    )
+    // Validate dates object structure
+    if (!dates || typeof dates !== 'object') {
+      return false
+    }
+
+    // Build map of available days with their time slots for comprehensive lookup
+    // Key: dayOfWeek (0-6), Value: array of {startTime, endTime}
+    const availabilityByDay = new Map<number, Array<{ startMinutes: number; endMinutes: number }>>()
+    for (const a of student.availability) {
+      if (typeof a.dayOfWeek !== 'number' || a.dayOfWeek < 0 || a.dayOfWeek > 6) {
+        continue
+      }
+      const startMinutes = parseTimeToMinutes(a.startTime)
+      const endMinutes = parseTimeToMinutes(a.endTime)
+      // Skip invalid time slots
+      if (startMinutes === null || endMinutes === null || startMinutes >= endMinutes) {
+        continue
+      }
+      if (!availabilityByDay.has(a.dayOfWeek)) {
+        availabilityByDay.set(a.dayOfWeek, [])
+      }
+      availabilityByDay.get(a.dayOfWeek)!.push({ startMinutes, endMinutes })
+    }
+
+    // If no valid availability slots, return false
+    if (availabilityByDay.size === 0) {
+      return false
+    }
+
+    // Determine requested time window (if provided)
+    let requestedTimeWindow: { start: number; end: number } | null = null
+    if (preferredTime) {
+      // Map preferredTime strings to approximate time ranges
+      switch (preferredTime.toLowerCase()) {
+        case 'morning':
+          requestedTimeWindow = { start: 6 * 60, end: 12 * 60 } // 6am-12pm
+          break
+        case 'afternoon':
+          requestedTimeWindow = { start: 12 * 60, end: 18 * 60 } // 12pm-6pm
+          break
+        case 'evening':
+          requestedTimeWindow = { start: 18 * 60, end: 23 * 60 } // 6pm-11pm
+          break
+        default:
+          // Unknown preferredTime, skip time checking
+          break
+      }
+    }
 
     let checkDates: Date[] = []
 
     if (dates.start && dates.end) {
       const start = new Date(dates.start)
       const end = new Date(dates.end)
+
+      // SECURITY: Validate both dates are valid Date objects
+      if (!isValidDate(start) || !isValidDate(end)) {
+        logger.warn('Invalid date values in range', {
+          startValid: isValidDate(start),
+          endValid: isValidDate(end),
+        })
+        return false
+      }
+
+      // SECURITY: Reject inverted date ranges (start > end)
+      if (start > end) {
+        logger.warn('Inverted date range rejected', {
+          start: dates.start,
+          end: dates.end,
+        })
+        return false
+      }
+
       const current = new Date(start)
 
       // Limit to reasonable date range (30 days max)
@@ -353,13 +447,43 @@ function checkAvailability(
         dayCount++
       }
     } else if (dates.date) {
-      checkDates.push(new Date(dates.date))
+      const singleDate = new Date(dates.date)
+      // SECURITY: Validate single date
+      if (!isValidDate(singleDate)) {
+        logger.warn('Invalid single date value')
+        return false
+      }
+      checkDates.push(singleDate)
     } else {
       return false
     }
 
-    // Check if guide is available for all requested dates using Set lookup
-    return checkDates.every((date) => availableDays.has(date.getDay()))
+    // SECURITY: Empty checkDates should return false (deny by default)
+    if (checkDates.length === 0) {
+      return false
+    }
+
+    // Check if guide is available for all requested dates
+    return checkDates.every((date) => {
+      const dayOfWeek = date.getDay()
+      const daySlots = availabilityByDay.get(dayOfWeek)
+
+      if (!daySlots || daySlots.length === 0) {
+        return false
+      }
+
+      // If no specific time requested, just check day availability
+      if (!requestedTimeWindow) {
+        return true
+      }
+
+      // Check if any time slot overlaps with requested time window
+      return daySlots.some((slot) => {
+        // Check for overlap: slot.start < requested.end AND slot.end > requested.start
+        return slot.startMinutes < requestedTimeWindow!.end &&
+               slot.endMinutes > requestedTimeWindow!.start
+      })
+    })
   } catch (error) {
     logger.warn('Error checking availability', {
       error: error instanceof Error ? error.message : 'Unknown',
