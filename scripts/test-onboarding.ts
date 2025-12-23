@@ -11,21 +11,21 @@ async function testStudentOnboarding() {
 
     console.log('Testing Student Onboarding...');
 
-    // 1. Create a dummy student (if not exists)
-    const email = 'test-student@university.edu';
-
-    // Check if student already exists to avoid overwriting real data
-    const existingStudent = await prisma.student.findUnique({ where: { email } });
-
-    if (existingStudent) {
-        console.log('⚠️  Test student already exists. Skipping creation to avoid data loss.');
-        // In a real test suite, you might want to use a unique random email to ensure isolation.
-        return;
-    }
-
     let createdStudentId: string | null = null;
 
     try {
+        // 1. Create a dummy student (if not exists)
+        const email = 'test-student@university.edu';
+
+        // Check if student already exists to avoid overwriting real data
+        const existingStudent = await prisma.student.findUnique({ where: { email } });
+
+        if (existingStudent) {
+            console.log('⚠️  Test student already exists. Skipping creation to avoid data loss.');
+            // In a real test suite, you might want to use a unique random email to ensure isolation.
+            return;
+        }
+
         console.log('Creating unique test student...');
         const student = await prisma.student.create({
             data: {
@@ -97,14 +97,25 @@ async function testStudentOnboarding() {
         console.log('Student Name:', updatedStudent.name);
 
     } catch (error) {
-        console.error('❌ Failed to save student onboarding data:', error);
+        const message = error instanceof Error ? error.message : 'Unknown error';
+        console.error('❌ Failed to save student onboarding data:', message);
     } finally {
         // Clean up ONLY if we created the student
         if (createdStudentId) {
-            await prisma.student.delete({ where: { id: createdStudentId } });
-            console.log('Cleaned up test student.');
+            try {
+                await prisma.student.delete({ where: { id: createdStudentId } });
+                console.log('Cleaned up test student.');
+            } catch (cleanupError) {
+                const message = cleanupError instanceof Error ? cleanupError.message : 'Unknown cleanup error';
+                console.error('⚠️  Failed to clean up test student:', message);
+            }
         }
-        await prisma.$disconnect();
+        try {
+            await prisma.$disconnect();
+        } catch (disconnectError) {
+            const message = disconnectError instanceof Error ? disconnectError.message : 'Unknown disconnect error';
+            console.error('⚠️  Failed to disconnect Prisma client:', message);
+        }
     }
 }
 
