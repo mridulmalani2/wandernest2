@@ -17,6 +17,7 @@ export default function AdminNav() {
   const router = useRouter()
   const pathname = usePathname()
   const [isScrolled, setIsScrolled] = useState(false)
+  const [logoutError, setLogoutError] = useState<string | null>(null)
 
   // Add scroll detection for shadow effect
   useEffect(() => {
@@ -30,12 +31,14 @@ export default function AdminNav() {
 
   const handleLogout = async () => {
     try {
-      await fetch('/api/admin/logout', { method: 'POST' })
+      setLogoutError(null)
+      const response = await fetch('/api/admin/logout', { method: 'POST' })
+      if (!response.ok) {
+        throw new Error('Logout failed')
+      }
       router.push('/admin/login')
     } catch (error) {
-      console.error('Logout failed', error)
-      // Fallback redirect
-      window.location.href = '/admin/login'
+      setLogoutError('Logout failed. Please try again.')
     }
   }
 
@@ -78,6 +81,11 @@ export default function AdminNav() {
             </button>
           </div>
         </div>
+        {logoutError && (
+          <div className="px-4 pb-3 text-xs text-ui-error">
+            {logoutError}
+          </div>
+        )}
       </div>
     </nav>
   )

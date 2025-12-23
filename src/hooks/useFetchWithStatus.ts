@@ -77,7 +77,7 @@ export interface FetchOptions<T> {
 
 export interface FetchResult<T> extends FetchState<T> {
   /** Manually trigger a refetch */
-  refetch: () => Promise<void>;
+  refetch: (overrides?: FetchOverrides) => Promise<void>;
 
   /** Reset state to initial */
   reset: () => void;
@@ -95,6 +95,12 @@ interface CacheEntry<T> {
   timestamp: number;
   ttl: number;
 }
+
+type FetchOverrides = {
+  body?: unknown;
+  params?: Record<string, string | number | boolean | undefined>;
+  headers?: Record<string, string>;
+};
 
 const cache = new Map<string, CacheEntry<unknown>>();
 const MAX_CACHE_ENTRIES = 100;
@@ -149,6 +155,42 @@ function stableStringify(value: unknown): string {
   } catch {
     return '"[Unserializable]"';
   }
+}
+
+function normalizeUrl(value: string): string | null {
+  if (typeof value !== 'string') return null;
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+  if (trimmed.startsWith('/')) return trimmed;
+
+  try {
+    const parsed = new URL(trimmed);
+    if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
+      return parsed.toString();
+    }
+  } catch {
+    return null;
+  }
+
+  return null;
+}
+
+function normalizeParams(
+  params?: Record<string, string | number | boolean | undefined>
+): Record<string, string | number | boolean | undefined> | undefined {
+  if (!params || typeof params !== 'object' || Array.isArray(params)) {
+    return undefined;
+  }
+
+  const normalizedEntries = Object.entries(params).filter(([, value]) =>
+    typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean'
+  );
+
+  if (normalizedEntries.length === 0) {
+    return undefined;
+  }
+
+  return Object.fromEntries(normalizedEntries);
 }
 
 function safeClone<T>(value: T): T {
@@ -363,6 +405,12 @@ export function useFetchWithStatus<T = unknown>(
       }
 
       if (cacheTtl > 0 && method === 'GET') {
+        const normalizedUrl = normalizeUrl(url);
+        const normalizedParams = normalizeParams(params);
+        if (normalizedUrl) {
+          const cacheKey = getCacheKey(normalizedUrl, normalizedParams);
+          setCache(cacheKey, newData, cacheTtl);
+        }
         const cacheKey = getCacheKey(url, params);
         setCache(cacheKey, newData, cacheTtl);
       }
@@ -371,7 +419,7 @@ export function useFetchWithStatus<T = unknown>(
     });
   }, [cacheTtl, method, onError, params, url]);
 
-  const fetchData = useCallback(async () => {
+  const fetchData = useCallback(async (overrides?: FetchOverrides) => {
     // Abort any in-flight request
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
@@ -381,8 +429,25 @@ export function useFetchWithStatus<T = unknown>(
     const controller = new AbortController();
     abortControllerRef.current = controller;
 
+    const normalizedUrl = normalizeUrl(url);
+    if (!normalizedUrl) {
+      setState({
+        data: null,
+        status: 'error',
+        loading: false,
+        error: 'Invalid request URL.',
+        isValidating: false,
+      });
+      onError?.('Invalid request URL.');
+      return;
+    }
+
+    const effectiveParams = normalizeParams(overrides?.params ?? params);
+    const effectiveHeaders = { ...headers, ...overrides?.headers };
+    const effectiveBody = overrides?.body ?? body;
+
     // Check cache first
-    const cacheKey = getCacheKey(url, params);
+    const cacheKey = getCacheKey(normalizedUrl, effectiveParams);
     if (cacheTtl > 0 && method === 'GET') {
       const cached = getFromCache<T>(cacheKey);
       if (cached.hit) {
@@ -404,19 +469,19 @@ export function useFetchWithStatus<T = unknown>(
     }));
 
     try {
-      const fullUrl = buildUrl(url, params);
+      const fullUrl = buildUrl(normalizedUrl, effectiveParams);
 
       const fetchOptions: RequestInit = {
         method,
         headers: {
           'Content-Type': 'application/json',
-          ...headers,
+          ...effectiveHeaders,
         },
         signal: controller.signal,
       };
 
-      if (body && ['POST', 'PUT', 'PATCH'].includes(method)) {
-        fetchOptions.body = JSON.stringify(body);
+      if (effectiveBody && ['POST', 'PUT', 'PATCH'].includes(method)) {
+        fetchOptions.body = JSON.stringify(effectiveBody);
       }
 
       const response = await fetch(fullUrl, fetchOptions);
@@ -558,11 +623,15 @@ export function useGet<T>(
   params?: Record<string, string | number | boolean | undefined>,
   options?: Omit<FetchOptions<T>, 'url' | 'method' | 'params'>
 ): FetchResult<T> {
+  const safeOptions = options ?? {};
+  const normalizedUrl = normalizeUrl(url);
+  const normalizedParams = normalizeParams(params);
+
   return useFetchWithStatus<T>({
-    url,
+    ...safeOptions,
+    url: normalizedUrl ?? '',
     method: 'GET',
-    params,
-    ...options,
+    params: normalizedParams,
   });
 }
 
@@ -574,12 +643,15 @@ export function usePost<T, TBody = unknown>(
   body?: TBody,
   options?: Omit<FetchOptions<T>, 'url' | 'method' | 'body'>
 ): FetchResult<T> {
+  const safeOptions = options ?? {};
+  const normalizedUrl = normalizeUrl(url);
+
   return useFetchWithStatus<T>({
-    url,
+    ...safeOptions,
+    url: normalizedUrl ?? '',
     method: 'POST',
     body,
     immediate: false, // POST usually triggered manually
-    ...options,
   });
 }
 

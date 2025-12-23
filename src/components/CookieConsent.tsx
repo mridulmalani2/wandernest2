@@ -5,22 +5,49 @@ import Link from 'next/link';
 
 export default function CookieConsent() {
     const [isVisible, setIsVisible] = useState(false);
+    const consentKey = 'cookie-consent';
+
+    const readConsent = () => {
+        try {
+            return localStorage.getItem(consentKey);
+        } catch {
+            return null;
+        }
+    };
+
+    const writeConsent = (value: 'accepted' | 'declined') => {
+        try {
+            localStorage.setItem(consentKey, value);
+        } catch {
+            // Ignore storage failures (e.g., private mode)
+        }
+        document.documentElement.dataset.cookieConsent = value;
+        window.dispatchEvent(new CustomEvent('cookie-consent', { detail: { value } }));
+    };
+
+    const clearNonEssentialCookies = () => {
+        const cookiesToClear = ['_ga', '_gid', '_gat', '_gcl_au'];
+        cookiesToClear.forEach((cookieName) => {
+            document.cookie = `${cookieName}=; Max-Age=0; path=/; SameSite=Lax`;
+        });
+    };
 
     useEffect(() => {
         // Check if user has already consented
-        const consent = localStorage.getItem('cookie-consent');
-        if (!consent) {
+        const consent = readConsent();
+        if (consent !== 'accepted' && consent !== 'declined') {
             setIsVisible(true);
         }
     }, []);
 
     const acceptCookies = () => {
-        localStorage.setItem('cookie-consent', 'accepted');
+        writeConsent('accepted');
         setIsVisible(false);
     };
 
     const declineCookies = () => {
-        localStorage.setItem('cookie-consent', 'declined');
+        clearNonEssentialCookies();
+        writeConsent('declined');
         setIsVisible(false);
     };
 

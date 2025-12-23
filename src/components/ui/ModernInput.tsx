@@ -20,7 +20,19 @@ export interface ModernInputProps
  * - role="alert" on error messages for screen reader announcements
  */
 const ModernInput = forwardRef<HTMLInputElement, ModernInputProps>(
-  ({ className, type, label, error, icon: Icon, helperText, id: providedId, required, ...props }, ref) => {
+  ({
+    className,
+    type,
+    label,
+    error,
+    icon: Icon,
+    helperText,
+    id: providedId,
+    required,
+    onBlur,
+    onFocus,
+    ...props
+  }, ref) => {
     const generatedId = useId();
     const id = providedId || generatedId;
     const errorId = `${id}-error`;
@@ -53,10 +65,13 @@ const ModernInput = forwardRef<HTMLInputElement, ModernInputProps>(
             </div>
           )}
           <input
+            {...props}
             id={id}
             type={type}
             ref={ref}
             required={required}
+            onBlur={onBlur}
+            onFocus={onFocus}
             aria-invalid={error ? 'true' : undefined}
             aria-required={required ? 'true' : undefined}
             aria-describedby={describedBy}
@@ -68,7 +83,6 @@ const ModernInput = forwardRef<HTMLInputElement, ModernInputProps>(
                 : "border-gray-200 hover:border-ui-blue-primary/50",
               className
             )}
-            {...props}
           />
         </div>
         {error && (

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { Button } from '@/components/ui/button'
@@ -54,6 +54,7 @@ export function BookingForm() {
   const [currentStep, setCurrentStep] = useState(1)
   const [completedSteps, setCompletedSteps] = useState<number[]>([])
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const isSubmittingRef = useRef(false)
   const [formData, setFormData] = useState<BookingFormData>({
     city: '',
     dates: { start: '' },
@@ -83,7 +84,49 @@ export function BookingForm() {
   }, [session, formData.email])
 
   const updateFormData = (data: Partial<BookingFormData>) => {
-    setFormData((prev) => ({ ...prev, ...data }))
+    setFormData((prev) => {
+      const {
+        dates,
+        numberOfGuests,
+        hourlyRate,
+        totalBudget,
+        callDurationMinutes,
+        tourDurationHours,
+        accessibilityNeeds,
+        ...rest
+      } = data
+      const next = { ...prev, ...rest }
+
+      if (dates) {
+        next.dates = { ...prev.dates, ...dates }
+      }
+
+      if (typeof numberOfGuests === 'number' && Number.isFinite(numberOfGuests)) {
+        next.numberOfGuests = Math.max(1, Math.min(10, Math.floor(numberOfGuests)))
+      }
+
+      if (typeof hourlyRate === 'number' && Number.isFinite(hourlyRate) && hourlyRate >= 0) {
+        next.hourlyRate = hourlyRate
+      }
+
+      if (typeof totalBudget === 'number' && Number.isFinite(totalBudget) && totalBudget >= 0) {
+        next.totalBudget = totalBudget
+      }
+
+      if (typeof callDurationMinutes === 'number' && Number.isFinite(callDurationMinutes) && callDurationMinutes >= 0) {
+        next.callDurationMinutes = callDurationMinutes
+      }
+
+      if (typeof tourDurationHours === 'number' && Number.isFinite(tourDurationHours) && tourDurationHours >= 0) {
+        next.tourDurationHours = tourDurationHours
+      }
+
+      if (typeof accessibilityNeeds === 'string') {
+        next.accessibilityNeeds = accessibilityNeeds.slice(0, 500)
+      }
+
+      return next
+    })
   }
 
   const getStepErrors = (step: number, data: BookingFormData): Record<string, string> => {
@@ -143,6 +186,7 @@ export function BookingForm() {
   }
 
   const handleNext = () => {
+    if (isSubmittingRef.current) return
     if (validateStep(currentStep)) {
       if (!completedSteps.includes(currentStep)) {
         setCompletedSteps((prev) => [...prev, currentStep])
@@ -170,6 +214,7 @@ export function BookingForm() {
   }
 
   const handleSubmit = async () => {
+    if (isSubmittingRef.current) return
     const allErrors: Record<string, string> = {}
 
     for (let step = 1; step <= 3; step++) {
@@ -187,6 +232,7 @@ export function BookingForm() {
       return
     }
 
+    isSubmittingRef.current = true
     setIsSubmitting(true)
     try {
       const response = await fetch('/api/tourist/request/create', {
@@ -195,6 +241,7 @@ export function BookingForm() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          email: formData.email,
           city: formData.city,
           dates: formData.dates,
           preferredTime: formData.preferredTime,
@@ -217,26 +264,34 @@ export function BookingForm() {
         }),
       })
 
-      const data = await response.json()
+      const rawBody = await response.text()
+      let data: { success?: boolean; requestId?: string } | null = null
+      if (rawBody) {
+        try {
+          data = JSON.parse(rawBody)
+        } catch {
+          data = null
+        }
+      }
 
-      if (response.ok && data.success && data.requestId) {
-        router.push(`/booking/select-guide?requestId=${data.requestId}`)
+      if (response.ok && data?.success && data.requestId) {
+        router.push(`/booking/select-guide?requestId=${encodeURIComponent(data.requestId)}`)
       } else if (response.status === 401) {
         setErrors({
           submit: 'You must be signed in to create a booking request. Please refresh the page and sign in.',
         })
       } else {
         setErrors({
-          submit: data.error || 'Failed to submit booking request. Please try again or contact support.',
+          submit: 'Failed to submit booking request. Please try again or contact support.',
         })
       }
     } catch (error) {
-      console.error('Error submitting form:', error)
       setErrors({
         submit: 'A network error occurred. Please check your connection and try again.',
       })
     } finally {
       setIsSubmitting(false)
+      isSubmittingRef.current = false
     }
   }
 

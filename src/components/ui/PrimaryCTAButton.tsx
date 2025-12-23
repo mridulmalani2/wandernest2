@@ -58,7 +58,8 @@ export function PrimaryCTAButton({
   isLoading = false,
   loadingText,
 }: PrimaryCTAButtonProps) {
-  const styles = variantStyles[variant];
+  const styles = variantStyles[variant] ?? variantStyles.blue;
+  const SafeIcon = typeof Icon === 'function' ? Icon : null;
   const isDisabled = disabled || isLoading;
 
   const buttonContent = (
@@ -92,7 +93,7 @@ export function PrimaryCTAButton({
             </>
           ) : (
             <>
-              {Icon && <Icon className={`w-5 h-5 ${styles.iconColor}`} />}
+              {SafeIcon && <SafeIcon className={`w-5 h-5 ${styles.iconColor}`} />}
               <span className={`text-base lg:text-lg font-medium ${styles.textColor}`}>{children}</span>
               {showArrow && (
                 <span className={`ml-auto ${styles.textColor} group-hover:translate-x-1 transition-transform duration-300`}>

@@ -43,7 +43,9 @@ interface ApprovalQueueProps {
 export default function ApprovalQueue({ students, onApprove, onReject, onBulkApprove }: ApprovalQueueProps) {
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null)
   const [selectedStudents, setSelectedStudents] = useState<Set<string>>(new Set())
-  const [loading, setLoading] = useState<string | null>(null)
+  const [loadingIds, setLoadingIds] = useState<Set<string>>(new Set())
+  const [isBulkLoading, setIsBulkLoading] = useState(false)
+  const [actionError, setActionError] = useState<string | null>(null)
   const [highlighter, setHighlighter] = useState<typeof hljs | null>(null)
 
   // Dynamically load highlight.js only when needed (when modal is opened)
@@ -52,43 +54,64 @@ export default function ApprovalQueue({ students, onApprove, onReject, onBulkApp
       Promise.all([
         import('highlight.js/lib/core'),
         import('highlight.js/lib/languages/markdown')
-      ]).then(([hljsModule, markdownModule]) => {
-        const hljs = hljsModule.default
-        hljs.registerLanguage('markdown', markdownModule.default)
-        setHighlighter(hljs)
-      })
+      ])
+        .then(([hljsModule, markdownModule]) => {
+          const hljs = hljsModule.default
+          hljs.registerLanguage('markdown', markdownModule.default)
+          setHighlighter(hljs)
+        })
+        .catch(() => {
+          setHighlighter(null)
+        })
     }
   }, [selectedStudent, highlighter])
 
   const handleApprove = async (studentId: string) => {
-    setLoading(studentId)
+    setActionError(null)
+    setLoadingIds((prev) => new Set(prev).add(studentId))
     try {
       await onApprove(studentId)
       setSelectedStudent(null)
+    } catch {
+      setActionError('Failed to approve student. Please try again.')
     } finally {
-      setLoading(null)
+      setLoadingIds((prev) => {
+        const next = new Set(prev)
+        next.delete(studentId)
+        return next
+      })
     }
   }
 
   const handleReject = async (studentId: string) => {
-    setLoading(studentId)
+    setActionError(null)
+    setLoadingIds((prev) => new Set(prev).add(studentId))
     try {
       await onReject(studentId)
       setSelectedStudent(null)
+    } catch {
+      setActionError('Failed to reject student. Please try again.')
     } finally {
-      setLoading(null)
+      setLoadingIds((prev) => {
+        const next = new Set(prev)
+        next.delete(studentId)
+        return next
+      })
     }
   }
 
   const handleBulkAction = async (action: 'approve' | 'reject') => {
     if (selectedStudents.size === 0) return
 
-    setLoading('bulk')
+    setActionError(null)
+    setIsBulkLoading(true)
     try {
       await onBulkApprove(Array.from(selectedStudents), action)
       setSelectedStudents(new Set())
+    } catch {
+      setActionError('Bulk action failed. Please try again.')
     } finally {
-      setLoading(null)
+      setIsBulkLoading(false)
     }
   }
 
@@ -133,19 +156,25 @@ export default function ApprovalQueue({ students, onApprove, onReject, onBulkApp
           <div className="flex gap-2">
             <button
               onClick={() => handleBulkAction('approve')}
-              disabled={loading === 'bulk'}
+              disabled={isBulkLoading}
               className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 text-sm font-medium"
             >
               Approve Selected
             </button>
             <button
               onClick={() => handleBulkAction('reject')}
-              disabled={loading === 'bulk'}
+              disabled={isBulkLoading}
               className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 text-sm font-medium"
             >
               Reject Selected
             </button>
           </div>
+        </div>
+      )}
+
+      {actionError && (
+        <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg p-3">
+          {actionError}
         </div>
       )}
 
@@ -417,17 +446,17 @@ export default function ApprovalQueue({ students, onApprove, onReject, onBulkApp
             <div className="px-6 py-4 border-t border-gray-200 flex justify-end gap-3">
               <button
                 onClick={() => handleReject(selectedStudent.id)}
-                disabled={loading === selectedStudent.id}
+                disabled={loadingIds.has(selectedStudent.id)}
                 className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 font-medium"
               >
-                {loading === selectedStudent.id ? 'Processing...' : 'Reject'}
+                {loadingIds.has(selectedStudent.id) ? 'Processing...' : 'Reject'}
               </button>
               <button
                 onClick={() => handleApprove(selectedStudent.id)}
-                disabled={loading === selectedStudent.id}
+                disabled={loadingIds.has(selectedStudent.id)}
                 className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50 font-medium"
               >
-                {loading === selectedStudent.id ? 'Processing...' : 'Approve'}
+                {loadingIds.has(selectedStudent.id) ? 'Processing...' : 'Approve'}
               </button>
             </div>
           </div>

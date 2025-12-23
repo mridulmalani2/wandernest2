@@ -58,6 +58,10 @@ export default function CTATileBase({
   onClick,
   className = '',
 }: CTATileBaseProps) {
+  const safeBackgroundImage =
+    typeof backgroundImage === 'string' && backgroundImage.trim().length > 0
+      ? backgroundImage
+      : '/images/backgrounds/london-blur.jpg';
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (onClick && (e.key === 'Enter' || e.key === ' ')) {
@@ -95,13 +99,15 @@ export default function CTATileBase({
       {/* Full-bleed background image */}
       <div className="absolute inset-0">
         <Image
-          src={backgroundImage}
+          src={safeBackgroundImage}
           alt={imageAlt}
           fill
           loading="lazy"
           quality={85}
           sizes="(max-width: 768px) 100vw, 50vw"
           className="object-cover"
+          referrerPolicy="no-referrer"
+          crossOrigin="anonymous"
         />
       </div>
 

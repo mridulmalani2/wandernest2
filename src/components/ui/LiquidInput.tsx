@@ -16,12 +16,26 @@ export interface LiquidInputProps extends React.InputHTMLAttributes<HTMLInputEle
  * LiquidInput - Accessible floating label input component
  */
 const LiquidInput = React.forwardRef<HTMLInputElement, LiquidInputProps>(
-    ({ className, label, error, helperText, icon: Icon, containerClassName, type, placeholder, required, ...props }, ref) => {
+    ({
+        className,
+        label,
+        error,
+        helperText,
+        icon: Icon,
+        containerClassName,
+        type,
+        placeholder,
+        required,
+        onBlur,
+        onFocus,
+        id: providedId,
+        ...props
+    }, ref) => {
         const [isFocused, setIsFocused] = React.useState(false);
         const [hasValue, setHasValue] = React.useState(false);
         const [showPassword, setShowPassword] = React.useState(false);
         const internalId = React.useId();
-        const id = props.id || internalId;
+        const id = providedId || internalId;
         const errorId = `${id}-error`;
         const helperId = `${id}-helper`;
 
@@ -31,11 +45,14 @@ const LiquidInput = React.forwardRef<HTMLInputElement, LiquidInputProps>(
             !error && helperText ? helperId : null,
         ].filter(Boolean).join(' ') || undefined;
 
-        const handleFocus = () => setIsFocused(true);
+        const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+            setIsFocused(true);
+            onFocus?.(e);
+        };
         const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
             setIsFocused(false);
             setHasValue(e.target.value.length > 0);
-            props.onBlur?.(e);
+            onBlur?.(e);
         };
 
         const inputType = type === 'password' && showPassword ? 'text' : type;
@@ -55,6 +72,7 @@ const LiquidInput = React.forwardRef<HTMLInputElement, LiquidInputProps>(
 
                     {/* Input */}
                     <input
+                        {...props}
                         id={id}
                         type={inputType}
                         ref={ref}
@@ -94,7 +112,6 @@ const LiquidInput = React.forwardRef<HTMLInputElement, LiquidInputProps>(
                         onFocus={handleFocus}
                         onBlur={handleBlur}
                         placeholder={type === 'date' || label ? '' : (placeholder || ' ')}
-                        {...props}
                     />
 
                     {/* Password Toggle */}
