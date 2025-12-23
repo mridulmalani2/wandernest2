@@ -28,7 +28,7 @@ export default function TouristLanding() {
         {/* Hero Section - Optimized for mobile: reduced padding */}
         <main className="flex-1 container mx-auto px-4 pt-24 pb-8 md:pt-32 md:pb-16">
           <div className="max-w-5xl mx-auto space-y-10 md:space-y-16">
-            <div className="text-center space-y-6 md:space-y-8">
+            <div className="text-center space-y-6 md:space-y-8 will-change-transform">
               <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold leading-[1.2] tracking-tight text-white text-shadow-lg">
                 Experience Authentic Travel
                 <br />
@@ -68,7 +68,7 @@ export default function TouristLanding() {
                 </p>
               </div>
               <div className="grid md:grid-cols-3 gap-6 lg:gap-8 max-w-6xl mx-auto">
-                <div className="group rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 relative overflow-hidden h-full">
+                <div className="group rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 relative overflow-hidden h-full min-h-[280px] transform-gpu">
                   <div className="absolute inset-0">
                     <Image
                       src="https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=800&q=80"
@@ -93,7 +93,7 @@ export default function TouristLanding() {
                   </div>
                 </div>
 
-                <div className="group rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 relative overflow-hidden h-full">
+                <div className="group rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 relative overflow-hidden h-full min-h-[280px] transform-gpu">
                   <div className="absolute inset-0">
                     <Image
                       src="https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=800&q=80"
@@ -118,7 +118,7 @@ export default function TouristLanding() {
                   </div>
                 </div>
 
-                <div className="group rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 relative overflow-hidden h-full">
+                <div className="group rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 relative overflow-hidden h-full min-h-[280px] transform-gpu">
                   <div className="absolute inset-0">
                     <Image
                       src="https://images.unsplash.com/photo-1533929736458-ca588d08c8be?w=800&q=80"
@@ -146,7 +146,7 @@ export default function TouristLanding() {
             </div>
 
             {/* How It Works Section - Compact & Consistent */}
-            <div className="space-y-6 pt-12">
+            <div className="space-y-6 pt-12 transform-gpu">
               <h2 className="text-3xl md:text-4xl font-bold text-center text-white text-shadow-lg">How It Works</h2>
 
               {/* Desktop Timeline */}
@@ -220,7 +220,7 @@ export default function TouristLanding() {
 
               <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
                 {/* Paris Card */}
-                <Link href="/booking" className="group block">
+                <Link href="/booking" className="group block transform-gpu">
                   <div className="relative h-96 rounded-3xl overflow-hidden shadow-premium hover:shadow-elevated transition-all duration-500 hover:-translate-y-2">
                     {/* Background Image */}
                     <Image
@@ -271,7 +271,7 @@ export default function TouristLanding() {
                 </Link>
 
                 {/* London Card */}
-                <Link href="/booking" className="group block">
+                <Link href="/booking" className="group block transform-gpu">
                   <div className="relative h-96 rounded-3xl overflow-hidden shadow-premium hover:shadow-elevated transition-all duration-500 hover:-translate-y-2">
                     {/* Background Image */}
                     <Image
@@ -325,7 +325,7 @@ export default function TouristLanding() {
             </div>
 
             {/* Marketplace Disclaimer */}
-            <div className="mt-16 max-w-3xl mx-auto">
+            <div className="mt-16 max-w-3xl mx-auto transform-gpu">
               <div className="relative overflow-hidden backdrop-blur-md bg-white/5 border border-white/10 rounded-3xl shadow-premium hover:shadow-elevated transition-all duration-300">
                 <div className="relative p-6 md:p-8">
                   <div className="flex flex-col md:flex-row md:items-start gap-6">
