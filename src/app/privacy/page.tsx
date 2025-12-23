@@ -15,14 +15,14 @@ export default function PrivacyPolicy() {
         <Navigation variant="tourist" />
 
         {/* Main Content */}
-        <main className="flex-1 container mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
+        <main className="flex-1 container mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-12 md:pt-32 md:pb-16">
           <div className="max-w-4xl mx-auto">
             {/* Back Link */}
             <Link
               href="/"
-              className="inline-flex items-center gap-2 text-sm text-white hover:text-gray-200 mb-8 transition-colors"
+              className="group inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/10 hover:bg-white/20 text-white text-sm font-medium transition-all duration-300 backdrop-blur-md border border-white/10 hover:border-white/30 mb-8"
             >
-              <ArrowLeft className="w-4 h-4" />
+              <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
               Back to Home
             </Link>
 
