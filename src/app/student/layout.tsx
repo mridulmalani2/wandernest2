@@ -23,6 +23,20 @@ export const metadata: Metadata = {
     title: 'For Students - Become a Local Travel Guide | TourWiseCo',
     description: 'Earn flexible income as a student guide. Share your city with travelers and make more than typical campus jobs.',
   },
+  alternates: {
+    canonical: 'https://tourwiseco.vercel.app/student',
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
 }
 
 export default function StudentLayout({

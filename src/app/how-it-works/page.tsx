@@ -1,6 +1,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import Footer from '@/components/Footer'
+import type { Metadata } from 'next'
 import {
   Users,
   Compass,
@@ -18,11 +19,63 @@ import {
   MessageCircle,
   Linkedin
 } from 'lucide-react'
-import { getWebsiteStructuredData, getOrganizationStructuredData } from '@/lib/structuredData'
+import { getWebsiteStructuredData, getOrganizationStructuredData, getHowItWorksStructuredData, getFAQStructuredData } from '@/lib/structuredData'
 
 // Force static rendering and cache for 24 hours
 export const dynamic = 'force-static'
 export const revalidate = 86400
+
+// SEO Metadata for the How It Works page
+export const metadata: Metadata = {
+  title: 'How TourWiseCo Works - Student-Led Local Travel Experiences',
+  description: 'Discover how TourWiseCo connects travelers with verified local university student guides for authentic, personalized travel experiences. Learn how to book a guide or become one.',
+  keywords: [
+    'how TourWiseCo works',
+    'student travel guides',
+    'local tour guides',
+    'authentic travel experiences',
+    'university student guides',
+    'personalized tours',
+    'become a tour guide',
+    'book local guide',
+    'student guide marketplace',
+    'travel like a local'
+  ],
+  openGraph: {
+    title: 'How TourWiseCo Works - Student-Led Local Travel Experiences',
+    description: 'Connect with verified local university students for authentic travel experiences. See how it works for travelers and student guides.',
+    type: 'website',
+    url: 'https://tourwiseco.vercel.app/how-it-works',
+    images: [
+      {
+        url: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=1200&h=630&fit=crop',
+        width: 1200,
+        height: 630,
+        alt: 'Students and travelers exploring together',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'How TourWiseCo Works - Student-Led Local Experiences',
+    description: 'Connect with verified local university students for authentic travel experiences.',
+    images: ['https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=1200&h=630&fit=crop'],
+  },
+  alternates: {
+    canonical: 'https://tourwiseco.vercel.app/how-it-works',
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+}
 
 // Tourist USPs
 const TOURIST_USPS = [
@@ -198,6 +251,26 @@ export default function HowItWorksPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{
           __html: JSON.stringify(getOrganizationStructuredData())
+            .replace(/</g, '\\u003c')
+            .replace(/>/g, '\\u003e')
+            .replace(/&/g, '\\u0026')
+            .replace(/'/g, '\\u0027')
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(getHowItWorksStructuredData())
+            .replace(/</g, '\\u003c')
+            .replace(/>/g, '\\u003e')
+            .replace(/&/g, '\\u0026')
+            .replace(/'/g, '\\u0027')
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(getFAQStructuredData())
             .replace(/</g, '\\u003c')
             .replace(/>/g, '\\u003e')
             .replace(/&/g, '\\u0026')
