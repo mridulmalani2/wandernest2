@@ -85,11 +85,11 @@ export default function BookingPage() {
                 <div className="text-center text-sm text-white">
                   <p className="text-center text-sm text-white">
                     By signing in, you agree to our{' '}
-                    <Link href="/terms" className="text-blue-200 hover:text-blue-100 hover:underline">
+                    <Link href="/terms" target="_blank" className="text-blue-200 hover:text-blue-100 hover:underline">
                       Terms of Service
                     </Link>{' '}
                     and{' '}
-                    <Link href="/privacy" className="text-blue-200 hover:text-blue-100 hover:underline">
+                    <Link href="/privacy" target="_blank" className="text-blue-200 hover:text-blue-100 hover:underline">
                       Privacy Policy
                     </Link>
                   </p>

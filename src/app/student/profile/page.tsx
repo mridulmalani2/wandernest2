@@ -476,7 +476,7 @@ export default function StudentProfilePage() {
 
                   <div>
                     <Label htmlFor={isEditing ? "phoneNumber" : undefined} className={DARK_LABEL_CLASS}>
-                      Phone Number
+                      Phone Number <span className="text-red-400">*</span>
                     </Label>
                     {isEditing ? (
                       <div className="flex gap-2">
@@ -508,7 +508,7 @@ export default function StudentProfilePage() {
 
                   <div>
                     <Label htmlFor={isEditing ? "dateOfBirth" : undefined} className={DARK_LABEL_CLASS}>
-                      Date of Birth
+                      Date of Birth <span className="text-red-400">*</span>
                     </Label>
                     {isEditing ? (
                       <div className="relative">
@@ -554,7 +554,7 @@ export default function StudentProfilePage() {
 
                   <div>
                     <Label htmlFor={isEditing ? "nationality" : undefined} className={DARK_LABEL_CLASS}>
-                      Nationality
+                      Nationality <span className="text-red-400">*</span>
                     </Label>
                     {isEditing ? (
                       <Input
@@ -572,7 +572,7 @@ export default function StudentProfilePage() {
 
                   <div>
                     <Label htmlFor={isEditing ? "city" : undefined} className={DARK_LABEL_CLASS}>
-                      City
+                      City <span className="text-red-400">*</span>
                     </Label>
                     {isEditing ? (
                       <Input
@@ -621,7 +621,7 @@ export default function StudentProfilePage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
                   <div>
                     <Label htmlFor={isEditing ? "institute" : undefined} className={DARK_LABEL_CLASS}>
-                      University/Institute
+                      University/Institute <span className="text-red-400">*</span>
                     </Label>
                     {isEditing ? (
                       <Input
@@ -639,7 +639,7 @@ export default function StudentProfilePage() {
 
                   <div>
                     <Label htmlFor={isEditing ? "campus" : undefined} className={DARK_LABEL_CLASS}>
-                      Campus
+                      Campus <span className="text-red-400">*</span>
                     </Label>
                     {isEditing ? (
                       <Input
@@ -657,7 +657,7 @@ export default function StudentProfilePage() {
 
                   <div>
                     <Label htmlFor={isEditing ? "programDegree" : undefined} className={DARK_LABEL_CLASS}>
-                      Program/Degree
+                      Program/Degree <span className="text-red-400">*</span>
                     </Label>
                     {isEditing ? (
                       <Input
@@ -676,7 +676,7 @@ export default function StudentProfilePage() {
 
                   <div>
                     <Label htmlFor={isEditing ? "yearOfStudy" : undefined} className={DARK_LABEL_CLASS}>
-                      Year of Study
+                      Year of Study <span className="text-red-400">*</span>
                     </Label>
                     {isEditing ? (
                       <Input
@@ -695,7 +695,7 @@ export default function StudentProfilePage() {
 
                   <div>
                     <Label htmlFor={isEditing ? "expectedGraduation" : undefined} className={DARK_LABEL_CLASS}>
-                      Expected Graduation
+                      Expected Graduation <span className="text-red-400">*</span>
                     </Label>
                     {isEditing ? (
                       <Input

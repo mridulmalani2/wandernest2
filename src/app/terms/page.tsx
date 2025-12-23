@@ -3,9 +3,11 @@
 import Link from 'next/link'
 import Navigation from '@/components/Navigation'
 import Footer from '@/components/Footer'
+import { useRouter } from 'next/navigation'
 import { ArrowLeft } from 'lucide-react'
 
 export default function TermsOfService() {
+  const router = useRouter()
   return (
     <div className="min-h-screen flex flex-col relative overflow-hidden bg-black">
       {/* Background Gradient */}
@@ -18,13 +20,14 @@ export default function TermsOfService() {
         <main className="flex-1 container mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-12 md:pt-32 md:pb-16">
           <div className="max-w-4xl mx-auto">
             {/* Back Link */}
-            <Link
-              href="/"
+            {/* Back Link */}
+            <button
+              onClick={() => router.back()}
               className="group inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/10 hover:bg-white/20 text-white text-sm font-medium transition-all duration-300 backdrop-blur-md border border-white/10 hover:border-white/30 mb-8"
             >
               <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-1" />
-              Back to Home
-            </Link>
+              Go Back
+            </button>
 
             {/* Header */}
             <div className="mb-12">

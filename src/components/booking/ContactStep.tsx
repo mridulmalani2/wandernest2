@@ -213,9 +213,9 @@ export function ContactStep({ data, errors, updateData, isEmailFromSession = fal
           <div className="text-sm font-light space-y-2">
             <p className="text-white/90">
               <label htmlFor="termsConsent" className="cursor-pointer">I agree to the </label>
-              <Link href="/terms" className="font-medium text-white hover:underline" onClick={(e) => e.stopPropagation()}>Terms of Service</Link>
+              <Link href="/terms" target="_blank" className="font-medium text-white hover:underline" onClick={(e) => e.stopPropagation()}>Terms of Service</Link>
               <label htmlFor="termsConsent" className="cursor-pointer"> and </label>
-              <Link href="/privacy" className="font-medium text-white hover:underline" onClick={(e) => e.stopPropagation()}>Privacy Policy</Link>.
+              <Link href="/privacy" target="_blank" className="font-medium text-white hover:underline" onClick={(e) => e.stopPropagation()}>Privacy Policy</Link>.
             </p>
             <div className="bg-white/10 p-3 rounded-xl border border-white/10 text-xs text-gray-300">
               <strong className="text-white block mb-1">Disclaimer:</strong>

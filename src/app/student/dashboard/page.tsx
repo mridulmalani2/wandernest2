@@ -9,6 +9,7 @@ import Image from 'next/image';
 
 import { ProfileCompletionAlert } from '@/components/student/ProfileCompletionAlert';
 import { PendingStatusAlert } from '@/components/student/PendingStatusAlert';
+import Footer from '@/components/Footer';
 
 interface StudentRequest {
   id: string;
@@ -161,7 +162,7 @@ export default function StudentDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-black relative">
+    <div className="min-h-screen bg-black relative flex flex-col">
       {/* Subtle Background Pattern */}
       <div
         className="absolute inset-0"
@@ -183,7 +184,7 @@ export default function StudentDashboard() {
         />
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 pt-28 pb-12 relative z-10">
+      <div className="max-w-7xl mx-auto px-4 pt-28 pb-12 relative z-10 flex-1 w-full">
 
         {/* Profile Completion Alert */}
         <ProfileCompletionAlert completeness={profileCompleteness} />
@@ -331,6 +332,7 @@ export default function StudentDashboard() {
           )}
         </div>
       </div>
+      <Footer variant="minimal" />
     </div>
   );
 }
