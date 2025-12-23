@@ -334,7 +334,7 @@ export default function UserJourney3D({ onStudentClick }: { onStudentClick?: () 
       {/* Carousel Container */}
       <div
         ref={containerRef}
-        className={`relative h-[480px] md:h-[520px] overflow-hidden ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
+        className={`relative h-[540px] md:h-[560px] overflow-hidden ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
         style={{ perspective: '1000px' }}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
