@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useCallback, useEffect } from 'react'
+import { useState, useCallback } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Plane, GraduationCap, ChevronDown } from 'lucide-react'
@@ -16,7 +16,6 @@ import { useWarpNavigation } from '@/hooks/useWarpNavigation'
  * - Paris night background
  * - Glassmorphism cards
  * - "Why TourWiseCo?" swipeable carousel
- * - Destinations carousel
  * - Same typography and colors as desktop
  */
 
@@ -75,64 +74,6 @@ const journeySections: JourneySection[] = [
     accentColor: '#6BD6C5',
     secondaryColor: '#6B8DD6',
     image: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800&q=80',
-  },
-]
-
-interface Destination {
-  id: string
-  city: string
-  country: string
-  image: string
-  guideCount: number
-  rating: number
-  tagline: string
-}
-
-const destinations: Destination[] = [
-  {
-    id: 'paris',
-    city: 'Paris',
-    country: 'France',
-    image: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=600&q=80',
-    guideCount: 45,
-    rating: 4.9,
-    tagline: 'City of Lights',
-  },
-  {
-    id: 'london',
-    city: 'London',
-    country: 'United Kingdom',
-    image: 'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=600&q=80',
-    guideCount: 62,
-    rating: 4.8,
-    tagline: 'Historic & Modern',
-  },
-  {
-    id: 'barcelona',
-    city: 'Barcelona',
-    country: 'Spain',
-    image: 'https://images.unsplash.com/photo-1583422409516-2895a77efded?w=600&q=80',
-    guideCount: 38,
-    rating: 4.9,
-    tagline: 'Art & Architecture',
-  },
-  {
-    id: 'amsterdam',
-    city: 'Amsterdam',
-    country: 'Netherlands',
-    image: 'https://images.unsplash.com/photo-1534351590666-13e3e96b5017?w=600&q=80',
-    guideCount: 29,
-    rating: 4.7,
-    tagline: 'Canals & Culture',
-  },
-  {
-    id: 'rome',
-    city: 'Rome',
-    country: 'Italy',
-    image: 'https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=600&q=80',
-    guideCount: 41,
-    rating: 4.8,
-    tagline: 'Eternal City',
   },
 ]
 
@@ -346,107 +287,6 @@ function JourneyCarousel({ triggerTransition }: { triggerTransition: (path: stri
 }
 
 // ============================================
-// DESTINATIONS CAROUSEL
-// ============================================
-
-function DestinationsCarousel() {
-  const scrollRef = useRef<HTMLDivElement>(null)
-  const [scrollProgress, setScrollProgress] = useState(0)
-
-  const handleScroll = useCallback(() => {
-    if (!scrollRef.current) return
-    const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current
-    const maxScroll = scrollWidth - clientWidth
-    setScrollProgress(maxScroll > 0 ? scrollLeft / maxScroll : 0)
-  }, [])
-
-  useEffect(() => {
-    const el = scrollRef.current
-    if (el) {
-      el.addEventListener('scroll', handleScroll)
-      return () => el.removeEventListener('scroll', handleScroll)
-    }
-  }, [handleScroll])
-
-  return (
-    <section className="relative py-12">
-      {/* Section Header */}
-      <div className="text-center mb-6 px-4">
-        <h2 className="text-2xl font-serif font-bold text-white mb-2">
-          Popular Destinations
-        </h2>
-        <p className="text-white/50 text-sm">
-          Explore cities with local student guides
-        </p>
-      </div>
-
-      {/* Scroll Container */}
-      <div
-        ref={scrollRef}
-        className="flex gap-4 px-4 pb-4 overflow-x-auto scrollbar-hide"
-        style={{ WebkitOverflowScrolling: 'touch' }}
-      >
-        {destinations.map((dest) => (
-          <div
-            key={dest.id}
-            className="flex-shrink-0 w-64 rounded-2xl overflow-hidden"
-            style={{
-              background: 'linear-gradient(145deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02))',
-              border: '1px solid rgba(255,255,255,0.1)',
-              boxShadow: '0 15px 40px -10px rgba(0,0,0,0.4)',
-            }}
-          >
-            {/* Image */}
-            <div className="relative h-36 overflow-hidden">
-              <Image
-                src={dest.image}
-                alt={`${dest.city}, ${dest.country}`}
-                fill
-                sizes="256px"
-                className="object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-
-              {/* Rating badge */}
-              <div className="absolute top-2 right-2 flex items-center gap-1 px-2 py-0.5 rounded-full bg-black/40 backdrop-blur-sm border border-white/10">
-                <svg className="w-3 h-3 text-yellow-400 fill-current" viewBox="0 0 20 20">
-                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                </svg>
-                <span className="text-white text-xs font-medium">{dest.rating}</span>
-              </div>
-            </div>
-
-            {/* Content */}
-            <div className="p-4">
-              <div className="flex items-start justify-between mb-1">
-                <div>
-                  <h3 className="text-base font-bold text-white">{dest.city}</h3>
-                  <p className="text-white/50 text-xs">{dest.country}</p>
-                </div>
-                <div className="px-2 py-0.5 rounded-full bg-gradient-to-r from-blue-500/20 to-purple-500/20 border border-white/10">
-                  <span className="text-[10px] font-medium text-white/70">{dest.guideCount} guides</span>
-                </div>
-              </div>
-              <p className="text-white/40 text-xs italic">{dest.tagline}</p>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Progress bar */}
-      <div className="flex justify-center px-4 mt-4">
-        <div className="w-24 h-1 bg-white/10 rounded-full overflow-hidden">
-          <div
-            className="h-full bg-gradient-to-r from-blue-400 to-purple-400 rounded-full transition-all duration-150"
-            style={{ width: `${scrollProgress * 100}%` }}
-          />
-        </div>
-      </div>
-    </section>
-  )
-}
-
-// ============================================
 // MAIN COMPONENT
 // ============================================
 
@@ -548,9 +388,6 @@ export function LandingFallback() {
 
         {/* Journey Carousel - Why TourWiseCo? */}
         <JourneyCarousel triggerTransition={triggerTransition} />
-
-        {/* Destinations Carousel */}
-        <DestinationsCarousel />
 
         {/* CTA Section */}
         <section className="relative py-16 px-4">
