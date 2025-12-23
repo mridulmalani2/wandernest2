@@ -396,13 +396,20 @@ tourwiseco/
 - `GET /api/admin/analytics` - Get platform analytics
 - `GET /api/admin/reports` - Get user reports
 
-**Provision an admin account (default: `mridulmalani` / `travelbuddy16`):**
+**Provision an admin account:**
 1. Ensure `DATABASE_URL` is configured and reachable.
-2. Run `node scripts/create-admin-user.js` to upsert the default admin:
-   - Email/username: `mridulmalani`
-   - Password: `travelbuddy16`
-   - Name: `Mridul Malani`
-3. To override the defaults, set `ADMIN_EMAIL`, `ADMIN_PASSWORD`, and `ADMIN_NAME` env vars when running the script.
+2. Set environment variables for your admin credentials:
+   ```bash
+   ADMIN_EMAIL=your-admin-email@example.com
+   ADMIN_PASSWORD=YourSecurePassword123  # Min 12 chars, uppercase, lowercase, number
+   ADMIN_NAME="Your Admin Name"
+   ```
+3. Run the admin creation script:
+   ```bash
+   npm run create-admin
+   ```
+
+> **SECURITY WARNING:** Never commit real credentials to version control. Always use environment variables for sensitive data.
 
 ### 5. Review System
 

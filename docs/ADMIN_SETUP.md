@@ -75,37 +75,23 @@ npx prisma generate
 
 ### 3. Create Admin User
 
-Create your first admin user using Prisma Studio or a seed script:
+Create your first admin user using the provided script:
 
-```typescript
-// seed-admin.ts
-import { PrismaClient } from '@prisma/client'
-import bcrypt from 'bcryptjs'
-
-const prisma = new PrismaClient()
-
-async function main() {
-  const passwordHash = await bcrypt.hash('admin123', 10)
-
-  await prisma.admin.create({
-    data: {
-      email: 'admin@tourwiseco.com',
-      passwordHash,
-      name: 'Admin User',
-      role: 'SUPER_ADMIN',
-    },
-  })
-
-  console.log('Admin user created!')
-}
-
-main()
-```
-
-Run the seed script:
 ```bash
-npx ts-node seed-admin.ts
+# Set required environment variables (use your own secure values!)
+export ADMIN_EMAIL="your-admin-email@example.com"
+export ADMIN_PASSWORD="YourSecurePassword123"  # Min 12 chars, uppercase, lowercase, number
+export ADMIN_NAME="Admin User"
+
+# Run the admin creation script
+npm run create-admin
 ```
+
+> **SECURITY WARNING:**
+> - Never use weak passwords like "admin123" or "password"
+> - Never commit real credentials to version control
+> - Always use environment variables for sensitive data
+> - Minimum password requirements: 12 characters, 1 uppercase, 1 lowercase, 1 number
 
 ### 4. Email Configuration
 

@@ -1,10 +1,12 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { getToken } from 'next-auth/jwt'
+import * as jose from 'jose'
 
 // Explicitly set Edge runtime for Vercel deployment
 // This middleware uses only Edge-compatible APIs:
 // - next-auth/jwt (Edge-compatible)
+// - jose (Edge-compatible JWT verification)
 // - Web APIs (cookies, headers, URL)
 // - No Node.js APIs, no Prisma, no filesystem access
 export const runtime = 'edge'
@@ -18,6 +20,50 @@ export const config = {
     '/student/signup',
     '/tourist/dashboard/:path*',
   ]
+}
+
+/**
+ * Extract Bearer token from Authorization header (case-insensitive)
+ * Handles: "Bearer TOKEN", "bearer TOKEN", "BEARER TOKEN"
+ */
+function extractBearerToken(authHeader: string | null): string | null {
+  if (!authHeader) return null
+  // Case-insensitive match for "Bearer " prefix with flexible spacing
+  const match = authHeader.match(/^bearer\s+(.+)$/i)
+  return match ? match[1].trim() : null
+}
+
+/**
+ * Verify admin JWT token using jose (Edge-compatible)
+ * Returns the decoded payload if valid, null otherwise
+ */
+async function verifyAdminToken(token: string): Promise<jose.JWTPayload | null> {
+  const jwtSecret = process.env.JWT_SECRET
+  if (!jwtSecret) {
+    console.error('[Middleware] JWT_SECRET not configured')
+    return null
+  }
+
+  try {
+    const secret = new TextEncoder().encode(jwtSecret)
+    const { payload } = await jose.jwtVerify(token, secret, {
+      algorithms: ['HS256'],
+    })
+
+    // Verify the token has required admin claims
+    if (!payload.adminId || typeof payload.adminId !== 'string') {
+      console.warn('[Middleware] Admin token missing adminId claim')
+      return null
+    }
+
+    return payload
+  } catch (error) {
+    // Token is invalid (expired, bad signature, malformed, etc.)
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('[Middleware] Admin token verification failed:', error instanceof Error ? error.message : 'Unknown error')
+    }
+    return null
+  }
 }
 
 export async function middleware(request: NextRequest) {
@@ -35,13 +81,24 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(adminUrl)
   }
 
-  // Admin routes - check for admin token (separate from NextAuth)
+  // Admin routes - VALIDATE admin token (not just presence check)
   if (pathname.startsWith('/admin') && !pathname.startsWith('/admin/login')) {
-    const adminToken = request.cookies.get('admin-token')?.value ||
-      request.headers.get('authorization')?.replace('Bearer ', '')
+    // Extract token from cookie or Authorization header (case-insensitive)
+    const cookieToken = request.cookies.get('admin-token')?.value
+    const headerToken = extractBearerToken(request.headers.get('authorization'))
+    const adminToken = cookieToken || headerToken
 
     if (!adminToken) {
       return NextResponse.redirect(new URL('/admin/login', request.url))
+    }
+
+    // SECURITY FIX: Verify token signature, expiry, and claims
+    const payload = await verifyAdminToken(adminToken)
+    if (!payload) {
+      // Clear invalid cookie and redirect to login
+      const response = NextResponse.redirect(new URL('/admin/login', request.url))
+      response.cookies.delete('admin-token')
+      return response
     }
   }
 
@@ -72,10 +129,25 @@ export async function middleware(request: NextRequest) {
 
   // Tourist dashboard - check for NextAuth session with tourist userType
   if (pathname.startsWith('/tourist/dashboard')) {
-    const token = await getToken({
-      req: request,
-      secret: process.env.NEXTAUTH_SECRET
-    })
+    // SECURITY FIX: Wrap getToken in try-catch to handle missing/invalid NEXTAUTH_SECRET
+    // or other runtime errors gracefully instead of crashing the middleware
+    let token = null
+    try {
+      const nextAuthSecret = process.env.NEXTAUTH_SECRET
+      if (!nextAuthSecret) {
+        console.error('[Middleware] NEXTAUTH_SECRET not configured')
+        return NextResponse.redirect(new URL('/booking', request.url))
+      }
+
+      token = await getToken({
+        req: request,
+        secret: nextAuthSecret
+      })
+    } catch (error) {
+      // Log error but don't expose details to client
+      console.error('[Middleware] getToken failed:', error instanceof Error ? error.message : 'Unknown error')
+      return NextResponse.redirect(new URL('/booking', request.url))
+    }
 
     if (!token) {
       return NextResponse.redirect(new URL('/booking', request.url))
