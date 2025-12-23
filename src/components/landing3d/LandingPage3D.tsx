@@ -86,7 +86,7 @@ function AccessibilityLayer({ is3DActive }: { is3DActive: boolean }) {
           TourWise - Experience Authentic Travel with Local Student Guides
         </h1>
         <nav aria-label="Main navigation" className="sr-only">
-          <a href="/tourist">I&apos;m a Tourist - Book a Guide</a>
+          <a href="/tourist">I&apos;m a Tourist</a>
           <a href="/student">I&apos;m a Student - Become a Guide</a>
         </nav>
       </div>
@@ -145,9 +145,8 @@ function HeroScene({
 function DiscoverMoreIndicator({ show }: { show: boolean }) {
   return (
     <div
-      className={`absolute bottom-8 left-1/2 -translate-x-1/2 z-20 transition-all duration-700 ${
-        show ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'
-      }`}
+      className={`absolute bottom-8 left-1/2 -translate-x-1/2 z-20 transition-all duration-700 ${show ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'
+        }`}
     >
       <div className="flex flex-col items-center gap-3">
         <span className="text-white/50 text-xs uppercase tracking-[0.2em] font-light">
@@ -266,11 +265,10 @@ function SectionTransition() {
 
       {/* Main popup card */}
       <div
-        className={`relative z-10 transition-all duration-1000 ease-out ${
-          isVisible
+        className={`relative z-10 transition-all duration-1000 ease-out ${isVisible
             ? 'opacity-100 translate-y-0 scale-100'
             : 'opacity-0 translate-y-12 scale-95'
-        }`}
+          }`}
         style={{
           perspective: '1000px',
           transformStyle: 'preserve-3d',
@@ -356,9 +354,8 @@ function SectionTransition() {
 
         {/* Down arrow indicator */}
         <div
-          className={`flex justify-center mt-6 transition-all duration-700 delay-500 ${
-            isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-          }`}
+          className={`flex justify-center mt-6 transition-all duration-700 delay-500 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+            }`}
         >
           <div
             className="flex flex-col items-center gap-1"

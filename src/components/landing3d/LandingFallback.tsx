@@ -323,9 +323,8 @@ function JourneyCarousel() {
           <button
             key={section.id}
             onClick={() => goToIndex(index)}
-            className={`h-2 rounded-full transition-all duration-300 ${
-              index === currentIndex ? 'w-6' : 'w-2'
-            }`}
+            className={`h-2 rounded-full transition-all duration-300 ${index === currentIndex ? 'w-6' : 'w-2'
+              }`}
             style={{
               background: index === currentIndex
                 ? `linear-gradient(90deg, ${section.accentColor}, ${section.secondaryColor})`
@@ -568,7 +567,7 @@ export function LandingFallback() {
                 className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl font-medium text-white transition-all duration-300 active:scale-95"
               >
                 <Plane className="w-4 h-4" />
-                <span>Book a Guide</span>
+                <span>I&apos;m a Tourist</span>
                 <span>→</span>
               </Link>
 

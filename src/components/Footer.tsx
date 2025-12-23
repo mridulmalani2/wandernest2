@@ -71,7 +71,7 @@ export default function Footer({ variant = 'default' }: FooterProps) {
                     href="/booking"
                     className="text-sm text-white/80 hover:text-white transition-colors duration-200 inline-block hover:translate-x-1 transform"
                   >
-                    Book a Guide
+                    I&apos;m a Tourist
                   </Link>
                 </li>
               </ul>
@@ -99,14 +99,6 @@ export default function Footer({ variant = 'default' }: FooterProps) {
                     Guide Sign In
                   </Link>
                 </li>
-                <li>
-                  <button
-                    onClick={openContactModal}
-                    className="text-sm text-white/80 hover:text-white transition-colors duration-200 inline-block hover:translate-x-1 transform text-left"
-                  >
-                    Contact us
-                  </button>
-                </li>
               </ul>
             </div>
 
@@ -123,6 +115,14 @@ export default function Footer({ variant = 'default' }: FooterProps) {
                   >
                     How TourWiseCo Works
                   </Link>
+                </li>
+                <li>
+                  <button
+                    onClick={openContactModal}
+                    className="text-sm text-white/80 hover:text-white transition-colors duration-200 inline-block hover:translate-x-1 transform text-left"
+                  >
+                    Contact us
+                  </button>
                 </li>
               </ul>
             </div>

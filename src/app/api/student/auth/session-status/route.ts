@@ -53,10 +53,12 @@ export async function GET() {
         if (studentId) {
           const student = await prisma.student.findUnique({
             where: { id: studentId },
-            select: { name: true, profileCompleteness: true }
+            select: { name: true, profileCompleteness: true, status: true }
           });
           studentName = student?.name;
           profileCompleteness = student?.profileCompleteness;
+          // @ts-ignore - status exists on student model
+          var studentStatus = student?.status;
         }
 
         // Check if onboarding is arguably complete (has name and completeness score)
@@ -72,6 +74,7 @@ export async function GET() {
             student: {
               name: studentName,
               profileCompleteness: profileCompleteness,
+              status: studentStatus,
               hasCompletedOnboarding // Also keep inside student object for compatibility
             }
           },

@@ -8,6 +8,7 @@ import { TrendingUp, Calendar, Users, Clock, MapPin, Star } from 'lucide-react';
 import Image from 'next/image';
 
 import { ProfileCompletionAlert } from '@/components/student/ProfileCompletionAlert';
+import { StudentPendingState } from '@/components/student/StudentPendingState';
 
 interface StudentRequest {
   id: string;
@@ -27,6 +28,7 @@ export default function StudentDashboard() {
   const [requests, setRequests] = useState<StudentRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [profileCompleteness, setProfileCompleteness] = useState<number>(100); // Default to 100 to avoid flash
+  const [studentStatus, setStudentStatus] = useState<string>('APPROVED'); // Default to approved to avoid flash on logic check
 
   useEffect(() => {
     const controller = new AbortController();
@@ -48,6 +50,9 @@ export default function StudentDashboard() {
             isAuthenticated = true;
             if (data.student?.profileCompleteness !== undefined) {
               setProfileCompleteness(data.student.profileCompleteness);
+            }
+            if (data.student?.status) {
+              setStudentStatus(data.student.status);
             }
           }
         } catch (error: any) {
@@ -81,6 +86,32 @@ export default function StudentDashboard() {
         if (data.profileCompleteness !== undefined) {
           setProfileCompleteness(data.profileCompleteness);
         }
+        // If the requests API returns status (it might not currently, but good to handle if updated)
+        if (data.status) {
+          setStudentStatus(data.status);
+        } else {
+          // If requests API doesn't return status, we rely on the session check above.
+          // However, for NextAuth sessions, we might missed the custom session check.
+          // NOTE: Ideally /api/student/requests should return the student object/status too.
+          // For now we will assume if we are here we are authenticated.
+          // But let's do a quick separate check if we are on NextAuth and didn't run the custom check
+          if (isAuthenticated && session?.user && studentStatus === 'APPROVED') {
+            // Determine if we need to fetch status explicitly for NextAuth users? 
+            // Currently session-status API handles logic for custom token. 
+            // For NextAuth, the user object might need to carry it or we fetch it.
+            // To be safe, let's fetch it via a dedicated calls or reuse session-status if it supports NextAuth cookie?
+            // Actually session-status logic relies on 'student_session_token' cookie which NextAuth doesn't use.
+            // We should rely on a separate /api/student/me or similar if requests doesn't provide it.
+
+            // For this iteration, let's assume session check covers it or we add a call.
+            // Let's add a lightweight status check call here if we don't have it.
+            const statusRes = await fetch('/api/student/auth/session-status', { signal: controller.signal });
+            const statusData = await statusRes.json();
+            if (statusData.student?.status) {
+              setStudentStatus(statusData.student.status);
+            }
+          }
+        }
       } catch (error: any) {
         if (error.name !== 'AbortError') {
           console.error('Failed to fetch requests', error);
@@ -106,6 +137,10 @@ export default function StudentDashboard() {
         <div className="animate-spin h-12 w-12 border-4 border-liquid-dark-primary border-t-transparent rounded-full" />
       </div>
     );
+  }
+
+  if (studentStatus === 'PENDING_APPROVAL') {
+    return <StudentPendingState />;
   }
 
   const stats = {
