@@ -411,6 +411,8 @@ export function useFetchWithStatus<T = unknown>(
           const cacheKey = getCacheKey(normalizedUrl, normalizedParams);
           setCache(cacheKey, newData, cacheTtl);
         }
+        const cacheKey = getCacheKey(url, params);
+        setCache(cacheKey, newData, cacheTtl);
       }
 
       return { ...prev, data: newData };
