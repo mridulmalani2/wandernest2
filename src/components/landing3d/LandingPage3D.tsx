@@ -210,11 +210,16 @@ function SectionTransition() {
     return () => observer.disconnect()
   }, [hasBeenSeen])
 
+  // Collapse the section after popup has been seen and scrolled away
+  const shouldCollapse = hasBeenSeen && !isVisible
+
   return (
     <div
       ref={sectionRef}
-      className="relative h-[50vh] flex items-center justify-center overflow-hidden"
+      className="relative flex items-center justify-center overflow-hidden transition-all duration-700 ease-out"
       style={{
+        height: shouldCollapse ? '0px' : '50vh',
+        opacity: shouldCollapse ? 0 : 1,
         background: 'linear-gradient(180deg, #0a0a1a 0%, #0d0d25 50%, #0a0a1a 100%)',
       }}
     >
