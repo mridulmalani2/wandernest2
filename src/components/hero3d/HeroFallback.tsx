@@ -24,7 +24,7 @@ export function HeroFallback() {
             src="https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800&q=80"
             alt="Tourists exploring a European city together"
             fill
-            loading="lazy"
+            loading="eager"
             quality={85}
             sizes="(max-width: 768px) 80vw, 40vw"
             className="object-cover"
@@ -40,7 +40,7 @@ export function HeroFallback() {
             src="https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=800&q=80"
             alt="London cityscape with iconic Tower Bridge at sunset"
             fill
-            loading="lazy"
+            loading="eager"
             quality={85}
             sizes="(max-width: 768px) 80vw, 40vw"
             className="object-cover"
@@ -56,7 +56,7 @@ export function HeroFallback() {
             src="https://images.unsplash.com/photo-1499856871958-5b9627545d1a?w=800&q=80"
             alt="Beautiful European cafe street scene"
             fill
-            loading="lazy"
+            loading="eager"
             quality={85}
             sizes="(max-width: 768px) 80vw, 40vw"
             className="object-cover"

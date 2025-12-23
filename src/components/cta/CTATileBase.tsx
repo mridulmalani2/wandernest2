@@ -98,7 +98,7 @@ export default function CTATileBase({
           src={backgroundImage}
           alt={imageAlt}
           fill
-          loading="lazy"
+          loading="eager"
           quality={85}
           sizes="(max-width: 768px) 100vw, 50vw"
           className="object-cover"

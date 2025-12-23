@@ -201,7 +201,7 @@ export default function WhyChooseCarousel() {
                   src={feature.image}
                   alt={feature.imageAlt}
                   fill
-                  loading={index === 0 ? 'eager' : 'lazy'}
+                  loading="eager"
                   quality={85}
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 85vw, 1200px"
                   className="object-cover"

@@ -485,7 +485,7 @@ export default function HowItWorksPage() {
                               width={112}
                               height={112}
                               className="w-full h-full object-cover"
-                              loading="lazy"
+                              loading="eager"
                             />
                           </div>
                         </div>
