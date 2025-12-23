@@ -190,18 +190,18 @@ function getCacheKey(url: string, params?: Record<string, unknown>): string {
   return `${url}:${paramStr}`;
 }
 
-function getFromCache<T>(key: string): T | null {
+function getFromCache<T>(key: string): { hit: boolean; data: T | null } {
   pruneCache(Date.now());
   const entry = cache.get(key) as CacheEntry<T> | undefined;
-  if (!entry) return null;
+  if (!entry) return { hit: false, data: null };
 
   const now = Date.now();
   if (now - entry.timestamp > entry.ttl) {
     cache.delete(key);
-    return null;
+    return { hit: false, data: null };
   }
 
-  return safeClone(entry.data);
+  return { hit: true, data: safeClone(entry.data) };
 }
 
 function setCache<T>(key: string, data: T, ttl: number): void {
@@ -276,6 +276,28 @@ async function sleep(ms: number, signal?: AbortSignal): Promise<void> {
   });
 }
 
+async function parseJsonSafely<T>(response: Response): Promise<T | null> {
+  try {
+    return (await response.json()) as T;
+  } catch {
+    return null;
+  }
+}
+
+async function readResponseBody(response: Response): Promise<unknown> {
+  if (response.status === 204 || response.status === 205) {
+    return null;
+  }
+
+  const contentType = response.headers.get('content-type') ?? '';
+  if (contentType.includes('application/json')) {
+    return parseJsonSafely(response);
+  }
+
+  const text = await response.text();
+  return text.length > 0 ? text : null;
+}
+
 // ============================================
 // HOOK
 // ============================================
@@ -323,12 +345,31 @@ export function useFetchWithStatus<T = unknown>(
 
   const mutate = useCallback((updater: T | ((prev: T | null) => T | null)) => {
     setState((prev) => {
-      const newData = typeof updater === 'function'
-        ? (updater as (prev: T | null) => T | null)(prev.data)
-        : updater;
+      let newData: T | null;
+      try {
+        newData = typeof updater === 'function'
+          ? (updater as (prev: T | null) => T | null)(prev.data)
+          : updater;
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'Failed to update data';
+        onError?.(message);
+        return {
+          ...prev,
+          status: 'error',
+          loading: false,
+          error: message,
+          isValidating: false,
+        };
+      }
+
+      if (cacheTtl > 0 && method === 'GET') {
+        const cacheKey = getCacheKey(url, params);
+        setCache(cacheKey, newData, cacheTtl);
+      }
+
       return { ...prev, data: newData };
     });
-  }, []);
+  }, [cacheTtl, method, onError, params, url]);
 
   const fetchData = useCallback(async () => {
     // Abort any in-flight request
@@ -344,9 +385,9 @@ export function useFetchWithStatus<T = unknown>(
     const cacheKey = getCacheKey(url, params);
     if (cacheTtl > 0 && method === 'GET') {
       const cached = getFromCache<T>(cacheKey);
-      if (cached) {
+      if (cached.hit) {
         setState({
-          data: cached,
+          data: cached.data,
           status: 'success',
           loading: false,
           error: null,
@@ -386,17 +427,19 @@ export function useFetchWithStatus<T = unknown>(
       if (!response.ok) {
         // Try to get error message from response
         let errorMessage = `Request failed with status ${response.status}`;
-        try {
-          const errorData = await response.json();
-          errorMessage = errorData.error || errorData.message || errorMessage;
-        } catch {
-          // Ignore JSON parse errors
+        const errorData = await readResponseBody(response);
+        if (errorData && typeof errorData === 'object') {
+          const errorRecord = errorData as Record<string, unknown>;
+          errorMessage =
+            (typeof errorRecord.error === 'string' && errorRecord.error) ||
+            (typeof errorRecord.message === 'string' && errorRecord.message) ||
+            errorMessage;
         }
 
         throw new Error(errorMessage);
       }
 
-      const data = await response.json();
+      const data = await readResponseBody(response);
       const transformedData = transform ? transform(data) : (data as T);
 
       // Update cache
@@ -459,7 +502,7 @@ export function useFetchWithStatus<T = unknown>(
         }
 
         if (isMountedRef.current) {
-          fetchData();
+          await fetchData();
         }
         return;
       }
@@ -493,8 +536,7 @@ export function useFetchWithStatus<T = unknown>(
     if (immediate) {
       fetchData();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [immediate, ...deps]);
+  }, [fetchData, immediate, ...deps]);
 
   return {
     ...state,
