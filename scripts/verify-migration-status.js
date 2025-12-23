@@ -30,6 +30,17 @@ function log(message, color = colors.reset) {
   console.log(`${color}${message}${colors.reset}`);
 }
 
+// Remove ANSI escape codes and control characters before logging untrusted values
+function sanitizeForLog(value) {
+  if (value === undefined || value === null) {
+    return '';
+  }
+
+  const stringValue = String(value);
+  const withoutAnsi = stringValue.replace(/\x1B\[[0-9;?]*[ -/]*[@-~]/g, '');
+  return withoutAnsi.replace(/[\x00-\x1F\x7F]/g, '');
+}
+
 async function verifyMigrationStatus() {
   const databaseUrl = process.env.DATABASE_URL;
 
@@ -68,7 +79,7 @@ async function verifyMigrationStatus() {
     } else {
       log(`   Found ${localMigrations.length} local migration(s):`, colors.cyan);
       localMigrations.forEach((migration, index) => {
-        log(`   ${index + 1}. ${migration}`, colors.green);
+        log(`   ${index + 1}. ${sanitizeForLog(migration)}`, colors.green);
       });
     }
   } catch (error) {
@@ -129,10 +140,11 @@ async function verifyMigrationStatus() {
       } else {
         log(`   Found ${migrationsResult.rows.length} applied migration(s):`, colors.cyan);
         migrationsResult.rows.forEach((row, index) => {
+          const safeMigrationName = sanitizeForLog(row.migration_name);
           const status = row.finished_at ? '✅' : '❌';
           const statusText = row.finished_at ? 'SUCCESS' : 'FAILED';
           const color = row.finished_at ? colors.green : colors.red;
-          log(`   ${index + 1}. ${status} ${row.migration_name} [${statusText}]`, color);
+          log(`   ${index + 1}. ${status} ${safeMigrationName} [${statusText}]`, color);
 
           if (!row.finished_at) {
             log(`      ⚠️  This migration failed and is blocking further migrations`, colors.yellow);
@@ -153,7 +165,7 @@ async function verifyMigrationStatus() {
       if (failedMigrationsResult.rows.length > 0) {
         log('\n⚠️  FAILED MIGRATIONS DETECTED:', colors.red);
         failedMigrationsResult.rows.forEach(row => {
-          log(`   - ${row.migration_name}`, colors.red);
+          log(`   - ${sanitizeForLog(row.migration_name)}`, colors.red);
         });
 
         log('\n💡 Resolution:', colors.cyan);
@@ -177,7 +189,7 @@ async function verifyMigrationStatus() {
       if (pendingMigrations.length > 0) {
         log('\n⚠️  PENDING MIGRATIONS (local but not applied):', colors.yellow);
         pendingMigrations.forEach(migration => {
-          log(`   - ${migration}`, colors.yellow);
+          log(`   - ${sanitizeForLog(migration)}`, colors.yellow);
         });
         log('\n💡 Run: npx prisma migrate deploy --schema=./src/prisma/schema.prisma', colors.blue);
         hasIssues = true;
@@ -186,7 +198,7 @@ async function verifyMigrationStatus() {
       if (driftMigrations.length > 0) {
         log('\n❌ MIGRATION DRIFT DETECTED (applied but missing locally):', colors.red);
         driftMigrations.forEach(migration => {
-          log(`   - ${migration}`, colors.red);
+          log(`   - ${sanitizeForLog(migration)}`, colors.red);
         });
         log('\n⚠️  Database has migrations that do not exist in local codebase.', colors.yellow);
         log('   This may indicate the database was migrated from a different branch.', colors.yellow);
@@ -212,7 +224,7 @@ async function verifyMigrationStatus() {
     } else {
       log(`   Found ${tablesResult.rows.length} table(s):`, colors.cyan);
       tablesResult.rows.forEach((row, index) => {
-        log(`   ${index + 1}. ${row.tablename}`, colors.green);
+        log(`   ${index + 1}. ${sanitizeForLog(row.tablename)}`, colors.green);
       });
     }
 
