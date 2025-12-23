@@ -50,6 +50,16 @@ function log(message, color = colors.reset) {
   console.log(`${color}${message}${colors.reset}`);
 }
 
+// Safely quote an identifier for SQL (e.g., table/enum names)
+// Doubles any embedded quotes to prevent breaking out of the identifier context.
+function quoteIdent(identifier) {
+  if (identifier === undefined || identifier === null) {
+    throw new Error('Identifier must be defined');
+  }
+  const safe = String(identifier).replace(/"/g, '""');
+  return `"${safe}"`;
+}
+
 // ============================================
 // PRODUCTION SAFETY GUARDS
 // ============================================
@@ -142,7 +152,21 @@ async function resetDatabase() {
     await client.connect();
     log('✅ Connected successfully', colors.green);
 
-    // Step 1: Drop all tables (including _prisma_migrations)
+    // Step 1: Terminate other connections up front to avoid locks
+    log('\n🔒 Terminating other database connections...', colors.blue);
+    try {
+      await client.query(`
+        SELECT pg_terminate_backend(pid)
+        FROM pg_stat_activity
+        WHERE datname = current_database()
+          AND pid <> pg_backend_pid();
+      `);
+      log('✅ Other connections terminated', colors.green);
+    } catch (terminateError) {
+      log('⚠️  Could not terminate other connections (this is usually OK)', colors.yellow);
+    }
+
+    // Step 2: Drop all tables (including _prisma_migrations)
     log('\n🔍 Finding all tables to drop...', colors.blue);
     const tablesResult = await client.query(`
       SELECT tablename
@@ -158,13 +182,14 @@ async function resetDatabase() {
 
       for (const row of tablesResult.rows) {
         const tableName = row.tablename;
+        const safeTable = `${quoteIdent('public')}.${quoteIdent(tableName)}`;
         log(`   Dropping table: ${tableName}`, colors.yellow);
-        await client.query(`DROP TABLE IF EXISTS "public"."${tableName}" CASCADE;`);
+        await client.query(`DROP TABLE IF EXISTS ${safeTable} CASCADE;`);
       }
       log('✅ All tables dropped', colors.green);
     }
 
-    // Step 2: Drop all enums
+    // Step 3: Drop all enums
     log('\n🔍 Finding all enum types to drop...', colors.blue);
     const enumsResult = await client.query(`
       SELECT t.typname as enum_name
@@ -183,13 +208,14 @@ async function resetDatabase() {
 
       for (const row of enumsResult.rows) {
         const enumName = row.enum_name;
+        const safeEnum = `${quoteIdent('public')}.${quoteIdent(enumName)}`;
         log(`   Dropping enum: ${enumName}`, colors.yellow);
-        await client.query(`DROP TYPE IF EXISTS "public"."${enumName}" CASCADE;`);
+        await client.query(`DROP TYPE IF EXISTS ${safeEnum} CASCADE;`);
       }
       log('✅ All enum types dropped', colors.green);
     }
 
-    // Step 3: Verify clean state
+    // Step 4: Verify clean state
     log('\n🔍 Verifying database is completely clean...', colors.blue);
     const verifyTables = await client.query(`
       SELECT COUNT(*) as count
