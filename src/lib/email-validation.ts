@@ -72,6 +72,9 @@ export const STUDENT_EMAIL_DOMAINS = [
   '.university', // .university TLD
 ];
 
+// RFC guidelines allow up to 254 characters for an email address
+export const MAX_EMAIL_LENGTH = 254;
+
 // Additional regex patterns for more flexible matching
 const STUDENT_EMAIL_PATTERNS = [
   /\.edu\.[a-z]{2}$/,                // International .edu (e.g., .edu.au, .edu.mx)
@@ -81,6 +84,10 @@ const STUDENT_EMAIL_PATTERNS = [
   /\.student\./,                     // Contains 'student' subdomain
 ];
 
+function normalizeEmail(email: string): string {
+  return email.trim().toLowerCase();
+}
+
 /**
  * Validates if an email address belongs to a recognized educational institution
  *
@@ -88,6 +95,15 @@ const STUDENT_EMAIL_PATTERNS = [
  * @returns true if the email domain is from a recognized educational institution
  */
 export function isStudentEmail(email: string): boolean {
+  if (!email || typeof email !== 'string') {
+    return false;
+  }
+
+  const normalizedEmail = normalizeEmail(email);
+  if (normalizedEmail.length === 0 || normalizedEmail.length > MAX_EMAIL_LENGTH) {
+    return false;
+  }
+
   if (process.env.NODE_ENV === "development") {
     // Optional: Keep this if you want to allow any email in dev, 
     // or remove it to enforce strict checking even in dev.
@@ -95,17 +111,13 @@ export function isStudentEmail(email: string): boolean {
     return true;
   }
 
-  if (!email || typeof email !== 'string') {
-    return false;
-  }
-
   // Use centralized format check
-  if (!isValidEmailFormat(email)) {
+  if (!isValidEmailFormat(normalizedEmail)) {
     return false;
   }
 
   // Use centralized domain extraction
-  const domain = getEmailDomain(email);
+  const domain = getEmailDomain(normalizedEmail);
   if (!domain) return false;
 
   // Check against exact domain matches
@@ -144,9 +156,15 @@ export function isValidEmailFormat(email: string): boolean {
     return false;
   }
 
+  const normalizedEmail = normalizeEmail(email);
+
+  if (normalizedEmail.length === 0 || normalizedEmail.length > MAX_EMAIL_LENGTH) {
+    return false;
+  }
+
   // Basic email regex - checks for format like xxx@yyy.zzz
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email.trim());
+  return emailRegex.test(normalizedEmail);
 }
 
 /**
@@ -160,6 +178,12 @@ export function getEmailDomain(email: string): string {
     return '';
   }
 
-  const parts = email.toLowerCase().trim().split('@');
+  const normalizedEmail = normalizeEmail(email);
+
+  if (normalizedEmail.length === 0 || normalizedEmail.length > MAX_EMAIL_LENGTH) {
+    return '';
+  }
+
+  const parts = normalizedEmail.split('@');
   return parts.length === 2 ? parts[1] : '';
 }
