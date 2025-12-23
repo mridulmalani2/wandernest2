@@ -621,8 +621,7 @@ export function useGet<T>(
   params?: Record<string, string | number | boolean | undefined>,
   options?: Omit<FetchOptions<T>, 'url' | 'method' | 'params'>
 ): FetchResult<T> {
-  const { url: _url, method: _method, params: _params, body: _body, immediate: _immediate, ...safeOptions } =
-    options ?? {};
+  const safeOptions = options ?? {};
   const normalizedUrl = normalizeUrl(url);
   const normalizedParams = normalizeParams(params);
 
@@ -642,8 +641,7 @@ export function usePost<T, TBody = unknown>(
   body?: TBody,
   options?: Omit<FetchOptions<T>, 'url' | 'method' | 'body'>
 ): FetchResult<T> {
-  const { url: _url, method: _method, params: _params, body: _body, immediate: _immediate, ...safeOptions } =
-    options ?? {};
+  const safeOptions = options ?? {};
   const normalizedUrl = normalizeUrl(url);
 
   return useFetchWithStatus<T>({
