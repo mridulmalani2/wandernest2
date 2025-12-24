@@ -25,24 +25,20 @@ const MAX_REVIEW_TEXT_LENGTH = 500
 /**
  * Creates a new review and updates student metrics
  *
- * SECURITY: Authorization is MANDATORY - this function will throw if
- * authorizedStudentId is not provided or doesn't match
+ * SECURITY: This function expects the caller (API route) to have already verified:
+ * 1. The tourist is authenticated
+ * 2. The tourist owns the request being reviewed
+ *
+ * The function performs additional validation:
+ * - Request exists
+ * - Student exists
+ * - No duplicate reviews for the same request
  */
-export async function createReview(input: CreateReviewInput & { authorizedStudentId: string }) {
+export async function createReview(input: CreateReviewInput) {
   const db = requireDatabase()
-
-  // SECURITY: Authorization is MANDATORY, not optional
-  if (!input.authorizedStudentId || typeof input.authorizedStudentId !== 'string') {
-    throw new Error('Authorization required: authorizedStudentId must be provided')
-  }
 
   if (!input.studentId || typeof input.studentId !== 'string') {
     throw new Error('Invalid student ID')
-  }
-
-  // SECURITY: Strict authorization check
-  if (input.authorizedStudentId !== input.studentId) {
-    throw new Error('Unauthorized: You can only create reviews for your own profile')
   }
 
   if (!input.requestId || typeof input.requestId !== 'string') {
@@ -85,14 +81,20 @@ export async function createReview(input: CreateReviewInput & { authorizedStuden
   // SECURITY: Use transaction to ensure atomicity of review creation and metrics update.
   // This prevents race conditions and ensures metrics are always consistent with reviews.
   return await db.$transaction(async (tx) => {
-    // SECURITY: Verify the request exists and belongs to this student
+    // SECURITY: Verify the request exists
     const request = await tx.touristRequest.findUnique({
       where: { id: input.requestId },
-      select: { id: true, status: true }
+      select: { id: true, status: true, selectedStudentId: true }
     })
 
     if (!request) {
       throw new Error('Request not found')
+    }
+
+    // SECURITY: Verify the student being reviewed was selected for this request
+    // This prevents reviewing arbitrary students not associated with the booking
+    if (request.selectedStudentId && request.selectedStudentId !== input.studentId) {
+      throw new Error('Student does not match the selected guide for this request')
     }
 
     // Check if review already exists for this request
