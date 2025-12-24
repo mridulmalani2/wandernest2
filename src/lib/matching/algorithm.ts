@@ -138,7 +138,7 @@ async function fetchCandidates(
 ): Promise<(Student & { availability: StudentAvailability[] })[]> {
   const db = requireDatabase()
   const safeCity = sanitizeCacheKey(criteria.city)
-  const cacheKey = `students:candidates:${safeCity}:${crypto
+  const cacheKey = `students:approved:candidates:${safeCity}:${crypto
     .createHash('md5')
     .update(JSON.stringify(criteria))
     .digest('hex')

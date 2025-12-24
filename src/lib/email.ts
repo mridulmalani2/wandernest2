@@ -481,6 +481,8 @@ export async function sendAdminApprovalReminder(student: {
   results.forEach((result, index) => {
     if (result.status === 'rejected') {
       console.error(`Failed to send reminder to ${adminEmails[index]}:`, result.reason)
+    } else if (!result.value.success) {
+      console.error(`Failed to send reminder to ${adminEmails[index]}:`, result.value.error)
     }
   })
 
