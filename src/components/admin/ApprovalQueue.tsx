@@ -1,8 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import Image from 'next/image'
-import type hljs from 'highlight.js'
+import { sanitizeText } from '@/lib/sanitization'
 
 interface Student {
   id: string
@@ -46,25 +46,6 @@ export default function ApprovalQueue({ students, onApprove, onReject, onBulkApp
   const [loadingIds, setLoadingIds] = useState<Set<string>>(new Set())
   const [isBulkLoading, setIsBulkLoading] = useState(false)
   const [actionError, setActionError] = useState<string | null>(null)
-  const [highlighter, setHighlighter] = useState<typeof hljs | null>(null)
-
-  // Dynamically load highlight.js only when needed (when modal is opened)
-  useEffect(() => {
-    if (selectedStudent && !highlighter) {
-      Promise.all([
-        import('highlight.js/lib/core'),
-        import('highlight.js/lib/languages/markdown')
-      ])
-        .then(([hljsModule, markdownModule]) => {
-          const hljs = hljsModule.default
-          hljs.registerLanguage('markdown', markdownModule.default)
-          setHighlighter(hljs)
-        })
-        .catch(() => {
-          setHighlighter(null)
-        })
-    }
-  }, [selectedStudent, highlighter])
 
   const handleApprove = async (studentId: string) => {
     setActionError(null)
@@ -116,34 +97,30 @@ export default function ApprovalQueue({ students, onApprove, onReject, onBulkApp
   }
 
   const toggleStudentSelection = (studentId: string) => {
-    const newSelection = new Set(selectedStudents)
-    if (newSelection.has(studentId)) {
-      newSelection.delete(studentId)
-    } else {
-      newSelection.add(studentId)
-    }
-    setSelectedStudents(newSelection)
+    setSelectedStudents((prev) => {
+      const next = new Set(prev)
+      if (next.has(studentId)) {
+        next.delete(studentId)
+      } else {
+        next.add(studentId)
+      }
+      return next
+    })
   }
 
   const toggleSelectAll = () => {
-    if (selectedStudents.size === students.length) {
-      setSelectedStudents(new Set())
-    } else {
-      setSelectedStudents(new Set(students.map(s => s.id)))
-    }
+    setSelectedStudents((prev) => {
+      const allSelected = students.length > 0 && students.every((student) => prev.has(student.id))
+      return allSelected ? new Set() : new Set(students.map((student) => student.id))
+    })
   }
 
   const highlightCoverLetter = (text: string) => {
-    if (!highlighter) {
-      // Return plain text while highlight.js is loading
-      return text
-    }
-    try {
-      return highlighter.highlight(text, { language: 'markdown' }).value
-    } catch {
-      return text
-    }
+    return sanitizeText(text, 5000)
   }
+
+  const allStudentsSelected =
+    students.length > 0 && students.every((student) => selectedStudents.has(student.id))
 
   return (
     <div className="space-y-4">
@@ -185,12 +162,12 @@ export default function ApprovalQueue({ students, onApprove, onReject, onBulkApp
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left">
-                  <input
-                    type="checkbox"
-                    checked={selectedStudents.size === students.length && students.length > 0}
-                    onChange={toggleSelectAll}
-                    className="h-4 w-4 text-blue-600 rounded"
-                  />
+                    <input
+                      type="checkbox"
+                      checked={allStudentsSelected}
+                      onChange={toggleSelectAll}
+                      className="h-4 w-4 text-blue-600 rounded"
+                    />
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Name
@@ -427,12 +404,9 @@ export default function ApprovalQueue({ students, onApprove, onReject, onBulkApp
 
               <div className="mb-6">
                 <h3 className="text-sm font-medium text-gray-700 mb-2">Cover Letter</h3>
-                <div
-                  className="bg-gray-900 rounded-lg p-4 overflow-x-auto"
-                  dangerouslySetInnerHTML={{
-                    __html: highlightCoverLetter(selectedStudent.coverLetter),
-                  }}
-                />
+                <pre className="bg-gray-900 rounded-lg p-4 overflow-x-auto whitespace-pre-wrap text-sm text-gray-100">
+                  {highlightCoverLetter(selectedStudent.coverLetter)}
+                </pre>
               </div>
 
               {selectedStudent.bio && (

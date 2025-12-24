@@ -17,10 +17,12 @@ function calculateSuggestedPrice(city: string, serviceType: string): { min: numb
     berlin: { min: 20, max: 45 },
   }
 
-  const baseRate = cityRates[city.toLowerCase()] || { min: 20, max: 40 }
+  const normalizedCity = typeof city === 'string' ? city.trim().toLowerCase() : ''
+  const baseRate = cityRates[normalizedCity] || { min: 20, max: 40 }
+  const normalizedServiceType = typeof serviceType === 'string' ? serviceType.trim().toLowerCase() : ''
 
   // Adjust for service type
-  if (serviceType === 'guided_experience') {
+  if (normalizedServiceType === 'guided_experience') {
     return {
       min: Math.round(baseRate.min * 1.2),
       max: Math.round(baseRate.max * 1.2),
@@ -76,8 +78,11 @@ function calculateMatchScore(
     reasons.push('Matches your preferred nationality')
   }
 
+  const preferredLanguages = Array.isArray(criteria.preferredLanguages) ? criteria.preferredLanguages : []
+  const interests = Array.isArray(criteria.interests) ? criteria.interests : []
+
   // 2. Language match (high priority)
-  const languageMatches = criteria.preferredLanguages.filter((lang) =>
+  const languageMatches = preferredLanguages.filter((lang) =>
     student.languages.includes(lang)
   )
   if (languageMatches.length > 0) {
@@ -86,7 +91,7 @@ function calculateMatchScore(
   }
 
   // 3. Interest overlap
-  const interestMatches = criteria.interests.filter((interest) =>
+  const interestMatches = interests.filter((interest) =>
     student.interests.includes(interest)
   )
   if (interestMatches.length > 0) {
@@ -95,7 +100,7 @@ function calculateMatchScore(
   }
 
   // 4. Rating (if exists)
-  if (student.averageRating) {
+  if (student.averageRating !== null) {
     score += student.averageRating * 10
     if (student.averageRating >= 4.5) {
       reasons.push('Highly rated guide')
@@ -132,7 +137,7 @@ function calculateMatchScore(
   }
 
   // 8. Acceptance rate
-  if (student.acceptanceRate && student.acceptanceRate >= 0.8) {
+  if (student.acceptanceRate !== null && student.acceptanceRate >= 0.8) {
     score += 10
   }
 
@@ -192,9 +197,9 @@ async function matchStudents(req: NextRequest) {
     const criteria: MatchingCriteria = {
       city: touristRequest.city,
       preferredNationality: touristRequest.preferredNationality || undefined,
-      preferredLanguages: touristRequest.preferredLanguages,
+      preferredLanguages: Array.isArray(touristRequest.preferredLanguages) ? touristRequest.preferredLanguages : [],
       serviceType: touristRequest.serviceType,
-      interests: touristRequest.interests,
+      interests: Array.isArray(touristRequest.interests) ? touristRequest.interests : [],
       dates: touristRequest.dates as { start: string; end?: string },
       preferredTime: touristRequest.preferredTime,
     }

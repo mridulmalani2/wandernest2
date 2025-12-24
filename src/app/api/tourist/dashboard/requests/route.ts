@@ -30,6 +30,10 @@ export async function GET(request: NextRequest) {
       )
     }
 
+    const { searchParams } = request.nextUrl
+    const limitParam = Number(searchParams.get('limit') ?? '50')
+    const safeLimit = Number.isFinite(limitParam) ? Math.min(Math.max(limitParam, 1), 50) : 50
+
     const requests = await db.touristRequest.findMany({
       where: {
         email,
@@ -37,12 +41,20 @@ export async function GET(request: NextRequest) {
       orderBy: {
         createdAt: 'desc',
       },
-      include: {
+      select: {
+        id: true,
+        city: true,
+        dates: true,
+        numberOfGuests: true,
+        serviceType: true,
+        budget: true,
+        status: true,
+        createdAt: true,
         selections: {
           where: {
             status: 'accepted',
           },
-          include: {
+          select: {
             student: {
               select: {
                 id: true,
@@ -52,8 +64,16 @@ export async function GET(request: NextRequest) {
             },
           },
         },
-        review: true,
+        review: {
+          select: {
+            id: true,
+            rating: true,
+            text: true,
+            createdAt: true,
+          },
+        },
       },
+      take: safeLimit,
     })
 
     return NextResponse.json({ requests })

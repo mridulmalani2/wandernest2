@@ -24,7 +24,11 @@ const verifySchema = z.object({
   dates: z.object({
     start: z.string(),
     end: z.string().optional(),
-  }),
+  }).refine((dates) => {
+    if (!dates.start) return false
+    if (!dates.end) return true
+    return new Date(dates.start) <= new Date(dates.end)
+  }, { message: 'End date must be after start date' }),
   preferredTime: z.enum(['morning', 'afternoon', 'evening']),
   numberOfGuests: z.number().min(1).max(10),
   groupType: z.enum(['family', 'friends', 'solo', 'business']),
@@ -124,7 +128,13 @@ export async function POST(req: NextRequest) {
 
     // AUTOMATIC MATCHING: Find and invite candidate students (do this BEFORE sending email)
     console.log(`[verifyTouristRequest] Triggering automatic matching for request ${touristRequest.id}`)
-    const matchResult = await autoMatchAndInvite(touristRequest)
+    let matchResult = { success: false, candidatesFound: 0, invitationsSent: 0, errors: ['Auto-match failed'] }
+    try {
+      matchResult = await autoMatchAndInvite(touristRequest)
+    } catch (error) {
+      const safeError = error instanceof Error ? error.message : 'Unknown error'
+      console.warn(`[verifyTouristRequest] Auto-match error: ${safeError}`)
+    }
 
     if (matchResult.success) {
       console.log(
@@ -136,15 +146,20 @@ export async function POST(req: NextRequest) {
     }
 
     // Send booking confirmation email with match status (non-critical)
-    const emailResult = await sendBookingConfirmation(
-      validatedData.email,
-      touristRequest.id,
-      touristRequest.city,
-      { matchesFound: matchResult.candidatesFound }
-    )
-    if (!emailResult.success) {
-      console.warn('⚠️  Failed to send booking confirmation email:', emailResult.error)
-      // Continue anyway - email is not critical for the booking
+    try {
+      const emailResult = await sendBookingConfirmation(
+        validatedData.email,
+        touristRequest.id,
+        touristRequest.city,
+        { matchesFound: matchResult.candidatesFound }
+      )
+      if (!emailResult.success) {
+        const safeError = typeof emailResult.error === 'string' ? emailResult.error : 'Unknown error'
+        console.warn('⚠️  Failed to send booking confirmation email:', safeError)
+      }
+    } catch (error) {
+      const safeError = error instanceof Error ? error.message : 'Unknown error'
+      console.warn('⚠️  Failed to send booking confirmation email:', safeError)
     }
 
     return NextResponse.json(
@@ -169,7 +184,8 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    console.error('Error verifying request:', error)
+    const safeError = error instanceof Error ? error.message : 'Unknown error'
+    console.error('Error verifying request:', safeError)
     return NextResponse.json(
       {
         success: false,

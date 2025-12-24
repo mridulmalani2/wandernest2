@@ -8,6 +8,7 @@ import { sendStudentWelcomeEmail } from '@/lib/transactional-email';
 import { z } from 'zod';
 import { withErrorHandler, withDatabaseRetry, AppError } from '@/lib/error-handler';
 import * as bcrypt from 'bcryptjs';
+import { normalizeTag, sanitizeText } from '@/lib/sanitization';
 
 const GENERIC_DOMAINS = ['gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com', 'aol.com', 'icloud.com'];
 
@@ -24,7 +25,7 @@ const onboardingSchema = z.object({
   password: z.string().min(8),
 
   // Personal Details
-  name: z.string().min(1).max(100),
+  name: z.string().min(1).max(100).transform((val) => sanitizeText(val, 100)).refine((val) => val.length > 0),
   dateOfBirth: z.string().min(1).transform(str => new Date(str)).refine((date) => {
     const ageDifMs = Date.now() - date.getTime();
     const ageDate = new Date(ageDifMs);
@@ -32,24 +33,24 @@ const onboardingSchema = z.object({
     return age >= 18;
   }, { message: "You must be at least 18 years old." }),
   gender: z.enum(['male', 'female', 'prefer_not_to_say']),
-  nationality: z.string().min(1).max(100),
+  nationality: z.string().min(1).max(100).transform((val) => sanitizeText(val, 100)).refine((val) => val.length > 0),
   phoneNumber: z.string().min(8, "Phone number too short").max(20, "Phone number too long").regex(/^\+?[0-9\s\-\(\)]+$/, "Invalid phone number format"),
-  city: z.string().min(1).max(100),
-  campus: z.string().min(1).max(100),
+  city: z.string().min(1).max(100).transform((val) => sanitizeText(val, 100)).refine((val) => val.length > 0),
+  campus: z.string().min(1).max(100).transform((val) => sanitizeText(val, 100)).refine((val) => val.length > 0),
 
   // Academic Details
-  institute: z.string().min(1).max(100),
-  programDegree: z.string().min(1).max(100),
-  yearOfStudy: z.string().min(1),
+  institute: z.string().min(1).max(100).transform((val) => sanitizeText(val, 100)).refine((val) => val.length > 0),
+  programDegree: z.string().min(1).max(100).transform((val) => sanitizeText(val, 100)).refine((val) => val.length > 0),
+  yearOfStudy: z.string().min(1).transform((val) => sanitizeText(val, 50)).refine((val) => val.length > 0),
   // Fixed: expectedGraduation should be string in DB, so we refine the string instead of transforming
   expectedGraduation: z.string().min(1).refine((str) => {
     const d = new Date(str);
     return !isNaN(d.getTime()) && d.getFullYear() >= new Date().getFullYear();
   }, { message: "Graduation year cannot be in the past." }),
-  languages: z.array(z.string()).min(1),
+  languages: z.array(z.string().transform((val) => normalizeTag(val, 50)).refine((val) => val.length > 0, { message: 'Invalid language' })).min(1).max(10),
 
   // Identity Verification
-  studentIdUrl: z.string().min(1),
+  studentIdUrl: z.string().min(1).refine((val) => val.startsWith('/api/files/'), { message: 'Invalid student ID URL' }),
   studentIdExpiry: z.string().min(1).regex(/^\d{2}\/\d{4}$/, "Format must be MM/YYYY").transform(str => {
     const [month, year] = str.split('/').map(Number);
     return new Date(year, month, 0); // Last day of the month
@@ -57,7 +58,7 @@ const onboardingSchema = z.object({
   governmentIdUrl: z.string().optional(),
   governmentIdExpiry: z.string().optional().transform(str => str ? new Date(str) : undefined).refine((date) => !date || date > new Date(), { message: "Government ID has expired." }),
   selfieUrl: z.string().optional(),
-  profilePhotoUrl: z.string().min(1),
+  profilePhotoUrl: z.string().min(1).refine((val) => val.startsWith('/api/files/'), { message: 'Invalid profile photo URL' }),
   documentsOwnedConfirmation: z.boolean(),
   verificationConsent: z.boolean(),
 
@@ -65,7 +66,7 @@ const onboardingSchema = z.object({
   termsAccepted: z.literal(true, { errorMap: () => ({ message: "You must accept the terms" }) }),
   safetyGuidelinesAccepted: z.literal(true),
   independentGuideAcknowledged: z.literal(true),
-  emergencyContactName: z.string().optional(),
+  emergencyContactName: z.string().optional().transform((val) => (val ? sanitizeText(val, 100) : val)).refine((val) => !val || val.length > 0),
   emergencyContactPhone: z.string().optional().refine((val) => !val || /^\+?[0-9\s\-\(\)]+$/.test(val), { message: "Invalid emergency contact phone" }),
 });
 

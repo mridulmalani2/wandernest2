@@ -25,23 +25,13 @@ interface CardData {
 
 const CARDS: CardData[] = [
   {
-    id: 'tourist',
-    title: 'TOURIST',
-    subtitle: 'Find Your Guide',
-    href: '/tourist',
-    image: 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=1920&q=85',
-    imageAlt: 'Tokyo cityscape at dusk with neon lights',
-    delay: 0,
-  },
-  {
     id: 'student',
     title: 'STUDENT',
-    subtitle: 'Become a Guide',
+    subtitle: '',
     href: '/student',
-    // European university campus architecture - atmospheric, matches cityscape theme
-    image: 'https://images.unsplash.com/photo-1562774053-701939374585?w=1920&q=85',
-    imageAlt: 'Historic university campus with grand architecture',
-    delay: 0.1,
+    image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1920&q=85',
+    imageAlt: 'Confident young professional in urban environment',
+    delay: 0,
   },
   {
     id: 'learn-more',
@@ -49,6 +39,15 @@ const CARDS: CardData[] = [
     subtitle: 'Learn more about what we do',
     image: 'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=1920&q=85',
     imageAlt: 'London Tower Bridge at twilight',
+    delay: 0.1,
+  },
+  {
+    id: 'tourist',
+    title: 'TOURIST',
+    subtitle: '',
+    href: '/tourist',
+    image: 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=1920&q=85',
+    imageAlt: 'Tokyo cityscape at dusk with neon lights',
     delay: 0.2,
   },
 ]
@@ -119,7 +118,7 @@ function FinalStepCard({ card, entranceProgress, onLearnMoreClick }: FinalStepCa
       <div className="relative z-10 h-full flex flex-col items-center justify-center px-6">
         {/* Title - Bold premium typography */}
         <h2
-          className="final-step-title text-white text-center mb-4 transition-transform duration-500 group-hover:scale-105"
+          className={`final-step-title text-white text-center transition-transform duration-500 group-hover:scale-105 ${card.subtitle ? 'mb-4' : 'mb-8'}`}
           style={{
             fontFamily: '"Bebas Neue", Impact, "Arial Black", sans-serif',
             fontSize: 'clamp(2.5rem, 8vw, 5rem)',
@@ -133,17 +132,19 @@ function FinalStepCard({ card, entranceProgress, onLearnMoreClick }: FinalStepCa
           {card.title}
         </h2>
 
-        {/* Subtitle */}
-        <p
-          className="text-white/80 text-center mb-8 font-light tracking-wide"
-          style={{
-            fontFamily: 'Georgia, "Times New Roman", serif',
-            fontSize: 'clamp(0.875rem, 2vw, 1.125rem)',
-            letterSpacing: '0.05em',
-          }}
-        >
-          {card.subtitle}
-        </p>
+        {/* Subtitle - only show if not empty */}
+        {card.subtitle && (
+          <p
+            className="text-white/80 text-center mb-8 font-light tracking-wide"
+            style={{
+              fontFamily: 'Georgia, "Times New Roman", serif',
+              fontSize: 'clamp(0.875rem, 2vw, 1.125rem)',
+              letterSpacing: '0.05em',
+            }}
+          >
+            {card.subtitle}
+          </p>
+        )}
 
         {/* CTA Button */}
         <button
