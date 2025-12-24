@@ -207,17 +207,19 @@ export const PUT = withStudent(async (request, studentAuth) => {
       'preferredDurations',
       'emergencyContactName',
       'emergencyContactPhone',
-    ];
+    ] as const;
+    type AllowedField = (typeof allowedFields)[number];
 
     // Filter out non-allowed fields
     const updateData: any = {};
     for (const field of allowedFields) {
-      if (parsedBody.data[field] !== undefined) {
-        if (field === 'dateOfBirth' && parsedBody.data[field]) {
+      const value = parsedBody.data[field as AllowedField];
+      if (value !== undefined) {
+        if (field === 'dateOfBirth' && value) {
           // Convert string date to Date object
-          updateData[field] = new Date(parsedBody.data[field] as string);
+          updateData[field] = new Date(value as string);
         } else {
-          updateData[field] = parsedBody.data[field];
+          updateData[field] = value;
         }
       }
     }
