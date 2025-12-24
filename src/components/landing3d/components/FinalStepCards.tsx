@@ -38,8 +38,9 @@ const CARDS: CardData[] = [
     title: 'STUDENT',
     subtitle: 'Become a Guide',
     href: '/student',
-    image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1920&q=85',
-    imageAlt: 'Confident young professional in urban environment',
+    // European university campus architecture - atmospheric, matches cityscape theme
+    image: 'https://images.unsplash.com/photo-1562774053-701939374585?w=1920&q=85',
+    imageAlt: 'Historic university campus with grand architecture',
     delay: 0.1,
   },
   {
