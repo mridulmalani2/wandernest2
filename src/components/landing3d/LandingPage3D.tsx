@@ -12,6 +12,7 @@ import {
   HeroSectionPhased,
   PathwayCardsPhased,
   ScrollProgressIndicator,
+  FinalStepCards,
 } from './components'
 import UserJourney3D from '@/components/landing3d/components/UserJourney3D'
 import { WarpTransition } from '@/components/transitions/WarpTransition'
@@ -549,12 +550,26 @@ export function LandingPage3D({ className = '' }: LandingPage3DProps) {
           isVisible={isVisible && isReady && hijackState.isLocked}
         />
 
-        {/* "Discover More" indicator (after hijack completes) */}
+        {/* "Discover More" indicator (after hijack completes, before final cards shown) */}
         <DiscoverMoreIndicator show={hijackState.isComplete && !hijackState.isLocked} />
       </section>
 
       {/* Spacer when hero is fixed */}
       {hijackState.isLocked && <div className="h-screen" />}
+
+      {/* ============================================ */}
+      {/* FINAL STEP: Land Rover-style Three-Panel    */}
+      {/* Shows after 3D animation completes          */}
+      {/* ============================================ */}
+      <FinalStepCards
+        isVisible={true}
+        onLearnMoreClick={() => {
+          const carousel = document.getElementById('user-journey-carousel')
+          if (carousel) {
+            carousel.scrollIntoView({ behavior: 'smooth' })
+          }
+        }}
+      />
 
       {/* ============================================ */}
       {/* TRANSITION: Learn How It Works Popup        */}
@@ -565,6 +580,7 @@ export function LandingPage3D({ className = '' }: LandingPage3DProps) {
       {/* SECTION 2: Horizontal 3D Carousel           */}
       {/* ============================================ */}
       <section
+        id="user-journey-carousel"
         className="relative min-h-screen bg-gradient-to-b from-[#0a0a1a] via-[#0f0f2f] to-[#0a0a1a]"
       >
         {/* The Horizontal Carousel */}
