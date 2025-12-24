@@ -83,8 +83,9 @@ export function BookingForm() {
     }
   }, [session, formData.email])
 
-  const updateFormData = (data: Partial<BookingFormData>) => {
+  const updateFormData = (data: Partial<BookingFormData> | ((prev: BookingFormData) => Partial<BookingFormData>)) => {
     setFormData((prev) => {
+      const updates = typeof data === 'function' ? data(prev) : data
       const {
         dates,
         numberOfGuests,
@@ -94,7 +95,7 @@ export function BookingForm() {
         tourDurationHours,
         accessibilityNeeds,
         ...rest
-      } = data
+      } = updates
       const next = { ...prev, ...rest }
 
       if (dates) {

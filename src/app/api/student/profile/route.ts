@@ -8,6 +8,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { withStudent } from '@/lib/api-wrappers';
+import { sanitizeText } from '@/lib/sanitization';
 
 export const dynamic = 'force-dynamic';
 
@@ -154,6 +155,10 @@ export const PUT = withStudent(async (request, studentAuth) => {
         if (field === 'dateOfBirth' && body[field]) {
           // Convert string date to Date object
           updateData[field] = new Date(body[field]);
+        } else if (field === 'coverLetter' && typeof body[field] === 'string') {
+          updateData[field] = sanitizeText(body[field], 5000);
+        } else if (field === 'bio' && typeof body[field] === 'string') {
+          updateData[field] = sanitizeText(body[field], 2000);
         } else {
           updateData[field] = body[field];
         }

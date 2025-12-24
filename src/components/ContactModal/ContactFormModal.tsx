@@ -37,9 +37,11 @@ export function ContactFormModal({ open, onOpenChange }: ContactFormModalProps) 
       newErrors.name = 'Name is required'
     }
 
-    if (!formData.email.trim()) {
+    const trimmedEmail = formData.email.trim()
+
+    if (!trimmedEmail) {
       newErrors.email = 'Email is required'
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
       newErrors.email = 'Please enter a valid email'
     }
 
@@ -62,7 +64,6 @@ export function ContactFormModal({ open, onOpenChange }: ContactFormModalProps) 
 
     try {
       let fileUrl: string | undefined
-      let fileName: string | undefined
 
       // Upload file if present
       if (file) {
@@ -80,7 +81,6 @@ export function ContactFormModal({ open, onOpenChange }: ContactFormModalProps) 
 
         const uploadData = await uploadResponse.json()
         fileUrl = uploadData.url
-        fileName = file.name
       }
 
       // Submit contact form
@@ -90,12 +90,11 @@ export function ContactFormModal({ open, onOpenChange }: ContactFormModalProps) 
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          name: formData.name,
-          email: formData.email,
-          phone: formData.phone || undefined,
-          message: formData.message,
+          name: formData.name.trim(),
+          email: formData.email.trim(),
+          phone: formData.phone.trim() || undefined,
+          message: formData.message.trim(),
           fileUrl,
-          fileName,
         }),
       })
 
@@ -141,6 +140,18 @@ export function ContactFormModal({ open, onOpenChange }: ContactFormModalProps) 
         return
       }
 
+      const ext = selectedFile.name.split('.').pop()?.toLowerCase() || ''
+      const mimeToExt: Record<string, string[]> = {
+        'image/jpeg': ['jpg', 'jpeg'],
+        'image/png': ['png'],
+        'image/webp': ['webp'],
+        'application/pdf': ['pdf'],
+      }
+      if (!mimeToExt[selectedFile.type]?.includes(ext)) {
+        setErrors(prev => ({ ...prev, file: 'File extension does not match file type' }))
+        return
+      }
+
       setFile(selectedFile)
       setErrors(prev => ({ ...prev, file: '' }))
     }
@@ -175,6 +186,7 @@ export function ContactFormModal({ open, onOpenChange }: ContactFormModalProps) 
                 id="name"
                 type="text"
                 value={formData.name}
+                maxLength={100}
                 onChange={(e) => {
                   const val = e.target.value
                   setFormData(prev => ({ ...prev, name: val }))
@@ -196,6 +208,7 @@ export function ContactFormModal({ open, onOpenChange }: ContactFormModalProps) 
                 id="email"
                 type="email"
                 value={formData.email}
+                maxLength={254}
                 onChange={(e) => {
                   const val = e.target.value
                   setFormData(prev => ({ ...prev, email: val }))
@@ -215,6 +228,7 @@ export function ContactFormModal({ open, onOpenChange }: ContactFormModalProps) 
                 id="phone"
                 type="tel"
                 value={formData.phone}
+                maxLength={30}
                 onChange={(e) => {
                   const val = e.target.value
                   setFormData(prev => ({ ...prev, phone: val }))
@@ -231,6 +245,7 @@ export function ContactFormModal({ open, onOpenChange }: ContactFormModalProps) 
               <Textarea
                 id="message"
                 value={formData.message}
+                maxLength={2000}
                 onChange={(e) => {
                   const val = e.target.value
                   setFormData(prev => ({ ...prev, message: val }))

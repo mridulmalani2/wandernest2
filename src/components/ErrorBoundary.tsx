@@ -39,8 +39,20 @@ export class ErrorBoundary extends Component<Props, State> {
     }
 
     // Call optional error handler
-    if (this.props.onError) {
-      this.props.onError(error, errorInfo);
+    if (typeof this.props.onError === 'function') {
+      try {
+        const safeError = process.env.NODE_ENV === 'production'
+          ? new Error(error.message || 'Application error')
+          : error;
+        const safeErrorInfo = process.env.NODE_ENV === 'production'
+          ? ({ componentStack: '' } as React.ErrorInfo)
+          : errorInfo;
+        this.props.onError(safeError, safeErrorInfo);
+      } catch (handlerError) {
+        if (process.env.NODE_ENV === 'development') {
+          console.error('ErrorBoundary onError handler failed:', handlerError);
+        }
+      }
     }
   }
 
