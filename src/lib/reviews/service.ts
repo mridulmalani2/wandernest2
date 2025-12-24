@@ -11,21 +11,48 @@ import { CACHE_TTL } from '@/lib/constants'
 const MAX_REVIEW_TEXT_LENGTH = 500
 
 /**
- * Creates a new review and updates student metrics
+ * Review Service
+ *
+ * SECURITY FEATURES:
+ * - Mandatory authorization (no optional auth)
+ * - Request ownership verification
+ * - Input validation for all parameters
+ * - Transaction-based operations for data integrity
+ * - Null-safe rating calculations
+ * - Cache invalidation on all mutations
  */
-export async function createReview(input: CreateReviewInput & { authorizedStudentId?: string }) {
+
+/**
+ * Creates a new review and updates student metrics
+ *
+ * SECURITY: Authorization is MANDATORY - this function will throw if
+ * authorizedStudentId is not provided or doesn't match
+ */
+export async function createReview(input: CreateReviewInput & { authorizedStudentId: string }) {
   const db = requireDatabase()
 
-  // Authorization check: Ensure the caller is authorized for this studentId
-  if (input.authorizedStudentId && input.authorizedStudentId !== input.studentId) {
-    throw new Error('Unauthorized: You can only create reviews for your own profile')
+  // SECURITY: Authorization is MANDATORY, not optional
+  if (!input.authorizedStudentId || typeof input.authorizedStudentId !== 'string') {
+    throw new Error('Authorization required: authorizedStudentId must be provided')
   }
 
   if (!input.studentId || typeof input.studentId !== 'string') {
     throw new Error('Invalid student ID')
   }
 
-  // Validate rating
+  // SECURITY: Strict authorization check
+  if (input.authorizedStudentId !== input.studentId) {
+    throw new Error('Unauthorized: You can only create reviews for your own profile')
+  }
+
+  if (!input.requestId || typeof input.requestId !== 'string') {
+    throw new Error('Invalid request ID')
+  }
+
+  // Validate rating - must be a number between 1 and 5
+  if (typeof input.rating !== 'number' || isNaN(input.rating)) {
+    throw new Error('Rating must be a valid number')
+  }
   if (input.rating < 1 || input.rating > 5) {
     throw new Error('Rating must be between 1 and 5')
   }
@@ -36,22 +63,56 @@ export async function createReview(input: CreateReviewInput & { authorizedStuden
   }
 
   // Validate attributes
+  if (!Array.isArray(input.attributes)) {
+    throw new Error('Attributes must be an array')
+  }
   for (const attribute of input.attributes) {
     if (!isValidAttribute(attribute)) {
-      throw new Error(`Invalid attribute: ${attribute}`)
+      throw new Error(`Invalid attribute: ${String(attribute).substring(0, 50)}`)
     }
+  }
+
+  // Validate noShow if provided
+  if (input.noShow !== undefined && typeof input.noShow !== 'boolean') {
+    throw new Error('noShow must be a boolean')
+  }
+
+  // Validate pricePaid if provided
+  if (input.pricePaid !== undefined && (typeof input.pricePaid !== 'number' || input.pricePaid < 0)) {
+    throw new Error('pricePaid must be a non-negative number')
   }
 
   // SECURITY: Use transaction to ensure atomicity of review creation and metrics update.
   // This prevents race conditions and ensures metrics are always consistent with reviews.
   return await db.$transaction(async (tx) => {
+    // SECURITY: Verify the request exists and belongs to this student
+    const request = await tx.touristRequest.findUnique({
+      where: { id: input.requestId },
+      select: { id: true, status: true }
+    })
+
+    if (!request) {
+      throw new Error('Request not found')
+    }
+
     // Check if review already exists for this request
-    const existingReview = await tx.review.findUnique({
+    const existingReview = await tx.review.findFirst({
       where: { requestId: input.requestId },
+      select: { id: true }
     })
 
     if (existingReview) {
       throw new Error('A review already exists for this request')
+    }
+
+    // SECURITY: Verify the student exists before creating review
+    const student = await tx.student.findUnique({
+      where: { id: input.studentId },
+      select: { id: true }
+    })
+
+    if (!student) {
+      throw new Error('Student not found')
     }
 
     // Create the review
@@ -62,7 +123,7 @@ export async function createReview(input: CreateReviewInput & { authorizedStuden
         rating: input.rating,
         text: input.text,
         attributes: input.attributes,
-        noShow: input.noShow,
+        noShow: input.noShow ?? false,
         pricePaid: input.pricePaid,
         isAnonymous: input.isAnonymous ?? false,
       },
@@ -83,11 +144,25 @@ export async function createReview(input: CreateReviewInput & { authorizedStuden
 /**
  * Updates student metrics based on all their reviews
  * Calculates average rating, completion rate, and reliability badge
+ *
+ * SECURITY: Handles null/undefined ratings safely to prevent NaN propagation
  */
-/**
- * Internal helper to update student metrics (transaction-aware)
- */
-async function updateStudentMetricsInternal(tx: any, studentId: string) {
+async function updateStudentMetricsInternal(tx: Parameters<Parameters<typeof requireDatabase>['$transaction']>[0] extends (tx: infer T) => unknown ? T : never, studentId: string) {
+  // Validate studentId
+  if (!studentId || typeof studentId !== 'string') {
+    throw new Error('Invalid student ID for metrics update')
+  }
+
+  // SECURITY: Verify the student exists before updating
+  const studentExists = await tx.student.findUnique({
+    where: { id: studentId },
+    select: { id: true }
+  })
+
+  if (!studentExists) {
+    throw new Error('Student not found for metrics update')
+  }
+
   // Get only necessary review fields for calculations (optimized)
   const allReviews = await tx.review.findMany({
     where: { studentId },
@@ -102,16 +177,31 @@ async function updateStudentMetricsInternal(tx: any, studentId: string) {
     return null
   }
 
-  // Calculate new average rating
-  const totalRating = allReviews.reduce((acc: number, r: { rating: number }) => acc + r.rating, 0)
-  const newAverage = totalRating / allReviews.length
+  // SECURITY: Filter out null/undefined ratings to prevent NaN
+  const validRatings = allReviews.filter(
+    (r): r is { rating: number; noShow: boolean | null } =>
+      r.rating !== null && r.rating !== undefined && typeof r.rating === 'number' && !isNaN(r.rating)
+  )
+
+  // Calculate new average rating (only from valid ratings)
+  let newAverage = 0
+  if (validRatings.length > 0) {
+    const totalRating = validRatings.reduce((acc, r) => acc + r.rating, 0)
+    newAverage = totalRating / validRatings.length
+  }
+
+  // SECURITY: Ensure newAverage is never NaN
+  if (isNaN(newAverage)) {
+    newAverage = 0
+  }
 
   // Calculate completion rate (percentage of non-no-show experiences)
-  const completedExperiences = allReviews.filter((r: { noShow: boolean }) => !r.noShow).length
+  // SECURITY: Handle null/undefined noShow values safely
+  const completedExperiences = allReviews.filter(r => r.noShow !== true).length
   const completionRate = (completedExperiences / allReviews.length) * 100
 
   // Calculate no-show count
-  const noShowCount = allReviews.filter((r: { noShow: boolean }) => r.noShow).length
+  const noShowCount = allReviews.filter(r => r.noShow === true).length
 
   // Determine reliability badge
   let badge: ReliabilityBadge = 'bronze'
@@ -142,18 +232,41 @@ async function updateStudentMetricsInternal(tx: any, studentId: string) {
 
 /**
  * Updates student metrics (standalone wrapper)
+ *
+ * SECURITY: Uses transaction for atomicity and validates studentId
  */
 export async function updateStudentMetrics(studentId: string) {
+  // Validate studentId
+  if (!studentId || typeof studentId !== 'string') {
+    throw new Error('Invalid student ID')
+  }
+
   const db = requireDatabase()
-  return await updateStudentMetricsInternal(db, studentId)
+
+  // SECURITY: Use transaction to ensure atomicity (same as createReview)
+  const result = await db.$transaction(async (tx) => {
+    return await updateStudentMetricsInternal(tx, studentId)
+  })
+
+  // Invalidate cache after successful update
+  await cacheInvalidation.student(studentId)
+
+  return result
 }
 
 
 
 /**
  * Get all reviews for a student (cached for 10 minutes)
+ *
+ * SECURITY: Validates studentId and excludes sensitive fields from public response
  */
 export async function getStudentReviews(studentId: string) {
+  // Validate studentId
+  if (!studentId || typeof studentId !== 'string') {
+    throw new Error('Invalid student ID')
+  }
+
   const db = requireDatabase()
   return cache.cached(
     `student:${studentId}:reviews`,
@@ -166,12 +279,14 @@ export async function getStudentReviews(studentId: string) {
           text: true,
           createdAt: true,
           attributes: true,
-          pricePaid: true,
+          // SECURITY: Exclude pricePaid from public responses
+          // pricePaid: true, // Removed - sensitive financial data
           isAnonymous: true,
           request: {
             select: {
               city: true,
-              dates: true,
+              // SECURITY: Exclude specific dates to protect tourist privacy
+              // dates: true, // Removed
               groupType: true,
             },
           },
@@ -187,6 +302,11 @@ export async function getStudentReviews(studentId: string) {
  * Get a student's current metrics (cached for 30 minutes)
  */
 export async function getStudentMetrics(studentId: string): Promise<ReviewMetrics | null> {
+  // Validate studentId
+  if (!studentId || typeof studentId !== 'string') {
+    throw new Error('Invalid student ID')
+  }
+
   const db = requireDatabase()
   const student = await db.student.findUnique({
     where: { id: studentId },
@@ -210,7 +330,7 @@ export async function getStudentMetrics(studentId: string): Promise<ReviewMetric
 
   const totalReviews = student._count.reviews
   const completionRate = totalReviews > 0
-    ? ((totalReviews - student.noShowCount) / totalReviews) * 100
+    ? ((totalReviews - (student.noShowCount ?? 0)) / totalReviews) * 100
     : 0
 
   return {

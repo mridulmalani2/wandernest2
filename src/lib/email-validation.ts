@@ -5,6 +5,8 @@
  * used in the student authentication flow. Only emails from recognized
  * educational institutions are allowed for student sign-up and login.
  *
+ * SECURITY: All validation runs in ALL environments (no dev bypass)
+ *
  * USAGE:
  * - Import `isStudentEmail()` to validate email domains
  * - Import `getStudentEmailErrorMessage()` for user-friendly error messages
@@ -72,8 +74,11 @@ export const STUDENT_EMAIL_DOMAINS = [
   '.university', // .university TLD
 ];
 
-// RFC guidelines allow up to 254 characters for an email address
+// RFC 5321 allows up to 254 characters for an email address
+// RFC 5321 local-part max is 64 characters
 export const MAX_EMAIL_LENGTH = 254;
+export const MAX_LOCAL_PART_LENGTH = 64;
+export const MAX_DOMAIN_LENGTH = 253;
 
 // Additional regex patterns for more flexible matching
 const STUDENT_EMAIL_PATTERNS = [
@@ -84,12 +89,19 @@ const STUDENT_EMAIL_PATTERNS = [
   /\.student\./,                     // Contains 'student' subdomain
 ];
 
+/**
+ * Normalize email for consistent processing
+ * SECURITY: Trims whitespace and converts to lowercase
+ */
 function normalizeEmail(email: string): string {
   return email.trim().toLowerCase();
 }
 
 /**
  * Validates if an email address belongs to a recognized educational institution
+ *
+ * SECURITY: This function enforces validation in ALL environments
+ * No development bypass - security must be consistent across all environments
  *
  * @param email - The email address to validate
  * @returns true if the email domain is from a recognized educational institution
@@ -104,12 +116,7 @@ export function isStudentEmail(email: string): boolean {
     return false;
   }
 
-  if (process.env.NODE_ENV === "development") {
-    // Optional: Keep this if you want to allow any email in dev, 
-    // or remove it to enforce strict checking even in dev.
-    // For now I will include it to match previous behavior but cleaner.
-    return true;
-  }
+  // SECURITY: No development bypass - validation always enforced
 
   // Use centralized format check
   if (!isValidEmailFormat(normalizedEmail)) {
@@ -134,19 +141,24 @@ export function isStudentEmail(email: string): boolean {
 /**
  * Gets a user-friendly error message for invalid student email domains
  *
- * @param email - The email that failed validation
+ * SECURITY: Does NOT include the email in the error message to prevent:
+ * - PII exposure in logs/responses
+ * - Reflected XSS attacks
+ * - Log injection attacks
+ *
+ * @param _email - The email that failed validation (not used in message for security)
  * @returns A user-friendly error message
  */
-export function getStudentEmailErrorMessage(email?: string): string {
-  if (!email) {
-    return 'Please enter a valid university or institutional email address.';
-  }
-
-  return `The email "${email}" does not appear to be from a recognized educational institution. Please use your university email address (e.g., .edu, .ac.uk, .edu.au).`;
+export function getStudentEmailErrorMessage(_email?: string): string {
+  // SECURITY: Never include user-supplied email in error messages
+  // This prevents PII leakage, XSS, and log injection
+  return 'Please use a valid university or institutional email address (e.g., .edu, .ac.uk, .edu.au).';
 }
 
 /**
- * Validates email format (basic check)
+ * Validates email format with improved regex and length checks
+ *
+ * SECURITY: More robust validation than basic regex alone
  *
  * @param email - The email address to validate
  * @returns true if the email format is valid
@@ -158,20 +170,98 @@ export function isValidEmailFormat(email: string): boolean {
 
   const normalizedEmail = normalizeEmail(email);
 
+  // Length validation
   if (normalizedEmail.length === 0 || normalizedEmail.length > MAX_EMAIL_LENGTH) {
     return false;
   }
 
-  // Basic email regex - checks for format like xxx@yyy.zzz
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(normalizedEmail);
+  // Split into local-part and domain
+  const atIndex = normalizedEmail.lastIndexOf('@');
+  if (atIndex === -1 || atIndex === 0 || atIndex === normalizedEmail.length - 1) {
+    return false;
+  }
+
+  const localPart = normalizedEmail.substring(0, atIndex);
+  const domain = normalizedEmail.substring(atIndex + 1);
+
+  // Validate local-part length (RFC 5321: max 64 characters)
+  if (localPart.length > MAX_LOCAL_PART_LENGTH) {
+    return false;
+  }
+
+  // Validate domain length (RFC 5321: max 253 characters)
+  if (domain.length > MAX_DOMAIN_LENGTH) {
+    return false;
+  }
+
+  // Check for empty parts after splitting
+  if (localPart.length === 0 || domain.length === 0) {
+    return false;
+  }
+
+  // Improved local-part validation:
+  // - Allow alphanumeric, dots, hyphens, underscores, plus signs
+  // - Disallow leading/trailing dots
+  // - Disallow consecutive dots
+  if (localPart.startsWith('.') || localPart.endsWith('.')) {
+    return false;
+  }
+  if (localPart.includes('..')) {
+    return false;
+  }
+
+  // Local-part regex: alphanumeric plus common special chars
+  // More permissive than RFC for practical compatibility, but rejects obvious bad patterns
+  const localPartRegex = /^[a-z0-9!#$%&'*+/=?^_`{|}~.-]+$/i;
+  if (!localPartRegex.test(localPart)) {
+    return false;
+  }
+
+  // Domain validation:
+  // - Must have at least one dot
+  // - Labels must be alphanumeric with optional hyphens (not leading/trailing)
+  // - TLD must be at least 2 characters
+  if (!domain.includes('.')) {
+    return false;
+  }
+
+  // Check for leading/trailing dots and consecutive dots in domain
+  if (domain.startsWith('.') || domain.endsWith('.') || domain.includes('..')) {
+    return false;
+  }
+
+  // Validate domain labels
+  const domainParts = domain.split('.');
+  for (const part of domainParts) {
+    if (part.length === 0 || part.length > 63) {
+      return false;
+    }
+    // Labels can't start or end with hyphen
+    if (part.startsWith('-') || part.endsWith('-')) {
+      return false;
+    }
+    // Labels must be alphanumeric (with hyphens allowed in middle)
+    if (!/^[a-z0-9]([a-z0-9-]*[a-z0-9])?$/i.test(part) && !/^[a-z0-9]$/i.test(part)) {
+      return false;
+    }
+  }
+
+  // TLD must be at least 2 characters
+  const tld = domainParts[domainParts.length - 1];
+  if (tld.length < 2) {
+    return false;
+  }
+
+  return true;
 }
 
 /**
  * Gets the domain from an email address
  *
+ * SECURITY: Handles edge cases including quoted local-parts with '@'
+ *
  * @param email - The email address
- * @returns The domain portion of the email (e.g., "university.edu")
+ * @returns The domain portion of the email (e.g., "university.edu"), or empty string if invalid
  */
 export function getEmailDomain(email: string): string {
   if (!email || typeof email !== 'string') {
@@ -184,6 +274,20 @@ export function getEmailDomain(email: string): string {
     return '';
   }
 
-  const parts = normalizedEmail.split('@');
-  return parts.length === 2 ? parts[1] : '';
+  // Handle quoted local-parts that may contain '@'
+  // Use lastIndexOf to find the final '@' which separates local-part from domain
+  const atIndex = normalizedEmail.lastIndexOf('@');
+
+  if (atIndex === -1 || atIndex === 0 || atIndex === normalizedEmail.length - 1) {
+    return '';
+  }
+
+  const domain = normalizedEmail.substring(atIndex + 1);
+
+  // Validate domain has at least one dot and valid structure
+  if (!domain.includes('.') || domain.startsWith('.') || domain.endsWith('.')) {
+    return '';
+  }
+
+  return domain;
 }
