@@ -5,6 +5,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth-options'
 import { requireDatabase } from '@/lib/prisma'
+import { verifyAdmin } from '@/lib/api-auth'
 
 export async function GET(req: NextRequest) {
   try {
@@ -62,8 +63,8 @@ export async function GET(req: NextRequest) {
     // Verify ownership
     // Note: session.user.email is reliable.
     // If we wanted to be stricter, we'd check touristId if available in schema vs session.
-    const isAdmin = session.user.userType === 'admin'
-    if (touristRequest.email !== session.user.email && !isAdmin) {
+    const adminAuth = await verifyAdmin(req)
+    if (touristRequest.email !== session.user.email && !adminAuth.authorized) {
       // Allow admins or maybe the assigned student?
       // For now, strictly restrict to owner to fix IDOR.
       return NextResponse.json(
