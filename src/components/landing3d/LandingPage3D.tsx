@@ -10,8 +10,8 @@ import { LandingFallback } from './LandingFallback'
 import {
   AtmosphericBackground,
   HeroSectionPhased,
-  PathwayCardsPhased,
   ScrollProgressIndicator,
+  FinalStepCards,
 } from './components'
 import UserJourney3D from '@/components/landing3d/components/UserJourney3D'
 import { WarpTransition } from '@/components/transitions/WarpTransition'
@@ -104,7 +104,6 @@ function HeroScene({
   pointerState,
   isVisible,
   isHijackComplete,
-  onStudentClick,
 }: {
   currentPhase: number
   phaseProgress: number
@@ -112,7 +111,6 @@ function HeroScene({
   pointerState: PointerState
   isVisible: boolean
   isHijackComplete: boolean
-  onStudentClick?: () => void
 }) {
   const pointerOffset = {
     x: pointerState.smoothX,
@@ -132,15 +130,7 @@ function HeroScene({
           isHijackComplete={isHijackComplete}
         />
       </Suspense>
-      <Suspense fallback={null}>
-        <PathwayCardsPhased
-          currentPhase={currentPhase}
-          phaseProgress={phaseProgress}
-          pointerOffset={pointerOffset}
-          isHijackComplete={isHijackComplete}
-          onStudentClick={onStudentClick}
-        />
-      </Suspense>
+      {/* PathwayCardsPhased removed - replaced by FinalStepCards HTML overlay */}
       <Preload all />
     </>
   )
@@ -549,6 +539,20 @@ export function LandingPage3D({ className = '' }: LandingPage3DProps) {
           isVisible={isVisible && isReady && hijackState.isLocked}
         />
 
+        {/* FinalStepCards - HTML overlay replacing PathwayCardsPhased */}
+        {/* Animates in during Phase 4, same timing as old CTA cards */}
+        <FinalStepCards
+          currentPhase={hijackState.currentPhase}
+          phaseProgress={hijackState.phaseProgress}
+          isHijackComplete={hijackState.isComplete}
+          onLearnMoreClick={() => {
+            const carousel = document.getElementById('user-journey-carousel')
+            if (carousel) {
+              carousel.scrollIntoView({ behavior: 'smooth' })
+            }
+          }}
+        />
+
         {/* "Discover More" indicator (after hijack completes) */}
         <DiscoverMoreIndicator show={hijackState.isComplete && !hijackState.isLocked} />
       </section>
@@ -565,6 +569,7 @@ export function LandingPage3D({ className = '' }: LandingPage3DProps) {
       {/* SECTION 2: Horizontal 3D Carousel           */}
       {/* ============================================ */}
       <section
+        id="user-journey-carousel"
         className="relative min-h-screen bg-gradient-to-b from-[#0a0a1a] via-[#0f0f2f] to-[#0a0a1a]"
       >
         {/* The Horizontal Carousel */}
