@@ -40,7 +40,9 @@ type AuthType = 'admin' | 'student' | 'tourist' | 'optional' | 'none';
 
 interface AuthResult {
   authorized: boolean;
-  admin?: { id: string; email: string };
+  /** True when auth is 'optional' and no identity was found */
+  isAnonymous?: boolean;
+  admin?: { id: string; email: string; role: string; isActive: boolean };
   student?: { email: string; id?: string | null };
   tourist?: { email: string };
   error?: string;
@@ -51,6 +53,10 @@ interface HandlerContext<TBody, TQuery> {
   body: TBody;
   query: TQuery;
   auth: AuthResult;
+  /**
+   * Database client. Non-null when requireDb: true (the default).
+   * If you set requireDb: false, do not access this property - it will be null at runtime.
+   */
   db: ReturnType<typeof requireDatabase>;
   params?: Record<string, string>;
 }
@@ -87,11 +93,28 @@ interface ApiResponse<T> {
 // QUERY PARSING HELPER
 // ============================================
 
-function parseQueryParams(req: NextRequest): Record<string, string> {
-  const params: Record<string, string> = {};
+/**
+ * Parse query parameters from request, preserving multi-value parameters as arrays
+ * SECURITY FIX: Original implementation dropped duplicate keys, only keeping the last value.
+ * This fix properly handles multi-value query parameters (e.g., ?tag=a&tag=b -> {tag: ['a', 'b']})
+ */
+function parseQueryParams(req: NextRequest): Record<string, string | string[]> {
+  const params: Record<string, string | string[]> = {};
+
   req.nextUrl.searchParams.forEach((value, key) => {
-    params[key] = value;
+    const existing = params[key];
+    if (existing === undefined) {
+      // First occurrence - store as string
+      params[key] = value;
+    } else if (Array.isArray(existing)) {
+      // Already an array - append
+      existing.push(value);
+    } else {
+      // Second occurrence - convert to array
+      params[key] = [existing, value];
+    }
   });
+
   return params;
 }
 
@@ -111,7 +134,13 @@ async function authenticate(
     const result = await verifyAdmin(req);
     return {
       authorized: result.authorized,
-      admin: result.admin ? { id: result.admin.id, email: result.admin.email } : undefined,
+      // SECURITY FIX: Include all admin fields (role, isActive) for proper RBAC checks
+      admin: result.admin ? {
+        id: result.admin.id,
+        email: result.admin.email,
+        role: result.admin.role,
+        isActive: result.admin.isActive,
+      } : undefined,
       error: result.error,
     };
   }
@@ -134,18 +163,23 @@ async function authenticate(
     };
   }
 
-  // Optional auth - try all methods, don't fail if none succeed
+  // Optional auth - try all methods, allow request even if none succeed
   if (authType === 'optional') {
     const adminResult = await verifyAdmin(req);
-    if (adminResult.authorized) {
+    if (adminResult.authorized && adminResult.admin) {
       return {
         authorized: true,
-        admin: adminResult.admin ? { id: adminResult.admin.id, email: adminResult.admin.email } : undefined,
+        admin: {
+          id: adminResult.admin.id,
+          email: adminResult.admin.email,
+          role: adminResult.admin.role,
+          isActive: adminResult.admin.isActive,
+        },
       };
     }
 
     const studentResult = await verifyStudent(req);
-    if (studentResult.authorized) {
+    if (studentResult.authorized && studentResult.student) {
       return {
         authorized: true,
         student: studentResult.student,
@@ -153,15 +187,18 @@ async function authenticate(
     }
 
     const touristResult = await verifyTourist(req);
-    if (touristResult.authorized) {
+    if (touristResult.authorized && touristResult.tourist) {
       return {
         authorized: true,
-        tourist: touristResult.tourist ? { email: touristResult.tourist.email } : undefined,
+        tourist: { email: touristResult.tourist.email },
       };
     }
 
-    // Optional auth - return authorized even if no auth found
-    return { authorized: true };
+    // SECURITY FIX: Optional auth without identity should return authorized: false
+    // but with isAnonymous: true so handlers know it's expected and can allow the request.
+    // This prevents handlers from incorrectly assuming an authenticated user exists
+    // when auth.authorized === true.
+    return { authorized: false, isAnonymous: true };
   }
 
   return { authorized: false, error: 'Unknown auth type' };
@@ -206,7 +243,9 @@ export function createApiHandler<
       if (auth !== 'none') {
         const authResult = await authenticate(req, auth);
 
-        if (!authResult.authorized && auth !== 'optional') {
+        // SECURITY FIX: For optional auth, allow anonymous access (isAnonymous: true)
+        // For required auth types, reject if not authorized
+        if (!authResult.authorized && !authResult.isAnonymous) {
           logger.warn(`[${requestId}] ${route} - Authentication failed`, {
             error: authResult.error,
           });
@@ -228,7 +267,12 @@ export function createApiHandler<
             logger.warn(`[${requestId}] ${route} - Query validation failed`, {
               errors: error.errors,
             });
-            throw new AppError(400, 'Invalid query parameters', 'VALIDATION_ERROR', error.errors);
+            // SECURITY FIX: Sanitize error details to avoid leaking internal validation structure
+            const sanitizedErrors = error.errors.map(err => ({
+              path: err.path.join('.'),
+              message: err.message,
+            }));
+            throw new AppError(400, 'Invalid query parameters', 'VALIDATION_ERROR', sanitizedErrors);
           }
           throw error;
         }
@@ -245,7 +289,13 @@ export function createApiHandler<
             logger.warn(`[${requestId}] ${route} - Body validation failed`, {
               errors: error.errors,
             });
-            throw error; // Let error handler format ZodError
+            // SECURITY FIX: Consistent ZodError handling - wrap in AppError like query validation
+            // Sanitize error details to avoid leaking internal validation structure
+            const sanitizedErrors = error.errors.map(err => ({
+              path: err.path.join('.'),
+              message: err.message,
+            }));
+            throw new AppError(400, 'Validation failed', 'VALIDATION_ERROR', sanitizedErrors);
           }
           if (error instanceof SyntaxError) {
             throw new AppError(400, 'Invalid JSON in request body', 'INVALID_JSON');
@@ -264,6 +314,9 @@ export function createApiHandler<
       const params = context?.params ? await context.params : undefined;
 
       // 6. Execute handler
+      // Note: db! assertion is safe here because when requireDb is true (the default),
+      // requireDatabase() throws if db is unavailable. If requireDb is false,
+      // handlers should not access db (will be null at runtime despite the type).
       const result = await handler({
         req,
         body: validatedBody,
@@ -354,7 +407,13 @@ export function validateBody<T>(schema: z.ZodType<T, any, any>, data: unknown): 
     return schema.parse(data);
   } catch (error) {
     if (error instanceof ZodError) {
-      throw new AppError(400, 'Validation failed', 'VALIDATION_ERROR', error.errors);
+      // SECURITY FIX: Sanitize error details to prevent exposing raw Zod validation
+      // structure which could reveal internal schema details or input values
+      const sanitizedErrors = error.errors.map(err => ({
+        path: err.path.join('.'),
+        message: err.message,
+      }));
+      throw new AppError(400, 'Validation failed', 'VALIDATION_ERROR', sanitizedErrors);
     }
     throw error;
   }
@@ -369,7 +428,12 @@ export function parseQuery<T>(schema: z.ZodType<T, any, any>, req: NextRequest):
     return schema.parse(params);
   } catch (error) {
     if (error instanceof ZodError) {
-      throw new AppError(400, 'Invalid query parameters', 'VALIDATION_ERROR', error.errors);
+      // SECURITY FIX: Sanitize error details consistently
+      const sanitizedErrors = error.errors.map(err => ({
+        path: err.path.join('.'),
+        message: err.message,
+      }));
+      throw new AppError(400, 'Invalid query parameters', 'VALIDATION_ERROR', sanitizedErrors);
     }
     throw error;
   }
