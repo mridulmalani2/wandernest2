@@ -74,8 +74,8 @@ export async function GET() {
           configured: configSummary.integrations.redis === 'configured',
         },
       },
-      warnings: configSummary.warnings.length > 0 ? ['Check server logs for warnings'] : [],
-      errors: configSummary.errors.length > 0 ? ['Check server logs for errors'] : [],
+      warnings: configSummary.warningCount > 0 ? ['Check server logs for warnings'] : [],
+      errors: configSummary.errorCount > 0 ? ['Check server logs for errors'] : [],
     }
 
     return NextResponse.json(response, { status: httpStatus })
