@@ -3,6 +3,12 @@ import 'server-only'
 /**
  * Configuration validation and management
  *
+ * SECURITY FEATURES:
+ * - Input validation for all numeric environment variables
+ * - Secret redaction in logs and error messages
+ * - Immutable configuration summary
+ * - Log injection prevention
+ *
  * This module validates all required environment variables at startup
  * and provides clear error messages when things are misconfigured.
  *
@@ -44,7 +50,6 @@ export interface AppConfig {
       isConfigured: boolean
     }
   }
-  // Payment configuration removed - no longer using discovery fee model
   app: {
     nodeEnv: string
     baseUrl: string | null
@@ -62,13 +67,76 @@ export interface AppConfig {
 
 /**
  * Configuration warnings for non-critical misconfigurations
+ * SECURITY: These arrays are internal and not exposed directly
  */
-export const configWarnings: string[] = []
+const configWarnings: string[] = []
 
 /**
  * Configuration errors for critical misconfigurations
+ * SECURITY: These arrays are internal and not exposed directly
  */
-export const configErrors: string[] = []
+const configErrors: string[] = []
+
+/**
+ * Default values for numeric configuration
+ */
+const DEFAULT_EMAIL_PORT = 587;
+const DEFAULT_VERIFICATION_EXPIRY = 600; // 10 minutes
+const MIN_PORT = 1;
+const MAX_PORT = 65535;
+const MIN_EXPIRY = 60; // 1 minute
+const MAX_EXPIRY = 3600; // 1 hour
+
+/**
+ * Parse integer environment variable with validation
+ * SECURITY: Returns default value if parsing fails instead of NaN
+ */
+function parseIntEnv(value: string | undefined, defaultValue: number, min: number, max: number): number {
+  if (!value) {
+    return defaultValue;
+  }
+
+  const parsed = parseInt(value, 10);
+
+  // Check for NaN or invalid range
+  if (isNaN(parsed) || parsed < min || parsed > max) {
+    return defaultValue;
+  }
+
+  return parsed;
+}
+
+/**
+ * Redact sensitive values for logging
+ * SECURITY: Prevents secrets from appearing in logs
+ */
+function redactUrl(url: string | null): string {
+  if (!url) return '[not configured]';
+
+  try {
+    const parsed = new URL(url);
+    // Redact password if present
+    if (parsed.password) {
+      parsed.password = '[REDACTED]';
+    }
+    // Redact username if it looks like an API key
+    if (parsed.username && parsed.username.length > 20) {
+      parsed.username = '[REDACTED]';
+    }
+    return parsed.toString();
+  } catch {
+    // If not a valid URL, just indicate it's configured
+    return '[configured]';
+  }
+}
+
+/**
+ * Sanitize string for safe logging (prevent log injection)
+ * SECURITY: Removes control characters that could forge log entries
+ */
+function sanitizeForLog(value: string): string {
+  return value.replace(/[\x00-\x1F\x7F]/g, '').substring(0, 200);
+}
 
 /**
  * Validate and load application configuration
@@ -99,7 +167,8 @@ function loadConfig(): AppConfig {
   // Email configuration
   // OPTIONAL: If not set, app will use mock mode (logs emails instead of sending)
   const emailHost = process.env.EMAIL_HOST || null
-  const emailPort = parseInt(process.env.EMAIL_PORT || '587', 10)
+  // SECURITY: Validate port with bounds checking
+  const emailPort = parseIntEnv(process.env.EMAIL_PORT, DEFAULT_EMAIL_PORT, MIN_PORT, MAX_PORT)
   const emailUser = process.env.EMAIL_USER || null
   const emailPass = process.env.EMAIL_PASS || null
   const emailFrom = process.env.EMAIL_FROM || 'TourWise <team@tourwiseco.com>'
@@ -123,7 +192,7 @@ function loadConfig(): AppConfig {
   if (!isGoogleConfigured) {
     if (isProduction) {
       configWarnings.push(
-        'Google OAuth is not configured (GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET) - authentication will fail'
+        'Google OAuth is not configured - authentication will fail'
       )
     } else {
       configWarnings.push('Google OAuth is not fully configured - sign-in may not work')
@@ -155,7 +224,7 @@ function loadConfig(): AppConfig {
   if (!nextAuthUrl) {
     if (isProduction) {
       configWarnings.push(
-        'NEXTAUTH_URL is not set - Vercel can auto-detect this, but explicit is recommended. Set to your production domain (e.g., https://judgementwfam.tech)'
+        'NEXTAUTH_URL is not set - Vercel can auto-detect this, but explicit is recommended'
       )
     } else {
       configWarnings.push('NEXTAUTH_URL is not set - using default (http://localhost:3000)')
@@ -167,12 +236,6 @@ function loadConfig(): AppConfig {
     }
     if (isProduction && nextAuthUrl.startsWith('http://')) {
       configWarnings.push('NEXTAUTH_URL must use https:// in production (not http://)')
-    }
-    // Validate callback URL construction
-    if (isProduction) {
-      const callbackUrl = `${nextAuthUrl}/api/auth/callback/google`
-      console.log('✅ Google OAuth callback URL:', callbackUrl)
-      console.log('   ⚠️  Ensure this EXACT URL is added to Google Cloud Console authorized redirect URIs')
     }
   }
 
@@ -186,7 +249,7 @@ function loadConfig(): AppConfig {
   }
 
   // App configuration
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXTAUTH_URL
+  let baseUrl = process.env.NEXT_PUBLIC_BASE_URL || process.env.NEXTAUTH_URL || null
 
   if (!baseUrl && isProduction) {
     configWarnings.push(
@@ -206,7 +269,13 @@ function loadConfig(): AppConfig {
   }
 
   // Verification code expiry (in seconds)
-  const verificationCodeExpiry = parseInt(process.env.VERIFICATION_CODE_EXPIRY || '600', 10)
+  // SECURITY: Validate with bounds checking
+  const verificationCodeExpiry = parseIntEnv(
+    process.env.VERIFICATION_CODE_EXPIRY,
+    DEFAULT_VERIFICATION_EXPIRY,
+    MIN_EXPIRY,
+    MAX_EXPIRY
+  )
 
   return {
     database: {
@@ -258,37 +327,46 @@ function loadConfig(): AppConfig {
 
 /**
  * Log configuration status to console
+ *
+ * SECURITY: Does not log any secret values or URLs that might contain credentials
  */
 export function logConfigStatus(): void {
   console.log('\n========================================')
-  console.log('🔧 TourWiseCo Configuration Status')
+  console.log('[Config] TourWiseCo Configuration Status')
   console.log('========================================')
 
-  console.log(`\n📊 Environment: ${config.app.nodeEnv}`)
+  console.log(`\n[Config] Environment: ${config.app.nodeEnv}`)
 
-  console.log('\n🔌 Integration Status:')
-  console.log(`  Database:     ${config.database.isAvailable ? '✅ Connected' : '❌ NOT CONFIGURED (REQUIRED)'}`)
-  console.log(`  Email:        ${config.email.isConfigured ? '✅ Configured' : '⚠️  Not configured'}`)
-  console.log(`  Google Auth:  ${config.auth.google.isConfigured ? '✅ Configured' : '❌ NOT CONFIGURED (REQUIRED)'}`)
-  console.log(`  NextAuth:     ${config.auth.nextAuth.isConfigured ? '✅ Configured' : '⚠️  Partial config'}`)
-  console.log(`  Redis Cache:  ${config.redis.isConfigured ? '✅ Configured' : '⚠️  Using in-memory'}`)
+  console.log('\n[Config] Integration Status:')
+  console.log(`  Database:     ${config.database.isAvailable ? 'Connected' : 'NOT CONFIGURED (REQUIRED)'}`)
+  console.log(`  Email:        ${config.email.isConfigured ? 'Configured' : 'Not configured'}`)
+  console.log(`  Google Auth:  ${config.auth.google.isConfigured ? 'Configured' : 'NOT CONFIGURED (REQUIRED)'}`)
+  console.log(`  NextAuth:     ${config.auth.nextAuth.isConfigured ? 'Configured' : 'Partial config'}`)
+  console.log(`  Redis Cache:  ${config.redis.isConfigured ? 'Configured' : 'Using in-memory'}`)
 
+  // SECURITY: Log warning/error counts, not content (to avoid leaking secrets)
   if (configWarnings.length > 0) {
-    console.log('\n⚠️  Configuration Warnings:')
-    configWarnings.forEach((warning, i) => {
-      console.log(`  ${i + 1}. ${warning}`)
-    })
+    console.log(`\n[Config] Warnings: ${configWarnings.length} configuration warning(s)`)
+    // Only show sanitized, non-sensitive warnings in development
+    if (config.app.isDevelopment) {
+      configWarnings.forEach((warning, i) => {
+        console.log(`  ${i + 1}. ${sanitizeForLog(warning)}`)
+      })
+    }
   }
 
   if (configErrors.length > 0) {
-    console.log('\n❌ Configuration Errors:')
-    configErrors.forEach((error, i) => {
-      console.log(`  ${i + 1}. ${error}`)
-    })
+    console.log(`\n[Config] Errors: ${configErrors.length} configuration error(s)`)
+    // Only show sanitized, non-sensitive errors in development
+    if (config.app.isDevelopment) {
+      configErrors.forEach((error, i) => {
+        console.log(`  ${i + 1}. ${sanitizeForLog(error)}`)
+      })
+    }
   }
 
   if (configWarnings.length === 0 && configErrors.length === 0) {
-    console.log('\n✅ All systems configured')
+    console.log('\n[Config] All systems configured')
   }
 
   console.log('\n========================================\n')
@@ -296,17 +374,23 @@ export function logConfigStatus(): void {
 
 /**
  * Throw error if critical configuration is missing
+ *
+ * SECURITY: Error message is generic to avoid leaking configuration details
  */
 export function validateCriticalConfig(): void {
   if (configErrors.length > 0) {
+    // SECURITY: Don't expose the actual error messages which might contain secrets
     throw new Error(
-      `Critical configuration errors:\n${configErrors.map((e, i) => `  ${i + 1}. ${e}`).join('\n')}`
+      `Critical configuration errors detected (${configErrors.length}). Check server logs for details.`
     )
   }
 }
 
 /**
  * Get a safe, user-friendly configuration summary for health checks
+ *
+ * SECURITY: Returns immutable copies of arrays to prevent external mutation
+ * Does not include actual warning/error messages (they may contain secrets)
  */
 export function getConfigSummary() {
   return {
@@ -317,8 +401,9 @@ export function getConfigSummary() {
       googleAuth: config.auth.google.isConfigured ? 'configured' : 'not_configured',
       redis: config.redis.isConfigured ? 'configured' : 'not_configured',
     },
-    warnings: configWarnings,
-    errors: configErrors,
+    // SECURITY: Only expose counts, not actual messages
+    warningCount: configWarnings.length,
+    errorCount: configErrors.length,
     healthy: configErrors.length === 0,
   }
 }

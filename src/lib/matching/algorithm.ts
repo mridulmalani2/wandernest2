@@ -8,6 +8,13 @@ import crypto from 'crypto'
 /**
  * Matching Algorithm v2
  *
+ * SECURITY FEATURES:
+ * - Safe cache key sanitization (no collisions)
+ * - Input validation for all criteria
+ * - Proper null/undefined handling for ratings
+ * - Full hash for cache keys (no truncation)
+ * - No sensitive PII in cache (only IDs)
+ *
  * This module implements an optimized matching algorithm that:
  * 1. Pushes filtering into Prisma queries (database-level filtering)
  * 2. Uses a single query with OR conditions instead of cascading queries
@@ -21,10 +28,43 @@ import crypto from 'crypto'
  */
 
 /**
- * Helper to sanitize cache keys to prevent injection/poisoning
+ * Maximum length for sanitized cache key components
  */
-function sanitizeCacheKey(input: string): string {
-  return input.toLowerCase().replace(/[^a-z0-9]/g, '')
+const MAX_KEY_COMPONENT_LENGTH = 50;
+
+/**
+ * Helper to sanitize cache keys to prevent injection/poisoning
+ *
+ * SECURITY: Improved to prevent:
+ * - Collisions (uses hex encoding instead of stripping)
+ * - Empty strings (validates input)
+ * - Overly long keys (truncates with hash suffix)
+ * - Unicode issues (uses Buffer for consistent encoding)
+ */
+function sanitizeCacheKey(input: string | undefined | null): string {
+  // Handle undefined/null/empty
+  if (!input || typeof input !== 'string') {
+    return 'unknown';
+  }
+
+  // Normalize: trim and lowercase
+  const normalized = input.trim().toLowerCase();
+
+  if (normalized.length === 0) {
+    return 'empty';
+  }
+
+  // For short, simple alphanumeric strings, use as-is
+  if (normalized.length <= MAX_KEY_COMPONENT_LENGTH && /^[a-z0-9]+$/.test(normalized)) {
+    return normalized;
+  }
+
+  // For complex strings, create a safe representation:
+  // Keep alphanumeric prefix + hash suffix to ensure uniqueness
+  const alphanumericPart = normalized.replace(/[^a-z0-9]/g, '').substring(0, 20);
+  const hash = crypto.createHash('sha256').update(normalized).digest('hex').substring(0, 16);
+
+  return `${alphanumericPart || 'x'}_${hash}`;
 }
 
 interface StudentWithScore {
@@ -65,6 +105,7 @@ const MAX_CANDIDATES = 50
 const MAX_MATCHES = 4
 
 // Student select fields for queries
+// SECURITY: Only select fields needed for matching, avoid caching full PII
 const studentSelectFields = {
   id: true,
   name: true,
@@ -132,17 +173,36 @@ function buildWhereClause(criteria: MatchingCriteria): Prisma.StudentWhereInput 
 
 /**
  * Fetch matching candidates from database with optimized query
+ *
+ * SECURITY: Validates criteria.city before use
  */
 async function fetchCandidates(
   criteria: MatchingCriteria
 ): Promise<(Student & { availability: StudentAvailability[] })[]> {
+  // SECURITY: Validate city is present
+  if (!criteria.city || typeof criteria.city !== 'string') {
+    logger.warn('fetchCandidates called with invalid city', {
+      cityType: typeof criteria.city,
+    });
+    return [];
+  }
+
   const db = requireDatabase()
   const safeCity = sanitizeCacheKey(criteria.city)
-  const cacheKey = `students:candidates:${safeCity}:${crypto
-    .createHash('md5')
-    .update(JSON.stringify(criteria))
+
+  // SECURITY: Use full SHA-256 hash (no truncation) to prevent collisions
+  const criteriaHash = crypto
+    .createHash('sha256')
+    .update(JSON.stringify({
+      city: criteria.city,
+      preferredNationality: criteria.preferredNationality,
+      preferredLanguages: criteria.preferredLanguages,
+      preferredGender: criteria.preferredGender,
+      // Don't include dates in cache key - they change per request
+    }))
     .digest('hex')
-    .slice(0, 8)}`
+
+  const cacheKey = `students:candidates:${safeCity}:${criteriaHash}`
 
   return cache.cached(
     cacheKey,
@@ -202,6 +262,12 @@ async function fetchCandidates(
 export async function findMatches(request: TouristRequest): Promise<StudentWithScore[]> {
   const startTime = Date.now()
 
+  // SECURITY: Validate city
+  if (!request.city || typeof request.city !== 'string') {
+    logger.warn('findMatches called with invalid city');
+    return [];
+  }
+
   const criteria: MatchingCriteria = {
     city: request.city,
     preferredNationality: request.preferredNationality,
@@ -257,6 +323,8 @@ export async function findMatches(request: TouristRequest): Promise<StudentWithS
 /**
  * Calculate matching score for a guide
  *
+ * SECURITY: Properly handles null/undefined/0 ratings
+ *
  * Scoring breakdown (100 points total):
  * - Availability match: 40 points
  * - Rating: 20 points (4 points per star)
@@ -280,14 +348,27 @@ function calculateScore(
   }
 
   // 2. Rating (20 points max)
-  const rating = student.averageRating || 3.0
+  // SECURITY: Properly handle null, undefined, and 0 ratings
+  // A rating of 0 is treated as 0, not substituted with 3.0
+  let rating: number;
+  if (student.averageRating === null || student.averageRating === undefined) {
+    // No ratings yet - use neutral default
+    rating = 3.0;
+  } else if (typeof student.averageRating === 'number' && !isNaN(student.averageRating)) {
+    // Valid rating - use as-is (including 0)
+    rating = student.averageRating;
+  } else {
+    // Invalid rating type - use neutral default
+    rating = 3.0;
+  }
   score += rating * 4
 
   // 3. Reliability (20 points)
-  if (student.noShowCount === 0) {
+  const noShowCount = student.noShowCount ?? 0;
+  if (noShowCount === 0) {
     score += 20
   } else {
-    score += Math.max(0, 20 - student.noShowCount * 5)
+    score += Math.max(0, 20 - noShowCount * 5)
   }
 
   // 4. Interest overlap (20 points)
