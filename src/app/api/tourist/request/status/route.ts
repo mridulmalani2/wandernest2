@@ -62,7 +62,8 @@ export async function GET(req: NextRequest) {
     // Verify ownership
     // Note: session.user.email is reliable.
     // If we wanted to be stricter, we'd check touristId if available in schema vs session.
-    const isAdmin = session.user.userType === 'admin'
+    const userType = session.user.userType as string | undefined
+    const isAdmin = userType === 'admin'
     if (touristRequest.email !== session.user.email && !isAdmin) {
       // Allow admins or maybe the assigned student?
       // For now, strictly restrict to owner to fix IDOR.
