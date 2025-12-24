@@ -70,6 +70,14 @@ async function createTouristRequest(req: NextRequest) {
     throw new AppError(404, 'Tourist profile not found', 'TOURIST_NOT_FOUND');
   }
 
+  const userRecord = await withDatabaseRetry(async () =>
+    db.user.findUnique({
+      where: { id: session.user.id },
+      select: { emailVerified: true },
+    })
+  );
+  const isEmailVerified = Boolean(userRecord?.emailVerified);
+
   // Parse and validate request body
   const body = await req.json();
   const validatedData = createBookingSchema.parse(body);
@@ -90,7 +98,7 @@ async function createTouristRequest(req: NextRequest) {
         // Link to tourist
         touristId: touristId,
         email: session.user.email,
-        emailVerified: Boolean(session.user.emailVerified),
+        emailVerified: isEmailVerified,
 
         // Trip Details
         city: validatedData.city,
