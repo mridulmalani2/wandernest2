@@ -36,17 +36,18 @@ const LandingPage3D = dynamic(
 export default function MainLanding() {
   const structuredData = getWebsiteStructuredData()
   const organizationData = getOrganizationStructuredData()
+  const toSafeJsonLd = (data: unknown) => JSON.stringify(data).replace(/</g, '\\u003c')
 
   return (
     <div className="min-h-screen flex flex-col relative overflow-hidden">
       {/* SEO Structured Data */}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+        dangerouslySetInnerHTML={{ __html: toSafeJsonLd(structuredData) }}
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationData) }}
+        dangerouslySetInnerHTML={{ __html: toSafeJsonLd(organizationData) }}
       />
 
       {/* Fixed Navigation - overlays the 3D scene */}

@@ -362,7 +362,7 @@ export function BookingForm() {
 
           {errors.submit && (
             <div className="mt-4 p-4 glass-frosted bg-gradient-to-br from-ui-error/10 to-ui-error/20 border-2 border-ui-error rounded-2xl text-ui-error text-sm shadow-soft animate-slide-down">
-              {errors.submit}
+              Something went wrong. Please try again.
             </div>
           )}
         </div>

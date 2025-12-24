@@ -52,15 +52,6 @@ async function selectStudents(req: NextRequest) {
     throw new AppError(403, 'Access denied. You can only select students for your own requests.', 'ACCESS_DENIED')
   }
 
-  // Check if request is still pending
-  if (touristRequest.status !== 'PENDING') {
-    throw new AppError(
-      400,
-      'This request has already been processed',
-      'REQUEST_ALREADY_PROCESSED'
-    )
-  }
-
   // Verify all selected students exist and are approved (only fetch needed fields)
   const students = await withDatabaseRetry(async () =>
     db.student.findMany({
@@ -72,6 +63,7 @@ async function selectStudents(req: NextRequest) {
         id: true,
         email: true,
         name: true,
+        city: true,
       },
     })
   )
@@ -84,35 +76,76 @@ async function selectStudents(req: NextRequest) {
     )
   }
 
+  const invalidCity = students.find((student) => student.city !== touristRequest.city)
+  if (invalidCity) {
+    throw new AppError(
+      400,
+      'Selected students must be available in the same city as the request.',
+      'STUDENT_CITY_MISMATCH'
+    )
+  }
+
   // Create RequestSelection records for each selected student in a transaction
   const selections = await withDatabaseRetry(async () =>
-    db.$transaction([
-      ...selectedStudentIds.map((studentId) =>
-        db.requestSelection.create({
-          data: {
-            requestId,
-            studentId,
-            status: 'PENDING',
-          },
-        })
-      ),
-      // Update tourist request status to MATCHED
-      db.touristRequest.update({
-        where: { id: requestId },
+    db.$transaction(async (tx) => {
+      const updateResult = await tx.touristRequest.updateMany({
+        where: { id: requestId, status: 'PENDING' },
         data: { status: 'MATCHED' },
-      }),
-    ])
+      })
+
+      if (updateResult.count === 0) {
+        throw new AppError(
+          400,
+          'This request has already been processed',
+          'REQUEST_ALREADY_PROCESSED'
+        )
+      }
+
+      const existingSelections = await tx.requestSelection.findMany({
+        where: {
+          requestId,
+          studentId: { in: selectedStudentIds },
+        },
+        select: { studentId: true },
+      })
+
+      const existingStudentIds = new Set(existingSelections.map((selection) => selection.studentId))
+      const newStudentIds = selectedStudentIds.filter((studentId) => !existingStudentIds.has(studentId))
+
+      if (newStudentIds.length === 0) {
+        throw new AppError(
+          400,
+          'Selected students have already been added for this request.',
+          'SELECTIONS_ALREADY_EXIST'
+        )
+      }
+
+      const createdSelections = await Promise.all(
+        newStudentIds.map((studentId) =>
+          tx.requestSelection.create({
+            data: {
+              requestId,
+              studentId,
+              status: 'PENDING',
+            },
+          })
+        )
+      )
+
+      return createdSelections
+    })
   )
 
   // Extract created selections (results match order of input map operations)
   // The last element is the update result, which we ignore for mapping
-  const selectionResults = selections.slice(0, selectedStudentIds.length)
+  const selectionResults = selections
   const studentSelectionMap: Record<string, string> = {}
 
-  selectedStudentIds.forEach((studentId, idx) => {
-    const selection = selectionResults[idx] as { id: string }
+  selectionResults.forEach((selection) => {
+    const selectionId = selection.id
+    const studentId = selection.studentId
     if (selection && selection.id) {
-      studentSelectionMap[studentId] = selection.id
+      studentSelectionMap[studentId] = selectionId
     }
   })
 
@@ -155,7 +188,7 @@ async function selectStudents(req: NextRequest) {
   return NextResponse.json({
     success: true,
     message: 'Requests sent to selected students',
-    selectionsCreated: selections.length - 1, // Subtract the update operation
+    selectionsCreated: selections.length,
     notificationsSent: successfulNotifications,
     notificationsFailed: failedNotifications.length,
   })

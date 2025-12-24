@@ -11,7 +11,7 @@ import { withErrorHandler, withDatabaseRetry, AppError } from '@/lib/error-handl
  * GET /api/tourist/bookings
  * Fetch all bookings for the authenticated tourist
  */
-async function getTouristBookings() {
+async function getTouristBookings(request: NextRequest) {
   // Get session from NextAuth
   const session = await getServerSession(authOptions);
 
@@ -20,11 +20,16 @@ async function getTouristBookings() {
   }
 
   const db = requireDatabase()
+  const { searchParams } = new URL(request.url);
+  const limitParam = Number(searchParams.get('limit') ?? '50');
+  const safeLimit = Number.isFinite(limitParam) ? Math.min(Math.max(limitParam, 1), 50) : 50;
 
   // Find tourist by email
-  const tourist = await db.tourist.findUnique({
-    where: { email: session.user.email },
-  });
+  const tourist = await withDatabaseRetry(async () =>
+    db.tourist.findUnique({
+      where: { email: session.user.email },
+    })
+  );
 
   if (!tourist) {
     // Tourist doesn't exist yet, return empty bookings
@@ -40,30 +45,41 @@ async function getTouristBookings() {
       where: {
         touristId: tourist.id,
       },
-      include: {
+      select: {
+        id: true,
+        city: true,
+        dates: true,
+        numberOfGuests: true,
+        serviceType: true,
+        budget: true,
+        status: true,
+        createdAt: true,
         selections: {
-          include: {
+          where: { status: 'accepted' },
+          select: {
             student: {
               select: {
-                id: true,
                 name: true,
-                averageRating: true,
-                city: true,
               },
             },
           },
         },
-        review: true,
       },
       orderBy: {
         createdAt: 'desc',
       },
+      take: safeLimit,
     })
   );
 
+  const formattedBookings = bookings.map((booking) => ({
+    ...booking,
+    guideName: booking.selections[0]?.student?.name ?? undefined,
+  }));
+
   return NextResponse.json({
     success: true,
-    bookings,
+    bookings: formattedBookings,
   });
 }
 

@@ -5,6 +5,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { requireDatabase } from '@/lib/prisma'
 import { generateToken } from '@/lib/auth'
 import { hashVerificationCode } from '@/lib/redis'
+import { sanitizeEmail } from '@/lib/sanitization'
 
 // Verify code and create JWT token
 export async function POST(request: NextRequest) {
@@ -19,7 +20,15 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const normalizedEmail = email.toLowerCase().trim()
+    let normalizedEmail = ''
+    try {
+      normalizedEmail = sanitizeEmail(email)
+    } catch {
+      return NextResponse.json(
+        { error: 'Email and verification code are required' },
+        { status: 400 }
+      )
+    }
     const hashedCode = hashVerificationCode(code)
 
     // Find the session
@@ -44,13 +53,13 @@ export async function POST(request: NextRequest) {
     // Check if code is expired
     if (new Date() > session.expiresAt) {
       return NextResponse.json(
-        { error: 'Verification code has expired' },
+        { error: 'Invalid verification code' },
         { status: 401 }
       )
     }
 
     // Generate JWT token
-    const token = generateToken({ email }, '1h')
+    const token = generateToken({ email: normalizedEmail }, '1h')
 
     // Update session with token and mark as verified
     await db.touristSession.update({

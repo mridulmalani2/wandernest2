@@ -20,7 +20,11 @@ const createBookingSchema = z.object({
   dates: z.object({
     start: z.string(),
     end: z.string().optional(),
-  }),
+  }).refine((dates) => {
+    if (!dates.start) return false
+    if (!dates.end) return true
+    return new Date(dates.start) <= new Date(dates.end)
+  }, { message: 'End date must be after start date' }),
   preferredTime: z.enum(['morning', 'afternoon', 'evening']),
   numberOfGuests: z.number().min(1).max(10),
   groupType: z.enum(['family', 'friends', 'solo', 'business']),
@@ -86,7 +90,7 @@ async function createTouristRequest(req: NextRequest) {
         // Link to tourist
         touristId: touristId,
         email: session.user.email,
-        emailVerified: true, // Already verified via Google OAuth
+        emailVerified: Boolean(session.user.emailVerified),
 
         // Trip Details
         city: validatedData.city,
@@ -120,18 +124,23 @@ async function createTouristRequest(req: NextRequest) {
   // Send booking confirmation email to tourist
   // Matching will be handled separately via admin dashboard
   console.log(`[createTouristRequest] Sending booking confirmation email`)
-  const emailResult = await sendBookingConfirmation(
-    session.user.email,
-    touristRequest.id,
-    touristRequest.city,
-    { matchesFound: 0 } // No automatic matching - admin will handle matching later
-  )
+  try {
+    const emailResult = await sendBookingConfirmation(
+      session.user.email,
+      touristRequest.id,
+      touristRequest.city,
+      { matchesFound: 0 } // No automatic matching - admin will handle matching later
+    )
 
-  if (emailResult.success) {
-    console.log(`[createTouristRequest] ✅ Booking confirmation email sent successfully`)
-  } else {
-    console.warn('⚠️  Failed to send booking confirmation email:', emailResult.error)
-    // Continue anyway - email failure should not block booking creation
+    if (emailResult.success) {
+      console.log(`[createTouristRequest] ✅ Booking confirmation email sent successfully`)
+    } else {
+      const safeError = emailResult.error instanceof Error ? emailResult.error.message : emailResult.error
+      console.warn('⚠️  Failed to send booking confirmation email:', safeError)
+    }
+  } catch (error) {
+    const safeError = error instanceof Error ? error.message : 'Unknown error'
+    console.warn('⚠️  Failed to send booking confirmation email:', safeError)
   }
 
   return NextResponse.json(
