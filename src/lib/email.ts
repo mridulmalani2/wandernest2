@@ -542,22 +542,15 @@ export async function sendContactFormEmails(data: {
   email: string
   message: string
   phone?: string
+  fileUrl?: string
 }) {
-  // SECURITY: Validate sender email for replyTo
-  let validatedReplyTo: string;
-  try {
-    validatedReplyTo = validateEmailAddress(data.email);
-  } catch {
-    // Invalid email - don't use replyTo
-    validatedReplyTo = config.email.contactEmail;
-  }
-
-  // SECURITY: Sanitize all user-provided content
-  const safeName = escapeHtml(String(data.name || 'Anonymous').substring(0, 100));
-  const safeMessage = escapeHtml(String(data.message || '').substring(0, 5000));
-  const safePhone = data.phone ? escapeHtml(String(data.phone).substring(0, 20)) : undefined;
-
-  const html = getContactFormEmailHtml(safeName, validatedReplyTo, safeMessage, safePhone)
+  const html = getContactFormEmailHtml(
+    data.name,
+    data.email,
+    data.message,
+    data.phone,
+    data.fileUrl
+  )
 
   // Send to admin
   return sendEmail(

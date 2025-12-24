@@ -43,17 +43,24 @@ export default function Navigation({ variant = 'default', showBackButton = false
       } else if (userType === 'tourist') {
         callbackUrl = '/booking';
       }
-      await signOut({ callbackUrl, redirect: true })
+      try {
+        await signOut({ callbackUrl, redirect: true })
+      } catch (error) {
+        console.error('Failed to sign out', error)
+      }
     } else {
       try {
-        await fetch('/api/student/auth/signout', { method: 'POST' });
+        const res = await fetch('/api/student/auth/signout', { method: 'POST' });
+        if (!res.ok) {
+          throw new Error('Sign out failed');
+        }
+
+        setStudentSession(null)
+        router.push('/student/signin')
+        router.refresh()
       } catch (error) {
         console.error('Failed to sign out', error);
       }
-
-      setStudentSession(null)
-      router.push('/student/signin')
-      router.refresh()
     }
   }
 

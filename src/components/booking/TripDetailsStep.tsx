@@ -11,7 +11,7 @@ import { cn } from '@/lib/utils'
 type Props = {
   data: BookingFormData
   errors: Record<string, string>
-  updateData: (data: Partial<BookingFormData>) => void
+  updateData: (data: Partial<BookingFormData> | ((prev: BookingFormData) => Partial<BookingFormData>)) => void
 }
 
 export function TripDetailsStep({ data, errors, updateData }: Props) {

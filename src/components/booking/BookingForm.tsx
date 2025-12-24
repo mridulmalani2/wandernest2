@@ -83,8 +83,9 @@ export function BookingForm() {
     }
   }, [session, formData.email])
 
-  const updateFormData = (data: Partial<BookingFormData>) => {
+  const updateFormData = (data: Partial<BookingFormData> | ((prev: BookingFormData) => Partial<BookingFormData>)) => {
     setFormData((prev) => {
+      const updates = typeof data === 'function' ? data(prev) : data
       const {
         dates,
         numberOfGuests,
@@ -94,7 +95,7 @@ export function BookingForm() {
         tourDurationHours,
         accessibilityNeeds,
         ...rest
-      } = data
+      } = updates
       const next = { ...prev, ...rest }
 
       if (dates) {
@@ -361,7 +362,7 @@ export function BookingForm() {
 
           {errors.submit && (
             <div className="mt-4 p-4 glass-frosted bg-gradient-to-br from-ui-error/10 to-ui-error/20 border-2 border-ui-error rounded-2xl text-ui-error text-sm shadow-soft animate-slide-down">
-              {errors.submit}
+              Something went wrong. Please try again.
             </div>
           )}
         </div>

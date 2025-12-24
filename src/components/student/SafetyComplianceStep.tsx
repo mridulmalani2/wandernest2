@@ -9,7 +9,7 @@ import Link from 'next/link';
 
 interface SafetyComplianceStepProps {
   formData: OnboardingFormData;
-  updateFormData: (data: Partial<OnboardingFormData>) => void;
+  updateFormData: (data: Partial<OnboardingFormData> | ((prev: OnboardingFormData) => Partial<OnboardingFormData>)) => void;
   errors: Record<string, string>;
 }
 

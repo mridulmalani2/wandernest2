@@ -148,8 +148,35 @@ export async function getStudentFromSession(session: StudentSession): Promise<Sa
 }
 
 /**
+ * Normalize a cookie value by handling quotes and URL-encoding
+ * SECURITY: Properly decodes cookie values that may be quoted or percent-encoded
+ */
+function normalizeCookieValue(value: string): string {
+  let normalized = value
+
+  // Handle quoted cookie values (RFC 6265 allows double-quoted values)
+  // e.g., "abc=def" -> abc=def
+  if (normalized.startsWith('"') && normalized.endsWith('"') && normalized.length >= 2) {
+    normalized = normalized.slice(1, -1)
+  }
+
+  // Handle URL-encoded values (some browsers/servers may encode cookie values)
+  // Only decode if it looks like it contains percent-encoding
+  if (normalized.includes('%')) {
+    try {
+      normalized = decodeURIComponent(normalized)
+    } catch {
+      // If decoding fails, return the original value
+      // This can happen with malformed percent sequences
+    }
+  }
+
+  return normalized
+}
+
+/**
  * Parse a single cookie from a cookie string, handling '=' in values correctly
- * SECURITY: Properly handles base64 and other tokens containing '=' characters
+ * SECURITY: Properly handles base64 tokens (containing '='), quoted values, and URL-encoding
  */
 function parseCookieValue(cookieString: string, cookieName: string): string | undefined {
   const prefix = `${cookieName}=`
@@ -159,7 +186,8 @@ function parseCookieValue(cookieString: string, cookieName: string): string | un
     if (entry.startsWith(prefix)) {
       // SECURITY: Use substring instead of split to preserve '=' in value
       // e.g., "token=abc=def=ghi" -> "abc=def=ghi" (not just "abc")
-      return entry.substring(prefix.length)
+      const rawValue = entry.substring(prefix.length)
+      return normalizeCookieValue(rawValue)
     }
   }
   return undefined
@@ -168,6 +196,7 @@ function parseCookieValue(cookieString: string, cookieName: string): string | un
 /**
  * Read student token from request
  * SECURITY: Only reads from the provided Request object, never falls back to server context
+ * Handles quoted and URL-encoded cookie values for cross-browser compatibility
  */
 export async function readStudentTokenFromRequest(req: Request): Promise<string | undefined> {
   const COOKIE_NAME = 'student_session_token'
@@ -180,7 +209,8 @@ export async function readStudentTokenFromRequest(req: Request): Promise<string 
   if (typeof requestWithCookies.cookies?.get === 'function') {
     const cookieValue = requestWithCookies.cookies.get(COOKIE_NAME)?.value
     if (cookieValue) {
-      return cookieValue
+      // Normalize in case the framework didn't decode it
+      return normalizeCookieValue(cookieValue)
     }
   }
 

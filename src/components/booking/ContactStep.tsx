@@ -11,7 +11,7 @@ import Link from 'next/link'
 type Props = {
   data: BookingFormData
   errors: Record<string, string>
-  updateData: (data: Partial<BookingFormData>) => void
+  updateData: (data: Partial<BookingFormData> | ((prev: BookingFormData) => Partial<BookingFormData>)) => void
   isEmailFromSession?: boolean
 }
 

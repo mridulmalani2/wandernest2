@@ -24,7 +24,19 @@ export async function GET(req: NextRequest) {
       include: {
         selections: {
           include: {
-            student: true,
+            student: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+                phoneNumber: true,
+                institute: true,
+                nationality: true,
+                languages: true,
+                averageRating: true,
+                tripsHosted: true,
+              },
+            },
           },
         },
       },
@@ -50,7 +62,9 @@ export async function GET(req: NextRequest) {
     // Verify ownership
     // Note: session.user.email is reliable.
     // If we wanted to be stricter, we'd check touristId if available in schema vs session.
-    if (touristRequest.email !== session.user.email) {
+    const userType = session.user.userType as string | undefined
+    const isAdmin = userType === 'admin'
+    if (touristRequest.email !== session.user.email && !isAdmin) {
       // Allow admins or maybe the assigned student?
       // For now, strictly restrict to owner to fix IDOR.
       return NextResponse.json(
@@ -108,7 +122,7 @@ export async function GET(req: NextRequest) {
         response.assignedStudent = {
           name: assignedStudent.student.name,
           email: assignedStudent.student.email,
-          phone: assignedStudent.student.bio, // Assuming phone is stored in bio or another field
+          phone: assignedStudent.student.phoneNumber,
           whatsapp: null, // Add if stored
           institute: assignedStudent.student.institute,
           nationality: assignedStudent.student.nationality,
