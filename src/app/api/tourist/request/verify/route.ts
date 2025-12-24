@@ -154,7 +154,7 @@ export async function POST(req: NextRequest) {
         { matchesFound: matchResult.candidatesFound }
       )
       if (!emailResult.success) {
-        const safeError = emailResult.error instanceof Error ? emailResult.error.message : emailResult.error
+        const safeError = typeof emailResult.error === 'string' ? emailResult.error : 'Unknown error'
         console.warn('⚠️  Failed to send booking confirmation email:', safeError)
       }
     } catch (error) {
