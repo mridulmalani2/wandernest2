@@ -185,5 +185,16 @@ export function getEmailDomain(email: string): string {
   }
 
   const parts = normalizedEmail.split('@');
-  return parts.length === 2 ? parts[1] : '';
+  if (parts.length !== 2) {
+    return '';
+  }
+
+  const domain = parts[1];
+
+  // Reject invalid domains: consecutive dots, leading/trailing dots
+  if (domain.includes('..') || domain.startsWith('.') || domain.endsWith('.')) {
+    return '';
+  }
+
+  return domain;
 }
