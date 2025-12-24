@@ -45,7 +45,7 @@ const CARDS: CardData[] = [
   {
     id: 'learn-more',
     title: 'DISCOVER',
-    subtitle: 'Explore More Destinations',
+    subtitle: 'Learn more about what we do',
     image: 'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=1920&q=85',
     imageAlt: 'London Tower Bridge at twilight',
     delay: 0.2,
