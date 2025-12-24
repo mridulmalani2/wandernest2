@@ -401,7 +401,7 @@ export function OnboardingWizard({ session }: OnboardingWizardProps) {
           <div className="glass-card-dark p-8 rounded-3xl border border-white/10 text-center space-y-4">
             {errors.submit && (
               <div className="p-4 bg-red-500/20 border border-red-500/50 rounded-xl text-red-200">
-                {errors.submit}
+                Something went wrong. Please try again.
               </div>
             )}
 

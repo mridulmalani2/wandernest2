@@ -58,13 +58,16 @@ async function handleContactSubmission(req: NextRequest) {
 
   // Send email notification (don't await - fire and forget to not block response)
   // Uses centralized email singleton for efficiency
-  sendContactFormEmails({
-    ...validatedData,
-    name: sanitizedName,
-    email: sanitizedEmail,
-    phone: sanitizedPhone,
-    message: sanitizedMessage,
-  }).catch((error) => {
+  Promise.resolve(
+    sendContactFormEmails({
+      ...validatedData,
+      name: sanitizedName,
+      email: sanitizedEmail,
+      phone: sanitizedPhone,
+      message: sanitizedMessage,
+      fileUrl: sanitizedFileUrl,
+    })
+  ).catch((error) => {
     console.error('Failed to send contact form emails:', error)
     // Don't throw - we still want to return success since message was saved
   })

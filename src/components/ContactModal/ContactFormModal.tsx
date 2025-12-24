@@ -285,7 +285,7 @@ export function ContactFormModal({ open, onOpenChange }: ContactFormModalProps) 
             {/* Submit Error */}
             {errors.submit && (
               <div className="p-3 bg-destructive/10 border border-destructive rounded-md">
-                <p className="text-sm text-destructive">{errors.submit}</p>
+                <p className="text-sm text-destructive">Something went wrong. Please try again.</p>
               </div>
             )}
 
