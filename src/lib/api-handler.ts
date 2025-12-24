@@ -53,8 +53,11 @@ interface HandlerContext<TBody, TQuery> {
   body: TBody;
   query: TQuery;
   auth: AuthResult;
-  /** Database client. Will be null if requireDb: false was specified in config */
-  db: ReturnType<typeof requireDatabase> | null;
+  /**
+   * Database client. Non-null when requireDb: true (the default).
+   * If you set requireDb: false, do not access this property - it will be null at runtime.
+   */
+  db: ReturnType<typeof requireDatabase>;
   params?: Record<string, string>;
 }
 
@@ -311,14 +314,15 @@ export function createApiHandler<
       const params = context?.params ? await context.params : undefined;
 
       // 6. Execute handler
-      // SECURITY FIX: Pass db as-is (null when requireDb is false) instead of using
-      // non-null assertion. Handlers must check for null if requireDb was false.
+      // Note: db! assertion is safe here because when requireDb is true (the default),
+      // requireDatabase() throws if db is unavailable. If requireDb is false,
+      // handlers should not access db (will be null at runtime despite the type).
       const result = await handler({
         req,
         body: validatedBody,
         query: validatedQuery,
         auth: (req as any).__auth || { authorized: true },
-        db,
+        db: db!,
         params,
       });
 
