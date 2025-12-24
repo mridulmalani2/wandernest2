@@ -15,7 +15,7 @@ class CacheManager {
   private readonly REDIS_CHECK_TTL = 60000; // 60 seconds
 
   private readonly ALLOWED_PREFIXES = [
-    'student:', 'tourist:', 'request:', 'match:',
+    'student:', 'tourist:', 'request:', 'match:', 'matches:',
     'dashboard:', 'students:', 'analytics:', 'verification:'
   ];
 
