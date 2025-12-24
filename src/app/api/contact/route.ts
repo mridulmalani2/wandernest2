@@ -64,7 +64,6 @@ async function handleContactSubmission(req: NextRequest) {
     email: sanitizedEmail,
     phone: sanitizedPhone,
     message: sanitizedMessage,
-    fileUrl: sanitizedFileUrl,
   }).catch((error) => {
     console.error('Failed to send contact form emails:', error)
     // Don't throw - we still want to return success since message was saved
