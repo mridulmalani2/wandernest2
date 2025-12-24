@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { logger } from '@/lib/logger';
 
 export async function GET(
     req: NextRequest,
@@ -78,7 +79,12 @@ export async function GET(
             },
         });
     } catch (error) {
-        console.error('File retrieval error:', error);
+        // SECURITY FIX: Use structured logger instead of console.error with full error object
+        // to prevent exposing sensitive details (tokens, PII, stack traces) in logs
+        logger.error('File retrieval error', {
+            errorType: error instanceof Error ? error.name : 'unknown',
+            errorMessage: error instanceof Error ? error.message : 'Unknown error',
+        });
         return new NextResponse('Internal Server Error', { status: 500 });
     }
 }

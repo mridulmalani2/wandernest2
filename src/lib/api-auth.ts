@@ -15,6 +15,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyToken } from './auth'
 import { requireDatabase } from './prisma'
+import { logger } from './logger'
 
 interface JWTPayload {
   adminId?: string
@@ -44,19 +45,30 @@ export async function verifyAdmin(request: NextRequest): Promise<{ authorized: b
     const authHeader = request.headers.get('authorization')
     const cookieToken = request.cookies.get('admin-token')?.value
 
-    // SECURITY FIX: Case-insensitive Bearer token extraction
-    // Handles: "Bearer TOKEN", "bearer TOKEN", "BEARER TOKEN"
-    let headerToken: string | null = null
-    if (authHeader) {
-      const match = authHeader.match(/^bearer\s+(.+)$/i)
-      headerToken = match ? match[1].trim() : null
-    }
+    // SECURITY FIX: Proper token extraction with explicit handling
+    let token: string | null = null
 
-    const token = headerToken || cookieToken
+    if (authHeader) {
+      // SECURITY FIX: Case-insensitive Bearer token extraction
+      // Handles: "Bearer TOKEN", "bearer TOKEN", "BEARER TOKEN"
+      const match = authHeader.match(/^bearer\s+(.+)$/i)
+      if (match) {
+        token = match[1].trim()
+      } else {
+        // SECURITY FIX: If Authorization header is present but malformed,
+        // reject the request rather than falling back to cookie.
+        // This prevents attackers from manipulating which token is used.
+        return { authorized: false, error: 'Authentication failed' }
+      }
+    } else if (cookieToken) {
+      // Only use cookie token if no Authorization header was provided
+      token = cookieToken
+    }
 
     if (!token) {
       return { authorized: false, error: 'Authentication failed' }
     }
+
     const decoded = verifyToken(token) as JWTPayload | string | null
 
     if (!decoded || typeof decoded === 'string' || !decoded.adminId) {
@@ -77,6 +89,10 @@ export async function verifyAdmin(request: NextRequest): Promise<{ authorized: b
 
     return { authorized: true, admin }
   } catch (error) {
+    // SECURITY FIX: Use structured logger, don't log full error object
+    logger.warn('Admin authentication failed', {
+      errorType: error instanceof Error ? error.name : 'unknown',
+    })
     return { authorized: false, error: 'Authentication failed' }
   }
 }
@@ -156,7 +172,11 @@ export async function verifyStudent(request: NextRequest): Promise<{ authorized:
 
     return { authorized: true, student: { email: studentEmail, id: studentId } };
   } catch (error) {
-    console.error('Error in verifyStudent:', error);
+    // SECURITY FIX: Use structured logger instead of console.error with full error object.
+    // This prevents exposing tokens, PII, or stack traces in logs.
+    logger.warn('Student authentication failed', {
+      errorType: error instanceof Error ? error.name : 'unknown',
+    });
     return { authorized: false, error: 'Authentication failed' };
   }
 }

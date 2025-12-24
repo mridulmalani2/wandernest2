@@ -72,6 +72,14 @@ export const prisma = prismaClient as PrismaClient
 
 /**
  * Check if database is available and healthy
+ *
+ * Semantics:
+ * - available: true = Prisma client is configured and initialized
+ * - healthy: true = Can successfully execute queries against the database
+ *
+ * SECURITY FIX: Clarified that available: true + healthy: false means
+ * "configured but currently unreachable" (e.g., network issues, DB down).
+ * This distinction helps monitoring systems decide how to respond.
  */
 export async function checkDatabaseHealth(): Promise<{
   available: boolean
@@ -82,7 +90,7 @@ export async function checkDatabaseHealth(): Promise<{
     return {
       available: false,
       healthy: false,
-      error: globalForPrisma.prismaLastError || 'Database not configured',
+      error: 'Database not configured',
     }
   }
 
@@ -92,15 +100,16 @@ export async function checkDatabaseHealth(): Promise<{
     globalForPrisma.prismaHealthy = true
     return { available: true, healthy: true }
   } catch (error) {
-    // Sanitize error message
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
-    const minimalError = config.app.isProduction ? 'Database connection failed' : errorMessage
-
     globalForPrisma.prismaHealthy = false
-    globalForPrisma.prismaLastError = minimalError
 
-    // Secure logging
+    // SECURITY FIX: Never expose internal error details in health check responses.
+    // Only store minimal, safe error for internal tracking.
+    const safeError = 'Database connection failed'
+    globalForPrisma.prismaLastError = safeError
+
+    // Secure logging - only log details in development
     if (config.app.isDevelopment) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
       console.error('❌ Database health check failed:', errorMessage)
     } else {
       console.error('❌ Database health check failed')
@@ -109,27 +118,27 @@ export async function checkDatabaseHealth(): Promise<{
     return {
       available: true,
       healthy: false,
-      error: minimalError,
+      error: safeError,
     }
   }
 }
 
 /**
  * Ensure database is available, throw clear error if not
+ *
+ * SECURITY FIX: Error messages no longer include potentially sensitive
+ * internal error details, even in development mode. Use logs to diagnose issues.
  */
 export function requireDatabase(): PrismaClient {
   if (!prisma) {
-    const error = config.app.isDevelopment ? globalForPrisma.prismaLastError : 'Configuration missing';
-    throw new Error(
-      `Database required but not available. ${error}`
-    )
+    // SECURITY FIX: Don't include prismaLastError in thrown message -
+    // it could contain sensitive connection details or internal errors
+    throw new Error('Database required but not available. Check database configuration.')
   }
 
   if (globalForPrisma.prismaHealthy === false) {
-    const error = config.app.isDevelopment ? globalForPrisma.prismaLastError : 'Connection failed';
-    throw new Error(
-      `Database is unhealthy. ${error}`
-    )
+    // SECURITY FIX: Don't include prismaLastError - use generic message
+    throw new Error('Database is unhealthy. Check database connection.')
   }
 
   return prisma
@@ -137,9 +146,26 @@ export function requireDatabase(): PrismaClient {
 
 /**
  * Check if error is a database connection error
+ *
+ * SECURITY FIX: Improved error classification:
+ * - Added missing Prisma error classes (UnknownRequestError, RustPanicError)
+ * - Removed overbroad "database" substring check that could misclassify
+ *   non-connection errors (e.g., constraint violations mentioning "database")
+ * - Uses error code/name checks as fallback for cross-realm instanceof issues
  */
 export function isDatabaseConnectionError(error: unknown): boolean {
+  // Check Prisma initialization errors (connection issues during startup)
   if (error instanceof Prisma.PrismaClientInitializationError) {
+    return true
+  }
+
+  // Check for unknown request errors (often transport/connection issues)
+  if (error instanceof Prisma.PrismaClientUnknownRequestError) {
+    return true
+  }
+
+  // Check for Rust panic errors (internal Prisma engine failures, often connection-related)
+  if (error instanceof Prisma.PrismaClientRustPanicError) {
     return true
   }
 
@@ -148,14 +174,36 @@ export function isDatabaseConnectionError(error: unknown): boolean {
     return ['P1000', 'P1001', 'P1002', 'P1003', 'P1008', 'P1017'].includes(error.code)
   }
 
+  // Fallback: Check error name/constructor for cross-realm instanceof issues
+  if (error && typeof error === 'object') {
+    const errorName = (error as { name?: string }).name || ''
+    const errorConstructor = (error as { constructor?: { name?: string } }).constructor?.name || ''
+
+    if (
+      errorName === 'PrismaClientInitializationError' ||
+      errorName === 'PrismaClientUnknownRequestError' ||
+      errorName === 'PrismaClientRustPanicError' ||
+      errorConstructor === 'PrismaClientInitializationError' ||
+      errorConstructor === 'PrismaClientUnknownRequestError' ||
+      errorConstructor === 'PrismaClientRustPanicError'
+    ) {
+      return true
+    }
+  }
+
   if (error instanceof Error) {
     const message = error.message.toLowerCase()
+    // SECURITY FIX: Removed overbroad "database" check - it could misclassify
+    // constraint violations or other errors that mention "database" in their message.
+    // Only check for specific connection-related patterns.
     return (
-      message.includes('connection') ||
       message.includes('econnrefused') ||
       message.includes('etimedout') ||
       message.includes('enotfound') ||
-      message.includes('database')
+      message.includes('connection refused') ||
+      message.includes('connection reset') ||
+      message.includes('connection closed') ||
+      message.includes('socket hang up')
     )
   }
 
