@@ -222,14 +222,30 @@ export const reviewCreateSchema = z.object({
 // CONTACT SCHEMAS
 // ============================================
 
+const contactFileUrlSchema = z
+  .string()
+  .trim()
+  .regex(/^\/api\/files\/[a-z0-9]+$/i, 'File URL must be an internal file path')
+  .optional()
+  .or(z.literal(''))
+  .transform((val) => (val && val.length > 0 ? val : undefined));
+
+const contactFileNameSchema = z
+  .string()
+  .trim()
+  .max(255, 'Filename too long')
+  .optional()
+  .or(z.literal(''))
+  .transform((val) => (val && val.length > 0 ? val : undefined));
+
 export const contactFormSchema = z.object({
   name: nameSchema,
   email: emailSchema,
   phone: phoneSchema.optional(),
   message: z.string().min(10, 'Message must be at least 10 characters').max(5000, 'Message cannot exceed 5000 characters').transform(val => val.trim()),
   category: z.enum(['general', 'support', 'partnership', 'feedback']).optional(),
-  fileUrl: optionalStringSchema,
-  fileName: optionalStringSchema,
+  fileUrl: contactFileUrlSchema,
+  fileName: contactFileNameSchema,
 });
 
 // ============================================

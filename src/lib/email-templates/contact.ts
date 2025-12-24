@@ -7,12 +7,16 @@ export const getContactFormEmailHtml = (
     name: string,
     email: string,
     message: string,
-    phone?: string
+    phone?: string,
+    fileUrl?: string,
+    fileName?: string
 ) => {
     const safeName = escapeHtml(name);
     const safeEmail = escapeHtml(email);
     const safeMessage = escapeHtml(message);
     const safePhone = phone ? escapeHtml(phone) : undefined;
+    const safeFileUrl = fileUrl ? escapeHtml(fileUrl) : undefined;
+    const safeFileName = fileName ? escapeHtml(fileName) : undefined;
 
     const content = `
     <div style="text-align: left;">
@@ -41,6 +45,17 @@ export const getContactFormEmailHtml = (
             <p style="margin: 0; font-size: 15px; line-height: 1.6; color: ${theme.colors.text}; white-space: pre-wrap;">${safeMessage}</p>
           </div>
         </div>
+
+        ${safeFileUrl ? `
+        <div style="margin-top: 20px;">
+          <p style="margin: 0 0 4px 0; font-size: 11px; font-weight: 600; color: ${theme.colors.textSecondary}; text-transform: uppercase;">Attachment</p>
+          <p style="margin: 0; font-size: 15px; color: ${theme.colors.text};">
+            <a href="${safeFileUrl}" style="color: ${theme.colors.primary}; text-decoration: underline;">
+              ${safeFileName ? safeFileName : 'View uploaded file'}
+            </a>
+          </p>
+        </div>
+        ` : ''}
       </div>
     </div>
   `;

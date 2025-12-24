@@ -2,19 +2,11 @@ export const dynamic = 'force-dynamic'
 
 import { NextRequest, NextResponse } from 'next/server'
 import { requireDatabase } from '@/lib/prisma'
-import { z } from 'zod'
 import { AppError, withErrorHandler, withDatabaseRetry } from '@/lib/error-handler'
 import { sendContactFormEmails } from '@/lib/email'
 import { sanitizeEmail, sanitizePhoneNumber, sanitizeText, sanitizeUrl } from '@/lib/sanitization'
-
-// Validation schema
-const contactSchema = z.object({
-  name: z.string().min(1, 'Name is required').max(100),
-  email: z.string().email('Valid email is required'),
-  phone: z.string().optional(),
-  message: z.string().min(1, 'Message is required').max(2000),
-  fileUrl: z.string().url().optional(),
-}).strip()
+import { contactFormSchema } from '@/lib/schemas/api'
+import { getValidStudentSession, readStudentTokenFromRequest } from '@/lib/student-auth'
 
 /**
  * POST /api/contact
@@ -24,10 +16,11 @@ async function handleContactSubmission(req: NextRequest) {
   const body = await req.json()
 
   // Validate input
-  const validatedData = contactSchema.parse(body)
+  const validatedData = contactFormSchema.strict().parse(body)
   let sanitizedEmail: string
   let sanitizedPhone: string | undefined
   let sanitizedFileUrl: string | undefined
+  let sanitizedFileName: string | undefined
 
   try {
     sanitizedEmail = sanitizeEmail(validatedData.email)
@@ -42,6 +35,31 @@ async function handleContactSubmission(req: NextRequest) {
 
   const db = requireDatabase()
 
+  if (sanitizedFileUrl) {
+    const fileMatch = sanitizedFileUrl.match(/^\/api\/files\/([a-z0-9]+)$/i)
+    if (!fileMatch) {
+      throw new AppError(400, 'Invalid file attachment URL')
+    }
+
+    const token = await readStudentTokenFromRequest(req)
+    const session = await getValidStudentSession(token)
+    if (!session) {
+      throw new AppError(401, 'Authentication required for file attachments')
+    }
+
+    const fileRecord = await withDatabaseRetry(async () =>
+      db.fileStorage.findUnique({
+        where: { id: fileMatch[1] },
+        select: { id: true, filename: true, studentId: true },
+      })
+    )
+
+    if (!fileRecord || fileRecord.studentId !== session.studentId) {
+      throw new AppError(403, 'Unauthorized file attachment')
+    }
+
+    sanitizedFileName = sanitizeText(fileRecord.filename, 255)
+  }
 
   // Save to database
   const contactMessage = await withDatabaseRetry(async () =>
@@ -52,6 +70,7 @@ async function handleContactSubmission(req: NextRequest) {
         phone: sanitizedPhone,
         message: sanitizedMessage,
         fileUrl: sanitizedFileUrl,
+        fileName: sanitizedFileName,
       },
     })
   )
@@ -66,6 +85,7 @@ async function handleContactSubmission(req: NextRequest) {
       phone: sanitizedPhone,
       message: sanitizedMessage,
       fileUrl: sanitizedFileUrl,
+      fileName: sanitizedFileName,
     })
   ).catch((error) => {
     console.error('Failed to send contact form emails:', error)

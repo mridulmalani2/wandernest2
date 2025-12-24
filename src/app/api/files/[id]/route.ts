@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { verifyAdmin } from '@/lib/api-auth';
 
 export async function GET(
     req: NextRequest,
@@ -48,18 +49,19 @@ export async function GET(
             // 2. Private File - Check Authentication
             // We need to verify if the requester is the owner (Student) or an Admin.
 
+            const adminAuth = await verifyAdmin(req);
+            if (adminAuth.authorized) {
+                isAccessAllowed = true;
+            }
+
             // Verify Student
             const { getValidStudentSession, readStudentTokenFromRequest } = await import('@/lib/student-auth');
             const token = await readStudentTokenFromRequest(req);
             const session = await getValidStudentSession(token);
 
-            if (session && session.studentId === fileRecord.studentId) {
+            if (!isAccessAllowed && session && session.studentId === fileRecord.studentId) {
                 isAccessAllowed = true;
             }
-
-            // TODO: Add Admin check here if we have a unified verifyAdmin helper accessible
-            // const adminAuth = await verifyAdmin(req);
-            // if (adminAuth.authorized) isAccessAllowed = true;
         }
 
         if (!isAccessAllowed) {
