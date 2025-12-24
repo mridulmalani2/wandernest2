@@ -82,12 +82,12 @@ const SENSITIVE_PATTERNS = [
 
 /**
  * Safe prototype-safe keys for iteration
- * SECURITY: Prevents prototype pollution by using Object.hasOwn
+ * SECURITY: Prevents prototype pollution by using hasOwnProperty
  */
 function safeKeys(obj: object): string[] {
   const keys: string[] = [];
   for (const key in obj) {
-    if (Object.hasOwn(obj, key)) {
+    if (Object.prototype.hasOwnProperty.call(obj, key)) {
       keys.push(key);
     }
   }
