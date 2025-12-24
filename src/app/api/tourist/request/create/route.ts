@@ -143,7 +143,7 @@ async function createTouristRequest(req: NextRequest) {
     if (emailResult.success) {
       console.log(`[createTouristRequest] ✅ Booking confirmation email sent successfully`)
     } else {
-      const safeError = emailResult.error instanceof Error ? emailResult.error.message : emailResult.error
+      const safeError = emailResult.error ?? 'Unknown error'
       console.warn('⚠️  Failed to send booking confirmation email:', safeError)
     }
   } catch (error) {
