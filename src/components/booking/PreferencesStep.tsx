@@ -42,11 +42,13 @@ export function PreferencesStep({ data, errors, updateData }: Props) {
   }, [])
 
   const toggleLanguage = (language: string) => {
-    const current = data.preferredLanguages || []
-    const updated = current.includes(language)
-      ? current.filter((l) => l !== language)
-      : [...current, language]
-    updateData({ preferredLanguages: updated })
+    updateData((prev) => {
+      const current = prev.preferredLanguages || []
+      const updated = current.includes(language)
+        ? current.filter((l) => l !== language)
+        : [...current, language]
+      return { preferredLanguages: updated }
+    })
   }
 
   const toggleInterest = (interest: string) => {

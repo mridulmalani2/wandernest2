@@ -57,6 +57,10 @@ export type OnboardingFormData = {
   emergencyContactPhone: string;
 };
 
+export type UpdateOnboardingFormData =
+  | Partial<OnboardingFormData>
+  | ((prev: OnboardingFormData) => Partial<OnboardingFormData>);
+
 const CITIES = ['Paris', 'London'];
 
 interface OnboardingWizardProps {
@@ -112,12 +116,15 @@ export function OnboardingWizard({ session }: OnboardingWizardProps) {
 
   // REMOVED LocalStorage logic as per user request to "not keep data"
 
-  const updateFormData = (data: Partial<OnboardingFormData>) => {
-    setFormData((prev) => ({ ...prev, ...data }));
-    setErrors((prevErrors) => {
-      const newErrors = { ...prevErrors };
-      Object.keys(data).forEach((key) => delete newErrors[key]);
-      return newErrors;
+  const updateFormData = (data: UpdateOnboardingFormData) => {
+    setFormData((prev) => {
+      const resolved = typeof data === 'function' ? data(prev) : data;
+      setErrors((prevErrors) => {
+        const newErrors = { ...prevErrors };
+        Object.keys(resolved).forEach((key) => delete newErrors[key]);
+        return newErrors;
+      });
+      return { ...prev, ...resolved };
     });
   };
 
@@ -234,9 +241,14 @@ export function OnboardingWizard({ session }: OnboardingWizardProps) {
 
           if (!uploadResponse.ok) throw new Error(`Failed to upload ${type.replace('_', ' ')}`);
           const uploadData = await uploadResponse.json();
+          if (!uploadData?.url || typeof uploadData.url !== 'string' || !uploadData.url.startsWith('/api/files/')) {
+            throw new Error(`Upload response for ${type.replace('_', ' ')} did not include a valid URL.`);
+          }
           uploadedUrls[type] = uploadData.url;
         } else if (preview) {
-          uploadedUrls[type] = preview;
+          throw new Error(`Missing file upload for ${type.replace('_', ' ')}`);
+        } else {
+          throw new Error(`Missing required ${type.replace('_', ' ')} file.`);
         }
       }
 
@@ -311,7 +323,7 @@ export function OnboardingWizard({ session }: OnboardingWizardProps) {
       router.push('/student/onboarding/success');
     } catch (error) {
       console.error('Submission error:', error);
-      setErrors({ submit: error instanceof Error ? error.message : 'Submission failed.' });
+      setErrors({ submit: 'Submission failed. Please review the form and try again.' });
       setIsSubmitting(false);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
