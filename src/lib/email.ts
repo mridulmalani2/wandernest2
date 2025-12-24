@@ -391,8 +391,15 @@ export async function sendContactFormEmails(data: {
   email: string
   message: string
   phone?: string
+  fileUrl?: string
 }) {
-  const html = getContactFormEmailHtml(data.name, data.email, data.message, data.phone)
+  const html = getContactFormEmailHtml(
+    data.name,
+    data.email,
+    data.message,
+    data.phone,
+    data.fileUrl
+  )
 
   // Send to admin
   return sendEmail(
@@ -485,4 +492,3 @@ export async function sendAdminApprovalReminder(student: {
     total: adminEmails.length
   }
 }
-

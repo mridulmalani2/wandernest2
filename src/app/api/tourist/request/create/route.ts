@@ -82,6 +82,10 @@ async function createTouristRequest(req: NextRequest) {
   expiresAt.setDate(expiresAt.getDate() + 7); // Expires in 7 days
 
   let touristRequest: any;
+  const emailVerified =
+    'emailVerified' in session.user
+      ? Boolean((session.user as { emailVerified?: boolean | null }).emailVerified)
+      : false;
 
   // Database is available - use Prisma
   touristRequest = await withDatabaseRetry(async () =>
@@ -90,7 +94,7 @@ async function createTouristRequest(req: NextRequest) {
         // Link to tourist
         touristId: touristId,
         email: session.user.email,
-        emailVerified: Boolean(session.user.emailVerified),
+        emailVerified,
 
         // Trip Details
         city: validatedData.city,
@@ -135,7 +139,7 @@ async function createTouristRequest(req: NextRequest) {
     if (emailResult.success) {
       console.log(`[createTouristRequest] ✅ Booking confirmation email sent successfully`)
     } else {
-      const safeError = emailResult.error instanceof Error ? emailResult.error.message : emailResult.error
+      const safeError = typeof emailResult.error === 'string' ? emailResult.error : 'Unknown error'
       console.warn('⚠️  Failed to send booking confirmation email:', safeError)
     }
   } catch (error) {
