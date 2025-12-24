@@ -5,15 +5,16 @@ import { LiquidInput } from '@/components/ui/LiquidInput';
 import { LiquidSelect } from '@/components/ui/LiquidSelect';
 import { FlowCard } from '@/components/ui/FlowCard';
 import { OnboardingFormData } from './OnboardingWizard';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { getUniversityOptionsByCity, type UniversityOption } from '@/config/universityOptions';
 import { User, Calendar, Globe, Phone, Building, GraduationCap, BookOpen, X, Search, ChevronDown, CheckCircle2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { COUNTRIES } from '@/config/countries';
+import { normalizeTag } from '@/lib/sanitization';
 
 interface BasicProfileStepProps {
   formData: OnboardingFormData;
-  updateFormData: (data: Partial<OnboardingFormData>) => void;
+  updateFormData: (data: Partial<OnboardingFormData> | ((prev: OnboardingFormData) => Partial<OnboardingFormData>)) => void;
   errors: Record<string, string>;
   cities: string[];
 }
@@ -40,31 +41,56 @@ export function BasicProfileStep({ formData, updateFormData, errors, cities }: B
   const [customLanguage, setCustomLanguage] = useState('');
   const [isLanguageOpen, setIsLanguageOpen] = useState(false);
   const [languageSearch, setLanguageSearch] = useState('');
+  const [nationalityChoice, setNationalityChoice] = useState(() => {
+    if (COUNTRIES.includes(formData.nationality)) {
+      return formData.nationality;
+    }
+    return formData.nationality ? 'other' : '';
+  });
   const campusOptions: UniversityOption[] = formData.city ? getUniversityOptionsByCity(formData.city) : [];
+  const languages = formData.languages ?? [];
+
+  useEffect(() => {
+    if (COUNTRIES.includes(formData.nationality)) {
+      setNationalityChoice(formData.nationality);
+    } else if (formData.nationality) {
+      setNationalityChoice('other');
+    }
+  }, [formData.nationality]);
 
   const filteredLanguages = COMMON_LANGUAGES.filter(lang =>
     lang.toLowerCase().includes(languageSearch.toLowerCase())
   );
 
   const toggleLanguage = (language: string) => {
-    const current = formData.languages || [];
-    if (current.includes(language)) {
-      updateFormData({ languages: current.filter((l) => l !== language) });
-    } else {
-      updateFormData({ languages: [...current, language] });
-    }
+    const normalized = normalizeTag(language, 50);
+    if (!normalized) return;
+    const normalizedLower = normalized.toLowerCase();
+    updateFormData((prev) => {
+      const current = prev.languages ?? [];
+      const existing = current.find((l) => l.toLowerCase() === normalizedLower);
+      if (existing) {
+        return { languages: current.filter((l) => l.toLowerCase() !== normalizedLower) };
+      }
+      return { languages: [...current, normalized] };
+    });
   };
 
   const addCustomLanguage = () => {
-    const newVal = customLanguage.trim();
-    if (newVal) {
-      const current = formData.languages || [];
-      // Case-insensitive check
-      if (!current.some(l => l.toLowerCase() === newVal.toLowerCase())) {
-        updateFormData({ languages: [...current, newVal] });
-      }
+    const normalized = normalizeTag(customLanguage, 50);
+    if (!normalized) {
       setCustomLanguage('');
+      return;
     }
+    const normalizedLower = normalized.toLowerCase();
+    updateFormData((prev) => {
+      const current = prev.languages ?? [];
+      if (current.some((l) => l.toLowerCase() === normalizedLower)) {
+        return { languages: current };
+      }
+      return { languages: [...current, normalized] };
+    });
+    setCustomLanguage('');
   };
 
   return (
@@ -142,11 +168,13 @@ export function BasicProfileStep({ formData, updateFormData, errors, cities }: B
               <LiquidSelect
                 id="nationality"
                 label="Nationality"
-                value={COUNTRIES.includes(formData.nationality) ? formData.nationality : (formData.nationality ? 'other' : '')}
+                value={nationalityChoice}
                 onValueChange={(value) => {
                   if (value === 'other') {
+                    setNationalityChoice('other');
                     updateFormData({ nationality: '' });
                   } else {
+                    setNationalityChoice(value);
                     updateFormData({ nationality: value });
                   }
                 }}
@@ -158,9 +186,9 @@ export function BasicProfileStep({ formData, updateFormData, errors, cities }: B
                 error={errors.nationality}
                 icon={Globe}
               />
-              {(!COUNTRIES.includes(formData.nationality) && formData.nationality !== '') && (
+              {nationalityChoice === 'other' && (
                 <LiquidInput
-                  value={formData.nationality === 'Other' ? '' : formData.nationality}
+                  value={formData.nationality}
                   onChange={(e) => updateFormData({ nationality: e.target.value })}
                   placeholder="Enter your nationality"
                   autoFocus
@@ -321,8 +349,8 @@ export function BasicProfileStep({ formData, updateFormData, errors, cities }: B
                     errors.languages && 'border-ui-error'
                   )}
                 >
-                  {formData.languages.length > 0 ? (
-                    formData.languages.map((language) => (
+                  {languages.length > 0 ? (
+                    languages.map((language) => (
                       <span
                         key={language}
                         className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-liquid-dark-primary text-white text-sm font-medium shadow-sm"
@@ -374,7 +402,9 @@ export function BasicProfileStep({ formData, updateFormData, errors, cities }: B
                   </div>
                   <div className="max-h-60 overflow-y-auto p-1">
                     {filteredLanguages.map((language) => {
-                      const isSelected = formData.languages.includes(language);
+                      const isSelected = languages.some(
+                        (selectedLanguage) => selectedLanguage.toLowerCase() === language.toLowerCase()
+                      );
                       return (
                         <div
                           key={language}

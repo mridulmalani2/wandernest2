@@ -11,7 +11,7 @@ import { LiquidSelect } from '@/components/ui/LiquidSelect';
 
 interface StudentVerificationStepProps {
   formData: OnboardingFormData;
-  updateFormData: (data: Partial<OnboardingFormData>) => void;
+  updateFormData: (data: Partial<OnboardingFormData> | ((prev: OnboardingFormData) => Partial<OnboardingFormData>)) => void;
   errors: Record<string, string>;
 }
 
@@ -296,6 +296,12 @@ function FileUploadCard({
   onRemove,
   onFileChange
 }: FileUploadCardProps) {
+  const safePreview =
+    typeof preview === 'string' &&
+    (preview.startsWith('data:image/') || preview.startsWith('/api/files/'))
+      ? preview
+      : '';
+
   return (
     <div className="space-y-2">
       <label className="text-sm font-light tracking-wide text-liquid-dark-secondary block">
@@ -312,10 +318,10 @@ function FileUploadCard({
           !error && !isDragging && 'border-gray-300 hover:border-liquid-dark-primary/50'
         )}
       >
-        {preview ? (
+        {safePreview ? (
           <div className="relative group">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={preview} alt={label} className="w-full h-48 object-cover rounded-2xl" />
+            <img src={safePreview} alt={label} className="w-full h-48 object-cover rounded-2xl" />
             <button
               type="button"
               onClick={() => onRemove(field)}

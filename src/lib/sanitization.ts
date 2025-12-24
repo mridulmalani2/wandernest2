@@ -200,6 +200,39 @@ export function sanitizeArray(
 }
 
 /**
+ * Allowed characters for short "tag" inputs such as skills, interests, and languages.
+ */
+export const TAG_ALLOWED_PATTERN = /^[\p{L}\p{N}\s'().,&/+-]+$/u;
+
+/**
+ * Normalize and validate a short tag-like input.
+ * Returns an empty string when invalid to allow callers to reject the value.
+ */
+export function normalizeTag(input: string, maxLength = 50): string {
+  const sanitized = sanitizeText(input, maxLength).replace(/\s+/g, ' ').trim();
+  if (!sanitized) {
+    return '';
+  }
+  if (!TAG_ALLOWED_PATTERN.test(sanitized)) {
+    return '';
+  }
+  return sanitized;
+}
+
+/**
+ * Validate that a provided IANA time zone is supported by the runtime.
+ */
+export function isValidTimeZone(value: string): boolean {
+  if (!value) return false;
+  try {
+    Intl.DateTimeFormat('en-US', { timeZone: value });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
  * Escape special regex characters in a string
  * Useful when using user input in regex patterns
  */

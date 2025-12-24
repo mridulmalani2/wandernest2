@@ -4,6 +4,7 @@ import * as React from 'react';
 import { X, Check, ChevronsUpDown, Plus } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { motion, AnimatePresence } from 'framer-motion';
+import { normalizeTag } from '@/lib/sanitization';
 
 interface MultiSelectProps {
     options: string[];
@@ -37,26 +38,41 @@ export function MultiSelect({
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
+    const normalizeSelection = (value: string) => {
+        const normalized = normalizeTag(value, 50);
+        return normalized || '';
+    };
+
+    const hasMatch = (value: string) =>
+        selected.some((item) => item.toLowerCase() === value.toLowerCase());
+
     const handleUnselect = (item: string) => {
-        onChange(selected.filter((i) => i !== item));
+        onChange(selected.filter((i) => i.toLowerCase() !== item.toLowerCase()));
     };
 
     const handleSelect = (item: string) => {
-        if (selected.includes(item)) {
-            handleUnselect(item);
+        const normalized = normalizeSelection(item);
+        if (!normalized) return;
+        if (hasMatch(normalized)) {
+            handleUnselect(normalized);
         } else {
-            onChange([...selected, item]);
+            onChange([...selected, normalized]);
         }
     };
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Enter' && inputValue.trim()) {
             e.preventDefault();
-            if (allowCustom && !selected.includes(inputValue.trim())) {
-                handleSelect(inputValue.trim());
+            const normalized = normalizeSelection(inputValue);
+            if (!normalized) {
                 setInputValue('');
-            } else if (options.includes(inputValue.trim()) && !selected.includes(inputValue.trim())) {
-                handleSelect(inputValue.trim());
+                return;
+            }
+            if (allowCustom && !hasMatch(normalized)) {
+                handleSelect(normalized);
+                setInputValue('');
+            } else if (options.includes(inputValue.trim()) && !hasMatch(normalized)) {
+                handleSelect(normalized);
                 setInputValue('');
             }
         }
@@ -141,19 +157,19 @@ export function MultiSelect({
                                         handleSelect(option);
                                         setInputValue('');
                                     }}
-                                    className={`flex items-center gap-2 px-3 py-2.5 text-sm rounded-lg cursor-pointer transition-colors ${selected.includes(option)
+                                    className={`flex items-center gap-2 px-3 py-2.5 text-sm rounded-lg cursor-pointer transition-colors ${hasMatch(option)
                                             ? 'bg-purple-500/20 text-purple-100'
                                             : 'text-gray-300 hover:bg-white/10 hover:text-white'
                                         }`}
                                 >
-                                    <div className={`w-4 h-4 flex items-center justify-center border rounded ${selected.includes(option) ? 'border-purple-500 bg-purple-500' : 'border-gray-500'}`}>
-                                        {selected.includes(option) && <Check className="h-3 w-3 text-white" />}
+                                    <div className={`w-4 h-4 flex items-center justify-center border rounded ${hasMatch(option) ? 'border-purple-500 bg-purple-500' : 'border-gray-500'}`}>
+                                        {hasMatch(option) && <Check className="h-3 w-3 text-white" />}
                                     </div>
                                     {option}
                                 </div>
                             ))}
 
-                            {allowCustom && inputValue && !filteredOptions.includes(inputValue) && !selected.includes(inputValue) && (
+                            {allowCustom && inputValue && !filteredOptions.includes(inputValue) && !hasMatch(inputValue) && (
                                 <div
                                     onClick={() => {
                                         handleSelect(inputValue);
