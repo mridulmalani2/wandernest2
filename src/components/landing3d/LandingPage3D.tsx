@@ -175,247 +175,7 @@ function DiscoverMoreIndicator({ show }: { show: boolean }) {
   )
 }
 
-// Transition popup between sections - "Learn how it works"
-function SectionTransition() {
-  const [isVisible, setIsVisible] = useState(false)
-  const [hasBeenSeen, setHasBeenSeen] = useState(false)
-  const sectionRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && !hasBeenSeen) {
-          // Delay popup appearance for dramatic effect
-          setTimeout(() => {
-            setIsVisible(true)
-            setHasBeenSeen(true)
-          }, 300)
-        } else if (!entry.isIntersecting && hasBeenSeen) {
-          setIsVisible(false)
-        }
-      },
-      { threshold: 0.5 }
-    )
-
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current)
-    }
-
-    return () => observer.disconnect()
-  }, [hasBeenSeen])
-
-  // Collapse the section after popup has been seen and scrolled away
-  const shouldCollapse = hasBeenSeen && !isVisible
-
-  return (
-    <div
-      ref={sectionRef}
-      className="relative flex items-center justify-center overflow-hidden transition-all duration-700 ease-out"
-      style={{
-        height: shouldCollapse ? '0px' : '50vh',
-        opacity: shouldCollapse ? 0 : 1,
-        background: 'linear-gradient(180deg, #0a0a1a 0%, #0d0d25 50%, #0a0a1a 100%)',
-      }}
-    >
-      {/* Background decorative elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {/* Floating particles */}
-        <div
-          className="absolute w-2 h-2 rounded-full bg-purple-500/30"
-          style={{
-            top: '20%',
-            left: '15%',
-            animation: 'float 6s ease-in-out infinite',
-          }}
-        />
-        <div
-          className="absolute w-3 h-3 rounded-full bg-blue-500/20"
-          style={{
-            top: '60%',
-            right: '20%',
-            animation: 'float 8s ease-in-out infinite 1s',
-          }}
-        />
-        <div
-          className="absolute w-1.5 h-1.5 rounded-full bg-purple-400/25"
-          style={{
-            bottom: '30%',
-            left: '30%',
-            animation: 'float 7s ease-in-out infinite 0.5s',
-          }}
-        />
-
-        {/* Subtle grid lines */}
-        <div
-          className="absolute inset-0 opacity-5"
-          style={{
-            backgroundImage: `
-              linear-gradient(rgba(107, 141, 214, 0.3) 1px, transparent 1px),
-              linear-gradient(90deg, rgba(107, 141, 214, 0.3) 1px, transparent 1px)
-            `,
-            backgroundSize: '50px 50px',
-          }}
-        />
-      </div>
-
-      {/* Main popup card */}
-      <div
-        className={`relative z-10 transition-all duration-1000 ease-out ${isVisible
-          ? 'opacity-100 translate-y-0 scale-100'
-          : 'opacity-0 translate-y-12 scale-95'
-          }`}
-        style={{
-          perspective: '1000px',
-          transformStyle: 'preserve-3d',
-        }}
-      >
-        {/* Glow effect behind card */}
-        <div
-          className="absolute -inset-8 rounded-3xl opacity-60 blur-2xl"
-          style={{
-            background: 'radial-gradient(ellipse, rgba(107, 141, 214, 0.3) 0%, rgba(155, 123, 214, 0.2) 40%, transparent 70%)',
-          }}
-        />
-
-        {/* The card itself */}
-        <div
-          className="relative px-12 py-8 rounded-2xl border border-white/10 backdrop-blur-xl"
-          style={{
-            background: 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%)',
-            boxShadow: `
-              0 8px 32px rgba(0, 0, 0, 0.4),
-              0 0 60px rgba(107, 141, 214, 0.15),
-              inset 0 1px 0 rgba(255, 255, 255, 0.1)
-            `,
-            transform: isVisible ? 'rotateX(0deg)' : 'rotateX(-10deg)',
-            transition: 'transform 1s ease-out',
-          }}
-        >
-          {/* Icon */}
-          <div className="flex justify-center mb-4">
-            <div
-              className="w-12 h-12 rounded-full flex items-center justify-center"
-              style={{
-                background: 'linear-gradient(135deg, rgba(107, 141, 214, 0.3) 0%, rgba(155, 123, 214, 0.3) 100%)',
-                boxShadow: '0 4px 20px rgba(107, 141, 214, 0.3)',
-              }}
-            >
-              <svg
-                className="w-6 h-6 text-white/90"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={1.5}
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456z"
-                />
-              </svg>
-            </div>
-          </div>
-
-          {/* Text */}
-          <h2
-            className="text-center text-2xl md:text-3xl font-serif font-light text-white mb-2"
-            style={{
-              textShadow: '0 2px 20px rgba(0, 0, 0, 0.5)',
-            }}
-          >
-            Learn How It Works
-          </h2>
-          <p className="text-center text-white/50 text-sm md:text-base font-light max-w-xs">
-            Discover the journey from booking to experiencing your city
-          </p>
-
-          {/* Subtle animated border */}
-          <div
-            className="absolute inset-0 rounded-2xl pointer-events-none overflow-hidden"
-            style={{
-              opacity: isVisible ? 0.3 : 0,
-              transition: 'opacity 1.5s ease-out',
-            }}
-          >
-            <div
-              className="absolute inset-0"
-              style={{
-                background: 'conic-gradient(from 0deg, transparent, rgba(107, 141, 214, 0.5), transparent)',
-                animation: 'spin 8s linear infinite',
-              }}
-            />
-          </div>
-        </div>
-
-        {/* Down arrow indicator */}
-        <div
-          className={`flex justify-center mt-6 transition-all duration-700 delay-500 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-            }`}
-        >
-          <div
-            className="flex flex-col items-center gap-1"
-            style={{ animation: 'gentleFloat 3s ease-in-out infinite' }}
-          >
-            <svg
-              className="w-5 h-5 text-white/40"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={1.5}
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-            </svg>
-            <svg
-              className="w-5 h-5 text-white/20 -mt-2"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={1.5}
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-            </svg>
-          </div>
-        </div>
-      </div>
-
-      {/* CSS animations */}
-      <style jsx>{`
-        @keyframes float {
-          0%, 100% {
-            transform: translateY(0px) translateX(0px);
-          }
-          25% {
-            transform: translateY(-10px) translateX(5px);
-          }
-          50% {
-            transform: translateY(-5px) translateX(-5px);
-          }
-          75% {
-            transform: translateY(-15px) translateX(3px);
-          }
-        }
-
-        @keyframes gentleFloat {
-          0%, 100% {
-            transform: translateY(0);
-          }
-          50% {
-            transform: translateY(8px);
-          }
-        }
-
-        @keyframes spin {
-          from {
-            transform: rotate(0deg);
-          }
-          to {
-            transform: rotate(360deg);
-          }
-        }
-      `}</style>
-    </div>
-  )
-}
+// SectionTransition removed - Discover tab in FinalStepCards provides this functionality
 
 export function LandingPage3D({ className = '' }: LandingPage3DProps) {
   const containerRef = useRef<HTMLDivElement>(null)
@@ -561,22 +321,159 @@ export function LandingPage3D({ className = '' }: LandingPage3DProps) {
       {hijackState.isLocked && <div className="h-screen" />}
 
       {/* ============================================ */}
-      {/* TRANSITION: Learn How It Works Popup        */}
-      {/* ============================================ */}
-      <SectionTransition />
-
-      {/* ============================================ */}
       {/* SECTION 2: Horizontal 3D Carousel           */}
       {/* ============================================ */}
       <section
         id="user-journey-carousel"
-        className="relative min-h-screen bg-gradient-to-b from-[#0a0a1a] via-[#0f0f2f] to-[#0a0a1a]"
+        className="relative min-h-screen overflow-hidden"
       >
+        {/* Paris Night Background Image */}
+        <div className="absolute inset-0 z-0">
+          <Image
+            src="https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=1920&q=80"
+            alt="Paris at night"
+            fill
+            className="object-cover"
+            style={{
+              filter: 'brightness(0.25) saturate(0.7)',
+            }}
+          />
+          {/* Dark overlay gradient for depth */}
+          <div
+            className="absolute inset-0"
+            style={{
+              background: 'linear-gradient(180deg, rgba(10,10,26,0.85) 0%, rgba(10,10,26,0.6) 40%, rgba(10,10,26,0.85) 100%)',
+            }}
+          />
+        </div>
+
+        {/* CSS Star Field Animation */}
+        <div className="absolute inset-0 z-[1] pointer-events-none overflow-hidden">
+          {/* Layer 1: Small distant stars */}
+          <div
+            className="absolute inset-0"
+            style={{
+              background: `
+                radial-gradient(1px 1px at 20px 30px, rgba(107, 141, 214, 0.8), transparent),
+                radial-gradient(1px 1px at 40px 70px, rgba(155, 123, 214, 0.6), transparent),
+                radial-gradient(1px 1px at 50px 160px, rgba(255, 255, 255, 0.7), transparent),
+                radial-gradient(1px 1px at 90px 40px, rgba(107, 141, 214, 0.5), transparent),
+                radial-gradient(1px 1px at 130px 80px, rgba(155, 123, 214, 0.7), transparent),
+                radial-gradient(1px 1px at 160px 120px, rgba(255, 255, 255, 0.6), transparent),
+                radial-gradient(1px 1px at 200px 20px, rgba(107, 141, 214, 0.6), transparent),
+                radial-gradient(1px 1px at 250px 90px, rgba(155, 123, 214, 0.5), transparent),
+                radial-gradient(1px 1px at 300px 150px, rgba(255, 255, 255, 0.8), transparent),
+                radial-gradient(1px 1px at 350px 60px, rgba(107, 141, 214, 0.7), transparent),
+                radial-gradient(1px 1px at 400px 130px, rgba(155, 123, 214, 0.6), transparent),
+                radial-gradient(1px 1px at 450px 30px, rgba(255, 255, 255, 0.5), transparent),
+                radial-gradient(1px 1px at 500px 100px, rgba(107, 141, 214, 0.8), transparent),
+                radial-gradient(1px 1px at 550px 180px, rgba(155, 123, 214, 0.7), transparent),
+                radial-gradient(1px 1px at 600px 50px, rgba(255, 255, 255, 0.6), transparent)
+              `,
+              backgroundSize: '650px 200px',
+              animation: 'twinkle 8s ease-in-out infinite',
+            }}
+          />
+          {/* Layer 2: Medium stars */}
+          <div
+            className="absolute inset-0"
+            style={{
+              background: `
+                radial-gradient(2px 2px at 100px 50px, rgba(107, 141, 214, 0.9), transparent),
+                radial-gradient(2px 2px at 220px 140px, rgba(155, 123, 214, 0.8), transparent),
+                radial-gradient(2px 2px at 340px 80px, rgba(255, 255, 255, 0.7), transparent),
+                radial-gradient(2px 2px at 480px 170px, rgba(107, 141, 214, 0.6), transparent),
+                radial-gradient(2px 2px at 580px 110px, rgba(155, 123, 214, 0.8), transparent)
+              `,
+              backgroundSize: '700px 220px',
+              animation: 'twinkle 6s ease-in-out infinite 1s',
+            }}
+          />
+          {/* Layer 3: Floating particles */}
+          <div
+            className="absolute w-1.5 h-1.5 rounded-full bg-purple-400/40"
+            style={{
+              top: '15%',
+              left: '10%',
+              animation: 'floatParticle 12s ease-in-out infinite',
+              boxShadow: '0 0 10px rgba(155, 123, 214, 0.5)',
+            }}
+          />
+          <div
+            className="absolute w-2 h-2 rounded-full bg-blue-400/30"
+            style={{
+              top: '40%',
+              right: '15%',
+              animation: 'floatParticle 15s ease-in-out infinite 2s',
+              boxShadow: '0 0 12px rgba(107, 141, 214, 0.4)',
+            }}
+          />
+          <div
+            className="absolute w-1 h-1 rounded-full bg-white/50"
+            style={{
+              top: '70%',
+              left: '25%',
+              animation: 'floatParticle 10s ease-in-out infinite 1s',
+              boxShadow: '0 0 8px rgba(255, 255, 255, 0.3)',
+            }}
+          />
+          <div
+            className="absolute w-1.5 h-1.5 rounded-full bg-purple-300/35"
+            style={{
+              top: '25%',
+              right: '30%',
+              animation: 'floatParticle 14s ease-in-out infinite 3s',
+              boxShadow: '0 0 10px rgba(155, 123, 214, 0.4)',
+            }}
+          />
+          <div
+            className="absolute w-1 h-1 rounded-full bg-blue-300/40"
+            style={{
+              top: '55%',
+              left: '60%',
+              animation: 'floatParticle 11s ease-in-out infinite 0.5s',
+              boxShadow: '0 0 8px rgba(107, 141, 214, 0.3)',
+            }}
+          />
+        </div>
+
         {/* The Horizontal Carousel */}
-        <UserJourney3D />
+        <div className="relative z-10">
+          <UserJourney3D />
+        </div>
 
         {/* Bottom padding */}
         <div className="h-20" />
+
+        {/* Star animation keyframes */}
+        <style jsx>{`
+          @keyframes twinkle {
+            0%, 100% {
+              opacity: 0.7;
+            }
+            50% {
+              opacity: 1;
+            }
+          }
+          @keyframes floatParticle {
+            0%, 100% {
+              transform: translateY(0) translateX(0);
+              opacity: 0.4;
+            }
+            25% {
+              transform: translateY(-20px) translateX(10px);
+              opacity: 0.7;
+            }
+            50% {
+              transform: translateY(-10px) translateX(-15px);
+              opacity: 0.5;
+            }
+            75% {
+              transform: translateY(-25px) translateX(5px);
+              opacity: 0.8;
+            }
+          }
+        `}</style>
       </section>
 
       {/* Accessibility layer */}
