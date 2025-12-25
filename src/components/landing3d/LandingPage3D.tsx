@@ -136,6 +136,118 @@ function HeroScene({
   )
 }
 
+// Centered scroll indicator for initial state (Phase 0) - gamified experience
+function ScrollToExploreIndicator({ show }: { show: boolean }) {
+  return (
+    <div
+      className={`absolute inset-0 flex items-center justify-center z-30 transition-all duration-700 ${show ? 'opacity-100' : 'opacity-0 pointer-events-none'
+        }`}
+    >
+      <div className="flex flex-col items-center gap-6">
+        {/* Main text */}
+        <h1
+          className="text-white text-4xl md:text-6xl font-serif font-light text-center"
+          style={{
+            textShadow: '0 4px 30px rgba(0, 0, 0, 0.8)',
+            animation: 'fadeInUp 1s ease-out',
+          }}
+        >
+          Scroll to Explore
+        </h1>
+
+        {/* Animated scroll indicator */}
+        <div className="relative mt-4">
+          {/* Glow effect */}
+          <div
+            className="absolute -inset-6 rounded-full blur-2xl"
+            style={{
+              background: 'radial-gradient(ellipse, rgba(107, 141, 214, 0.4) 0%, rgba(155, 123, 214, 0.3) 50%, transparent 70%)',
+              animation: 'pulse 2s ease-in-out infinite',
+            }}
+          />
+
+          {/* Mouse/scroll icon */}
+          <div
+            className="relative w-8 h-14 rounded-full border-2 border-white/40 flex justify-center pt-2"
+            style={{ animation: 'float 3s ease-in-out infinite' }}
+          >
+            {/* Scroll wheel dot */}
+            <div
+              className="w-1.5 h-3 rounded-full bg-white/70"
+              style={{ animation: 'scrollWheel 1.5s ease-in-out infinite' }}
+            />
+          </div>
+
+          {/* Down arrows */}
+          <div
+            className="flex flex-col items-center mt-4 gap-0"
+            style={{ animation: 'bounceArrows 2s ease-in-out infinite' }}
+          >
+            <svg className="w-6 h-6 text-white/50" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+            </svg>
+            <svg className="w-6 h-6 text-white/30 -mt-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      {/* CSS animations */}
+      <style jsx>{`
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        @keyframes float {
+          0%, 100% {
+            transform: translateY(0);
+          }
+          50% {
+            transform: translateY(-8px);
+          }
+        }
+        @keyframes scrollWheel {
+          0%, 100% {
+            opacity: 0.7;
+            transform: translateY(0);
+          }
+          50% {
+            opacity: 1;
+            transform: translateY(6px);
+          }
+        }
+        @keyframes bounceArrows {
+          0%, 100% {
+            transform: translateY(0);
+            opacity: 0.6;
+          }
+          50% {
+            transform: translateY(8px);
+            opacity: 1;
+          }
+        }
+        @keyframes pulse {
+          0%, 100% {
+            opacity: 0.5;
+            transform: scale(1);
+          }
+          50% {
+            opacity: 0.8;
+            transform: scale(1.1);
+          }
+        }
+      `}</style>
+    </div>
+  )
+}
+
 // "Discover More" indicator that appears after hero animation completes
 function DiscoverMoreIndicator({ show }: { show: boolean }) {
   return (
@@ -291,19 +403,22 @@ export function LandingPage3D({ className = '' }: LandingPage3DProps) {
           </WebGLErrorBoundary>
         )}
 
-        {/* Scroll Progress Indicator (during hijack) */}
+        {/* Phase 0: Centered scroll indicator - gamified experience */}
+        <ScrollToExploreIndicator show={hijackState.currentPhase === 0 && isReady} />
+
+        {/* Scroll Progress Indicator (during hijack, hidden in phase 0) */}
         <ScrollProgressIndicator
           currentPhase={hijackState.currentPhase}
           totalProgress={hijackState.totalProgress}
           isComplete={hijackState.isComplete}
-          isVisible={isVisible && isReady && hijackState.isLocked}
+          isVisible={isVisible && isReady && hijackState.isLocked && hijackState.currentPhase > 0}
         />
 
-        {/* FinalStepCards - HTML overlay replacing PathwayCardsPhased */}
-        {/* Animates in during Phase 4, same timing as old CTA cards */}
+        {/* FinalStepCards - HTML overlay for Phase 2 (cards phase) */}
+        {/* New phase system: Phase 0 = initial, Phase 1 = text, Phase 2 = cards (frozen) */}
         <FinalStepCards
-          currentPhase={hijackState.currentPhase}
-          phaseProgress={hijackState.phaseProgress}
+          currentPhase={hijackState.currentPhase === 2 ? 4 : 0}
+          phaseProgress={hijackState.currentPhase === 2 ? 1 : 0}
           isHijackComplete={hijackState.isComplete}
           onLearnMoreClick={() => {
             const carousel = document.getElementById('user-journey-carousel')
