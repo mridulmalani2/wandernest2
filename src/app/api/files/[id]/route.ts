@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
 import { verifyAdmin } from '@/lib/api-auth';
+import { decryptFileContent } from '@/lib/file-encryption';
 
 export async function GET(
     req: NextRequest,
@@ -81,7 +82,7 @@ export async function GET(
         }
 
         // Convert base64 back to buffer
-        const buffer = Buffer.from(fileRecord.content, 'base64');
+        const buffer = decryptFileContent(fileRecord.content);
         const disposition = fileRecord.mimeType.startsWith('image/')
             ? 'inline'
             : 'attachment';

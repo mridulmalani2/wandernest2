@@ -8,6 +8,7 @@ import { cache } from '@/lib/cache'
 import { CACHE_TTL } from '@/lib/constants'
 import { withErrorHandler, AppError } from '@/lib/error-handler'
 import { cookies } from 'next/headers'
+import { getValidStudentSession } from '@/lib/student-auth'
 
 async function getStudentDashboard(req: NextRequest) {
   const db = requireDatabase()
@@ -20,11 +21,9 @@ async function getStudentDashboard(req: NextRequest) {
     throw new AppError(401, 'Unauthorized: No session token', 'UNAUTHORIZED')
   }
 
-  const session = await db.studentSession.findUnique({
-    where: { token },
-  })
+  const session = await getValidStudentSession(token)
 
-  if (!session || session.expiresAt < new Date()) {
+  if (!session) {
     throw new AppError(401, 'Unauthorized: Invalid or expired session', 'UNAUTHORIZED')
   }
 

@@ -1,5 +1,7 @@
 import { prisma } from '@/lib/prisma'
 import type { StudentSession } from '@prisma/client'
+import { createHash, randomUUID } from 'crypto'
+import { config } from '@/lib/config'
 
 /**
  * Safe subset of Student fields returned by getStudentFromSession
@@ -100,6 +102,30 @@ const SAFE_STUDENT_SELECT = {
   // - approvalReminderSentAt, approvalFollowUpReminderSentAt
 } as const
 
+function getSessionTokenSecret(): string | null {
+  return (
+    process.env.STUDENT_SESSION_TOKEN_SECRET ||
+    config.auth.nextAuth.secret ||
+    config.auth.jwt.secret
+  );
+}
+
+export function hashStudentSessionToken(token: string): string {
+  const secret = getSessionTokenSecret();
+  if (!secret) {
+    if (config.app.isProduction) {
+      throw new Error('Student session token secret is not configured');
+    }
+    return createHash('sha256').update(token).digest('hex');
+  }
+  return createHash('sha256').update(`${secret}:${token}`).digest('hex');
+}
+
+export function createStudentSessionToken(): { token: string; tokenHash: string } {
+  const token = randomUUID();
+  return { token, tokenHash: hashStudentSessionToken(token) };
+}
+
 export async function getValidStudentSession(token?: string | null) {
   if (!token) return null
 
@@ -108,7 +134,20 @@ export async function getValidStudentSession(token?: string | null) {
     return null
   }
 
-  const session = await prisma.studentSession.findUnique({ where: { token } })
+  const tokenHash = hashStudentSessionToken(token)
+  let session = await prisma.studentSession.findUnique({ where: { token: tokenHash } })
+
+  if (!session) {
+    // Backward compatibility: fallback to raw token and rotate to hash
+    session = await prisma.studentSession.findUnique({ where: { token } })
+    if (session) {
+      await prisma.studentSession.update({
+        where: { id: session.id },
+        data: { token: tokenHash },
+      })
+    }
+  }
+
   if (!session) return null
 
   const now = new Date()

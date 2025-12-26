@@ -126,78 +126,80 @@ async function submitOnboarding(req: NextRequest) {
     : undefined;
 
   const student = await withDatabaseRetry(async () =>
-    db.student.create({
-      data: {
-        // Authentication
-        email: validatedData.email,
-        googleId: validatedData.googleId,
-        passwordHash,
+    db.$transaction(async (tx) => {
+      const createdStudent = await tx.student.create({
+        data: {
+          // Authentication
+          email: validatedData.email,
+          googleId: validatedData.googleId,
+          passwordHash,
 
-        // Personal Details
-        name: validatedData.name,
-        dateOfBirth: validatedData.dateOfBirth,
-        gender: validatedData.gender,
-        nationality: validatedData.nationality,
-        phoneNumber: validatedData.phoneNumber,
-        city: validatedData.city,
-        campus: validatedData.campus,
+          // Personal Details
+          name: validatedData.name,
+          dateOfBirth: validatedData.dateOfBirth,
+          gender: validatedData.gender,
+          nationality: validatedData.nationality,
+          phoneNumber: validatedData.phoneNumber,
+          city: validatedData.city,
+          campus: validatedData.campus,
 
-        // Academic Details
-        institute: validatedData.institute,
-        programDegree: validatedData.programDegree,
-        yearOfStudy: validatedData.yearOfStudy,
-        expectedGraduation: validatedData.expectedGraduation,
-        languages: validatedData.languages,
+          // Academic Details
+          institute: validatedData.institute,
+          programDegree: validatedData.programDegree,
+          yearOfStudy: validatedData.yearOfStudy,
+          expectedGraduation: validatedData.expectedGraduation,
+          languages: validatedData.languages,
 
-        // Identity Verification
-        studentIdUrl: validatedData.studentIdUrl,
-        studentIdExpiry: validatedData.studentIdExpiry,
-        governmentIdUrl: validatedData.governmentIdUrl,
-        governmentIdExpiry: validatedData.governmentIdExpiry,
-        selfieUrl: validatedData.selfieUrl,
-        profilePhotoUrl: validatedData.profilePhotoUrl,
-        verificationConsent: validatedData.verificationConsent,
-        documentsOwnedConfirmation: validatedData.documentsOwnedConfirmation,
+          // Identity Verification
+          studentIdUrl: validatedData.studentIdUrl,
+          studentIdExpiry: validatedData.studentIdExpiry,
+          governmentIdUrl: validatedData.governmentIdUrl,
+          governmentIdExpiry: validatedData.governmentIdExpiry,
+          selfieUrl: validatedData.selfieUrl,
+          profilePhotoUrl: validatedData.profilePhotoUrl,
+          verificationConsent: validatedData.verificationConsent,
+          documentsOwnedConfirmation: validatedData.documentsOwnedConfirmation,
 
-        // Legacy field for backward compatibility
-        idCardUrl: validatedData.studentIdUrl,
+          // Legacy field for backward compatibility
+          idCardUrl: validatedData.studentIdUrl,
 
-        // Profile Information
-        // bio: undefined
-        // skills: [],
-        // preferredGuideStyle: undefined,
-        // coverLetter: undefined,
-        // interests: [],
+          // Profile Information
+          // bio: undefined
+          // skills: [],
+          // preferredGuideStyle: undefined,
+          // coverLetter: undefined,
+          // interests: [],
 
-        // Availability
-        // timezone: undefined,
-        // preferredDurations: [],
+          // Availability
+          // timezone: undefined,
+          // preferredDurations: [],
 
-        // Service Preferences
-        // servicesOffered: [],
-        // hourlyRate: undefined,
-        // onlineServicesAvailable: false,
+          // Service Preferences
+          // servicesOffered: [],
+          // hourlyRate: undefined,
+          // onlineServicesAvailable: false,
 
-        // Safety & Compliance
-        termsAccepted: validatedData.termsAccepted,
-        safetyGuidelinesAccepted: validatedData.safetyGuidelinesAccepted,
-        independentGuideAcknowledged: validatedData.independentGuideAcknowledged,
-        emergencyContactName: validatedData.emergencyContactName,
-        emergencyContactPhone: validatedData.emergencyContactPhone,
+          // Safety & Compliance
+          termsAccepted: validatedData.termsAccepted,
+          safetyGuidelinesAccepted: validatedData.safetyGuidelinesAccepted,
+          independentGuideAcknowledged: validatedData.independentGuideAcknowledged,
+          emergencyContactName: validatedData.emergencyContactName,
+          emergencyContactPhone: validatedData.emergencyContactPhone,
 
-        // System Fields
-        status: 'PENDING_APPROVAL',
-        profileCompleteness: completeness,
-      },
-    })
-  );
+          // System Fields
+          status: 'PENDING_APPROVAL',
+          profileCompleteness: completeness,
+        },
+      });
 
-  await withDatabaseRetry(async () =>
-    db.studentSession.update({
-      where: { id: session.id },
-      data: {
-        studentId: student.id,
-      },
+      await tx.studentSession.update({
+        where: { id: session.id },
+        data: {
+          studentId: createdStudent.id,
+        },
+      });
+
+      return createdStudent;
     })
   );
 

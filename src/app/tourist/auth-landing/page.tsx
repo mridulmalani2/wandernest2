@@ -18,7 +18,7 @@ function TouristAuthLandingContent() {
     const routeUser = async () => {
       if (status === 'loading') return;
 
-      // No session - return to signin
+      // No session - return to booking flow
       if (!session?.user) {
         router.replace('/booking');
         return;

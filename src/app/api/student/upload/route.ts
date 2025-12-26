@@ -5,6 +5,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getValidStudentSession, readStudentTokenFromRequest } from '@/lib/student-auth';
 import { sanitizeFilename } from '@/lib/sanitization';
+import { encryptFileContent } from '@/lib/file-encryption';
+import { logger } from '@/lib/logger';
 
 export async function POST(req: NextRequest) {
   try {
@@ -90,7 +92,7 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
-    const base64Content = buffer.toString('base64');
+    const encryptedPayload = encryptFileContent(buffer);
 
     // Store in Neon DB
     const safeFilename = sanitizeFilename(file.name);
@@ -99,7 +101,7 @@ export async function POST(req: NextRequest) {
         filename: safeFilename,
         mimeType: file.type,
         size: file.size,
-        content: base64Content,
+        content: encryptedPayload,
         studentId: session.studentId,
       },
     });
@@ -116,7 +118,10 @@ export async function POST(req: NextRequest) {
       contentType: file.type,
     });
   } catch (error) {
-    console.error('File upload error:', error);
+    logger.error('File upload error', {
+      errorType: error instanceof Error ? error.name : 'unknown',
+      errorMessage: error instanceof Error ? error.message : 'Unknown error',
+    });
 
     return NextResponse.json(
       { error: 'Failed to upload file' },

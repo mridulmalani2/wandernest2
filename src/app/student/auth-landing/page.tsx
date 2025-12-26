@@ -21,6 +21,11 @@ function StudentAuthLandingContent() {
           credentials: 'include',
         });
 
+        if (res.status === 401) {
+          router.replace('/student/signin');
+          return;
+        }
+
         const data = await res.json();
         console.log('session-status response:', data);
         setDebug(data);

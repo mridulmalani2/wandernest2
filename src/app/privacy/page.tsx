@@ -816,7 +816,7 @@ export default function PrivacyPolicy() {
                 <section className="bg-blue-900/20 rounded-lg p-6 border-l-4 border-blue-500">
                   <h3 className="text-lg font-bold text-white mb-3">Acknowledgment</h3>
                   <p className="text-white leading-relaxed">
-                    BY USING THE TOURWISECO PLATFORM, YOU ACKNOWLEDGE THAT YOU HAVE READ AND UNDERSTOOD THIS PRIVACY POLICY AND CONSENT TO THE COLLECTION, USE, AND DISCLOSURE OF YOUR PERSONAL DATA AS DESCRIBED HEREIN.
+                    BY USING THE TOURWISECO PLATFORM, YOU ACKNOWLEDGE THAT YOU HAVE READ AND UNDERSTOOD THIS PRIVACY POLICY. WHERE CONSENT IS REQUIRED (SUCH AS FOR NON-ESSENTIAL COOKIES OR OPTIONAL PROCESSING), WE WILL ASK FOR YOUR EXPLICIT CONSENT SEPARATELY.
                   </p>
                 </section>
 

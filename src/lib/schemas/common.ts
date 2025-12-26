@@ -33,6 +33,16 @@ export const nonEmptyStringSchema = z
   .transform((val) => val.trim());
 
 /**
+ * CUID-like identifier validation (TouristRequest/RequestSelection IDs)
+ */
+export const cuidSchema = z
+  .string()
+  .min(10, 'Invalid ID format')
+  .max(64, 'Invalid ID format')
+  .regex(/^[a-z0-9]+$/i, 'Invalid ID format')
+  .transform((val) => val.trim());
+
+/**
  * Optional trimmed string (can be empty)
  */
 export const optionalStringSchema = z

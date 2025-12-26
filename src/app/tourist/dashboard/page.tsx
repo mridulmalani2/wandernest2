@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import { FlowCard } from '@/components/ui/FlowCard';
 import { TrendingUp, Calendar, MapPin, Users, CheckCircle2, Clock, ChevronRight } from 'lucide-react';
 import Image from 'next/image';
+import { z } from 'zod';
 
 interface TouristBooking {
   id: string;
@@ -14,10 +15,42 @@ interface TouristBooking {
   numberOfGuests: number;
   serviceType: string;
   budget: number | null;
-  status: 'pending' | 'matched' | 'confirmed' | 'completed';
+  status: 'pending' | 'matched' | 'accepted' | 'expired' | 'cancelled';
   guideName?: string;
   createdAt: string;
 }
+
+const bookingSchema = z.object({
+  id: z.string().min(1),
+  city: z.string().min(1),
+  dates: z
+    .object({
+      start: z.string(),
+      end: z.string().optional().nullable(),
+    })
+    .passthrough(),
+  numberOfGuests: z.number(),
+  serviceType: z.string(),
+  budget: z.number().nullable(),
+  status: z.string(),
+  guideName: z.string().optional(),
+  createdAt: z.string(),
+});
+
+const normalizeBookings = (raw: unknown): TouristBooking[] => {
+  const parsed = z.array(bookingSchema).safeParse(raw);
+  if (!parsed.success) {
+    return [];
+  }
+  return parsed.data.map((booking) => ({
+    ...booking,
+    dates: {
+      start: booking.dates.start,
+      end: booking.dates.end ?? '',
+    },
+    status: booking.status.toLowerCase() as TouristBooking['status'],
+  }));
+};
 
 export default function TouristDashboard() {
   const { data: session, status } = useSession();
@@ -43,7 +76,7 @@ export default function TouristDashboard() {
           // If unmounted, this won't run if we handle cleanup correctly, 
           // but React state updates on unmounted components are the main concern.
           // The cleanup function aborting the request handles the network side.
-          setBookings(data.bookings || []);
+          setBookings(normalizeBookings(data.bookings));
           setLoading(false);
         })
         .catch((err) => {
@@ -66,10 +99,10 @@ export default function TouristDashboard() {
 
   const stats = {
     total: bookings.length,
-    upcoming: bookings.filter(b => b.status === 'confirmed' || b.status === 'matched').length,
-    completed: bookings.filter(b => b.status === 'completed').length,
+    upcoming: bookings.filter(b => b.status === 'accepted' || b.status === 'matched').length,
+    completed: bookings.filter(b => b.status === 'accepted').length,
     totalSpent: bookings
-      .filter(b => b.status === 'completed')
+      .filter(b => b.status === 'accepted')
       .reduce((sum, b) => sum + (b.budget || 0), 0)
   };
 
@@ -77,8 +110,9 @@ export default function TouristDashboard() {
     switch (status) {
       case 'pending': return 'bg-yellow-100 text-yellow-700 border-yellow-200';
       case 'matched': return 'bg-blue-100 text-blue-700 border-blue-200';
-      case 'confirmed': return 'bg-green-100 text-green-700 border-green-200';
-      case 'completed': return 'bg-gray-100 text-gray-700 border-gray-200';
+      case 'accepted': return 'bg-green-100 text-green-700 border-green-200';
+      case 'expired': return 'bg-gray-100 text-gray-700 border-gray-200';
+      case 'cancelled': return 'bg-gray-100 text-gray-700 border-gray-200';
       default: return 'bg-gray-100 text-gray-700 border-gray-200';
     }
   };
@@ -211,8 +245,18 @@ export default function TouristDashboard() {
                         <div className="flex items-center gap-2 text-gray-300">
                           <Calendar className="h-4 w-4 shrink-0 text-gray-500" />
                           <span className="font-light">
-                            {new Date(booking.dates.start).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
-                            {booking.dates.end && ` - ${new Date(booking.dates.end).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}`}
+                            {(() => {
+                              const startDate = new Date(booking.dates.start);
+                              const endDate = booking.dates.end ? new Date(booking.dates.end) : null;
+                              if (isNaN(startDate.getTime())) {
+                                return 'Date TBD';
+                              }
+                              const startLabel = startDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+                              if (endDate && !isNaN(endDate.getTime())) {
+                                return `${startLabel} - ${endDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}`;
+                              }
+                              return startLabel;
+                            })()}
                           </span>
                         </div>
                         <div className="flex items-center gap-2 text-gray-300">
@@ -221,7 +265,7 @@ export default function TouristDashboard() {
                         </div>
                         <div className="flex items-center gap-2 text-gray-300">
                           <Clock className="h-4 w-4 shrink-0 text-gray-500" />
-                          <span className="font-light capitalize">{booking.serviceType.replace('_', ' ')}</span>
+                          <span className="font-light capitalize">{booking.serviceType ? booking.serviceType.replace('_', ' ') : 'Service TBD'}</span>
                         </div>
                         <div className="text-lg font-medium text-white">
                           {booking.budget ? `€${booking.budget}` : 'Price TBD'}
@@ -236,9 +280,9 @@ export default function TouristDashboard() {
                       <button
                         onClick={() => {
                           if (booking.status === 'matched') {
-                            router.push(`/booking/select-guide?requestId=${booking.id}`);
+                            router.push(`/booking/select-guide?requestId=${encodeURIComponent(booking.id)}`);
                           } else {
-                            router.push(`/booking/pending?requestId=${booking.id}`);
+                            router.push(`/booking/pending?requestId=${encodeURIComponent(booking.id)}`);
                           }
                         }}
                         className="text-sm font-medium text-white hover:text-blue-300 transition-colors flex items-center gap-1 group/btn"

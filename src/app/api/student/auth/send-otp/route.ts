@@ -2,18 +2,18 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { sendVerificationEmail } from '@/lib/email'
 import { checkRateLimit, hashIdentifier } from '@/lib/rate-limit'
+import { z } from 'zod'
+import { emailSchema } from '@/lib/schemas/common'
+import { logger } from '@/lib/logger'
+
+const otpRequestSchema = z.object({
+  email: emailSchema,
+});
 
 export async function POST(req: Request) {
   try {
-    const { email } = await req.json()
-
-    if (!email) {
-      return NextResponse.json(
-        { success: false, error: 'Email is required' },
-        { status: 400 }
-      )
-    }
-
+    const body = await req.json()
+    const { email } = otpRequestSchema.parse(body)
     const normalizedEmail = email.toLowerCase().trim()
     const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown'
 
@@ -77,13 +77,12 @@ export async function POST(req: Request) {
       console.log('✅ OTP Generated for:', normalizedEmail);
     }
 
-    // Send email synchronously for debugging
-    console.log('Attempting to send OTP email to:', normalizedEmail);
     const emailResult = await sendVerificationEmail(normalizedEmail, code);
-    console.log('Email send result:', emailResult);
 
     if (!emailResult.success) {
-      console.error(`Failed to send OTP email to ${normalizedEmail}:`, emailResult.error);
+      logger.error('Failed to send OTP email', {
+        errorMessage: emailResult.error,
+      });
       await prisma.studentOtp.deleteMany({
         where: {
           email: normalizedEmail,
@@ -99,7 +98,16 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ success: true })
   } catch (err) {
-    console.error('Error in send-otp route:', err)
+    if (err instanceof z.ZodError) {
+      return NextResponse.json(
+        { success: false, error: 'Invalid email address' },
+        { status: 400 }
+      )
+    }
+    logger.error('Error in send-otp route', {
+      errorType: err instanceof Error ? err.name : 'unknown',
+      errorMessage: err instanceof Error ? err.message : 'Unknown error',
+    })
     return NextResponse.json(
       { success: false, error: 'Something went wrong' },
       { status: 500 }

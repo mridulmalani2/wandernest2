@@ -22,6 +22,7 @@ export function calculateProfileCompleteness(data: Record<string, unknown>): num
     ];
 
     const arrayFields = ['languages'];
+    const numericFields = ['hourlyRate'];
     const booleanFields = [
         'documentsOwnedConfirmation',
         'verificationConsent',
@@ -33,15 +34,48 @@ export function calculateProfileCompleteness(data: Record<string, unknown>): num
     let completed = 0;
     // +1 for availability or general "has updated profile" check could be added, 
     // currently matches the logic in onboarding route
-    const total = requiredFields.length + arrayFields.length + booleanFields.length;
+    const hasNumericFields = numericFields.some((field) => field in data);
+    const total = requiredFields.length + arrayFields.length + booleanFields.length + (hasNumericFields ? numericFields.length : 0);
+
+    const isNonEmptyString = (value: unknown) =>
+        typeof value === 'string' && value.trim().length > 0;
+
+    const isValidDateValue = (value: unknown) => {
+        if (value instanceof Date) {
+            return !isNaN(value.getTime());
+        }
+        if (typeof value === 'string') {
+            return !isNaN(Date.parse(value));
+        }
+        return false;
+    };
 
     requiredFields.forEach(field => {
-        if (data[field]) completed++;
+        const value = data[field];
+        if (field === 'dateOfBirth' || field === 'expectedGraduation') {
+            if (isValidDateValue(value)) completed++;
+            return;
+        }
+        if (isNonEmptyString(value)) completed++;
     });
 
     arrayFields.forEach(field => {
-        if (Array.isArray(data[field]) && (data[field] as unknown[]).length > 0) completed++;
+        if (
+            Array.isArray(data[field]) &&
+            (data[field] as unknown[]).some((item) => isNonEmptyString(item))
+        ) {
+            completed++;
+        }
     });
+
+    if (hasNumericFields) {
+        numericFields.forEach(field => {
+            const value = data[field];
+            if (typeof value === 'number' && Number.isFinite(value)) {
+                completed++;
+            }
+        });
+    }
 
     booleanFields.forEach(field => {
         if (data[field] === true) completed++;

@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { prisma } from '@/lib/prisma';
+import { getValidStudentSession } from '@/lib/student-auth';
+import { logger } from '@/lib/logger';
 
 export const dynamic = 'force-dynamic';
 
@@ -11,9 +13,7 @@ export async function GET() {
 
     // 1. Check for Custom OTP Session
     if (token) {
-      const session = await prisma.studentSession.findUnique({
-        where: { token },
-      });
+      const session = await getValidStudentSession(token);
 
       const now = new Date();
 
@@ -41,7 +41,7 @@ export async function GET() {
               ok: true,
               nextPath: '/student/onboarding',
               isNewStudent: true,
-              email: session.email,
+              displayName: null,
             },
             { status: 200 }
           );
@@ -70,7 +70,7 @@ export async function GET() {
             nextPath: hasCompletedOnboarding ? '/student/dashboard' : '/student/onboarding',
             linkedExistingStudent: true,
             hasCompletedOnboarding, // Directly return this flag
-            email: session.email,
+            displayName: studentName,
             student: {
               name: studentName,
               profileCompleteness: profileCompleteness,
@@ -86,7 +86,7 @@ export async function GET() {
     // 2. No valid session found
     const response = NextResponse.json(
       { ok: false, nextPath: '/student/signin', reason: 'NO_TOKEN' },
-      { status: 200 }
+      { status: 401 }
     );
 
     // If a token was present but invalid/expired, clear it to prevent loops
@@ -97,7 +97,10 @@ export async function GET() {
     return response;
 
   } catch (error) {
-    console.error('Error in /api/student/auth/session-status:', error);
+    logger.error('Student session-status error', {
+      errorType: error instanceof Error ? error.name : 'unknown',
+      errorMessage: error instanceof Error ? error.message : 'Unknown error',
+    });
     return NextResponse.json(
       {
         ok: false,

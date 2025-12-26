@@ -3,17 +3,13 @@ import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { PrimaryCTAButton } from '@/components/ui/PrimaryCTAButton'
 import Navigation from '@/components/Navigation'
+import { RequestIdCleaner } from '@/components/booking/RequestIdCleaner'
 
-export default function SuccessPage({
-  searchParams,
-}: {
-  searchParams: { id?: string }
-}) {
-  const requestId = searchParams.id
-
+export default function SuccessPage() {
   return (
     <>
       <Navigation variant="tourist" />
+      <RequestIdCleaner />
       <div className="min-h-screen flex flex-col relative overflow-hidden">
         {/* Background Image with Overlays */}
         <div className="absolute inset-0" role="img" aria-label="Beautiful celebration scene with confetti">
@@ -65,17 +61,6 @@ export default function SuccessPage({
                   successfully.
                 </p>
               </div>
-
-              {/* Request ID */}
-              {requestId && (
-                <div className="bg-white/10 border-2 border-white/20 rounded-2xl p-4 shadow-soft">
-                  <p className="text-sm text-gray-300 mb-1 font-medium">Your Request ID</p>
-                  <p className="text-lg font-mono font-bold text-white">{requestId}</p>
-                  <p className="text-xs text-gray-400 mt-2">
-                    Save this ID for your records
-                  </p>
-                </div>
-              )}
 
               {/* Marketplace Reminder */}
               <div className="bg-ui-warning/10 border-2 border-ui-warning/50 rounded-2xl p-6 text-left mb-4 shadow-soft">
