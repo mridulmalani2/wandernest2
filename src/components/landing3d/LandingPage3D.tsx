@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useState, useEffect, Suspense, Component, ReactNode } from 'react'
+import { useRef, useState, useEffect, Suspense, Component, ReactNode, useCallback } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { Preload } from '@react-three/drei'
 import Image from 'next/image'
@@ -9,27 +9,18 @@ import { useScrollHijack, usePointerParallax, useDeviceCapabilities } from './ho
 import { LandingFallback } from './LandingFallback'
 import {
   AtmosphericBackground,
-  HeroSectionPhased,
   ScrollProgressIndicator,
   FinalStepCards,
 } from './components'
 import UserJourney3D from '@/components/landing3d/components/UserJourney3D'
-import { WarpTransition } from '@/components/transitions/WarpTransition'
-import { useWarpNavigation } from '@/hooks/useWarpNavigation'
 
 /**
- * LandingPage3D - Two-Section Landing Page
+ * LandingPage3D - Immersive Landing Experience
  *
- * SECTION 1 (Top - Hero):
- * - Scroll hijacking controls animation phases
- * - Scroll down: reveals title → subtitle → description → CTA cards
- * - Scroll up: reverses the animation
- * - After complete, shows "discover more" indicator
- *
- * SECTION 2 (Below - Carousel):
- * - Scroll down from Section 1 to reach this
- * - Horizontal 3D carousel with glassmorphic cards
- * - Swipe/drag/arrows to navigate horizontally
+ * Flow:
+ * 1. TourWiseCo title + elegant scroll indicator
+ * 2. First scroll: Title shatters, karaoke text plays, scroll indicator returns
+ * 3. Second scroll: Frozen 3-card panel
  */
 
 // Error Boundary for WebGL failures
@@ -96,22 +87,8 @@ function AccessibilityLayer({ is3DActive }: { is3DActive: boolean }) {
   )
 }
 
-// The 3D scene for hero section
-function HeroScene({
-  currentPhase,
-  phaseProgress,
-  totalProgress,
-  pointerState,
-  isVisible,
-  isHijackComplete,
-}: {
-  currentPhase: number
-  phaseProgress: number
-  totalProgress: number
-  pointerState: PointerState
-  isVisible: boolean
-  isHijackComplete: boolean
-}) {
+// The 3D scene for hero section - only atmospheric background
+function HeroScene({ pointerState }: { pointerState: PointerState }) {
   const pointerOffset = {
     x: pointerState.smoothX,
     y: pointerState.smoothY,
@@ -120,130 +97,175 @@ function HeroScene({
   return (
     <>
       <AtmosphericBackground scrollProgress={0} pointerOffset={pointerOffset} />
-      <Suspense fallback={null}>
-        <HeroSectionPhased
-          currentPhase={currentPhase}
-          phaseProgress={phaseProgress}
-          totalProgress={totalProgress}
-          pointerOffset={pointerOffset}
-          isVisible={isVisible}
-          isHijackComplete={isHijackComplete}
-        />
-      </Suspense>
-      {/* PathwayCardsPhased removed - replaced by FinalStepCards HTML overlay */}
       <Preload all />
     </>
   )
 }
 
-// Centered scroll indicator for initial state (Phase 0) - gamified experience
-function ScrollToExploreIndicator({ show }: { show: boolean }) {
+// Elegant scroll indicator - minimal and sophisticated
+function ElegantScrollIndicator({ show, label = 'Scroll to Explore' }: { show: boolean; label?: string }) {
   return (
     <div
-      className={`absolute inset-0 flex items-center justify-center z-30 transition-all duration-700 ${show ? 'opacity-100' : 'opacity-0 pointer-events-none'
-        }`}
+      className={`absolute bottom-12 left-1/2 -translate-x-1/2 z-30 transition-all duration-700 ${
+        show ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'
+      }`}
     >
-      <div className="flex flex-col items-center gap-6">
-        {/* Main text */}
-        <h1
-          className="text-white text-4xl md:text-6xl font-serif font-light text-center"
-          style={{
-            textShadow: '0 4px 30px rgba(0, 0, 0, 0.8)',
-            animation: 'fadeInUp 1s ease-out',
-          }}
-        >
-          Scroll to Explore
-        </h1>
-
-        {/* Animated scroll indicator */}
-        <div className="relative mt-4">
+      <div className="flex flex-col items-center gap-3">
+        <span className="text-white/50 text-xs uppercase tracking-[0.2em] font-light">
+          {label}
+        </span>
+        <div className="relative">
           {/* Glow effect */}
+          <div className="absolute inset-0 bg-gradient-to-b from-purple-500/30 to-blue-500/30 rounded-full blur-xl scale-150" />
+          {/* Arrow container */}
           <div
-            className="absolute -inset-6 rounded-full blur-2xl"
-            style={{
-              background: 'radial-gradient(ellipse, rgba(107, 141, 214, 0.4) 0%, rgba(155, 123, 214, 0.3) 50%, transparent 70%)',
-              animation: 'pulse 2s ease-in-out infinite',
-            }}
-          />
-
-          {/* Mouse/scroll icon */}
-          <div
-            className="relative w-8 h-14 rounded-full border-2 border-white/40 flex justify-center pt-2"
-            style={{ animation: 'float 3s ease-in-out infinite' }}
+            className="relative w-10 h-10 rounded-full border border-white/20 flex items-center justify-center bg-white/5 backdrop-blur-sm"
+            style={{ animation: 'bounce 2s infinite' }}
           >
-            {/* Scroll wheel dot */}
-            <div
-              className="w-1.5 h-3 rounded-full bg-white/70"
-              style={{ animation: 'scrollWheel 1.5s ease-in-out infinite' }}
-            />
-          </div>
-
-          {/* Down arrows */}
-          <div
-            className="flex flex-col items-center mt-4 gap-0"
-            style={{ animation: 'bounceArrows 2s ease-in-out infinite' }}
-          >
-            <svg className="w-6 h-6 text-white/50" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-            </svg>
-            <svg className="w-6 h-6 text-white/30 -mt-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+            <svg
+              className="w-5 h-5 text-white/70"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1.5}
+                d="M19 14l-7 7m0 0l-7-7m7 7V3"
+              />
             </svg>
           </div>
         </div>
       </div>
+    </div>
+  )
+}
 
-      {/* CSS animations */}
-      <style jsx>{`
-        @keyframes fadeInUp {
-          from {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        @keyframes float {
-          0%, 100% {
-            transform: translateY(0);
-          }
-          50% {
-            transform: translateY(-8px);
-          }
-        }
-        @keyframes scrollWheel {
-          0%, 100% {
-            opacity: 0.7;
-            transform: translateY(0);
-          }
-          50% {
-            opacity: 1;
-            transform: translateY(6px);
-          }
-        }
-        @keyframes bounceArrows {
-          0%, 100% {
-            transform: translateY(0);
-            opacity: 0.6;
-          }
-          50% {
-            transform: translateY(8px);
-            opacity: 1;
-          }
-        }
-        @keyframes pulse {
-          0%, 100% {
-            opacity: 0.5;
-            transform: scale(1);
-          }
-          50% {
-            opacity: 0.8;
-            transform: scale(1.1);
-          }
-        }
-      `}</style>
+// TourWiseCo title with glass shatter animation
+function TourWiseCoTitle({
+  show,
+  isExploding
+}: {
+  show: boolean
+  isExploding: boolean
+}) {
+  const letters = 'TourWiseCo'.split('')
+
+  return (
+    <div
+      className={`absolute inset-0 flex items-center justify-center z-25 transition-opacity duration-500 ${
+        show ? 'opacity-100' : 'opacity-0 pointer-events-none'
+      }`}
+    >
+      <h1 className="relative">
+        {letters.map((letter, index) => {
+          // Random explosion direction for each letter
+          const angle = (index / letters.length) * 360 + Math.random() * 60 - 30
+          const distance = 150 + Math.random() * 200
+          const rotateZ = (Math.random() - 0.5) * 720
+          const translateX = Math.cos(angle * Math.PI / 180) * distance
+          const translateY = Math.sin(angle * Math.PI / 180) * distance
+          const delay = index * 0.03
+
+          return (
+            <span
+              key={index}
+              className="inline-block text-white font-serif font-light"
+              style={{
+                fontSize: 'clamp(3rem, 10vw, 6rem)',
+                textShadow: '0 4px 30px rgba(0, 0, 0, 0.8)',
+                transition: isExploding
+                  ? `all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) ${delay}s`
+                  : 'none',
+                transform: isExploding
+                  ? `translate(${translateX}px, ${translateY}px) rotate(${rotateZ}deg) scale(0)`
+                  : 'translate(0, 0) rotate(0) scale(1)',
+                opacity: isExploding ? 0 : 1,
+              }}
+            >
+              {letter}
+            </span>
+          )
+        })}
+      </h1>
+    </div>
+  )
+}
+
+// Karaoke-style text with word-by-word highlighting
+const KARAOKE_TEXT = "Experience authentic travel with local student guides. Connect with verified university students who will show you their city through a local's eyes."
+const WORDS_PER_SECOND = 3.5 // Reading speed
+
+function KaraokeText({
+  show,
+  onComplete
+}: {
+  show: boolean
+  onComplete: () => void
+}) {
+  const [highlightedIndex, setHighlightedIndex] = useState(-1)
+  const words = KARAOKE_TEXT.split(' ')
+  const animationStartedRef = useRef(false)
+
+  useEffect(() => {
+    if (!show || animationStartedRef.current) return
+
+    animationStartedRef.current = true
+    const intervalMs = 1000 / WORDS_PER_SECOND
+
+    let currentIndex = 0
+    const interval = setInterval(() => {
+      setHighlightedIndex(currentIndex)
+      currentIndex++
+
+      if (currentIndex >= words.length) {
+        clearInterval(interval)
+        // Small delay before calling onComplete
+        setTimeout(onComplete, 500)
+      }
+    }, intervalMs)
+
+    return () => clearInterval(interval)
+  }, [show, words.length, onComplete])
+
+  // Reset when hidden
+  useEffect(() => {
+    if (!show) {
+      setHighlightedIndex(-1)
+      animationStartedRef.current = false
+    }
+  }, [show])
+
+  return (
+    <div
+      className={`absolute inset-0 flex items-center justify-center z-25 px-8 transition-opacity duration-700 ${
+        show ? 'opacity-100' : 'opacity-0 pointer-events-none'
+      }`}
+    >
+      <p
+        className="text-center max-w-3xl leading-relaxed"
+        style={{
+          fontSize: 'clamp(1.25rem, 3vw, 2rem)',
+          fontFamily: 'Georgia, "Times New Roman", serif',
+        }}
+      >
+        {words.map((word, index) => (
+          <span
+            key={index}
+            className="inline-block mr-[0.3em] transition-all duration-300"
+            style={{
+              color: index <= highlightedIndex ? 'rgba(255, 255, 255, 1)' : 'rgba(255, 255, 255, 0.25)',
+              textShadow: index <= highlightedIndex
+                ? '0 2px 20px rgba(107, 141, 214, 0.5)'
+                : 'none',
+              transform: index <= highlightedIndex ? 'scale(1)' : 'scale(0.98)',
+            }}
+          >
+            {word}
+          </span>
+        ))}
+      </p>
     </div>
   )
 }
@@ -287,21 +309,42 @@ function DiscoverMoreIndicator({ show }: { show: boolean }) {
   )
 }
 
-// SectionTransition removed - Discover tab in FinalStepCards provides this functionality
-
 export function LandingPage3D({ className = '' }: LandingPage3DProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [isVisible, setIsVisible] = useState(false)
   const [isReady, setIsReady] = useState(false)
 
+  // Animation sub-states for Phase 1
+  const [titleExploding, setTitleExploding] = useState(false)
+  const [showKaraoke, setShowKaraoke] = useState(false)
+  const [karaokeComplete, setKaraokeComplete] = useState(false)
+
   // Device capability detection
   const { canRender3D, isMobile, prefersReducedMotion, pixelRatio } = useDeviceCapabilities()
 
+  // Callback to block phase 1→2 until karaoke animation completes
+  const canAdvancePhase = useCallback((currentPhase: number) => {
+    // Phase 0→1: Always allowed (triggers title explosion + karaoke)
+    if (currentPhase === 0) return true
+    // Phase 1→2: Only allowed after karaoke completes
+    if (currentPhase === 1) return karaokeComplete
+    // Any other phase: allow
+    return true
+  }, [karaokeComplete])
+
   // Scroll hijacking for hero animations
-  const hijackState = useScrollHijack(canRender3D && !prefersReducedMotion && isReady)
+  const hijackState = useScrollHijack({
+    enabled: canRender3D && !prefersReducedMotion && isReady,
+    canAdvance: canAdvancePhase,
+  })
 
   // Pointer tracking for parallax
   const pointerState = usePointerParallax(canRender3D && !isMobile)
+
+  // Handle karaoke completion
+  const handleKaraokeComplete = useCallback(() => {
+    setKaraokeComplete(true)
+  }, [])
 
   // Visibility detection
   useEffect(() => {
@@ -327,8 +370,29 @@ export function LandingPage3D({ className = '' }: LandingPage3DProps) {
     setIsReady(true)
   }, [])
 
+  // Handle phase 1 animation sequence
+  useEffect(() => {
+    if (hijackState.currentPhase === 1 && !titleExploding) {
+      // Start the title explosion
+      setTitleExploding(true)
+
+      // After title explosion animation, show karaoke text
+      const timer = setTimeout(() => {
+        setShowKaraoke(true)
+      }, 1000) // Wait for explosion animation
+
+      return () => clearTimeout(timer)
+    }
+  }, [hijackState.currentPhase, titleExploding])
+
   // Determine rendering mode
   const should3DRender = canRender3D && !prefersReducedMotion && isReady
+
+  // Calculate what to show
+  const showTitle = hijackState.currentPhase === 0 || (hijackState.currentPhase === 1 && !showKaraoke)
+  const showPhase0Indicator = hijackState.currentPhase === 0 && isReady
+  const showPhase1Indicator = hijackState.currentPhase === 1 && karaokeComplete
+  const showCards = hijackState.currentPhase === 2
 
   // Fallback for non-3D capable devices
   if (!should3DRender && isReady) {
@@ -370,7 +434,7 @@ export function LandingPage3D({ className = '' }: LandingPage3DProps) {
           />
         </div>
 
-        {/* 3D Canvas - transparent background to show Paris image */}
+        {/* 3D Canvas - atmospheric background with stars */}
         {!isReady ? (
           <LoadingPlaceholder />
         ) : (
@@ -390,35 +454,34 @@ export function LandingPage3D({ className = '' }: LandingPage3DProps) {
                 className="!absolute inset-0 z-10"
                 style={{ background: 'transparent' }}
               >
-                <HeroScene
-                  currentPhase={hijackState.currentPhase}
-                  phaseProgress={hijackState.phaseProgress}
-                  totalProgress={hijackState.totalProgress}
-                  pointerState={pointerState}
-                  isVisible={isVisible}
-                  isHijackComplete={hijackState.isComplete}
-                />
+                <HeroScene pointerState={pointerState} />
               </Canvas>
             </Suspense>
           </WebGLErrorBoundary>
         )}
 
-        {/* Phase 0: Centered scroll indicator - gamified experience */}
-        <ScrollToExploreIndicator show={hijackState.currentPhase === 0 && isReady} />
-
-        {/* Scroll Progress Indicator (during hijack, hidden in phase 0) */}
-        <ScrollProgressIndicator
-          currentPhase={hijackState.currentPhase}
-          totalProgress={hijackState.totalProgress}
-          isComplete={hijackState.isComplete}
-          isVisible={isVisible && isReady && hijackState.isLocked && hijackState.currentPhase > 0}
+        {/* TourWiseCo Title with shatter effect */}
+        <TourWiseCoTitle
+          show={showTitle}
+          isExploding={titleExploding && hijackState.currentPhase === 1}
         />
 
-        {/* FinalStepCards - HTML overlay for Phase 2 (cards phase) */}
-        {/* New phase system: Phase 0 = initial, Phase 1 = text, Phase 2 = cards (frozen) */}
+        {/* Karaoke text animation */}
+        <KaraokeText
+          show={showKaraoke && hijackState.currentPhase === 1}
+          onComplete={handleKaraokeComplete}
+        />
+
+        {/* Phase 0: Elegant scroll indicator below title */}
+        <ElegantScrollIndicator show={showPhase0Indicator} label="Scroll to Explore" />
+
+        {/* Phase 1: Scroll indicator after karaoke completes */}
+        <ElegantScrollIndicator show={showPhase1Indicator} label="Continue" />
+
+        {/* Phase 2: FinalStepCards - frozen 3-card panel */}
         <FinalStepCards
-          currentPhase={hijackState.currentPhase === 2 ? 4 : 0}
-          phaseProgress={hijackState.currentPhase === 2 ? 1 : 0}
+          currentPhase={showCards ? 4 : 0}
+          phaseProgress={showCards ? 1 : 0}
           isHijackComplete={hijackState.isComplete}
           onLearnMoreClick={() => {
             const carousel = document.getElementById('user-journey-carousel')

@@ -4,9 +4,9 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 
 /**
  * Animation phases for the hero section scroll hijacking
- * Simplified to 3 discrete steps:
- * - Phase 0: Initial (blank Paris night sky with scroll indicator)
- * - Phase 1: Text displayed (title, subtitle, description all at once)
+ * 3 discrete steps:
+ * - Phase 0: TourWiseCo title + scroll indicator
+ * - Phase 1: Title shatters, karaoke text plays
  * - Phase 2: Cards shown (frozen, complete)
  */
 export interface AnimationPhase {
@@ -15,8 +15,8 @@ export interface AnimationPhase {
 }
 
 export const ANIMATION_PHASES: AnimationPhase[] = [
-  { id: 0, name: 'initial' },      // Blank Paris night sky
-  { id: 1, name: 'text' },         // All text visible
+  { id: 0, name: 'title' },        // TourWiseCo title
+  { id: 1, name: 'karaoke' },      // Karaoke text animation
   { id: 2, name: 'cards' },        // Cards shown (frozen/complete)
 ]
 
@@ -35,17 +35,26 @@ export interface ScrollHijackState {
   direction: 'forward' | 'reverse' | 'none'
 }
 
+export interface UseScrollHijackOptions {
+  enabled?: boolean
+  canAdvance?: (currentPhase: number) => boolean // Callback to check if advancing from currentPhase is allowed
+}
+
 /**
  * useScrollHijack - Captures scroll events and converts them to discrete animation phases
  *
  * Step-based progression (one scroll action = one step):
- * - Phase 0: Initial (blank Paris night sky with scroll indicator)
- * - Phase 1: Text displayed (first scroll down)
- * - Phase 2: Cards shown - frozen permanently (second scroll down)
+ * - Phase 0: TourWiseCo title + scroll indicator
+ * - Phase 1: Title shatters, karaoke plays (blocked until animation completes)
+ * - Phase 2: Cards shown - frozen permanently
  *
- * No reverse animation - cards stay visible until page refresh
+ * Uses canAdvance callback to allow parent to block phase transitions
  */
-export function useScrollHijack(enabled: boolean = true): ScrollHijackState {
+export function useScrollHijack(options: UseScrollHijackOptions | boolean = true): ScrollHijackState {
+  // Handle both old boolean API and new options object
+  const { enabled = true, canAdvance } = typeof options === 'boolean'
+    ? { enabled: options, canAdvance: undefined }
+    : options
   const [state, setState] = useState<ScrollHijackState>({
     isLocked: true,
     currentPhase: 0,
@@ -79,6 +88,11 @@ export function useScrollHijack(enabled: boolean = true): ScrollHijackState {
       return
     }
 
+    // Check if parent allows advancing from current phase
+    if (canAdvance && !canAdvance(currentPhaseRef.current)) {
+      return
+    }
+
     lastPhaseChangeTimeRef.current = now
     currentPhaseRef.current += 1
     accumulatedDeltaRef.current = 0
@@ -100,7 +114,7 @@ export function useScrollHijack(enabled: boolean = true): ScrollHijackState {
       isComplete,
       direction: 'forward',
     })
-  }, [maxPhase])
+  }, [maxPhase, canAdvance])
 
   // Handle scroll/wheel events - discrete step progression
   const handleWheel = useCallback((e: WheelEvent) => {
