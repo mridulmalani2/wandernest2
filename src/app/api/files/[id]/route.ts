@@ -1,6 +1,9 @@
+export const runtime = 'nodejs'
+
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
+import { verifyAdmin } from '@/lib/api-auth';
 
 export async function GET(
     req: NextRequest,
@@ -58,23 +61,38 @@ export async function GET(
                 isAccessAllowed = true;
             }
 
-            // TODO: Add Admin check here if we have a unified verifyAdmin helper accessible
-            // const adminAuth = await verifyAdmin(req);
-            // if (adminAuth.authorized) isAccessAllowed = true;
+            const adminAuth = await verifyAdmin(req);
+            if (adminAuth.authorized) {
+                isAccessAllowed = true;
+            }
         }
 
         if (!isAccessAllowed) {
             return new NextResponse('Unauthorized', { status: 401 });
         }
 
+        if (!fileRecord.content) {
+            return new NextResponse('File content missing', { status: 404 });
+        }
+
+        const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf'];
+        if (!allowedMimeTypes.includes(fileRecord.mimeType)) {
+            return new NextResponse('Unsupported media type', { status: 415 });
+        }
+
         // Convert base64 back to buffer
         const buffer = Buffer.from(fileRecord.content, 'base64');
+        const disposition = fileRecord.mimeType.startsWith('image/')
+            ? 'inline'
+            : 'attachment';
 
         // Return file with correct content type
         return new NextResponse(buffer, {
             headers: {
                 'Content-Type': fileRecord.mimeType,
                 'Content-Length': fileRecord.size.toString(),
+                'Content-Disposition': `${disposition}; filename="${fileRecord.filename}"`,
+                'X-Content-Type-Options': 'nosniff',
                 'Cache-Control': 'private, max-age=31536000, immutable',
             },
         });

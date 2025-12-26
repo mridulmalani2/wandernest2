@@ -9,19 +9,33 @@ import { verifyAdmin } from '@/lib/api-auth'
 
 // Get pending student approvals
 export async function GET(request: NextRequest) {
-  const authResult = await verifyAdmin(request)
-
-  if (!authResult.authorized) {
-    return NextResponse.json(
-      { error: 'Unauthorized' },
-      { status: 401 }
-    )
-  }
-
-
-
   try {
+    const authResult = await verifyAdmin(request)
+
+    if (!authResult.authorized) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      )
+    }
+
+    if (!authResult.admin || !['SUPER_ADMIN', 'MODERATOR'].includes(authResult.admin.role)) {
+      return NextResponse.json(
+        { error: 'Forbidden' },
+        { status: 403 }
+      )
+    }
+
     const db = requireDatabase()
+    const { searchParams } = new URL(request.url)
+    const page = Number.parseInt(searchParams.get('page') || '1', 10)
+    const limit = Number.parseInt(searchParams.get('limit') || '20', 10)
+
+    if (Number.isNaN(page) || Number.isNaN(limit) || page < 1 || limit < 1) {
+      return NextResponse.json({ error: 'Invalid pagination parameters' }, { status: 400 })
+    }
+
+    const cappedLimit = Math.min(limit, 50)
 
     const students = await db.student.findMany({
       where: {
@@ -30,6 +44,8 @@ export async function GET(request: NextRequest) {
       orderBy: {
         createdAt: 'desc',
       },
+      skip: (page - 1) * cappedLimit,
+      take: cappedLimit,
       select: {
         id: true,
         email: true,
@@ -46,23 +62,44 @@ export async function GET(request: NextRequest) {
         governmentIdExpiry: true,
         selfieUrl: true,
         profilePhotoUrl: true,
-        coverLetter: true,
         languages: true,
         interests: true,
         bio: true,
         city: true,
         campus: true,
-        phoneNumber: true,
-        dateOfBirth: true,
         priceRange: true,
         approvalReminderSentAt: true,
         createdAt: true,
       },
     })
+    const redactedStudents = authResult.admin.role === 'SUPER_ADMIN'
+      ? students
+      : students.map((student) => ({
+          ...student,
+          idCardUrl: null,
+          studentIdUrl: null,
+          studentIdExpiry: null,
+          governmentIdUrl: null,
+          governmentIdExpiry: null,
+          selfieUrl: null,
+          profilePhotoUrl: null,
+        }))
 
-    return NextResponse.json({ students })
+    const total = await db.student.count({
+      where: { status: 'PENDING_APPROVAL' },
+    })
+
+    return NextResponse.json({
+      students: redactedStudents,
+      pagination: {
+        total,
+        page,
+        limit: cappedLimit,
+        totalPages: Math.ceil(total / cappedLimit),
+      },
+    })
   } catch (error) {
-    console.error('Error fetching pending students:', error)
+    console.error('Error fetching pending students:', error instanceof Error ? error.message : 'Unknown error')
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

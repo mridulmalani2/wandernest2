@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { sendVerificationEmail } from '@/lib/email'
-import { waitUntil } from '@vercel/functions'
+import { checkRateLimit, hashIdentifier } from '@/lib/rate-limit'
 
 export async function POST(req: Request) {
   try {
@@ -14,9 +14,27 @@ export async function POST(req: Request) {
       )
     }
 
+    const normalizedEmail = email.toLowerCase().trim()
+    const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown'
+
+    const emailKey = `otp:email:${hashIdentifier(normalizedEmail)}`
+    const ipKey = `otp:ip:${hashIdentifier(ip)}`
+
+    const [emailLimit, ipLimit] = await Promise.all([
+      checkRateLimit(emailKey, 3, 60 * 10),
+      checkRateLimit(ipKey, 10, 60 * 10),
+    ])
+
+    if (!emailLimit.allowed || !ipLimit.allowed) {
+      return NextResponse.json(
+        { success: false, error: 'Too many requests. Please wait before trying again.' },
+        { status: 429 }
+      )
+    }
+
     // Check if account already exists
     const existingStudent = await prisma.student.findUnique({
-      where: { email },
+      where: { email: normalizedEmail },
     });
 
     if (existingStudent) {
@@ -39,7 +57,7 @@ export async function POST(req: Request) {
     await prisma.$transaction([
       prisma.studentOtp.updateMany({
         where: {
-          email,
+          email: normalizedEmail,
           used: false,
         },
         data: {
@@ -48,7 +66,7 @@ export async function POST(req: Request) {
       }),
       prisma.studentOtp.create({
         data: {
-          email,
+          email: normalizedEmail,
           code,
           expiresAt,
         },
@@ -56,16 +74,23 @@ export async function POST(req: Request) {
     ])
 
     if (process.env.NODE_ENV === 'development') {
-      console.log('✅ OTP Generated for:', email);
+      console.log('✅ OTP Generated for:', normalizedEmail);
     }
 
     // Send email synchronously for debugging
-    console.log('Attempting to send OTP email to:', email);
-    const emailResult = await sendVerificationEmail(email, code);
+    console.log('Attempting to send OTP email to:', normalizedEmail);
+    const emailResult = await sendVerificationEmail(normalizedEmail, code);
     console.log('Email send result:', emailResult);
 
     if (!emailResult.success) {
-      console.error(`Failed to send OTP email to ${email}:`, emailResult.error);
+      console.error(`Failed to send OTP email to ${normalizedEmail}:`, emailResult.error);
+      await prisma.studentOtp.deleteMany({
+        where: {
+          email: normalizedEmail,
+          code,
+          used: false,
+        },
+      })
       return NextResponse.json(
         { success: false, error: 'Failed to send verification email. Please try again.' },
         { status: 500 }

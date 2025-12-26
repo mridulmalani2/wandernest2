@@ -6,29 +6,32 @@ export const runtime = 'nodejs'
 import { NextRequest, NextResponse } from 'next/server'
 import { requireDatabase } from '@/lib/prisma'
 import { verifyAdmin } from '@/lib/api-auth'
-import { StudentStatus } from '@prisma/client'
 
 // Get all students with optional filtering
 export async function GET(request: NextRequest) {
-  const authResult = await verifyAdmin(request)
-
-  if (!authResult.authorized) {
-    return NextResponse.json(
-      { error: authResult.error || 'Unauthorized' },
-      { status: 401 }
-    )
-  }
-
-  const prisma = requireDatabase()
-
   try {
+    const authResult = await verifyAdmin(request)
+
+    if (!authResult.authorized) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      )
+    }
+
     const db = requireDatabase()
 
     const { searchParams } = new URL(request.url)
     const status = searchParams.get('status')
     const city = searchParams.get('city')
-    const page = parseInt(searchParams.get('page') || '1')
-    const limit = parseInt(searchParams.get('limit') || '20')
+    const page = Number.parseInt(searchParams.get('page') || '1', 10)
+    const limit = Number.parseInt(searchParams.get('limit') || '20', 10)
+
+    if (Number.isNaN(page) || Number.isNaN(limit) || page < 1 || limit < 1) {
+      return NextResponse.json({ error: 'Invalid pagination parameters' }, { status: 400 })
+    }
+
+    const cappedLimit = Math.min(limit, 100)
 
     const where: any = {}
 
@@ -43,8 +46,8 @@ export async function GET(request: NextRequest) {
     const [students, total] = await Promise.all([
       db.student.findMany({
         where,
-        skip: (page - 1) * limit,
-        take: limit,
+        skip: (page - 1) * cappedLimit,
+        take: cappedLimit,
         orderBy: {
           createdAt: 'desc',
         },
@@ -73,12 +76,12 @@ export async function GET(request: NextRequest) {
       pagination: {
         total,
         page,
-        limit,
-        totalPages: Math.ceil(total / limit),
+        limit: cappedLimit,
+        totalPages: Math.ceil(total / cappedLimit),
       },
     })
   } catch (error) {
-    console.error('Error fetching students:', error)
+    console.error('Error fetching students:', error instanceof Error ? error.message : 'Unknown error')
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

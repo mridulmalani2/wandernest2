@@ -16,6 +16,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { verifyToken } from './auth'
 import { requireDatabase } from './prisma'
 import { logger } from './logger'
+import { isTokenRevoked } from './token-revocation'
 
 interface JWTPayload {
   adminId?: string
@@ -66,6 +67,10 @@ export async function verifyAdmin(request: NextRequest): Promise<{ authorized: b
     }
 
     if (!token) {
+      return { authorized: false, error: 'Authentication failed' }
+    }
+
+    if (await isTokenRevoked(token)) {
       return { authorized: false, error: 'Authentication failed' }
     }
 

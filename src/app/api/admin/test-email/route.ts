@@ -17,55 +17,41 @@ export const revalidate = 0
  * - Which environment variables are set
  * - SMTP connection details (without exposing secrets)
  */
-export async function GET() {
-  const emailConfig = {
-    isConfigured: config.email.isConfigured,
-    variables: {
-      EMAIL_HOST: config.email.host ? '✅ Set' : '❌ Not set',
-      EMAIL_PORT: config.email.port,
-      EMAIL_USER: config.email.user ? '✅ Set' : '❌ Not set',
-      EMAIL_PASS: config.email.pass ? '✅ Set' : '❌ Not set',
-      EMAIL_FROM: config.email.from,
-    },
-    smtpDetails: {
-      host: config.email.host || 'Not configured',
-      port: config.email.port,
-      secure: config.email.port === 465,
-      user: config.email.user ? `${config.email.user.substring(0, 3)}***` : 'Not set',
-    },
-    status: config.email.isConfigured
-      ? '✅ Email is configured - magic link authentication should work'
-      : '❌ Email is NOT configured - magic link authentication will FAIL',
-    requiredActions: config.email.isConfigured
-      ? []
-      : [
-        'Set EMAIL_HOST in Vercel environment variables (e.g., smtp.gmail.com)',
-        'Set EMAIL_PORT in Vercel environment variables (e.g., 587)',
-        'Set EMAIL_USER in Vercel environment variables (your SMTP username)',
-        'Set EMAIL_PASS in Vercel environment variables (your SMTP password/app password)',
-        'Set EMAIL_FROM in Vercel environment variables (optional, has default)',
-        'Redeploy the application after setting variables',
-      ],
-    nextSteps: config.email.isConfigured
-      ? [
-        'Try signing in with magic link',
-        'Check Vercel logs for SMTP connection errors if it fails',
-        'Verify SMTP credentials are correct',
-        'Ensure firewall allows outbound SMTP connections',
-      ]
-      : [
-        'Go to Vercel Dashboard → Your Project → Settings → Environment Variables',
-        'Add the required EMAIL_* variables',
-        'For Gmail: Use an App Password (not your regular password)',
-        'Deploy the changes',
-      ],
-  }
+export async function GET(request: NextRequest) {
+  try {
+    const authResult = await verifyAdmin(request)
+    if (!authResult.authorized) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
 
-  return NextResponse.json(emailConfig, {
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  })
+    const emailConfig = {
+      isConfigured: config.email.isConfigured,
+      status: config.email.isConfigured
+        ? 'configured'
+        : 'not_configured',
+      requiredActions: config.email.isConfigured
+        ? []
+        : [
+          'Set EMAIL_HOST in Vercel environment variables (e.g., smtp.gmail.com)',
+          'Set EMAIL_PORT in Vercel environment variables (e.g., 587)',
+          'Set EMAIL_USER in Vercel environment variables (your SMTP username)',
+          'Set EMAIL_PASS in Vercel environment variables (your SMTP password/app password)',
+          'Set EMAIL_FROM in Vercel environment variables (optional, has default)',
+          'Redeploy the application after setting variables',
+        ],
+    }
+
+    return NextResponse.json(emailConfig, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+  } catch (error) {
+    return NextResponse.json(
+      { error: 'Failed to load email configuration' },
+      { status: 500 }
+    )
+  }
 }
 
 /**
@@ -75,13 +61,13 @@ export async function GET() {
  * Requires a recipient email in the request body.
  */
 export async function POST(request: NextRequest) {
-  const authResult = await verifyAdmin(request)
-
-  if (!authResult.authorized) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
-
   try {
+    const authResult = await verifyAdmin(request)
+
+    if (!authResult.authorized) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
     const { to } = await request.json()
 
     // Basic email validation regex
@@ -123,9 +109,9 @@ export async function POST(request: NextRequest) {
       greetingTimeout: 10000,
     })
 
+    const redactedRecipient = to.replace(/(^.).*(@.*$)/, '$1***$2')
     console.log('📧 Sending test email...')
-    // Log only safe details
-    console.log('   To:', to)
+    console.log('   To:', redactedRecipient)
 
     const result = await transport.sendMail({
       to,
@@ -137,13 +123,6 @@ export async function POST(request: NextRequest) {
           <h2>✅ Email Configuration Test Successful</h2>
           <p>This is a test email from TourWiseCo to verify your email configuration is working correctly.</p>
           <p><strong>If you received this email, your SMTP settings are configured properly!</strong></p>
-          <hr style="margin: 20px 0;">
-          <p style="color: #666; font-size: 12px;">
-            Configuration Details:<br>
-            SMTP Host: ${config.email.host}<br>
-            SMTP Port: ${config.email.port}<br>
-            From: ${config.email.from}
-          </p>
         </div>
       `,
     })
@@ -155,8 +134,7 @@ export async function POST(request: NextRequest) {
         {
           success: false,
           error: 'Email failed to send',
-          details: `Recipients failed: ${failed.join(', ')}`,
-          result,
+          details: 'One or more recipients failed',
         },
         { status: 500 }
       )

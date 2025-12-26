@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { checkDatabaseHealth } from '@/lib/prisma'
 import { getConfigSummary } from '@/lib/config'
+import { checkRedisHealth } from '@/lib/redis'
 
 /**
  * Health check endpoint for monitoring
@@ -26,6 +27,7 @@ export async function GET() {
 
     // Get configuration summary
     const configSummary = getConfigSummary()
+    const redisHealth = await checkRedisHealth()
 
     // Determine overall health
     // System is healthy if:
@@ -42,7 +44,6 @@ export async function GET() {
     const response = {
       status,
       timestamp,
-      version: process.env.npm_package_version || 'unknown',
       environment: configSummary.environment,
       components: {
         database: {
@@ -53,25 +54,28 @@ export async function GET() {
               : 'not_configured',
           available: dbHealth.available,
           healthy: dbHealth.healthy,
-          error: dbHealth.error,
         },
         email: {
           status: configSummary.integrations.email === 'configured'
-            ? 'healthy'
+            ? 'configured'
             : 'not_configured',
           configured: configSummary.integrations.email === 'configured',
         },
         googleAuth: {
           status: configSummary.integrations.googleAuth === 'configured'
-            ? 'healthy'
+            ? 'configured'
             : 'not_configured',
           configured: configSummary.integrations.googleAuth === 'configured',
         },
         redis: {
-          status: configSummary.integrations.redis === 'configured'
-            ? 'healthy'
-            : 'not_configured',
+          status: configSummary.integrations.redis !== 'configured'
+            ? 'not_configured'
+            : redisHealth.healthy
+              ? 'healthy'
+              : 'unhealthy',
           configured: configSummary.integrations.redis === 'configured',
+          available: redisHealth.available,
+          healthy: redisHealth.healthy,
         },
       },
       warnings: configSummary.warnings.length > 0 ? ['Check server logs for warnings'] : [],
@@ -86,7 +90,7 @@ export async function GET() {
       {
         status: 'unhealthy',
         timestamp,
-        error: error instanceof Error ? error.message : 'Health check failed',
+        error: 'Health check failed',
       },
       { status: 503 }
     )

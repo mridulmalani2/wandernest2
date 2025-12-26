@@ -10,6 +10,7 @@ import { findMatches, generateAnonymousId } from '@/lib/matching/algorithm'
 import { cache } from '@/lib/cache'
 import { CACHE_TTL } from '@/lib/constants'
 import { AppError } from '@/lib/error-handler'
+import { generateSelectionToken } from '@/lib/auth/tokens'
 
 // Query schema for GET endpoint
 const matchesQuerySchema = z.object({
@@ -17,8 +18,8 @@ const matchesQuerySchema = z.object({
 })
 
 // Helper to map student to anonymized match response
-const mapToMatchResponse = (student: any, selectionStatus?: string) => ({
-  id: student.id,
+const mapToMatchResponse = (student: any, requestId: string, selectionStatus?: string) => ({
+  selectionToken: generateSelectionToken({ requestId, studentId: student.id }),
   anonymousId: generateAnonymousId(student.id),
   university: student.institute,
   languages: student.languages,
@@ -63,7 +64,7 @@ export const POST = createApiHandler<FindMatchesInput>({
     )
 
     // Format response with anonymized data
-    const anonymizedMatches = matches.map(student => mapToMatchResponse(student))
+    const anonymizedMatches = matches.map(student => mapToMatchResponse(student, requestId))
 
     return NextResponse.json({
       success: true,
@@ -113,7 +114,7 @@ export const GET = createApiHandler({
     // Return existing selections if any
     if (touristRequest.selections && touristRequest.selections.length > 0) {
       const selectedGuides = touristRequest.selections.map((selection: any) =>
-        mapToMatchResponse(selection.student, selection.status)
+        mapToMatchResponse(selection.student, requestId, selection.status)
       )
 
       return NextResponse.json({
@@ -130,7 +131,7 @@ export const GET = createApiHandler({
       { ttl: CACHE_TTL.MATCHES }
     )
 
-    const anonymizedMatches = matches.map(student => mapToMatchResponse(student))
+    const anonymizedMatches = matches.map(student => mapToMatchResponse(student, requestId))
 
     return NextResponse.json({
       success: true,

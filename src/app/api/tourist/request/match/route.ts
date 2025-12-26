@@ -7,6 +7,7 @@ export const runtime = 'nodejs'
 import { NextRequest, NextResponse } from 'next/server'
 import { requireDatabase } from '@/lib/prisma'
 import { AppError } from '@/lib/error-handler'
+import { generateSelectionToken } from '@/lib/auth/tokens'
 
 // Helper function to calculate suggested price range
 function calculateSuggestedPrice(city: string, serviceType: string): { min: number; max: number } {
@@ -46,19 +47,18 @@ interface MatchingCriteria {
 interface ScoredStudent {
   id: string
   maskedId: string
-  name: string | null // Will be masked for display
+  displayName: string
   nationality: string | null
   languages: string[]
   institute: string | null
   gender: string | null
   tripsHosted: number
   averageRating: number | null
+  reviewCount: number
   noShowCount: number
   reliabilityBadge: string | null
   interests: string[]
   priceRange: { min: number; max: number } | null
-  bio: string | null
-  coverLetter: string | null
   score: number
 
   matchReasons: string[]
@@ -152,8 +152,24 @@ function maskStudentIdentity(student: { id: string }, index: number): string {
 function extractTags(student: { coverLetter: string | null; bio: string | null }): string[] {
   const tags: string[] = []
 
-  // Extract from cover letter and bio (simple keyword extraction)
-  const text = `${student.coverLetter || ''} ${student.bio || ''}`.toLowerCase()
+  const MAX_TAG_TEXT_LENGTH = 2000
+  const MAX_FIELD_LENGTH = 1000
+
+  const coverLetter = typeof student.coverLetter === 'string'
+    ? student.coverLetter.slice(0, MAX_FIELD_LENGTH)
+    : ''
+  const bio = typeof student.bio === 'string'
+    ? student.bio.slice(0, MAX_FIELD_LENGTH)
+    : ''
+
+  const combined = `${coverLetter} ${bio}`.slice(0, MAX_TAG_TEXT_LENGTH)
+  const normalizedText = combined
+    .toLowerCase()
+    .replace(/[’']/g, '')
+    .replace(/[^a-z0-9\s-]/g, ' ')
+    .replace(/-/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
 
   const tagKeywords = [
     'food', 'cafes', 'restaurants', 'first-time', 'kids', 'kid-friendly',
@@ -163,7 +179,17 @@ function extractTags(student: { coverLetter: string | null; bio: string | null }
   ]
 
   tagKeywords.forEach((keyword) => {
-    if (text.includes(keyword)) {
+    const normalizedKeyword = keyword.replace(/-/g, ' ').trim()
+    if (!normalizedKeyword) return
+
+    const escaped = normalizedKeyword
+      .split(/\s+/)
+      .map((word) => word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+      .map((word) => `\\b${word}\\b`)
+      .join('\\s+')
+
+    const regex = new RegExp(escaped)
+    if (regex.test(normalizedText)) {
       tags.push(keyword)
     }
   })
@@ -239,6 +265,11 @@ async function matchStudents(req: NextRequest) {
           bio: true,
           coverLetter: true,
           acceptanceRate: true,
+          _count: {
+            select: {
+              reviews: true,
+            },
+          },
           availability: {
             select: {
               dayOfWeek: true,
@@ -342,19 +373,18 @@ async function matchStudents(req: NextRequest) {
       return {
         id: student.id,
         maskedId: maskStudentIdentity(student, index),
-        name: student.name,
+        displayName: maskName(student.name),
         nationality: student.nationality,
         languages: student.languages,
         institute: student.institute,
         gender: student.gender,
         tripsHosted: student.tripsHosted,
         averageRating: student.averageRating,
+        reviewCount: student._count?.reviews ?? 0,
         noShowCount: student.noShowCount,
         reliabilityBadge: student.reliabilityBadge,
         interests: student.interests,
         priceRange: student.priceRange,
-        bio: student.bio,
-        coverLetter: student.coverLetter,
         score,
         matchReasons: reasons,
         tags,
@@ -376,16 +406,19 @@ async function matchStudents(req: NextRequest) {
       success: true,
       hasMatches: true,
       matches: topCandidates.map((student) => ({
-        studentId: student.id,
+        selectionToken: generateSelectionToken({
+          requestId: touristRequest.id,
+          studentId: student.id,
+        }),
         maskedId: student.maskedId,
         // Partially mask name (show first name + initial)
-        displayName: maskName(student.name),
+        displayName: student.displayName,
         nationality: student.nationality,
         languages: student.languages,
         institute: student.institute,
         tripsHosted: student.tripsHosted,
         averageRating: student.averageRating,
-        reviewCount: student.tripsHosted, // Approximation
+        reviewCount: student.reviewCount,
         noShowCount: student.noShowCount,
         reliabilityBadge: student.reliabilityBadge,
         tags: student.tags,
@@ -413,9 +446,10 @@ async function matchStudents(req: NextRequest) {
 
 function maskName(fullName: string | null): string {
   if (!fullName) return 'Anonymous'
-  const parts = fullName.trim().split(' ')
-  // Return only the first name for privacy consistency
-  return parts[0]
+  const trimmed = fullName.trim()
+  if (!trimmed) return 'Anonymous'
+  const parts = trimmed.split(/\s+/)
+  return parts[0] || 'Anonymous'
 }
 
 // Export the POST handler (this was missing, causing 404 errors in production)

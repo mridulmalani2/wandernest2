@@ -249,7 +249,7 @@ export function createApiHandler<
           logger.warn(`[${requestId}] ${route} - Authentication failed`, {
             error: authResult.error,
           });
-          throw new AppError(401, authResult.error || 'Unauthorized', 'AUTH_FAILED');
+          throw new AppError(401, 'Unauthorized', 'AUTH_FAILED');
         }
 
         // Store auth result for handler

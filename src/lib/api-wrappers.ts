@@ -15,7 +15,7 @@ export function withStudent(handler: StudentHandler) {
             const authResult = await verifyStudent(request);
             if (!authResult.authorized || !authResult.student) {
                 return NextResponse.json(
-                    { error: authResult.error || 'Unauthorized - Please sign in' },
+                    { error: 'Unauthorized - Please sign in' },
                     { status: 401 }
                 );
             }
@@ -36,7 +36,7 @@ export function withTourist(handler: TouristHandler) {
             const authResult = await verifyTourist(request);
             if (!authResult.authorized || !authResult.tourist) {
                 return NextResponse.json(
-                    { error: authResult.error || 'Unauthorized - Please sign in' },
+                    { error: 'Unauthorized - Please sign in' },
                     { status: 401 }
                 );
             }
@@ -57,7 +57,7 @@ export function withAdmin(handler: AdminHandler) {
             const authResult = await verifyAdmin(request);
             if (!authResult.authorized || !authResult.admin) {
                 return NextResponse.json(
-                    { error: authResult.error || 'Unauthorized - Please sign in' },
+                    { error: 'Unauthorized - Please sign in' },
                     { status: 401 }
                 );
             }
