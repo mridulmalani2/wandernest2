@@ -228,6 +228,7 @@ export function LandingPage3D({ className = '' }: LandingPage3DProps) {
   const [isReady, setIsReady] = useState(false)
   const [phase1EnteredAt, setPhase1EnteredAt] = useState<number | null>(null)
   const [showContinue, setShowContinue] = useState(false)
+  const [cardsEntranceProgress, setCardsEntranceProgress] = useState(0)
 
   const { canRender3D, isMobile, prefersReducedMotion, pixelRatio } = useDeviceCapabilities()
 
@@ -257,6 +258,31 @@ export function LandingPage3D({ className = '' }: LandingPage3DProps) {
       return () => clearTimeout(timer)
     }
   }, [hijackState.currentPhase, phase1EnteredAt])
+
+  // Animate cards entrance when entering phase 2
+  useEffect(() => {
+    if (hijackState.currentPhase === 2) {
+      // Animate progress from 0 to 1 over 800ms
+      const startTime = performance.now()
+      const duration = 800
+
+      const animate = (currentTime: number) => {
+        const elapsed = currentTime - startTime
+        const progress = Math.min(1, elapsed / duration)
+        // Ease out cubic
+        const eased = 1 - Math.pow(1 - progress, 3)
+        setCardsEntranceProgress(eased)
+
+        if (progress < 1) {
+          requestAnimationFrame(animate)
+        }
+      }
+
+      requestAnimationFrame(animate)
+    } else {
+      setCardsEntranceProgress(0)
+    }
+  }, [hijackState.currentPhase])
 
   // Mark as ready after mount
   useEffect(() => {
@@ -321,14 +347,14 @@ export function LandingPage3D({ className = '' }: LandingPage3DProps) {
         {/* Phase 0 & 1: Title with crumble effect */}
         <CrumbleTitle isLeaving={isLeavingPhase0} />
 
-        {/* Phase 1: Tagline fades in as title crumbles */}
-        <Tagline show={currentPhase === 1} />
+        {/* Phase 1: Tagline fades in as title crumbles, fades out for cards */}
+        <Tagline show={currentPhase === 1 || (currentPhase === 2 && cardsEntranceProgress < 0.5)} />
 
-        {/* Phase 2: Cards */}
+        {/* Phase 2: Cards with smooth entrance animation */}
         <FinalStepCards
           currentPhase={currentPhase === 2 ? 4 : 0}
-          phaseProgress={currentPhase === 2 ? 1 : 0}
-          isHijackComplete={hijackState.isComplete}
+          phaseProgress={cardsEntranceProgress}
+          isHijackComplete={hijackState.isComplete && cardsEntranceProgress >= 1}
           onLearnMoreClick={() => {
             document.getElementById('user-journey-carousel')?.scrollIntoView({ behavior: 'smooth' })
           }}
