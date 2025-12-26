@@ -83,12 +83,13 @@ export async function GET(
 
         // Convert base64 back to buffer
         const buffer = decryptFileContent(fileRecord.content);
+        const body = buffer instanceof Uint8Array ? buffer : new Uint8Array(buffer);
         const disposition = fileRecord.mimeType.startsWith('image/')
             ? 'inline'
             : 'attachment';
 
         // Return file with correct content type
-        return new NextResponse(buffer, {
+        return new NextResponse(body, {
             headers: {
                 'Content-Type': fileRecord.mimeType,
                 'Content-Length': fileRecord.size.toString(),
