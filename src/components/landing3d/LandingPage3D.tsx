@@ -200,78 +200,31 @@ function TourWiseCoTitle({
   )
 }
 
-// Karaoke-style text with word-by-word highlighting
-const KARAOKE_TEXT = "Experience authentic travel with local student guides. Connect with verified university students who will show you their city through a local's eyes."
-const WORDS_PER_SECOND = 3.5 // Reading speed
+// Animated text with 3D entrance effect
+const HERO_TEXT = "Experience authentic travel with local student guides. Connect with verified university students who will show you their city through a local's eyes."
 
-function KaraokeText({
-  show,
-  onComplete
-}: {
-  show: boolean
-  onComplete: () => void
-}) {
-  const [highlightedIndex, setHighlightedIndex] = useState(-1)
-  const words = KARAOKE_TEXT.split(' ')
-  const animationStartedRef = useRef(false)
-
-  useEffect(() => {
-    if (!show || animationStartedRef.current) return
-
-    animationStartedRef.current = true
-    const intervalMs = 1000 / WORDS_PER_SECOND
-
-    let currentIndex = 0
-    const interval = setInterval(() => {
-      setHighlightedIndex(currentIndex)
-      currentIndex++
-
-      if (currentIndex >= words.length) {
-        clearInterval(interval)
-        // Small delay before calling onComplete
-        setTimeout(onComplete, 500)
-      }
-    }, intervalMs)
-
-    return () => clearInterval(interval)
-  }, [show, words.length, onComplete])
-
-  // Reset when hidden
-  useEffect(() => {
-    if (!show) {
-      setHighlightedIndex(-1)
-      animationStartedRef.current = false
-    }
-  }, [show])
-
+function AnimatedText({ show }: { show: boolean }) {
   return (
     <div
-      className={`absolute inset-0 flex items-center justify-center z-20 px-8 transition-opacity duration-700 ${
+      className={`absolute inset-0 flex items-center justify-center z-20 px-8 transition-all duration-1000 ${
         show ? 'opacity-100' : 'opacity-0 pointer-events-none'
       }`}
+      style={{
+        transform: show ? 'translateZ(0) scale(1)' : 'translateZ(-100px) scale(0.9)',
+        perspective: '1000px',
+      }}
     >
       <p
-        className="text-center max-w-3xl leading-relaxed"
+        className="text-center max-w-3xl leading-relaxed text-white"
         style={{
           fontSize: 'clamp(1.25rem, 3vw, 2rem)',
           fontFamily: 'Georgia, "Times New Roman", serif',
+          textShadow: '0 2px 30px rgba(107, 141, 214, 0.5), 0 4px 60px rgba(0, 0, 0, 0.8)',
+          transform: show ? 'rotateX(0deg)' : 'rotateX(-15deg)',
+          transition: 'all 1s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
         }}
       >
-        {words.map((word, index) => (
-          <span
-            key={index}
-            className="inline-block mr-[0.3em] transition-all duration-300"
-            style={{
-              color: index <= highlightedIndex ? 'rgba(255, 255, 255, 1)' : 'rgba(255, 255, 255, 0.25)',
-              textShadow: index <= highlightedIndex
-                ? '0 2px 20px rgba(107, 141, 214, 0.5)'
-                : 'none',
-              transform: index <= highlightedIndex ? 'scale(1)' : 'scale(0.98)',
-            }}
-          >
-            {word}
-          </span>
-        ))}
+        {HERO_TEXT}
       </p>
     </div>
   )
@@ -323,21 +276,21 @@ export function LandingPage3D({ className = '' }: LandingPage3DProps) {
 
   // Animation sub-states for Phase 1
   const [titleExploding, setTitleExploding] = useState(false)
-  const [showKaraoke, setShowKaraoke] = useState(false)
-  const [karaokeComplete, setKaraokeComplete] = useState(false)
+  const [showText, setShowText] = useState(false)
+  const [canProceedToCards, setCanProceedToCards] = useState(false)
 
   // Device capability detection
   const { canRender3D, isMobile, prefersReducedMotion, pixelRatio } = useDeviceCapabilities()
 
-  // Callback to block phase 1→2 until karaoke animation completes
+  // Callback to block phase 1→2 until minimum delay passes
   const canAdvancePhase = useCallback((currentPhase: number) => {
-    // Phase 0→1: Always allowed (triggers title explosion + karaoke)
+    // Phase 0→1: Always allowed (triggers title explosion + text)
     if (currentPhase === 0) return true
-    // Phase 1→2: Only allowed after karaoke completes
-    if (currentPhase === 1) return karaokeComplete
+    // Phase 1→2: Only allowed after 1s delay
+    if (currentPhase === 1) return canProceedToCards
     // Any other phase: allow
     return true
-  }, [karaokeComplete])
+  }, [canProceedToCards])
 
   // Scroll hijacking for hero animations
   const hijackState = useScrollHijack({
@@ -347,11 +300,6 @@ export function LandingPage3D({ className = '' }: LandingPage3DProps) {
 
   // Pointer tracking for parallax
   const pointerState = usePointerParallax(canRender3D && !isMobile)
-
-  // Handle karaoke completion
-  const handleKaraokeComplete = useCallback(() => {
-    setKaraokeComplete(true)
-  }, [])
 
   // Visibility detection
   useEffect(() => {
@@ -383,12 +331,20 @@ export function LandingPage3D({ className = '' }: LandingPage3DProps) {
       // Start the title explosion
       setTitleExploding(true)
 
-      // After title explosion animation, show karaoke text
-      const timer = setTimeout(() => {
-        setShowKaraoke(true)
-      }, 1000) // Wait for explosion animation
+      // After title explosion animation, show text
+      const textTimer = setTimeout(() => {
+        setShowText(true)
+      }, 800) // Wait for explosion animation
 
-      return () => clearTimeout(timer)
+      // After 1s minimum delay, allow proceeding to cards
+      const proceedTimer = setTimeout(() => {
+        setCanProceedToCards(true)
+      }, 1800) // 800ms for explosion + 1000ms minimum viewing time
+
+      return () => {
+        clearTimeout(textTimer)
+        clearTimeout(proceedTimer)
+      }
     }
   }, [hijackState.currentPhase, titleExploding])
 
@@ -396,9 +352,9 @@ export function LandingPage3D({ className = '' }: LandingPage3DProps) {
   const should3DRender = canRender3D && !prefersReducedMotion && isReady
 
   // Calculate what to show
-  const showTitle = hijackState.currentPhase === 0 || (hijackState.currentPhase === 1 && !showKaraoke)
+  const showTitle = hijackState.currentPhase === 0 || (hijackState.currentPhase === 1 && !showText)
   const showPhase0Indicator = hijackState.currentPhase === 0 && isReady
-  const showPhase1Indicator = hijackState.currentPhase === 1 && karaokeComplete
+  const showPhase1Indicator = hijackState.currentPhase === 1 && canProceedToCards
   const showCards = hijackState.currentPhase === 2
 
   // Fallback for non-3D capable devices
@@ -473,16 +429,13 @@ export function LandingPage3D({ className = '' }: LandingPage3DProps) {
           isExploding={titleExploding && hijackState.currentPhase === 1}
         />
 
-        {/* Karaoke text animation */}
-        <KaraokeText
-          show={showKaraoke && hijackState.currentPhase === 1}
-          onComplete={handleKaraokeComplete}
-        />
+        {/* Animated hero text */}
+        <AnimatedText show={showText && hijackState.currentPhase === 1} />
 
         {/* Phase 0: Elegant scroll indicator below title */}
         <ElegantScrollIndicator show={showPhase0Indicator} label="Scroll to Explore" />
 
-        {/* Phase 1: Scroll indicator after karaoke completes */}
+        {/* Phase 1: Scroll indicator after delay */}
         <ElegantScrollIndicator show={showPhase1Indicator} label="Continue" />
 
         {/* Phase 2: FinalStepCards - frozen 3-card panel */}
