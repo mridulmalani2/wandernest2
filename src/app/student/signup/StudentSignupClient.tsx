@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { Mail, AlertCircle, ArrowLeft, User, Lock, Eye, EyeOff } from 'lucide-react'; // Added icons
 import { Input } from '@/components/ui/input';
 import { PrimaryCTAButton } from '@/components/ui/PrimaryCTAButton';
-import { isValidEmailFormat } from '@/lib/email-validation';
+import { isStudentEmail, isValidEmailFormat } from '@/lib/email-validation';
 
 type SignupStep = 'email' | 'otp' | 'details';
 
@@ -32,8 +32,14 @@ export default function StudentSignupClient() {
         setError(null);
         setAccountExists(false);
 
-        if (!isValidEmailFormat(email)) {
+        const normalizedEmail = email.trim().toLowerCase();
+
+        if (!isValidEmailFormat(normalizedEmail)) {
             setError('Please enter a valid email address.');
+            return;
+        }
+        if (!isStudentEmail(normalizedEmail)) {
+            setError('Please use your university email address.');
             return;
         }
 
@@ -42,7 +48,7 @@ export default function StudentSignupClient() {
             const res = await fetch('/api/student/auth/send-otp', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email }),
+                body: JSON.stringify({ email: normalizedEmail }),
             });
             const isJson = res.headers.get('content-type')?.includes('application/json');
             const data = isJson ? await res.json().catch(() => null) : null;
@@ -61,6 +67,15 @@ export default function StudentSignupClient() {
         setError(null);
         setLoading(true);
         try {
+            const normalizedEmail = email.trim().toLowerCase();
+            if (!normalizedEmail || !isValidEmailFormat(normalizedEmail) || !isStudentEmail(normalizedEmail)) {
+                setError('Please enter a valid university email address.');
+                return;
+            }
+            if (code.trim().length !== 6) {
+                setError('Please enter the 6-digit verification code.');
+                return;
+            }
             // Optimistic move to details, final verification happens on submit
             setStep('details');
         } finally {
@@ -79,6 +94,16 @@ export default function StudentSignupClient() {
             return;
         }
 
+        const normalizedEmail = email.trim().toLowerCase();
+        if (!normalizedEmail || !isValidEmailFormat(normalizedEmail) || !isStudentEmail(normalizedEmail)) {
+            setError('Please enter a valid university email address.');
+            return;
+        }
+        if (code.trim().length !== 6) {
+            setError('Please enter the 6-digit verification code.');
+            return;
+        }
+
         setLoading(true);
 
         try {
@@ -87,8 +112,8 @@ export default function StudentSignupClient() {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    email,
-                    code,
+                    email: normalizedEmail,
+                    code: code.trim(),
                     name,
                 }),
             });
@@ -110,7 +135,8 @@ export default function StudentSignupClient() {
 
             if (!pwdRes.ok) {
                 console.error('Failed to set password');
-                // Non-blocking error, user is created. They can reset password later.
+                setError('Your account was created, but we could not set your password. Please reset your password to continue.');
+                return;
             }
 
             router.push('/student/dashboard');

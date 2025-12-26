@@ -19,20 +19,31 @@ export default function StudentOnboarding() {
   const [sessionLike, setSessionLike] = useState<SessionLike | null>(null);
 
   useEffect(() => {
+    const controller = new AbortController();
+
     const init = async () => {
       try {
         // ✅ Check our custom OTP session
-        const res = await fetch('/api/student/auth/session-status');
+        const res = await fetch('/api/student/auth/session-status', {
+          signal: controller.signal,
+        });
 
         if (res.status === 401) {
           router.push('/student/signin');
           return;
         }
 
-        const data = await res.json();
+        if (!res.ok) {
+          setLoading(false);
+          router.push('/student/signin');
+          return;
+        }
+
+        const isJson = res.headers.get('content-type')?.includes('application/json');
+        const data = isJson ? await res.json().catch(() => null) : null;
 
         // Not logged in / invalid session → back to signin
-        if (!data.ok) {
+        if (!data?.ok) {
           router.push('/student/signin');
           return;
         }
@@ -56,11 +67,15 @@ export default function StudentOnboarding() {
         router.push('/student/signin');
         return;
       } finally {
-        setLoading(false);
+        if (!controller.signal.aborted) {
+          setLoading(false);
+        }
       }
     };
 
     init();
+
+    return () => controller.abort();
   }, [router]);
 
   // Loading state - same UI as before

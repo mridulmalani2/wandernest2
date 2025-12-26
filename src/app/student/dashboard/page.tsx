@@ -23,6 +23,35 @@ interface StudentRequest {
   createdAt: string;
 }
 
+const normalizeRequests = (payload: any): StudentRequest[] => {
+  if (!Array.isArray(payload)) return [];
+
+  return payload.map((request) => ({
+    id: typeof request?.id === 'string' ? request.id : '',
+    touristName: typeof request?.touristName === 'string' ? request.touristName : 'Traveler',
+    city: typeof request?.city === 'string' ? request.city : 'Unknown',
+    dates: {
+      start: typeof request?.dates?.start === 'string' ? request.dates.start : '',
+      end: typeof request?.dates?.end === 'string' ? request.dates.end : '',
+    },
+    numberOfGuests: typeof request?.numberOfGuests === 'number' ? request.numberOfGuests : 0,
+    serviceType: typeof request?.serviceType === 'string' ? request.serviceType : 'Tour',
+    totalBudget: typeof request?.totalBudget === 'number' ? request.totalBudget : 0,
+    status: request?.status === 'pending' || request?.status === 'accepted' || request?.status === 'rejected' || request?.status === 'completed'
+      ? request.status
+      : 'pending',
+    createdAt: typeof request?.createdAt === 'string' ? request.createdAt : '',
+  }));
+};
+
+const getSafeDateLabel = (value: string, locale = 'en-GB') => {
+  if (!value) return 'Date TBD';
+  const parsed = new Date(value);
+  return Number.isNaN(parsed.getTime())
+    ? 'Date TBD'
+    : parsed.toLocaleDateString(locale, { day: 'numeric', month: 'short' });
+};
+
 export default function StudentDashboard() {
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -86,8 +115,10 @@ export default function StudentDashboard() {
           throw new Error('Failed to fetch requests');
         }
 
-        const data = await res.json();
-        setRequests(data.requests || []);
+        const data = await res.json().catch(() => null);
+        if (controller.signal.aborted) return;
+        const normalizedRequests = normalizeRequests(data?.requests);
+        setRequests(normalizedRequests);
         if (data.profileCompleteness !== undefined) {
           setProfileCompleteness(data.profileCompleteness);
         }
@@ -112,8 +143,8 @@ export default function StudentDashboard() {
             // Let's add a lightweight status check call here if we don't have it.
             const statusRes = await fetch('/api/student/auth/session-status', { signal: controller.signal });
             if (statusRes.ok) {
-              const statusData = await statusRes.json();
-              if (statusData.student?.status) {
+              const statusData = await statusRes.json().catch(() => null);
+              if (statusData?.student?.status && !controller.signal.aborted) {
                 setStudentStatus(statusData.student.status);
               }
             }
@@ -154,7 +185,7 @@ export default function StudentDashboard() {
     completed: requests.filter(r => r.status === 'completed').length,
     totalEarnings: requests
       .filter(r => r.status === 'completed')
-      .reduce((sum, r) => sum + r.totalBudget, 0)
+      .reduce((sum, r) => sum + (Number.isFinite(r.totalBudget) ? r.totalBudget : 0), 0)
   };
 
   const getStatusColor = (status: string) => {
@@ -287,7 +318,9 @@ export default function StudentDashboard() {
                             </h3>
                             <div className="flex items-center gap-2 mt-1">
                               <span className={`text-xs px-3 py-1 rounded-full border font-medium capitalize ${getStatusColor(request.status)}`}>
-                                {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
+                                {typeof request.status === 'string'
+                                  ? `${request.status.charAt(0).toUpperCase()}${request.status.slice(1)}`
+                                  : 'Pending'}
                               </span>
                             </div>
                           </div>
@@ -301,7 +334,7 @@ export default function StudentDashboard() {
                           <div className="flex items-center gap-2 text-gray-400">
                             <Calendar className="h-4 w-4 shrink-0" />
                             <span className="font-light">
-                              {new Date(request.dates.start).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
+                              {getSafeDateLabel(request.dates?.start)}
                             </span>
                           </div>
                           <div className="flex items-center gap-2 text-gray-400">

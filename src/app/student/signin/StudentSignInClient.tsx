@@ -21,8 +21,14 @@ export default function StudentSignInClient() {
     // Actually, if we are handling session on server, we might not need useSession for *this* flow, but consistency is good.
     const router = useRouter();
     const searchParams = useSearchParams();
-    const callbackUrl = searchParams.get('callbackUrl') || '/student/auth-landing';
+    const rawCallbackUrl = searchParams.get('callbackUrl');
     const urlError = searchParams.get('error');
+
+    const isSafeInternalPath = (path: string) => path.startsWith('/') && !path.startsWith('//');
+    const callbackUrl = rawCallbackUrl && isSafeInternalPath(rawCallbackUrl)
+        ? rawCallbackUrl
+        : '/student/auth-landing';
+    const safeUrlError = urlError ? 'Authentication failed. Please try again.' : null;
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -83,7 +89,7 @@ export default function StudentSignInClient() {
         }
     };
 
-    const anyError = domainValidationError || emailErrorMessage || urlError;
+    const anyError = domainValidationError || emailErrorMessage || safeUrlError;
 
     return (
         <div className="min-h-screen flex flex-col relative overflow-hidden bg-black">
