@@ -57,6 +57,10 @@ export default function StudentOnboarding() {
           normalizeString(data?.email) ??
           normalizeString(data?.student?.email);
         const name = normalizeString(data?.student?.name);
+        const id =
+          normalizeString(data?.student?.id) ??
+          normalizeString(data?.user?.id) ??
+          'student-onboarding';
 
         if (!email) {
           router.push('/student/signin');
@@ -66,6 +70,7 @@ export default function StudentOnboarding() {
         // Create a session-like object for the wizard
         const session: Session = {
           user: {
+            id,
             email,
             name,
             image: null,
