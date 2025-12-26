@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
     const authResult = await verifyStudent(req)
     if (!authResult.authorized || !authResult.student) {
       return NextResponse.json(
-        { error: authResult.error || 'Unauthorized' },
+        { error: 'Unauthorized' },
         { status: 401 }
       )
     }

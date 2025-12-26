@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic'
 
 import { NextRequest, NextResponse } from 'next/server'
 import { requireDatabase } from '@/lib/prisma'
+import { verifySelectionToken } from '@/lib/auth/tokens'
 
 /**
  * POST /api/matches/select
@@ -21,11 +22,11 @@ export async function POST(request: NextRequest) {
     const db = requireDatabase()
 
     const body = await request.json()
-    const { requestId, selectedGuideIds } = body
+    const { requestId, selectedGuideTokens } = body
 
-    if (!requestId || !selectedGuideIds || !Array.isArray(selectedGuideIds)) {
+    if (!requestId || !selectedGuideTokens || !Array.isArray(selectedGuideTokens)) {
       return NextResponse.json(
-        { error: 'Request ID and selected guide IDs are required' },
+        { error: 'Request ID and selected guide tokens are required' },
         { status: 400 }
       )
     }
@@ -44,6 +45,32 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: 'Tourist request not found' },
         { status: 404 }
+      )
+    }
+
+    const parsedGuideIds = selectedGuideTokens.map((token: string) => {
+      const payload = verifySelectionToken(token)
+      if (!payload || payload.requestId !== requestId) {
+        return null
+      }
+      return payload.studentId
+    })
+
+    if (parsedGuideIds.some((id) => id === null)) {
+      return NextResponse.json(
+        { error: 'Invalid or expired guide selection token' },
+        { status: 400 }
+      )
+    }
+
+    const selectedGuideIds = Array.from(new Set(
+      parsedGuideIds.filter((id): id is string => Boolean(id))
+    ))
+
+    if (selectedGuideIds.length === 0) {
+      return NextResponse.json(
+        { error: 'No valid guide selections provided' },
+        { status: 400 }
       )
     }
 

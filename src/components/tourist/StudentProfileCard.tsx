@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
 
 export interface StudentMatch {
-  studentId: string
+  selectionToken: string
   maskedId: string
   displayName: string
   nationality: string
@@ -24,7 +24,7 @@ export interface StudentMatch {
 interface StudentProfileCardProps {
   student: StudentMatch
   isSelected: boolean
-  onToggleSelect: (studentId: string) => void
+  onToggleSelect: (selectionToken: string) => void
 }
 
 export function StudentProfileCard({
@@ -49,7 +49,7 @@ export function StudentProfileCard({
           ? 'ring-4 ring-ui-blue-primary shadow-glow-blue bg-gradient-to-br from-ui-blue-primary/10 to-white'
           : 'shadow-premium hover:shadow-elevated bg-white border-2 border-gray-100 hover:border-ui-blue-secondary'
         }`}
-      onClick={() => onToggleSelect(student.studentId)}
+      onClick={() => onToggleSelect(student.selectionToken)}
     >
       <CardContent className="p-6">
         {/* Selection Checkbox */}
@@ -59,7 +59,7 @@ export function StudentProfileCard({
         >
           <Checkbox
             checked={isSelected}
-            onCheckedChange={() => onToggleSelect(student.studentId)}
+            onCheckedChange={() => onToggleSelect(student.selectionToken)}
             className="h-5 w-5"
           />
         </div>

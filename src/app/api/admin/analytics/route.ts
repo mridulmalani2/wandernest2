@@ -12,16 +12,16 @@ import { CACHE_TTL } from '@/lib/constants'
 
 // Get platform analytics
 export async function GET(request: NextRequest) {
-  const authResult = await verifyAdmin(request)
-
-  if (!authResult.authorized) {
-    return NextResponse.json(
-      { error: 'Unauthorized' },
-      { status: 401 }
-    )
-  }
-
   try {
+    const authResult = await verifyAdmin(request)
+
+    if (!authResult.authorized) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      )
+    }
+
     const prisma = requireDatabase()
 
     // Use cache for expensive analytics queries

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { sendVerificationEmail } from '@/lib/email';
 import { randomInt } from 'crypto';
+import { checkRateLimit, hashIdentifier } from '@/lib/rate-limit';
 
 export async function POST(req: Request) {
     try {
@@ -14,9 +15,27 @@ export async function POST(req: Request) {
             );
         }
 
+        const normalizedEmail = email.toLowerCase().trim();
+        const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
+
+        const emailKey = `password-reset:email:${hashIdentifier(normalizedEmail)}`;
+        const ipKey = `password-reset:ip:${hashIdentifier(ip)}`;
+
+        const [emailLimit, ipLimit] = await Promise.all([
+            checkRateLimit(emailKey, 3, 60 * 10),
+            checkRateLimit(ipKey, 10, 60 * 10),
+        ]);
+
+        if (!emailLimit.allowed || !ipLimit.allowed) {
+            return NextResponse.json(
+                { success: false, error: 'Too many requests. Please wait before trying again.' },
+                { status: 429 }
+            );
+        }
+
         // 1. Check if user exists
         const student = await prisma.student.findUnique({
-            where: { email },
+            where: { email: normalizedEmail },
         });
 
         if (!student) {
@@ -42,12 +61,12 @@ export async function POST(req: Request) {
         // 3. Save OTP (reuse StudentOtp table)
         await prisma.$transaction([
             prisma.studentOtp.updateMany({
-                where: { email, used: false },
+                where: { email: normalizedEmail, used: false },
                 data: { used: true },
             }),
             prisma.studentOtp.create({
                 data: {
-                    email,
+                    email: normalizedEmail,
                     code,
                     expiresAt,
                 },
@@ -58,9 +77,16 @@ export async function POST(req: Request) {
         // We can reuse the verification email or create a specific one. 
         // sending 'Verification Email' context might say "Verify your email". 
         // Ideally we'd have a specific template, but for now reuse existing to ensure it works.
-        const emailResult = await sendVerificationEmail(email, code);
+        const emailResult = await sendVerificationEmail(normalizedEmail, code);
 
         if (!emailResult.success) {
+            await prisma.studentOtp.deleteMany({
+                where: {
+                    email: normalizedEmail,
+                    code,
+                    used: false,
+                },
+            });
             return NextResponse.json(
                 { success: false, error: 'Failed to send verification email' },
                 { status: 500 }

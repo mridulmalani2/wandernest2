@@ -7,7 +7,7 @@ import { motion } from 'framer-motion'
 
 interface GuideSelectionProps {
   requestId: string
-  onSelectionComplete?: (selectedGuides: string[]) => void
+  onSelectionComplete?: (selectedGuideTokens: string[]) => void
 }
 
 export default function GuideSelection({
@@ -65,13 +65,13 @@ export default function GuideSelection({
     }
   }, [requestId, retryCount])
 
-  const handleGuideSelect = (guideId: string) => {
+  const handleGuideSelect = (guideToken: string) => {
     setSelectedGuides(prev => {
       const newSet = new Set(prev)
-      if (newSet.has(guideId)) {
-        newSet.delete(guideId)
+      if (newSet.has(guideToken)) {
+        newSet.delete(guideToken)
       } else {
-        newSet.add(guideId)
+        newSet.add(guideToken)
       }
       return newSet
     })
@@ -89,8 +89,8 @@ export default function GuideSelection({
       return
     }
 
-    const selectedGuideIds = Array.from(selectedGuides).filter((id) => typeof id === 'string' && id.length > 0)
-    if (selectedGuideIds.length === 0) {
+    const selectedGuideTokens = Array.from(selectedGuides).filter((id) => typeof id === 'string' && id.length > 0)
+    if (selectedGuideTokens.length === 0) {
       setError('Please select at least one guide')
       return
     }
@@ -105,7 +105,7 @@ export default function GuideSelection({
         },
         body: JSON.stringify({
           requestId: trimmedRequestId,
-          selectedGuideIds
+          selectedGuideTokens
         })
       })
 
@@ -118,7 +118,7 @@ export default function GuideSelection({
       if (data && data.success) {
         setSuccessMsg('Your guide selections have been saved!')
         if (onSelectionComplete) {
-          onSelectionComplete(selectedGuideIds)
+          onSelectionComplete(selectedGuideTokens)
         }
       } else {
         setError('Failed to save selections. Please try again.')
@@ -249,7 +249,7 @@ export default function GuideSelection({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {guides.map((guide, index) => (
           <motion.div
-            key={guide.id}
+            key={guide.selectionToken}
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{
@@ -260,7 +260,7 @@ export default function GuideSelection({
           >
             <GuideCard
               guide={guide}
-              isSelected={selectedGuides.has(guide.id)}
+              isSelected={selectedGuides.has(guide.selectionToken)}
               onSelect={handleGuideSelect}
             />
           </motion.div>

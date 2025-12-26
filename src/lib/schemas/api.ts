@@ -176,7 +176,7 @@ export const touristRequestInitiateSchema = z.object({
 
 export const touristRequestSelectSchema = z.object({
   requestId: uuidSchema,
-  selectedStudentIds: uuidArraySchema(10).min(1, 'At least one student must be selected'),
+  selectedStudentTokens: z.array(z.string().min(1)).min(1, 'At least one student must be selected'),
 });
 
 export const touristRequestVerifySchema = z.object({

@@ -138,11 +138,11 @@ function SelectGuideContent() {
     return () => controller.abort()
   }, [requestId, fetchMatches])
 
-  const handleToggleStudent = (studentId: string) => {
+  const handleToggleStudent = (selectionToken: string) => {
     setSelectedStudents((prev) =>
-      prev.includes(studentId)
-        ? prev.filter((id) => id !== studentId)
-        : [...prev, studentId]
+      prev.includes(selectionToken)
+        ? prev.filter((id) => id !== selectionToken)
+        : [...prev, selectionToken]
     )
   }
 
@@ -245,7 +245,7 @@ function SelectGuideContent() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           requestId,
-          selectedStudentIds: selectedStudents,
+          selectedStudentTokens: selectedStudents,
         }),
       })
 
@@ -460,9 +460,9 @@ function SelectGuideContent() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {recommendedMatches.map((student) => (
                     <StudentProfileCard
-                      key={`recommended-${student.studentId}`}
+                      key={`recommended-${student.selectionToken}`}
                       student={student}
-                      isSelected={selectedStudents.includes(student.studentId)}
+                      isSelected={selectedStudents.includes(student.selectionToken)}
                       onToggleSelect={handleToggleStudent}
                     />
                   ))}
@@ -567,9 +567,9 @@ function SelectGuideContent() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 animate-fade-in-up delay-300">
               {filteredMatches.map((student) => (
                 <StudentProfileCard
-                  key={student.studentId}
+                  key={student.selectionToken}
                   student={student}
-                  isSelected={selectedStudents.includes(student.studentId)}
+                  isSelected={selectedStudents.includes(student.selectionToken)}
                   onToggleSelect={handleToggleStudent}
                 />
               ))}

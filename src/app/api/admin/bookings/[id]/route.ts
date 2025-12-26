@@ -6,38 +6,56 @@ export const runtime = 'nodejs'
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdmin } from '@/lib/api-auth'
 import { requireDatabase } from '@/lib/prisma'
-
-function formatDate(dates: unknown): string {
-  if (!dates || typeof dates !== 'object' || !('start' in dates)) return 'TBD'
-
-  const start = (dates as { start?: string | Date }).start
-
-  if (!start) return 'TBD'
-
-  try {
-    return new Date(start).toISOString().slice(0, 10)
-  } catch (error) {
-    return 'TBD'
-  }
-}
+import { formatDateFromRange } from '@/lib/date-utils'
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
-  const authResult = await verifyAdmin(request)
-
-  if (!authResult.authorized) {
-    return NextResponse.json({ error: authResult.error || 'Unauthorized' }, { status: 401 })
-  }
-
-  const prisma = requireDatabase()
-
   try {
+    const authResult = await verifyAdmin(request)
+
+    if (!authResult.authorized) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const prisma = requireDatabase()
     const booking = await prisma.touristRequest.findUnique({
       where: { id: params.id },
-      include: {
-        tourist: true,
+      select: {
+        id: true,
+        city: true,
+        serviceType: true,
+        status: true,
+        createdAt: true,
+        dates: true,
+        email: true,
+        preferredLanguages: true,
+        preferredNationality: true,
+        preferredGender: true,
+        preferredTime: true,
+        groupType: true,
+        numberOfGuests: true,
+        phone: true,
+        whatsapp: true,
+        contactMethod: true,
+        meetingPreference: true,
+        assignedStudentId: true,
+        tripNotes: true,
+        tourist: {
+          select: {
+            name: true,
+            email: true,
+          },
+        },
         selections: {
-          include: {
-            student: true,
+          select: {
+            id: true,
+            studentId: true,
+            status: true,
+            student: {
+              select: {
+                name: true,
+                email: true,
+              },
+            },
           },
         },
       },
@@ -92,7 +110,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
         serviceType: booking.serviceType,
         status: booking.status,
         createdAt: booking.createdAt.toISOString(),
-        date: formatDate(booking.dates as unknown),
+        date: formatDateFromRange(booking.dates as unknown),
         preferredLanguages: booking.preferredLanguages,
         preferredNationality: booking.preferredNationality,
         preferredGender: booking.preferredGender,
@@ -126,7 +144,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 
     return NextResponse.json(response)
   } catch (error) {
-    console.error(`[admin/bookings/${params.id}] Failed to load booking`, error)
+    console.error(`[admin/bookings/${params.id}] Failed to load booking`, error instanceof Error ? error.message : 'Unknown error')
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

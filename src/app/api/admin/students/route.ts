@@ -6,22 +6,19 @@ export const runtime = 'nodejs'
 import { NextRequest, NextResponse } from 'next/server'
 import { requireDatabase } from '@/lib/prisma'
 import { verifyAdmin } from '@/lib/api-auth'
-import { StudentStatus } from '@prisma/client'
 
 // Get all students with optional filtering
 export async function GET(request: NextRequest) {
-  const authResult = await verifyAdmin(request)
-
-  if (!authResult.authorized) {
-    return NextResponse.json(
-      { error: authResult.error || 'Unauthorized' },
-      { status: 401 }
-    )
-  }
-
-  const prisma = requireDatabase()
-
   try {
+    const authResult = await verifyAdmin(request)
+
+    if (!authResult.authorized) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      )
+    }
+
     const db = requireDatabase()
 
     const { searchParams } = new URL(request.url)
@@ -78,7 +75,7 @@ export async function GET(request: NextRequest) {
       },
     })
   } catch (error) {
-    console.error('Error fetching students:', error)
+    console.error('Error fetching students:', error instanceof Error ? error.message : 'Unknown error')
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

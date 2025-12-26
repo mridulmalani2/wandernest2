@@ -184,6 +184,24 @@ async function ensureRedisConnection(client: Redis): Promise<boolean> {
   }
 }
 
+export async function checkRedisHealth(): Promise<{ available: boolean; healthy: boolean }> {
+  if (!redis) {
+    return { available: false, healthy: false }
+  }
+
+  try {
+    const connected = await ensureRedisConnection(redis)
+    if (!connected) {
+      return { available: true, healthy: false }
+    }
+
+    const pong = await redis.ping()
+    return { available: true, healthy: pong === 'PONG' }
+  } catch (error) {
+    return { available: true, healthy: false }
+  }
+}
+
 /**
  * Execute Redis operation with automatic fallback on failure
  * Ensures connection is established before operation
@@ -380,4 +398,3 @@ export async function incrementVerificationAttempts(email: string): Promise<numb
     }
   )
 }
-

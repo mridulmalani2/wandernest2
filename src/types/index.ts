@@ -1,5 +1,5 @@
 export interface AnonymizedGuide {
-  id: string
+  selectionToken: string
   anonymousId: string
   university: string
   languages: string[]

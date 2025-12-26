@@ -60,7 +60,7 @@ export default function GuideCard({ guide, isSelected, onSelect }: GuideCardProp
           : 'border-border/50 hover:border-primary/30 hover:shadow-soft'
         }
       `}
-      onClick={() => onSelect(guide.id)}
+      onClick={() => onSelect(guide.selectionToken)}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       whileHover={{
@@ -86,7 +86,7 @@ export default function GuideCard({ guide, isSelected, onSelect }: GuideCardProp
         <input
           type="checkbox"
           checked={isSelected}
-          onChange={() => onSelect(guide.id)}
+          onChange={() => onSelect(guide.selectionToken)}
           className="w-5 h-5 text-primary rounded-md focus:ring-primary"
           onClick={(e) => e.stopPropagation()}
         />

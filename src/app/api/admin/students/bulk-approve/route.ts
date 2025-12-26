@@ -6,38 +6,29 @@ export const runtime = 'nodejs'
 import { NextRequest, NextResponse } from 'next/server'
 import { requireDatabase } from '@/lib/prisma'
 import { verifyAdmin } from '@/lib/api-auth'
+import { z } from 'zod'
+
+const bulkApproveSchema = z.object({
+  studentIds: z.array(z.string().cuid()).min(1),
+  action: z.enum(['approve', 'reject']),
+})
 
 // Bulk approve or reject students
 export async function POST(request: NextRequest) {
-  const authResult = await verifyAdmin(request)
-
-  if (!authResult.authorized) {
-    return NextResponse.json(
-      { error: 'Unauthorized' },
-      { status: 401 }
-    )
-  }
-
-
-
   try {
+    const authResult = await verifyAdmin(request)
+
+    if (!authResult.authorized) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      )
+    }
+
     const db = requireDatabase()
 
-    const { studentIds, action } = await request.json()
-
-    if (!studentIds || !Array.isArray(studentIds) || studentIds.length === 0) {
-      return NextResponse.json(
-        { error: 'Student IDs array is required' },
-        { status: 400 }
-      )
-    }
-
-    if (action !== 'approve' && action !== 'reject') {
-      return NextResponse.json(
-        { error: 'Invalid action. Must be "approve" or "reject"' },
-        { status: 400 }
-      )
-    }
+    const body = await request.json()
+    const { studentIds, action } = bulkApproveSchema.parse(body)
 
     // Update all students in bulk
     const result = await db.student.updateMany({
@@ -53,10 +44,16 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       count: result.count,
-      message: `${result.count} student(s) ${action === 'approve' ? 'approved' : 'rejected'}`,
+      message: `${result.count} student(s) ${action === 'approve' ? 'approved' : 'suspended'}`,
     })
   } catch (error) {
-    console.error('Error bulk approving/rejecting students:', error)
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { error: 'Invalid request payload' },
+        { status: 400 }
+      )
+    }
+    console.error('Error bulk approving/rejecting students:', error instanceof Error ? error.message : 'Unknown error')
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

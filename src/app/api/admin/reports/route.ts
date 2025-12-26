@@ -9,18 +9,16 @@ import { verifyAdmin } from '@/lib/api-auth'
 
 // Get all reports with optional filtering
 export async function GET(request: NextRequest) {
-  const authResult = await verifyAdmin(request)
-
-  if (!authResult.authorized) {
-    return NextResponse.json(
-      { error: 'Unauthorized' },
-      { status: 401 }
-    )
-  }
-
-
-
   try {
+    const authResult = await verifyAdmin(request)
+
+    if (!authResult.authorized) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      )
+    }
+
     const db = requireDatabase()
 
     const { searchParams } = new URL(request.url)
@@ -71,7 +69,7 @@ export async function GET(request: NextRequest) {
       },
     })
   } catch (error) {
-    console.error('Error fetching reports:', error)
+    console.error('Error fetching reports:', error instanceof Error ? error.message : 'Unknown error')
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -81,18 +79,16 @@ export async function GET(request: NextRequest) {
 
 // Update report status
 export async function PATCH(request: NextRequest) {
-  const authResult = await verifyAdmin(request)
-
-  if (!authResult.authorized) {
-    return NextResponse.json(
-      { error: 'Unauthorized' },
-      { status: 401 }
-    )
-  }
-
-
-
   try {
+    const authResult = await verifyAdmin(request)
+
+    if (!authResult.authorized) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      )
+    }
+
     const db = requireDatabase()
 
     const { reportId, status } = await request.json()
@@ -127,7 +123,7 @@ export async function PATCH(request: NextRequest) {
 
     return NextResponse.json({ success: true, report })
   } catch (error) {
-    console.error('Error updating report:', error)
+    console.error('Error updating report:', error instanceof Error ? error.message : 'Unknown error')
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

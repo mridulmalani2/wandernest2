@@ -75,13 +75,13 @@ export async function GET() {
  * Requires a recipient email in the request body.
  */
 export async function POST(request: NextRequest) {
-  const authResult = await verifyAdmin(request)
-
-  if (!authResult.authorized) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
-
   try {
+    const authResult = await verifyAdmin(request)
+
+    if (!authResult.authorized) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
     const { to } = await request.json()
 
     // Basic email validation regex

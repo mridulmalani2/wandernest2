@@ -8,10 +8,11 @@ import { z } from 'zod'
 import { requireDatabase } from '@/lib/prisma'
 import { sendStudentRequestNotification } from '@/lib/email'
 import { withErrorHandler, withDatabaseRetry, AppError } from '@/lib/error-handler'
+import { verifySelectionToken } from '@/lib/auth/tokens'
 
 const selectSchema = z.object({
   requestId: z.string().min(1),
-  selectedStudentIds: z.array(z.string()).min(1).max(4),
+  selectedStudentTokens: z.array(z.string().min(1)).min(1).max(4),
 })
 
 async function selectStudents(req: NextRequest) {
@@ -33,8 +34,16 @@ async function selectStudents(req: NextRequest) {
   const body = await req.json()
   const validatedData = selectSchema.parse(body)
 
-  const { requestId, selectedStudentIds: rawStudentIds } = validatedData
-  const selectedStudentIds = Array.from(new Set(rawStudentIds))
+  const { requestId, selectedStudentTokens } = validatedData
+  const selectedStudentIds = Array.from(new Set(
+    selectedStudentTokens.map((token) => {
+      const payload = verifySelectionToken(token)
+      if (!payload || payload.requestId !== requestId) {
+        throw new AppError(400, 'Invalid or expired selection token', 'INVALID_SELECTION_TOKEN')
+      }
+      return payload.studentId
+    })
+  ))
 
   // Get the tourist request
   const touristRequest = await withDatabaseRetry(async () =>
