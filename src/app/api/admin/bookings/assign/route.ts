@@ -9,15 +9,14 @@ import { requireDatabase } from '@/lib/prisma'
 import { sendStudentConfirmation, sendTouristAcceptanceNotification } from '@/lib/email'
 
 export async function POST(request: NextRequest) {
-  const authResult = await verifyAdmin(request)
-
-  if (!authResult.authorized) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
-
-  const prisma = requireDatabase()
-
   try {
+    const authResult = await verifyAdmin(request)
+
+    if (!authResult.authorized) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const prisma = requireDatabase()
     const body = await request.json()
     const { requestId, studentId } = body as { requestId?: string; studentId?: string }
 
@@ -133,7 +132,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true, selectionId: selection.id })
   } catch (error) {
-    console.error('[admin/bookings/assign] Failed to assign student', error)
+    console.error('[admin/bookings/assign] Failed to assign student', error instanceof Error ? error.message : 'Unknown error')
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

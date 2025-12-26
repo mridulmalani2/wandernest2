@@ -9,18 +9,16 @@ import { verifyAdmin } from '@/lib/api-auth'
 
 // Get pending student approvals
 export async function GET(request: NextRequest) {
-  const authResult = await verifyAdmin(request)
-
-  if (!authResult.authorized) {
-    return NextResponse.json(
-      { error: 'Unauthorized' },
-      { status: 401 }
-    )
-  }
-
-
-
   try {
+    const authResult = await verifyAdmin(request)
+
+    if (!authResult.authorized) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      )
+    }
+
     const db = requireDatabase()
 
     const students = await db.student.findMany({
@@ -62,7 +60,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ students })
   } catch (error) {
-    console.error('Error fetching pending students:', error)
+    console.error('Error fetching pending students:', error instanceof Error ? error.message : 'Unknown error')
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

@@ -6,6 +6,7 @@ export const runtime = 'nodejs'
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdmin } from '@/lib/api-auth'
 import { requireDatabase } from '@/lib/prisma'
+import { formatDateFromRange } from '@/lib/date-utils'
 
 type BookingSummary = {
   id: string
@@ -24,38 +25,43 @@ type BookingSummary = {
   tripNotes?: string | null
 }
 
-function formatDate(dates: unknown): string {
-  if (!dates || typeof dates !== 'object' || !('start' in dates)) return 'TBD'
-
-  const start = (dates as { start?: string | Date }).start
-
-  if (!start) return 'TBD'
-
-  try {
-    return new Date(start).toISOString().slice(0, 10)
-  } catch (error) {
-    return 'TBD'
-  }
-}
-
 export async function GET(request: NextRequest) {
-  const authResult = await verifyAdmin(request)
-
-  if (!authResult.authorized) {
-    return NextResponse.json({ error: authResult.error || 'Unauthorized' }, { status: 401 })
-  }
-
-  const prisma = requireDatabase()
-
   try {
+    const authResult = await verifyAdmin(request)
+
+    if (!authResult.authorized) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const prisma = requireDatabase()
     const requests = await prisma.touristRequest.findMany({
       orderBy: { createdAt: 'desc' },
       take: 50,
-      include: {
-        tourist: true,
+      select: {
+        id: true,
+        city: true,
+        serviceType: true,
+        status: true,
+        createdAt: true,
+        dates: true,
+        email: true,
+        tripNotes: true,
+        assignedStudentId: true,
+        tourist: {
+          select: {
+            name: true,
+            email: true,
+          },
+        },
         selections: {
-          include: {
-            student: true,
+          select: {
+            studentId: true,
+            student: {
+              select: {
+                name: true,
+                email: true,
+              },
+            },
           },
         },
       },
@@ -74,7 +80,7 @@ export async function GET(request: NextRequest) {
         serviceType: request.serviceType,
         status: request.status,
         createdAt: request.createdAt.toISOString(),
-        date: formatDate(request.dates as unknown),
+        date: formatDateFromRange(request.dates as unknown),
         assignedStudent: assignedSelection
           ? {
               id: assignedSelection.studentId,
@@ -88,7 +94,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ bookings })
   } catch (error) {
-    console.error('[admin/bookings] Failed to load bookings', error)
+    console.error('[admin/bookings] Failed to load bookings', error instanceof Error ? error.message : 'Unknown error')
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

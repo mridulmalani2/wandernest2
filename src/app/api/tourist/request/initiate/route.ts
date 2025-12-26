@@ -4,8 +4,9 @@ export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 import { generateVerificationCode } from '@/lib/utils'
-import { storeVerificationCode } from '@/lib/redis'
+import { deleteVerificationCode, storeVerificationCode } from '@/lib/redis'
 import { sendVerificationEmail } from '@/lib/email'
+import { checkRateLimit, hashIdentifier } from '@/lib/rate-limit'
 
 // Validation schema for the initiate request
 const initiateSchema = z.object({
@@ -51,22 +52,41 @@ export async function POST(req: NextRequest) {
     // Validate request data
     const validatedData = initiateSchema.parse(body)
 
+    const normalizedEmail = validatedData.email.toLowerCase().trim()
+    const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown'
+
+    const emailKey = `tourist-initiate:email:${hashIdentifier(normalizedEmail)}`
+    const ipKey = `tourist-initiate:ip:${hashIdentifier(ip)}`
+
+    const [emailLimit, ipLimit] = await Promise.all([
+      checkRateLimit(emailKey, 3, 60 * 10),
+      checkRateLimit(ipKey, 10, 60 * 10),
+    ])
+
+    if (!emailLimit.allowed || !ipLimit.allowed) {
+      return NextResponse.json(
+        { success: false, error: 'Too many requests. Please wait before trying again.' },
+        { status: 429 }
+      )
+    }
+
     // Generate 6-digit verification code
     const verificationCode = generateVerificationCode()
 
     // Store code in Redis with 10-minute TTL
     await storeVerificationCode(
-      validatedData.email,
+      normalizedEmail,
       verificationCode,
       parseInt(process.env.VERIFICATION_CODE_EXPIRY || '600')
     )
 
     // Send verification email
     // Send verification email
-    const emailResult = await sendVerificationEmail(validatedData.email, verificationCode)
+    const emailResult = await sendVerificationEmail(normalizedEmail, verificationCode)
 
     if (!emailResult.success) {
       console.error('Failed to send verification email:', emailResult.error)
+      await deleteVerificationCode(normalizedEmail)
       return NextResponse.json(
         {
           success: false,
@@ -81,7 +101,6 @@ export async function POST(req: NextRequest) {
       {
         success: true,
         message: 'Verification code sent to your email',
-        email: validatedData.email,
       },
       { status: 200 }
     )
