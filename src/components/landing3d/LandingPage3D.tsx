@@ -200,19 +200,14 @@ function TourWiseCoTitle({
   )
 }
 
-// Animated text with 3D entrance effect
+// Animated text with fade-in effect
 const HERO_TEXT = "Experience authentic travel with local student guides. Connect with verified university students who will show you their city through a local's eyes."
 
 function AnimatedText({ show }: { show: boolean }) {
   return (
     <div
-      className={`absolute inset-0 flex items-center justify-center z-20 px-8 transition-all duration-1000 ${
-        show ? 'opacity-100' : 'opacity-0 pointer-events-none'
-      }`}
-      style={{
-        transform: show ? 'translateZ(0) scale(1)' : 'translateZ(-100px) scale(0.9)',
-        perspective: '1000px',
-      }}
+      className="absolute inset-0 flex items-center justify-center z-30 px-8"
+      style={{ perspective: '1000px' }}
     >
       <p
         className="text-center max-w-3xl leading-relaxed text-white"
@@ -220,7 +215,8 @@ function AnimatedText({ show }: { show: boolean }) {
           fontSize: 'clamp(1.25rem, 3vw, 2rem)',
           fontFamily: 'Georgia, "Times New Roman", serif',
           textShadow: '0 2px 30px rgba(107, 141, 214, 0.5), 0 4px 60px rgba(0, 0, 0, 0.8)',
-          transform: show ? 'rotateX(0deg)' : 'rotateX(-15deg)',
+          opacity: show ? 1 : 0,
+          transform: show ? 'translateY(0) scale(1)' : 'translateY(30px) scale(0.95)',
           transition: 'all 1s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
         }}
       >
