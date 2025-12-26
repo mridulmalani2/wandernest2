@@ -10,9 +10,13 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['var(--font-inter)', 'system-ui', '-apple-system', 'sans-serif'],
-        serif: ['var(--font-playfair)', 'Georgia', 'serif'],
-        display: ['var(--font-playfair)', 'Georgia', 'serif'],
+        // Semantic font families for standardized typography
+        body: ['var(--font-body)', 'system-ui', '-apple-system', 'sans-serif'],
+        display: ['var(--font-display)', 'system-ui', 'sans-serif'],
+        accent: ['var(--font-accent)', 'system-ui', 'sans-serif'],
+        // Legacy aliases for backward compatibility
+        sans: ['var(--font-body)', 'system-ui', '-apple-system', 'sans-serif'],
+        serif: ['var(--font-display)', 'system-ui', 'sans-serif'],
       },
       colors: {
         border: 'hsl(var(--border))',

@@ -180,23 +180,19 @@ function JourneyCard({ section, isActive, offset, onClick, index, totalCards, on
           {/* Headlines - Engaging typography */}
           <h3 className="mb-4">
             <span
-              className="block text-2xl md:text-3xl font-bold leading-tight tracking-tight"
+              className="block text-2xl md:text-3xl font-bold leading-tight tracking-tight font-display transition-all duration-300"
               style={{
-                fontFamily: 'Georgia, "Times New Roman", serif',
                 color: isActive ? '#ffffff' : 'rgba(255,255,255,0.6)',
                 letterSpacing: '-0.02em',
-                transition: 'all 0.3s ease',
               }}
             >
               {section.headline}
             </span>
             <span
-              className="block text-xl md:text-2xl font-light mt-1 italic"
+              className="block text-xl md:text-2xl font-light mt-1 italic font-display transition-all duration-300"
               style={{
-                fontFamily: 'Georgia, "Times New Roman", serif',
                 color: isActive ? section.accentColor : 'rgba(155,123,214,0.5)',
                 letterSpacing: '0.01em',
-                transition: 'all 0.3s ease',
               }}
             >
               {section.subheadline}
@@ -323,7 +319,7 @@ export default function UserJourney3D({ onStudentClick }: { onStudentClick?: () 
 
       {/* Section Title */}
       <div className="text-center mb-10 md:mb-12 px-4 relative z-10">
-        <h2 className="text-2xl md:text-4xl font-serif font-bold text-white mb-2">
+        <h2 className="text-2xl md:text-4xl font-display font-bold text-white mb-2">
           Why TourWiseCo?
         </h2>
         <p className="text-white/50 text-sm md:text-base">

@@ -73,7 +73,7 @@ function AccessibilityLayer({ is3DActive }: { is3DActive: boolean }) {
       aria-hidden={is3DActive}
     >
       <div className="container mx-auto px-4 pt-24">
-        <h1 className="text-4xl font-serif font-bold text-white sr-only">
+        <h1 className="text-4xl font-display font-bold text-white sr-only">
           TourWise - Experience Authentic Travel with Local Student Guides
         </h1>
         <nav aria-label="Main navigation" className="sr-only">
@@ -146,7 +146,7 @@ function CrumbleTitle({ isLeaving }: { isLeaving: boolean }) {
           return (
             <span
               key={i}
-              className="inline-block text-white font-serif font-light"
+              className="inline-block text-white font-display font-light"
               style={{
                 fontSize: 'clamp(3rem, 10vw, 6rem)',
                 textShadow: '0 4px 30px rgba(0, 0, 0, 0.8)',
@@ -184,7 +184,7 @@ function Tagline({ show }: { show: boolean }) {
           {words.slice(0, 2).map((word, i) => (
             <span
               key={i}
-              className="text-white font-serif"
+              className="text-white font-display"
               style={{
                 fontSize: i === 0 ? 'clamp(2rem, 6vw, 4rem)' : 'clamp(2rem, 6vw, 4rem)',
                 fontWeight: i === 0 ? 300 : 200,
@@ -203,7 +203,7 @@ function Tagline({ show }: { show: boolean }) {
           {words.slice(2).map((word, i) => (
             <span
               key={i}
-              className="text-white/80 font-serif"
+              className="text-white/80 font-display"
               style={{
                 fontSize: 'clamp(1.5rem, 4vw, 2.5rem)',
                 fontWeight: 300,

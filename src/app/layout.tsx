@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import localFont from 'next/font/local'
 import './critical.css'
 import './globals.css'
 import { Providers } from './providers'
@@ -6,13 +7,52 @@ import { PageTransition } from '@/components/transitions/PageTransition'
 import CookieConsent from '@/components/CookieConsent'
 
 /*
- * Font Configuration:
- * Using system fonts for optimal performance and build compatibility
- * - System UI fonts provide excellent performance with no download
- * - No external font dependencies required for builds
- * - Google Fonts can be re-enabled in production if desired by uncommenting
- *   the next/font/google imports and font variables
+ * Typography System Configuration:
+ *
+ * FONT PALETTE (Standardized):
+ * 1. Inter — Primary body/UI font (--font-body)
+ * 2. General Sans — Display & headers (--font-display)
+ * 3. Satoshi — Playful accent font for cards, carousels, feature highlights (--font-accent)
+ *
+ * All fonts loaded locally via Next.js font optimization for best performance.
+ * CSS variables are assigned for consistent usage across the codebase.
  */
+
+// Primary body/UI font (Inter)
+const inter = localFont({
+  src: [
+    {
+      path: '../fonts/Inter-Variable.woff2',
+      style: 'normal',
+    },
+  ],
+  display: 'swap',
+  variable: '--font-body',
+})
+
+// Display & headers font (General Sans from Fontshare)
+const generalSans = localFont({
+  src: [
+    {
+      path: '../fonts/GeneralSans-Variable.woff2',
+      style: 'normal',
+    },
+  ],
+  display: 'swap',
+  variable: '--font-display',
+})
+
+// Accent font for cards, carousels, features (Satoshi from Fontshare)
+const satoshi = localFont({
+  src: [
+    {
+      path: '../fonts/Satoshi-Variable.woff2',
+      style: 'normal',
+    },
+  ],
+  display: 'swap',
+  variable: '--font-accent',
+})
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://tourwiseco.vercel.app'),
@@ -71,12 +111,12 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
+    <html lang="en" className={`${inter.variable} ${generalSans.variable} ${satoshi.variable}`}>
       <head>
         {/* Preconnect to image CDN for faster image loading */}
         <link rel="preconnect" href="https://images.unsplash.com" />
       </head>
-      <body className="font-sans">
+      <body className="font-body">
         <Providers>
           <div className="min-h-screen relative">
             {/* Dark mode gradient background */}

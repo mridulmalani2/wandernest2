@@ -147,7 +147,7 @@ function JourneyCarousel({ triggerTransition }: { triggerTransition: (path: stri
 
       {/* Section Title */}
       <div className="text-center mb-8 relative z-10">
-        <h2 className="text-2xl font-serif font-bold text-white mb-2">
+        <h2 className="text-2xl font-display font-bold text-white mb-2">
           Why TourWiseCo?
         </h2>
         <p className="text-white/50 text-sm">
@@ -214,20 +214,13 @@ function JourneyCarousel({ triggerTransition }: { triggerTransition: (path: stri
                   {/* Headlines */}
                   <h3 className="mb-3">
                     <span
-                      className="block text-xl font-bold leading-tight"
-                      style={{
-                        fontFamily: 'Georgia, serif',
-                        color: '#ffffff',
-                      }}
+                      className="block text-xl font-bold leading-tight font-display text-white"
                     >
                       {section.headline}
                     </span>
                     <span
-                      className="block text-lg font-light italic"
-                      style={{
-                        fontFamily: 'Georgia, serif',
-                        color: section.accentColor,
-                      }}
+                      className="block text-lg font-light italic font-display"
+                      style={{ color: section.accentColor }}
                     >
                       {section.subheadline}
                     </span>
@@ -325,7 +318,7 @@ export function LandingFallback() {
           >
             {/* Headline */}
             <h1
-              className="text-3xl sm:text-4xl font-serif font-bold text-white leading-tight tracking-tight mb-4"
+              className="text-3xl sm:text-4xl font-display font-bold text-white leading-tight tracking-tight mb-4"
               style={{ textShadow: '0 4px 30px rgba(0,0,0,0.7)' }}
             >
               Experience Authentic Travel
@@ -399,7 +392,7 @@ export function LandingFallback() {
             transition={{ duration: 0.6 }}
           >
             <h2
-              className="text-2xl font-serif font-bold text-white mb-6"
+              className="text-2xl font-display font-bold text-white mb-6"
               style={{ textShadow: '0 2px 15px rgba(0,0,0,0.4)' }}
             >
               Ready to Start Your Journey?

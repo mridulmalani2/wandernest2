@@ -91,7 +91,7 @@ export function HeroContent({ is3DEnabled = true }: HeroContentProps) {
           variants={itemVariants}
           className={`
             text-4xl sm:text-5xl lg:text-6xl xl:text-7xl
-            font-serif font-bold leading-[1.05] tracking-tight text-white
+            font-display font-bold leading-[1.05] tracking-tight text-white
             ${is3DEnabled ? 'text-shadow-lg drop-shadow-2xl' : 'text-shadow-lg'}
           `}
         >

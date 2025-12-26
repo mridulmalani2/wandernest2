@@ -94,7 +94,7 @@ export default function GuideCard({ guide, isSelected, onSelect }: GuideCardProp
 
       {/* Anonymous ID */}
       <div className="mb-4">
-        <h3 className="text-xl font-semibold font-serif text-foreground">
+        <h3 className="text-xl font-semibold font-display text-foreground">
           {guide.anonymousId}
         </h3>
       </div>

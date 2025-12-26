@@ -170,7 +170,7 @@ export default function WhyChooseCarousel() {
     <div className="pt-12 space-y-6 animate-fade-in-up delay-300">
       {/* Section Title */}
       <div className="text-center space-y-2 px-4">
-        <h2 className="text-3xl md:text-4xl font-serif font-bold text-white text-shadow-lg tracking-tight">
+        <h2 className="text-3xl md:text-4xl font-display font-bold text-white text-shadow-lg tracking-tight">
           Why Choose TourWiseCo?
         </h2>
         <p className="text-base md:text-lg text-white/90 text-shadow max-w-2xl mx-auto">
@@ -221,7 +221,7 @@ export default function WhyChooseCarousel() {
                 {/* Title with accent color bar */}
                 <div className="space-y-3">
                   <div className={`w-16 h-1 rounded-full ${colors.dot}`} />
-                  <h3 className="text-2xl md:text-3xl lg:text-4xl font-serif font-bold text-white tracking-tight">
+                  <h3 className="text-2xl md:text-3xl lg:text-4xl font-display font-bold text-white tracking-tight">
                     {currentFeature.title}
                   </h3>
                 </div>

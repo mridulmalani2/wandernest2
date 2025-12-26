@@ -162,19 +162,17 @@ function FeatureOrb({
         <div className="text-center" style={{ width: '120px' }}>
           <div className="text-xl mb-1">{icon}</div>
           <h4
-            className="text-white font-semibold text-xs mb-0.5"
+            className="text-white font-semibold text-xs mb-0.5 font-display"
             style={{
-              fontFamily: 'Georgia, serif',
               textShadow: '0 2px 6px rgba(0,0,0,0.5)',
             }}
           >
             {title}
           </h4>
           <p
-            className="text-white/60 font-light"
+            className="text-white/60 font-light font-body"
             style={{
               fontSize: '10px',
-              fontFamily: '-apple-system, sans-serif',
               lineHeight: 1.3,
             }}
           >
@@ -289,19 +287,15 @@ function CentralOrb({
       >
         <div className="text-center">
           <h3
-            className="text-white font-bold text-sm"
+            className="text-white font-bold text-sm font-display"
             style={{
-              fontFamily: 'Georgia, serif',
               textShadow: '0 2px 8px rgba(0,0,0,0.5)',
             }}
           >
             TourWise
           </h3>
           <p
-            className="text-white/60 text-xs font-light"
-            style={{
-              fontFamily: '-apple-system, sans-serif',
-            }}
+            className="text-white/60 text-xs font-light font-body"
           >
             Your journey starts here
           </p>

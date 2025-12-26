@@ -227,7 +227,7 @@ export default function GuideSelection({
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.1 }}
       >
-        <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-2 font-serif">
+        <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-2 font-display">
           Select Your Guides
         </h2>
         <p className="text-muted-foreground text-lg">

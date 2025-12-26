@@ -125,7 +125,7 @@ export default function CTATileBase({
       <div className="relative z-10 h-full flex flex-col items-center justify-center p-10 text-center">
         {/* Headline */}
         <motion.h2
-          className="text-5xl md:text-6xl font-serif font-bold text-white mb-4"
+          className="text-5xl md:text-6xl font-display font-bold text-white mb-4"
           variants={{
             initial: { y: 0, marginBottom: '1rem' },
             hover: { y: -8, marginBottom: '1.5rem' }

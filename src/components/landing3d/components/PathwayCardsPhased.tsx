@@ -235,19 +235,15 @@ function PathwayCardPhased({
         >
           <div className="text-2xl mb-1">{config.icon}</div>
           <h3
-            className="text-white font-bold text-base mb-0.5"
+            className="text-white font-bold text-base mb-0.5 font-display"
             style={{
-              fontFamily: 'Georgia, serif',
               textShadow: '0 2px 8px rgba(0,0,0,0.5)',
             }}
           >
             {config.label}
           </h3>
           <p
-            className="text-white/70 text-xs font-light"
-            style={{
-              fontFamily: '-apple-system, sans-serif',
-            }}
+            className="text-white/70 text-xs font-light font-body"
           >
             {config.sublabel}
           </p>

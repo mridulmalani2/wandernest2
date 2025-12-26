@@ -416,7 +416,7 @@ export default function DestinationsCarousel() {
     <div className="w-full max-w-7xl mx-auto">
       {/* Section header */}
       <div className="text-center mb-8 px-4">
-        <h2 className="text-3xl md:text-4xl font-serif font-bold text-white tracking-tight mb-3">
+        <h2 className="text-3xl md:text-4xl font-display font-bold text-white tracking-tight mb-3">
           Popular Destinations
         </h2>
         <p className="text-white/70 text-base md:text-lg max-w-2xl mx-auto">

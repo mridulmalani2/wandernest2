@@ -193,7 +193,7 @@ export function HeroSection3D({
         >
           {/* Main headline */}
           <h1
-            className="font-serif font-bold text-white leading-tight tracking-tight"
+            className="font-display font-bold text-white leading-tight tracking-tight"
             style={{
               fontSize: 'clamp(2rem, 6vw, 4rem)',
               textShadow: '0 4px 30px rgba(0,0,0,0.6), 0 2px 10px rgba(0,0,0,0.4)',
