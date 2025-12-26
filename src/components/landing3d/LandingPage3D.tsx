@@ -142,6 +142,19 @@ function ElegantScrollIndicator({ show, label = 'Scroll to Explore' }: { show: b
   )
 }
 
+// Pre-calculated explosion directions for each letter (stable across renders)
+const LETTER_EXPLOSIONS = 'TourWiseCo'.split('').map((_, index) => {
+  const angle = (index / 10) * 360 + (index * 17 % 60) - 30 // Deterministic pseudo-random
+  const distance = 150 + (index * 31 % 200)
+  const rotateZ = ((index * 47 % 100) - 50) * 7.2
+  return {
+    translateX: Math.cos(angle * Math.PI / 180) * distance,
+    translateY: Math.sin(angle * Math.PI / 180) * distance,
+    rotateZ,
+    delay: index * 0.03,
+  }
+})
+
 // TourWiseCo title with glass shatter animation
 function TourWiseCoTitle({
   show,
@@ -154,19 +167,13 @@ function TourWiseCoTitle({
 
   return (
     <div
-      className={`absolute inset-0 flex items-center justify-center z-25 transition-opacity duration-500 ${
+      className={`absolute inset-0 flex items-center justify-center z-20 transition-opacity duration-500 ${
         show ? 'opacity-100' : 'opacity-0 pointer-events-none'
       }`}
     >
       <h1 className="relative">
         {letters.map((letter, index) => {
-          // Random explosion direction for each letter
-          const angle = (index / letters.length) * 360 + Math.random() * 60 - 30
-          const distance = 150 + Math.random() * 200
-          const rotateZ = (Math.random() - 0.5) * 720
-          const translateX = Math.cos(angle * Math.PI / 180) * distance
-          const translateY = Math.sin(angle * Math.PI / 180) * distance
-          const delay = index * 0.03
+          const { translateX, translateY, rotateZ, delay } = LETTER_EXPLOSIONS[index]
 
           return (
             <span
@@ -239,7 +246,7 @@ function KaraokeText({
 
   return (
     <div
-      className={`absolute inset-0 flex items-center justify-center z-25 px-8 transition-opacity duration-700 ${
+      className={`absolute inset-0 flex items-center justify-center z-20 px-8 transition-opacity duration-700 ${
         show ? 'opacity-100' : 'opacity-0 pointer-events-none'
       }`}
     >
