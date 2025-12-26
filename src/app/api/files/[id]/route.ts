@@ -83,7 +83,7 @@ export async function GET(
 
         // Convert base64 back to buffer
         const buffer = decryptFileContent(fileRecord.content);
-        const body = new Blob([buffer]);
+        const body = new Uint8Array(buffer);
         const disposition = fileRecord.mimeType.startsWith('image/')
             ? 'inline'
             : 'attachment';
