@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { sendAdminApprovalReminder } from '@/lib/email';
 
+export const dynamic = 'force-dynamic';
+
 /**
  * Cron job to send automated 3-day follow-up reminders for pending approvals
  * 

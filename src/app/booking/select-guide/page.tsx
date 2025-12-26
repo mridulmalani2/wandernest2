@@ -237,6 +237,10 @@ function SelectGuideContent() {
       setSubmitError('Please select at least one guide')
       return
     }
+    if (!requestId) {
+      setSubmitError('Missing booking request ID. Please refresh and try again.')
+      return
+    }
 
     setSubmitting(true)
     try {

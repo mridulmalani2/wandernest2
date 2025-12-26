@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
+import { Suspense } from 'react'
 import { Button } from '@/components/ui/button'
 import { PrimaryCTAButton } from '@/components/ui/PrimaryCTAButton'
 import Navigation from '@/components/Navigation'
@@ -9,7 +10,9 @@ export default function SuccessPage() {
   return (
     <>
       <Navigation variant="tourist" />
-      <RequestIdCleaner />
+      <Suspense fallback={null}>
+        <RequestIdCleaner />
+      </Suspense>
       <div className="min-h-screen flex flex-col relative overflow-hidden">
         {/* Background Image with Overlays */}
         <div className="absolute inset-0" role="img" aria-label="Beautiful celebration scene with confetti">
