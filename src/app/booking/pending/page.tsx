@@ -38,6 +38,11 @@ const isValidStatusPayload = (payload: any): payload is RequestStatus => {
   return true
 }
 
+const formatRating = (value: unknown): string | null => {
+  const rating = typeof value === 'number' ? value : typeof value === 'string' ? Number(value) : NaN
+  return Number.isFinite(rating) ? rating.toFixed(1) : null
+}
+
 function PendingContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
@@ -186,15 +191,23 @@ function PendingContent() {
                     <p className="text-lg text-white">{student.languages.join(', ')}</p>
                   </div>
 
-                  {student.averageRating && (
+                  {(() => {
+                    const ratingText = formatRating(student.averageRating)
+                    return ratingText ? (
                     <div>
                       <p className="text-sm text-gray-400">Rating</p>
                       <p className="text-lg text-white">
-                        {student.averageRating.toFixed(1)}/5 ({student.tripsHosted} trips
+                        {ratingText}/5 ({student.tripsHosted} trips
                         hosted)
                       </p>
                     </div>
-                  )}
+                    ) : (
+                    <div>
+                      <p className="text-sm text-gray-400">Rating</p>
+                      <p className="text-lg text-white">N/A</p>
+                    </div>
+                    )
+                  })()}
                 </div>
               </CardContent>
             </Card>

@@ -39,22 +39,38 @@ export function escapeHtml(text: string | null | undefined | number): string {
     .replace(/'/g, "&#039;");
 }
 
+export function sanitizeEmailText(text: string | null | undefined | number): string {
+  if (text === null || text === undefined) return '';
+  return String(text)
+    .replace(/[\r\n]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 // Security: Helper to validate allow-listed URLs to prevent open redirects
 export function validateUrl(url: string): string {
   const baseUrl = config.app.baseUrl || 'https://tourwiseco.com';
+  const base = new URL(baseUrl);
   try {
     if (url.startsWith('/')) {
-      return `${baseUrl}${url}`;
+      return new URL(url, base).toString();
     }
     const parsedUrl = new URL(url);
-    const trustedHost = new URL(baseUrl).host;
-    if (parsedUrl.host === trustedHost) {
-      return url;
+    if (parsedUrl.host !== base.host) {
+      console.warn('[Security] Blocked potential open redirect (host mismatch).');
+      return base.toString();
     }
-    console.warn(`[Security] Blocked potential open redirect: ${url}`);
-    return baseUrl;
+    if (parsedUrl.protocol !== base.protocol) {
+      console.warn('[Security] Blocked potential open redirect (protocol mismatch).');
+      return base.toString();
+    }
+    if (parsedUrl.username || parsedUrl.password) {
+      console.warn('[Security] Blocked potential open redirect (userinfo present).');
+      return base.toString();
+    }
+    return new URL(`${parsedUrl.pathname}${parsedUrl.search}${parsedUrl.hash}`, base).toString();
   } catch (e) {
-    return baseUrl;
+    return base.toString();
   }
 }
 
@@ -71,7 +87,7 @@ export const StartupEmailLayout = (content: string, title: string = 'TourWiseCo'
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="color-scheme" content="light">
-  <title>${title}</title>
+  <title>${escapeHtml(sanitizeEmailText(title))}</title>
   <!--[if mso]>
   <style type="text/css">
     body, table, td {font-family: Arial, Helvetica, sans-serif !important;}
@@ -86,7 +102,7 @@ export const StartupEmailLayout = (content: string, title: string = 'TourWiseCo'
 </head>
 <body style="margin: 0; padding: 0; background-color: ${theme.colors.background}; font-family: ${theme.fonts.body}; -webkit-font-smoothing: antialiased; color: ${theme.colors.text}; line-height: 1.6;">
   <div style="display:none;font-size:1px;color:#333333;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;">
-    ${preheader}
+    ${escapeHtml(sanitizeEmailText(preheader))}
   </div>
   
   <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: ${theme.colors.background}; min-height: 100vh;">

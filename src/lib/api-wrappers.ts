@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyStudent, verifyTourist, verifyAdmin } from '@/lib/api-auth';
+import { logger } from '@/lib/logger';
 
 // Define types for the handler functions
 type StudentHandler = (req: NextRequest, student: { email: string; id?: string | null }) => Promise<NextResponse>;
@@ -21,7 +22,9 @@ export function withStudent(handler: StudentHandler) {
             }
             return await handler(request, authResult.student);
         } catch (error) {
-            console.error('API Error:', error);
+            logger.error('API Error', {
+                errorType: error instanceof Error ? error.name : 'unknown',
+            });
             return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
         }
     };
@@ -42,7 +45,9 @@ export function withTourist(handler: TouristHandler) {
             }
             return await handler(request, authResult.tourist);
         } catch (error) {
-            console.error('API Error:', error);
+            logger.error('API Error', {
+                errorType: error instanceof Error ? error.name : 'unknown',
+            });
             return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
         }
     };
@@ -63,7 +68,9 @@ export function withAdmin(handler: AdminHandler) {
             }
             return await handler(request, authResult.admin);
         } catch (error) {
-            console.error('API Error:', error);
+            logger.error('API Error', {
+                errorType: error instanceof Error ? error.name : 'unknown',
+            });
             return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
         }
     };

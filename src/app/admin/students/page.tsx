@@ -21,6 +21,11 @@ interface Student {
   createdAt: string
 }
 
+const formatRating = (value: unknown): string | null => {
+  const rating = typeof value === 'number' ? value : typeof value === 'string' ? Number(value) : NaN
+  return Number.isFinite(rating) ? rating.toFixed(1) : null
+}
+
 export default function StudentsPage() {
   const router = useRouter()
   const [students, setStudents] = useState<Student[]>([])
@@ -229,11 +234,11 @@ export default function StudentsPage() {
                           )}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          {student.averageRating ? (
+                          {formatRating(student.averageRating) ? (
                             <div className="flex items-center">
                               <span className="text-yellow-500 mr-1">★</span>
                               <span className="text-sm font-medium text-gray-900">
-                                {student.averageRating.toFixed(1)}
+                                {formatRating(student.averageRating)}
                               </span>
                             </div>
                           ) : (

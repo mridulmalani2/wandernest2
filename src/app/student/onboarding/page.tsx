@@ -3,20 +3,19 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import type { Session } from 'next-auth';
 import { OnboardingWizard } from '@/components/student/OnboardingWizard';
 
-interface SessionLike {
-  user: {
-    email: string | null;
-    userType: 'student';
-    name?: string | null;
-  };
-}
+const normalizeString = (value: unknown): string | null => {
+  if (typeof value !== 'string') return null;
+  const normalized = value.replace(/[\r\n]+/g, ' ').trim();
+  return normalized.length > 0 ? normalized : null;
+};
 
 export default function StudentOnboarding() {
   const router = useRouter();
   const [loading, setLoading] = useState(true);
-  const [sessionLike, setSessionLike] = useState<SessionLike | null>(null);
+  const [sessionLike, setSessionLike] = useState<Session | null>(null);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -54,14 +53,27 @@ export default function StudentOnboarding() {
           return;
         }
 
+        const email =
+          normalizeString(data?.email) ??
+          normalizeString(data?.student?.email);
+        const name = normalizeString(data?.student?.name);
+
+        if (!email) {
+          router.push('/student/signin');
+          return;
+        }
+
         // Create a session-like object for the wizard
-        setSessionLike({
+        const session: Session = {
           user: {
-            email: '',
-            userType: 'student',
-            name: data.student?.name ?? null,
+            email,
+            name,
+            image: null,
           },
-        });
+          expires: new Date(Date.now() + 15 * 60 * 1000).toISOString(),
+        };
+
+        setSessionLike(session);
       } catch (error) {
         console.error('Error checking onboarding status:', error);
         router.push('/student/signin');
@@ -114,5 +126,5 @@ export default function StudentOnboarding() {
   }
 
   // Existing wizard ko fake session de diye
-  return <OnboardingWizard session={sessionLike as any} />;
+  return <OnboardingWizard session={sessionLike} />;
 }

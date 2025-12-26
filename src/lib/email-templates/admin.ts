@@ -1,4 +1,4 @@
-import { StartupEmailLayout } from './shared';
+import { StartupEmailLayout, escapeHtml, validateUrl } from './shared';
 
 /**
  * Email template for admin approval reminder
@@ -13,7 +13,13 @@ export function getAdminApprovalReminderHtml(
     appliedDate: string
 ): string {
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://tourwiseco.com';
-    const approvalUrl = `${baseUrl}/admin/approvals`;
+    const approvalUrl = validateUrl(`${baseUrl}/admin/approvals`);
+    const safeApprovalUrl = escapeHtml(approvalUrl);
+    const safeStudentName = escapeHtml(studentName);
+    const safeStudentEmail = escapeHtml(studentEmail);
+    const safeCity = escapeHtml(city);
+    const safeInstitute = escapeHtml(institute);
+    const safeAppliedDate = escapeHtml(appliedDate);
 
     const content = `
     <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 12px; margin-bottom: 30px;">
@@ -32,23 +38,23 @@ export function getAdminApprovalReminderHtml(
       <table style="width: 100%; border-collapse: collapse;">
         <tr>
           <td style="padding: 8px 0; color: #718096; font-weight: 500;">Name:</td>
-          <td style="padding: 8px 0; color: #1a202c; font-weight: 600;">${studentName}</td>
+          <td style="padding: 8px 0; color: #1a202c; font-weight: 600;">${safeStudentName}</td>
         </tr>
         <tr>
           <td style="padding: 8px 0; color: #718096; font-weight: 500;">Email:</td>
-          <td style="padding: 8px 0; color: #1a202c;">${studentEmail}</td>
+          <td style="padding: 8px 0; color: #1a202c;">${safeStudentEmail}</td>
         </tr>
         <tr>
           <td style="padding: 8px 0; color: #718096; font-weight: 500;">City:</td>
-          <td style="padding: 8px 0; color: #1a202c;">${city}</td>
+          <td style="padding: 8px 0; color: #1a202c;">${safeCity}</td>
         </tr>
         <tr>
           <td style="padding: 8px 0; color: #718096; font-weight: 500;">Institute:</td>
-          <td style="padding: 8px 0; color: #1a202c;">${institute}</td>
+          <td style="padding: 8px 0; color: #1a202c;">${safeInstitute}</td>
         </tr>
         <tr>
           <td style="padding: 8px 0; color: #718096; font-weight: 500;">Applied:</td>
-          <td style="padding: 8px 0; color: #1a202c;">${appliedDate}</td>
+          <td style="padding: 8px 0; color: #1a202c;">${safeAppliedDate}</td>
         </tr>
       </table>
     </div>
@@ -60,7 +66,7 @@ export function getAdminApprovalReminderHtml(
     </div>
 
     <div style="text-align: center; margin: 30px 0;">
-      <a href="${approvalUrl}" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 6px rgba(102, 126, 234, 0.3);">
+      <a href="${safeApprovalUrl}" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 14px 32px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 6px rgba(102, 126, 234, 0.3);">
         Review Application →
       </a>
     </div>
