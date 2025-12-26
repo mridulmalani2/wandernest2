@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import AdminNav from '@/components/admin/AdminNav'
 
@@ -39,6 +39,50 @@ export default function AnalyticsPage() {
   const [data, setData] = useState<AnalyticsData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const isMountedRef = useRef(true)
+
+  const normalizeAnalytics = (payload: any): AnalyticsData | null => {
+    if (!payload || typeof payload !== 'object') return null
+
+    const safeNumber = (value: any, fallback = 0) =>
+      typeof value === 'number' && Number.isFinite(value) ? value : fallback
+
+    const safeArray = <T,>(value: any): T[] => (Array.isArray(value) ? value : [])
+
+    const demandSupplyRatio = safeArray(payload.demandSupplyRatio).map((entry: any) => ({
+      city: typeof entry?.city === 'string' ? entry.city : 'Unknown',
+      supply: safeNumber(entry?.supply),
+      demand: safeNumber(entry?.demand),
+      ratio: safeNumber(entry?.ratio),
+    }))
+
+    const avgPriceByService = safeArray(payload.avgPriceByService).map((entry: any) => ({
+      serviceType: typeof entry?.serviceType === 'string' ? entry.serviceType : 'Unknown',
+      avgPrice: safeNumber(entry?.avgPrice),
+      count: safeNumber(entry?.count),
+    }))
+
+    return {
+      demandSupplyRatio,
+      responseTime: {
+        avgHours: safeNumber(payload.responseTime?.avgHours),
+      },
+      matchSuccess: {
+        totalRequests: safeNumber(payload.matchSuccess?.totalRequests),
+        matchedRequests: safeNumber(payload.matchSuccess?.matchedRequests),
+        successRate: safeNumber(payload.matchSuccess?.successRate),
+      },
+      avgPriceByService,
+      platformMetrics: {
+        totalStudents: safeNumber(payload.platformMetrics?.totalStudents),
+        approvedStudents: safeNumber(payload.platformMetrics?.approvedStudents),
+        pendingStudents: safeNumber(payload.platformMetrics?.pendingStudents),
+        totalRequests: safeNumber(payload.platformMetrics?.totalRequests),
+        activeRequests: safeNumber(payload.platformMetrics?.activeRequests),
+        totalReviews: safeNumber(payload.platformMetrics?.totalReviews),
+      },
+    }
+  }
 
   const fetchAnalytics = useCallback(async (signal?: AbortSignal) => {
     try {
@@ -58,16 +102,19 @@ export default function AnalyticsPage() {
         throw new Error('Failed to fetch analytics')
       }
 
-      const analyticsData = await response.json()
-      setData(analyticsData)
+      const analyticsData = await response.json().catch(() => null)
+      const normalized = normalizeAnalytics(analyticsData)
+      if (!normalized) {
+        throw new Error('Invalid analytics payload')
+      }
+      setData(normalized)
     } catch (err: any) {
       if (err.name === 'AbortError') return
       console.error('Analytics fetch error:', err)
       setError('Unable to load analytics data. Please try again later.')
     } finally {
-      if (signal && !signal.aborted) {
-        setLoading(false)
-      }
+      if (!isMountedRef.current) return
+      setLoading(false)
     }
   }, [router])
 
@@ -76,6 +123,7 @@ export default function AnalyticsPage() {
     fetchAnalytics(controller.signal)
 
     return () => {
+      isMountedRef.current = false
       controller.abort()
     }
   }, [fetchAnalytics])

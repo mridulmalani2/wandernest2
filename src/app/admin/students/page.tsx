@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import AdminNav from '@/components/admin/AdminNav'
 
@@ -32,6 +32,7 @@ export default function StudentsPage() {
   })
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
+  const isMountedRef = useRef(true)
 
   const fetchStudents = useCallback(async (signal?: AbortSignal) => {
     try {
@@ -58,17 +59,18 @@ export default function StudentsPage() {
         throw new Error('Failed to fetch students')
       }
 
-      const data = await response.json()
-      setStudents(data.students)
-      setTotalPages(data.pagination.totalPages)
+      const data = await response.json().catch(() => null)
+      const studentList = Array.isArray(data?.students) ? data.students : []
+      setStudents(studentList)
+      const total = typeof data?.pagination?.totalPages === 'number' ? data.pagination.totalPages : 1
+      setTotalPages(total)
     } catch (err: any) {
       if (err.name === 'AbortError') return
       console.error('Fetch error:', err)
       setError(err instanceof Error ? err.message : 'An error occurred fetching students')
     } finally {
-      if (signal && !signal.aborted) {
-        setLoading(false)
-      }
+      if (!isMountedRef.current) return
+      setLoading(false)
     }
   }, [filters, page, router])
 
@@ -77,6 +79,12 @@ export default function StudentsPage() {
     fetchStudents(controller.signal)
     return () => controller.abort()
   }, [fetchStudents])
+
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false
+    }
+  }, [])
 
   // ... rest of the file ...
   const getStatusBadge = (status: string) => {
@@ -210,7 +218,7 @@ export default function StudentsPage() {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadge(student.status)}`}>
-                            {student.status.replace('_', ' ')}
+                            {(typeof student.status === 'string' ? student.status.replace('_', ' ') : 'Unknown')}
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">

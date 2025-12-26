@@ -11,7 +11,7 @@ export const metadata: Metadata = {
     url: 'https://tourwiseco.vercel.app/student',
     images: [
       {
-        url: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=1200&h=630&fit=crop',
+        url: '/images/backgrounds/cafe-ambiance.jpg',
         width: 1200,
         height: 630,
         alt: 'University students sharing their city with travelers',

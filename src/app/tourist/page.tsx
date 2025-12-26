@@ -9,7 +9,7 @@ export default function TouristLanding() {
     <div className="min-h-screen flex flex-col relative overflow-hidden">
       <div className="absolute inset-0">
         <Image
-          src="https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=1920&q=80"
+          src="/images/backgrounds/cafe-ambiance.jpg"
           alt="Beautiful London Thames River with iconic architecture"
           fill
           priority
@@ -69,7 +69,7 @@ export default function TouristLanding() {
                 <div className="group rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 relative overflow-hidden h-full min-h-[280px] transform-gpu">
                   <div className="absolute inset-0">
                     <Image
-                      src="https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=800&q=80"
+                      src="/images/backgrounds/cafe-ambiance.jpg"
                       alt="University students studying together with books and laptops"
                       fill
                       quality={60}
@@ -94,7 +94,7 @@ export default function TouristLanding() {
                 <div className="group rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 relative overflow-hidden h-full min-h-[280px] transform-gpu">
                   <div className="absolute inset-0">
                     <Image
-                      src="https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=800&q=80"
+                      src="/images/backgrounds/cafe-ambiance.jpg"
                       alt="Cozy Parisian cafe with authentic ambiance"
                       fill
                       quality={60}
@@ -119,7 +119,7 @@ export default function TouristLanding() {
                 <div className="group rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 relative overflow-hidden h-full min-h-[280px] transform-gpu">
                   <div className="absolute inset-0">
                     <Image
-                      src="https://images.unsplash.com/photo-1533929736458-ca588d08c8be?w=800&q=80"
+                      src="/images/backgrounds/cafe-ambiance.jpg"
                       alt="Iconic London bridge and cityscape"
                       fill
                       quality={60}
@@ -222,7 +222,7 @@ export default function TouristLanding() {
                   <div className="relative h-96 rounded-3xl overflow-hidden shadow-premium hover:shadow-elevated transition-all duration-500 hover:-translate-y-2">
                     {/* Background Image */}
                     <Image
-                      src="https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=600&q=80"
+                      src="/images/backgrounds/cafe-ambiance.jpg"
                       alt="Iconic Paris architecture and streets"
                       fill
                       quality={75}
@@ -273,7 +273,7 @@ export default function TouristLanding() {
                   <div className="relative h-96 rounded-3xl overflow-hidden shadow-premium hover:shadow-elevated transition-all duration-500 hover:-translate-y-2">
                     {/* Background Image */}
                     <Image
-                      src="https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=600&q=80"
+                      src="/images/backgrounds/cafe-ambiance.jpg"
                       alt="Iconic London landmarks and architecture"
                       fill
                       quality={75}

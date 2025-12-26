@@ -8,7 +8,7 @@ export default function OnboardingSuccess() {
       {/* Background Image with Overlays */}
       <div className="absolute inset-0" role="img" aria-label="Students collaborating and celebrating success">
         <Image
-          src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=1920&q=80"
+          src="/images/backgrounds/cafe-ambiance.jpg"
           alt="Students collaborating and celebrating success"
           fill
           priority

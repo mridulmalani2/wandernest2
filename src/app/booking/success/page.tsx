@@ -17,7 +17,7 @@ export default function SuccessPage() {
         {/* Background Image with Overlays */}
         <div className="absolute inset-0" role="img" aria-label="Beautiful celebration scene with confetti">
           <Image
-            src="https://images.unsplash.com/photo-1533929736458-ca588d08c8be?w=1920&q=80"
+            src="/images/backgrounds/cafe-ambiance.jpg"
             alt="Beautiful celebration scene with confetti"
             fill
             priority

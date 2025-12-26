@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState, useCallback } from 'react'
+import { useEffect, useMemo, useState, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import AdminNav from '@/components/admin/AdminNav'
 
@@ -67,6 +67,8 @@ export default function AdminBookingsPage() {
   const [detailError, setDetailError] = useState<string | null>(null)
   const [assignError, setAssignError] = useState<string | null>(null)
   const [selectedStudentId, setSelectedStudentId] = useState<string>('')
+  const isMountedRef = useRef(true)
+  const assignAbortRef = useRef<AbortController | null>(null)
 
   // Helper for auth tokens (Removed as we use cookies now)
 
@@ -91,16 +93,17 @@ export default function AdminBookingsPage() {
         throw new Error('Failed to load bookings')
       }
 
-      const payload = (await response.json()) as { bookings: BookingSummary[] }
-      setBookings(payload.bookings)
+      const payload = await response.json().catch(() => null)
+      const bookingList = Array.isArray(payload?.bookings) ? payload.bookings : []
+      setBookings(bookingList)
 
       // Only set selectedBookingId if none is selected and we have bookings
       // To avoid overriding user selection if this is a refresh
-      if (payload.bookings.length > 0) {
+      if (bookingList.length > 0) {
         // If we want to auto-select the first one:
         // But creating a race condition if user selects one while loading?
         // We'll trust the user's selection unless it's empty.
-        setSelectedBookingId(prev => prev ?? payload.bookings[0].id)
+        setSelectedBookingId(prev => prev ?? bookingList[0].id)
       }
     } catch (err: any) {
       if (err.name === 'AbortError') return
@@ -108,9 +111,8 @@ export default function AdminBookingsPage() {
       setError(err instanceof Error ? err.message : 'Unable to load bookings')
     } finally {
       // Check if aborted before state update?
-      if (!signal?.aborted) {
-        setLoadingList(false)
-      }
+      if (!isMountedRef.current) return
+      setLoadingList(false)
     }
   }, [router])
 
@@ -135,17 +137,27 @@ export default function AdminBookingsPage() {
         throw new Error('Failed to load booking')
       }
 
-      const payload = (await response.json()) as { booking: BookingDetail }
-      setSelectedBooking(payload.booking)
-      setSelectedStudentId(payload.booking.assignedStudent?.id || '')
+      const payload = await response.json().catch(() => null)
+      if (!payload?.booking || typeof payload.booking !== 'object') {
+        throw new Error('Booking details unavailable')
+      }
+      const booking = payload.booking as BookingDetail
+      const normalizedBooking: BookingDetail = {
+        ...booking,
+        preferredLanguages: Array.isArray(booking.preferredLanguages) ? booking.preferredLanguages : [],
+        contact: booking.contact ?? {},
+        selections: Array.isArray(booking.selections) ? booking.selections : [],
+        recommendedStudents: Array.isArray(booking.recommendedStudents) ? booking.recommendedStudents : [],
+      }
+      setSelectedBooking(normalizedBooking)
+      setSelectedStudentId(normalizedBooking.assignedStudent?.id || '')
     } catch (err: any) {
       if (err.name === 'AbortError') return
       console.error('Failed to load booking detail', err)
       setDetailError(err instanceof Error ? err.message : 'Unable to load booking')
     } finally {
-      if (!signal?.aborted) {
-        setLoadingDetail(false)
-      }
+      if (!isMountedRef.current) return
+      setLoadingDetail(false)
     }
   }, [router])
 
@@ -163,10 +175,22 @@ export default function AdminBookingsPage() {
     }
   }, [selectedBookingId, fetchBookingDetail])
 
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false
+      assignAbortRef.current?.abort()
+    }
+  }, [])
+
   // This function is still triggered interactively, so signal is less critical but good for robustness if we wanted to support cancellation.
   const handleAssign = async () => {
     if (!selectedBookingId || !selectedStudentId) {
       setAssignError('Select a student to assign to this booking')
+      return
+    }
+    const allowedStudentIds = selectedBooking?.recommendedStudents?.map((student) => student.id) ?? []
+    if (!allowedStudentIds.includes(selectedStudentId)) {
+      setAssignError('Selected student is not eligible for this booking')
       return
     }
 
@@ -189,18 +213,19 @@ export default function AdminBookingsPage() {
       }
 
       if (!response.ok) {
-        const data = await response.json().catch(() => null)
-        const message = data?.error || 'Failed to assign student'
-        throw new Error(message)
+        throw new Error('Failed to assign student')
       }
 
       // Refresh both list and detail
       // Note: we don't pass signal here as we want these to complete even if user navigates away quickly?
       // Actually normally we would want them tied to the component. 
       // For now, simpler await is fine.
+      assignAbortRef.current?.abort()
+      const refreshController = new AbortController()
+      assignAbortRef.current = refreshController
       await Promise.all([
-        fetchBookings(),
-        selectedBookingId ? fetchBookingDetail(selectedBookingId) : Promise.resolve()
+        fetchBookings(refreshController.signal),
+        selectedBookingId ? fetchBookingDetail(selectedBookingId, refreshController.signal) : Promise.resolve()
       ])
     } catch (err) {
       console.error('Failed to assign student', err)
@@ -340,7 +365,7 @@ export default function AdminBookingsPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <InfoTile
                         label="Language preferences"
-                        value={selectedBooking.preferredLanguages.join(', ') || 'No preference'}
+                        value={selectedBooking.preferredLanguages.length > 0 ? selectedBooking.preferredLanguages.join(', ') : 'No preference'}
                       />
                       <InfoTile
                         label="Guide preference"
@@ -354,13 +379,13 @@ export default function AdminBookingsPage() {
                       <InfoTile
                         label="Contact"
                         value={
-                          selectedBooking.contact.phone ||
-                          selectedBooking.contact.whatsapp ||
-                          selectedBooking.contact.contactMethod ||
+                          selectedBooking.contact?.phone ||
+                          selectedBooking.contact?.whatsapp ||
+                          selectedBooking.contact?.contactMethod ||
                           'Not provided'
                         }
                       />
-                      <InfoTile label="Meeting preference" value={selectedBooking.contact.meetingPreference || 'Not provided'} />
+                      <InfoTile label="Meeting preference" value={selectedBooking.contact?.meetingPreference || 'Not provided'} />
                     </div>
 
                     <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
@@ -383,13 +408,13 @@ export default function AdminBookingsPage() {
                             className="w-full sm:w-72 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                           >
                             <option value="">Select a student</option>
-                            {selectedBooking.recommendedStudents.map((student) => (
+                            {selectedBooking.recommendedStudents.length > 0 ? selectedBooking.recommendedStudents.map((student) => (
                               <option key={student.id} value={student.id}>
                                 {student.name || student.email || student.id} · {student.city || 'No city'} · Trips hosted:
                                 {' '}
                                 {student.tripsHosted}
                               </option>
-                            ))}
+                            )) : null}
                           </select>
                           <button
                             onClick={handleAssign}

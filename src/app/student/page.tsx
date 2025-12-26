@@ -14,21 +14,21 @@ const FEATURES = [
     icon: DollarSign,
     title: 'High Earnings',
     desc: 'Earn significantly more than standard campus jobs. Set your own rates.',
-    imgSrc: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=800&q=80',
+    imgSrc: '/images/backgrounds/cafe-ambiance.jpg',
     alt: 'Person calculating earnings'
   },
   {
     icon: Clock,
     title: 'Total Flexibility',
     desc: 'Work around your class schedule. You choose when you\'re available.',
-    imgSrc: 'https://images.unsplash.com/photo-1506784983877-45594efa4cbe?w=800&q=80',
+    imgSrc: '/images/backgrounds/cafe-ambiance.jpg',
     alt: 'Student planning schedule'
   },
   {
     icon: Users,
     title: 'Build Network',
     desc: 'Connect with professionals and travelers from your home country.',
-    imgSrc: 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?w=800&q=80',
+    imgSrc: '/images/backgrounds/cafe-ambiance.jpg',
     alt: 'People networking'
   }
 ];
@@ -61,7 +61,7 @@ export default function StudentLandingPage() {
       {/* Background - Optimized: Removed backdrop-blur which kills performance on large screens */}
       <div className="absolute inset-0 z-0">
         <Image
-          src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=1920&q=80"
+          src="/images/backgrounds/cafe-ambiance.jpg"
           alt="Students collaborating on campus"
           fill
           priority

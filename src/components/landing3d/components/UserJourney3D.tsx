@@ -32,7 +32,7 @@ const journeySections: JourneySection[] = [
     description: 'Match with student guides from your home country who speak your language and understand your culture.',
     accentColor: '#6B8DD6',
     secondaryColor: '#9B7BD6',
-    image: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=800&q=80',
+    image: '/images/backgrounds/cafe-ambiance.jpg',
   },
   {
     id: 'authentic',
@@ -42,7 +42,7 @@ const journeySections: JourneySection[] = [
     description: 'Every recommendation comes from lived experience. The café where locals actually go. The viewpoint not on Instagram.',
     accentColor: '#9B7BD6',
     secondaryColor: '#D67B8D',
-    image: 'https://images.unsplash.com/photo-1514933651103-005eec06c04b?w=800&q=80',
+    image: '/images/backgrounds/cafe-ambiance.jpg',
   },
   {
     id: 'concierge',
@@ -52,7 +52,7 @@ const journeySections: JourneySection[] = [
     description: 'Custom itineraries. Public transport mastered. Hidden gems discovered. Someone who actually shows you around.',
     accentColor: '#D67B8D',
     secondaryColor: '#6BD6C5',
-    image: 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800&q=80',
+    image: '/images/backgrounds/cafe-ambiance.jpg',
   },
   {
     id: 'student',
@@ -62,7 +62,7 @@ const journeySections: JourneySection[] = [
     description: 'Share your city. Meet travelers. Earn more than double what typical campus jobs pay. Flexible hours.',
     accentColor: '#6BD6C5',
     secondaryColor: '#6B8DD6',
-    image: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=800&q=80',
+    image: '/images/backgrounds/cafe-ambiance.jpg',
   },
 ]
 

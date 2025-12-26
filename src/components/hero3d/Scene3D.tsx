@@ -24,7 +24,7 @@ const IMAGE_CONFIGS: ImagePlaneConfig[] = [
   {
     // Back layer - Tourists exploring (largest, furthest)
     id: 'tourists',
-    src: 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800&q=80',
+    src: '/images/backgrounds/cafe-ambiance.jpg',
     alt: 'Tourists exploring a European city together',
     position: [-1.2, 0.8, -2], // Top-left, far back
     rotation: [0, 0, -0.1], // Slight counter-clockwise tilt (~-6 degrees)
@@ -36,7 +36,7 @@ const IMAGE_CONFIGS: ImagePlaneConfig[] = [
   {
     // Middle layer - London cityscape
     id: 'london',
-    src: 'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=800&q=80',
+    src: '/images/backgrounds/cafe-ambiance.jpg',
     alt: 'London cityscape with iconic Tower Bridge at sunset',
     position: [1.0, 0, -1], // Center-right, medium depth
     rotation: [0, 0, 0.08], // Slight clockwise tilt (~5 degrees)
@@ -48,7 +48,7 @@ const IMAGE_CONFIGS: ImagePlaneConfig[] = [
   {
     // Front layer - Cafe scene (closest)
     id: 'cafe',
-    src: 'https://images.unsplash.com/photo-1499856871958-5b9627545d1a?w=800&q=80',
+    src: '/images/backgrounds/cafe-ambiance.jpg',
     alt: 'Beautiful European cafe street scene',
     position: [-0.5, -0.8, 0], // Bottom-left, closest
     rotation: [0, 0, 0.05], // Very slight tilt (~3 degrees)

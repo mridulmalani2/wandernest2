@@ -174,7 +174,7 @@ export default function StudentDashboard() {
         className="absolute inset-0"
       >
         <Image
-          src="https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=1920&q=80"
+          src="/images/backgrounds/cafe-ambiance.jpg"
           alt="Cozy reading nook with books"
           fill
           quality={85}

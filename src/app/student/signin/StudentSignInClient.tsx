@@ -65,10 +65,11 @@ export default function StudentSignInClient() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, password, rememberMe }),
             });
-            const data = await res.json();
+            const isJson = res.headers.get('content-type')?.includes('application/json');
+            const data = isJson ? await res.json().catch(() => null) : null;
 
-            if (!res.ok || !data.success) {
-                setEmailErrorMessage(data.error || 'Invalid credentials');
+            if (!res.ok || !data?.success) {
+                setEmailErrorMessage('Invalid credentials. Please try again.');
                 setIsSubmitting(false);
                 return;
             }
@@ -89,7 +90,7 @@ export default function StudentSignInClient() {
             {/* Background */}
             <div className="absolute inset-0">
                 <Image
-                    src="https://images.unsplash.com/photo-1434030216411-0b793f4b4173?w=1920&q=80"
+                    src="/images/backgrounds/cafe-ambiance.jpg"
                     alt="Student studying"
                     fill
                     priority

@@ -52,7 +52,7 @@ export const getHowItWorksStructuredData = () => ({
   '@type': 'HowTo',
   name: 'How to Book a Local Student Guide with TourWiseCo',
   description: 'Learn how to connect with verified local university student guides for authentic, personalized travel experiences.',
-  image: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=1200&h=630&fit=crop',
+  image: '/images/backgrounds/cafe-ambiance.jpg',
   totalTime: 'PT10M',
   step: [
     {

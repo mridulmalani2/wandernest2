@@ -24,10 +24,11 @@ export default function AdminLogin() {
         credentials: 'include',
       })
 
-      const data = await response.json()
+      const isJson = response.headers.get('content-type')?.includes('application/json')
+      const data = isJson ? await response.json().catch(() => null) : null
 
       if (!response.ok) {
-        throw new Error(data.error || 'Login failed')
+        throw new Error('Unable to sign in. Please check your credentials and try again.')
       }
 
       // Token is set in HttpOnly cookie by the server
@@ -46,7 +47,7 @@ export default function AdminLogin() {
       {/* Background Image with Overlays */}
       <div className="absolute inset-0" role="img" aria-label="Professional office workspace and analytics">
         <Image
-          src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=1920&q=80"
+          src="/images/backgrounds/cafe-ambiance.jpg"
           alt="Professional office workspace and analytics"
           fill
           priority
