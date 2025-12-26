@@ -126,10 +126,108 @@ function ScrollIndicator({ show, label = 'Scroll' }: { show: boolean; label?: st
   )
 }
 
+// Pre-calculated drift directions for crumble effect
+const CRUMBLE_EFFECTS = 'TourWiseCo'.split('').map((_, i) => ({
+  x: (Math.sin(i * 1.3) * 40) + (i % 2 === 0 ? -15 : 15),
+  y: 30 + (i * 8),
+  rotate: (i % 2 === 0 ? -1 : 1) * (10 + i * 3),
+  delay: i * 0.04,
+}))
+
+// TourWiseCo with crumble fade effect
+function CrumbleTitle({ isLeaving }: { isLeaving: boolean }) {
+  const letters = 'TourWiseCo'.split('')
+
+  return (
+    <div className="absolute inset-0 flex items-center justify-center z-20">
+      <h1 className="relative">
+        {letters.map((letter, i) => {
+          const effect = CRUMBLE_EFFECTS[i]
+          return (
+            <span
+              key={i}
+              className="inline-block text-white font-serif font-light"
+              style={{
+                fontSize: 'clamp(3rem, 10vw, 6rem)',
+                textShadow: '0 4px 30px rgba(0, 0, 0, 0.8)',
+                transition: `all 1.2s cubic-bezier(0.4, 0, 0.2, 1) ${effect.delay}s`,
+                transform: isLeaving
+                  ? `translate(${effect.x}px, ${effect.y}px) rotate(${effect.rotate}deg) scale(0.5)`
+                  : 'translate(0, 0) rotate(0) scale(1)',
+                opacity: isLeaving ? 0 : 1,
+                filter: isLeaving ? 'blur(8px)' : 'blur(0)',
+              }}
+            >
+              {letter}
+            </span>
+          )
+        })}
+      </h1>
+    </div>
+  )
+}
+
+// Creative tagline display
+function Tagline({ show }: { show: boolean }) {
+  const words = ['Authentic', 'Travel.', 'Local', 'Students.']
+
+  return (
+    <div
+      className="absolute inset-0 flex items-center justify-center z-20"
+      style={{
+        opacity: show ? 1 : 0,
+        transition: 'opacity 0.8s ease-out 0.4s',
+      }}
+    >
+      <div className="flex flex-col items-center gap-2">
+        <div className="flex items-baseline gap-4">
+          {words.slice(0, 2).map((word, i) => (
+            <span
+              key={i}
+              className="text-white font-serif"
+              style={{
+                fontSize: i === 0 ? 'clamp(2rem, 6vw, 4rem)' : 'clamp(2rem, 6vw, 4rem)',
+                fontWeight: i === 0 ? 300 : 200,
+                fontStyle: i === 1 ? 'italic' : 'normal',
+                textShadow: '0 2px 40px rgba(107, 141, 214, 0.4)',
+                transform: show ? 'translateY(0)' : 'translateY(20px)',
+                opacity: show ? 1 : 0,
+                transition: `all 0.8s cubic-bezier(0.4, 0, 0.2, 1) ${0.5 + i * 0.15}s`,
+              }}
+            >
+              {word}
+            </span>
+          ))}
+        </div>
+        <div className="flex items-baseline gap-4">
+          {words.slice(2).map((word, i) => (
+            <span
+              key={i}
+              className="text-white/80 font-serif"
+              style={{
+                fontSize: 'clamp(1.5rem, 4vw, 2.5rem)',
+                fontWeight: 300,
+                letterSpacing: '0.05em',
+                textShadow: '0 2px 30px rgba(155, 123, 214, 0.3)',
+                transform: show ? 'translateY(0)' : 'translateY(20px)',
+                opacity: show ? 1 : 0,
+                transition: `all 0.8s cubic-bezier(0.4, 0, 0.2, 1) ${0.7 + i * 0.15}s`,
+              }}
+            >
+              {word}
+            </span>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export function LandingPage3D({ className = '' }: LandingPage3DProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [isReady, setIsReady] = useState(false)
   const [phase1EnteredAt, setPhase1EnteredAt] = useState<number | null>(null)
+  const [showContinue, setShowContinue] = useState(false)
 
   const { canRender3D, isMobile, prefersReducedMotion, pixelRatio } = useDeviceCapabilities()
 
@@ -150,10 +248,13 @@ export function LandingPage3D({ className = '' }: LandingPage3DProps) {
 
   const pointerState = usePointerParallax(canRender3D && !isMobile)
 
-  // Mark when we enter phase 1
+  // Mark when we enter phase 1 and show continue after delay
   useEffect(() => {
     if (hijackState.currentPhase === 1 && phase1EnteredAt === null) {
       setPhase1EnteredAt(Date.now())
+      // Show continue indicator after 1s
+      const timer = setTimeout(() => setShowContinue(true), 1000)
+      return () => clearTimeout(timer)
     }
   }, [hijackState.currentPhase, phase1EnteredAt])
 
@@ -169,6 +270,7 @@ export function LandingPage3D({ className = '' }: LandingPage3DProps) {
   }
 
   const { currentPhase } = hijackState
+  const isLeavingPhase0 = currentPhase >= 1
 
   return (
     <div ref={containerRef} className={`relative ${className}`}>
@@ -216,35 +318,11 @@ export function LandingPage3D({ className = '' }: LandingPage3DProps) {
           </WebGLErrorBoundary>
         )}
 
-        {/* Phase 0: Title */}
-        <div
-          className="absolute inset-0 flex items-center justify-center z-20 transition-opacity duration-500"
-          style={{ opacity: currentPhase === 0 ? 1 : 0, pointerEvents: currentPhase === 0 ? 'auto' : 'none' }}
-        >
-          <h1
-            className="text-white font-serif font-light"
-            style={{ fontSize: 'clamp(3rem, 10vw, 6rem)', textShadow: '0 4px 30px rgba(0, 0, 0, 0.8)' }}
-          >
-            TourWiseCo
-          </h1>
-        </div>
+        {/* Phase 0 & 1: Title with crumble effect */}
+        <CrumbleTitle isLeaving={isLeavingPhase0} />
 
-        {/* Phase 1: Hero Text */}
-        <div
-          className="absolute inset-0 flex items-center justify-center z-20 px-8 transition-opacity duration-500"
-          style={{ opacity: currentPhase === 1 ? 1 : 0, pointerEvents: currentPhase === 1 ? 'auto' : 'none' }}
-        >
-          <p
-            className="text-center max-w-3xl leading-relaxed text-white"
-            style={{
-              fontSize: 'clamp(1.25rem, 3vw, 2rem)',
-              fontFamily: 'Georgia, "Times New Roman", serif',
-              textShadow: '0 2px 30px rgba(107, 141, 214, 0.5), 0 4px 60px rgba(0, 0, 0, 0.8)',
-            }}
-          >
-            Experience authentic travel with local student guides. Connect with verified university students who will show you their city through a local&apos;s eyes.
-          </p>
-        </div>
+        {/* Phase 1: Tagline fades in as title crumbles */}
+        <Tagline show={currentPhase === 1} />
 
         {/* Phase 2: Cards */}
         <FinalStepCards
@@ -258,7 +336,7 @@ export function LandingPage3D({ className = '' }: LandingPage3DProps) {
 
         {/* Scroll indicators */}
         <ScrollIndicator show={currentPhase === 0 && isReady} label="Scroll to Explore" />
-        <ScrollIndicator show={currentPhase === 1 && phase1EnteredAt !== null && Date.now() - phase1EnteredAt >= 1000} label="Continue" />
+        <ScrollIndicator show={currentPhase === 1 && showContinue} label="Continue" />
       </section>
 
       {/* Spacer when hero is fixed */}
