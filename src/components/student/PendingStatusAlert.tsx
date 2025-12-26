@@ -19,10 +19,11 @@ export function PendingStatusAlert() {
                 headers: { 'Content-Type': 'application/json' },
             });
 
-            const data = await res.json();
+            const isJson = res.headers.get('content-type')?.includes('application/json');
+            const data = isJson ? await res.json().catch(() => null) : null;
 
-            if (!res.ok || !data.success) {
-                throw new Error(data.error || 'Failed to send reminder');
+            if (!res.ok || !data?.success) {
+                throw new Error('Failed to send reminder. Please try again.');
             }
 
             setReminderSent(true);

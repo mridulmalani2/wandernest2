@@ -39,6 +39,42 @@ export default function AdminDashboardClient() {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
 
+  const normalizeDashboardSnapshot = (payload: any): DashboardSnapshot | null => {
+    if (!payload || typeof payload !== 'object') return null
+
+    const safeNumber = (value: any, fallback = 0) =>
+      typeof value === 'number' && Number.isFinite(value) ? value : fallback
+
+    const safeString = (value: any, fallback = '') =>
+      typeof value === 'string' ? value : fallback
+
+    const upcomingBookings = Array.isArray(payload.upcomingBookings)
+      ? payload.upcomingBookings.map((booking: any) => ({
+        id: safeString(booking?.id),
+        city: safeString(booking?.city),
+        date: safeString(booking?.date),
+        service: safeString(booking?.service),
+        travelerName: safeString(booking?.travelerName),
+        assignment: {
+          studentName: typeof booking?.assignment?.studentName === 'string' ? booking.assignment.studentName : undefined,
+          status: booking?.assignment?.status === 'Assigned' ? 'Assigned' : 'Unassigned',
+        },
+        approval: booking?.approval === 'Approved' || booking?.approval === 'Pending' || booking?.approval === 'Needs Attention'
+          ? booking.approval
+          : 'Pending',
+        notes: typeof booking?.notes === 'string' ? booking.notes : undefined,
+      }))
+      : []
+
+    return {
+      totalBookings: safeNumber(payload.totalBookings),
+      totalStudents: safeNumber(payload.totalStudents),
+      approvedBookings: safeNumber(payload.approvedBookings),
+      pendingApprovals: safeNumber(payload.pendingApprovals),
+      upcomingBookings,
+    }
+  }
+
   useEffect(() => {
     const controller = new AbortController()
 
@@ -58,8 +94,13 @@ export default function AdminDashboardClient() {
           throw new Error('Failed to load dashboard data')
         }
 
-        const payload = (await response.json()) as DashboardSnapshot
-        setData(payload)
+        const payload = await response.json().catch(() => null)
+        const normalized = normalizeDashboardSnapshot(payload)
+        if (!normalized) {
+          throw new Error('Invalid dashboard payload')
+        }
+        if (controller.signal.aborted) return
+        setData(normalized)
       } catch (err: any) {
         if (err.name === 'AbortError') return
         // Sanitize error logging

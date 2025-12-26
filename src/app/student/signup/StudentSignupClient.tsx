@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { Mail, AlertCircle, ArrowLeft, User, Lock, Eye, EyeOff } from 'lucide-react'; // Added icons
 import { Input } from '@/components/ui/input';
 import { PrimaryCTAButton } from '@/components/ui/PrimaryCTAButton';
-import { isValidEmailFormat } from '@/lib/email-validation';
+import { isStudentEmail, isValidEmailFormat } from '@/lib/email-validation';
 
 type SignupStep = 'email' | 'otp' | 'details';
 
@@ -16,6 +16,7 @@ export default function StudentSignupClient() {
     const [step, setStep] = useState<SignupStep>('email');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [accountExists, setAccountExists] = useState(false);
 
     // Form Data
     const [email, setEmail] = useState('');
@@ -29,9 +30,16 @@ export default function StudentSignupClient() {
     const handleSendOtp = async (e: React.FormEvent) => {
         e.preventDefault();
         setError(null);
+        setAccountExists(false);
 
-        if (!isValidEmailFormat(email)) {
+        const normalizedEmail = email.trim().toLowerCase();
+
+        if (!isValidEmailFormat(normalizedEmail)) {
             setError('Please enter a valid email address.');
+            return;
+        }
+        if (!isStudentEmail(normalizedEmail)) {
+            setError('Please use your university email address.');
             return;
         }
 
@@ -40,14 +48,15 @@ export default function StudentSignupClient() {
             const res = await fetch('/api/student/auth/send-otp', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email }),
+                body: JSON.stringify({ email: normalizedEmail }),
             });
-            const data = await res.json();
-            if (!data.success) throw new Error(data.error);
+            const isJson = res.headers.get('content-type')?.includes('application/json');
+            const data = isJson ? await res.json().catch(() => null) : null;
+            if (!res.ok || !data?.success) throw new Error('Unable to send verification code. Please try again.');
 
             setStep('otp');
         } catch (err: any) {
-            setError(err.message || 'Failed to send OTP');
+            setError(err?.message || 'Failed to send verification code');
         } finally {
             setLoading(false);
         }
@@ -58,6 +67,15 @@ export default function StudentSignupClient() {
         setError(null);
         setLoading(true);
         try {
+            const normalizedEmail = email.trim().toLowerCase();
+            if (!normalizedEmail || !isValidEmailFormat(normalizedEmail) || !isStudentEmail(normalizedEmail)) {
+                setError('Please enter a valid university email address.');
+                return;
+            }
+            if (code.trim().length !== 6) {
+                setError('Please enter the 6-digit verification code.');
+                return;
+            }
             // Optimistic move to details, final verification happens on submit
             setStep('details');
         } finally {
@@ -68,10 +86,21 @@ export default function StudentSignupClient() {
     const handleFinalSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError(null);
+        setAccountExists(false);
 
         // Validate terms acceptance
         if (!agreedToTerms) {
             setError('You must agree to the Terms of Service, Safety Guidelines, and Privacy Policy to continue.');
+            return;
+        }
+
+        const normalizedEmail = email.trim().toLowerCase();
+        if (!normalizedEmail || !isValidEmailFormat(normalizedEmail) || !isStudentEmail(normalizedEmail)) {
+            setError('Please enter a valid university email address.');
+            return;
+        }
+        if (code.trim().length !== 6) {
+            setError('Please enter the 6-digit verification code.');
             return;
         }
 
@@ -83,13 +112,19 @@ export default function StudentSignupClient() {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    email,
-                    code,
+                    email: normalizedEmail,
+                    code: code.trim(),
                     name,
                 }),
             });
-            const data = await res.json();
-            if (!data.success) throw new Error(data.error);
+            const isJson = res.headers.get('content-type')?.includes('application/json');
+            const data = isJson ? await res.json().catch(() => null) : null;
+            if (!res.ok || !data?.success) {
+                setAccountExists(res.status === 409);
+                throw new Error(res.status === 409
+                    ? 'An account already exists for this email.'
+                    : 'Unable to create your account. Please try again.');
+            }
 
             // 2. Set Password immediately
             const pwdRes = await fetch('/api/student/auth/set-password', {
@@ -100,12 +135,13 @@ export default function StudentSignupClient() {
 
             if (!pwdRes.ok) {
                 console.error('Failed to set password');
-                // Non-blocking error, user is created. They can reset password later.
+                setError('Your account was created, but we could not set your password. Please reset your password to continue.');
+                return;
             }
 
             router.push('/student/dashboard');
         } catch (err: any) {
-            setError(err.message || 'Signup failed');
+            setError(err?.message || 'Signup failed');
         } finally {
             setLoading(false);
         }
@@ -116,7 +152,7 @@ export default function StudentSignupClient() {
             {/* Background Image with Overlays */}
             <div className="absolute inset-0">
                 <Image
-                    src="https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=1920&auto=format&fit=crop"
+                    src="/images/backgrounds/cafe-ambiance.jpg"
                     alt="University campus"
                     fill
                     priority
@@ -151,7 +187,7 @@ export default function StudentSignupClient() {
                                 <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0" />
                                 <div className="flex-1">
                                     <p className="text-sm text-red-300 font-semibold">{error}</p>
-                                    {error.includes('Account already exists') && (
+                                    {accountExists && (
                                         <Link href="/student/signin" className="text-sm text-red-200 hover:text-white underline mt-1 block">
                                             Sign in to your account &rarr;
                                         </Link>

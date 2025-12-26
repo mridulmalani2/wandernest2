@@ -122,7 +122,7 @@ export default function TouristDashboard() {
       {/* Subtle Background Pattern */}
       <div className="absolute inset-0 pointer-events-none">
         <Image
-          src="https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?w=1920&q=80"
+          src="/images/backgrounds/cafe-ambiance.jpg"
           alt="Vintage compass and travel map"
           fill
           quality={85}

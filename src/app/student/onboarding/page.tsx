@@ -19,20 +19,31 @@ export default function StudentOnboarding() {
   const [sessionLike, setSessionLike] = useState<SessionLike | null>(null);
 
   useEffect(() => {
+    const controller = new AbortController();
+
     const init = async () => {
       try {
         // ✅ Check our custom OTP session
-        const res = await fetch('/api/student/auth/session-status');
+        const res = await fetch('/api/student/auth/session-status', {
+          signal: controller.signal,
+        });
 
         if (res.status === 401) {
           router.push('/student/signin');
           return;
         }
 
-        const data = await res.json();
+        if (!res.ok) {
+          setLoading(false);
+          router.push('/student/signin');
+          return;
+        }
+
+        const isJson = res.headers.get('content-type')?.includes('application/json');
+        const data = isJson ? await res.json().catch(() => null) : null;
 
         // Not logged in / invalid session → back to signin
-        if (!data.ok) {
+        if (!data?.ok) {
           router.push('/student/signin');
           return;
         }
@@ -56,11 +67,15 @@ export default function StudentOnboarding() {
         router.push('/student/signin');
         return;
       } finally {
-        setLoading(false);
+        if (!controller.signal.aborted) {
+          setLoading(false);
+        }
       }
     };
 
     init();
+
+    return () => controller.abort();
   }, [router]);
 
   // Loading state - same UI as before
@@ -70,7 +85,7 @@ export default function StudentOnboarding() {
         {/* Background Image with Overlays */}
         <div className="absolute inset-0" role="img" aria-label="Modern university learning space">
           <Image
-            src="https://images.unsplash.com/photo-1562774053-701939374585?w=1920&q=80"
+            src="/images/backgrounds/cafe-ambiance.jpg"
             alt="Modern university lecture hall with natural light"
             fill
             priority

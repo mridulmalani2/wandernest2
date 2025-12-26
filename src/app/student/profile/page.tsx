@@ -78,7 +78,7 @@ interface StudentProfile {
  *
  * Premium glassmorphism design matching landing page aesthetic
  */
-const PROFILE_BG_IMAGE = "https://images.unsplash.com/photo-1531545514256-b1400bc00f31?w=1920&q=80";
+const PROFILE_BG_IMAGE = "/images/backgrounds/cafe-ambiance.jpg";
 
 const ProfileBackground = () => (
   <>

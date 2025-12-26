@@ -39,7 +39,7 @@ export const metadata: Metadata = {
     siteName: 'TourWiseCo',
     images: [
       {
-        url: 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=1200&h=630&fit=crop',
+        url: '/images/backgrounds/cafe-ambiance.jpg',
         width: 1200,
         height: 630,
         alt: 'Group of young travelers exploring a city together',
@@ -50,7 +50,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'TourWiseCo - Connect with Local Student Guides',
     description: 'Experience authentic travel with verified local student guides. Discover hidden gems and explore cities like a local.',
-    images: ['https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=1200&h=630&fit=crop'],
+    images: ['/images/backgrounds/cafe-ambiance.jpg'],
   },
   robots: {
     index: true,
@@ -73,8 +73,6 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        {/* Preconnect to image CDN for faster image loading */}
-        <link rel="preconnect" href="https://images.unsplash.com" />
       </head>
       <body className="font-sans">
         <Providers>

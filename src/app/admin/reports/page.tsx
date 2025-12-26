@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import AdminNav from '@/components/admin/AdminNav'
 
@@ -28,6 +28,7 @@ export default function ReportsPage() {
   const [page, setPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const [selectedReport, setSelectedReport] = useState<Report | null>(null)
+  const isMountedRef = useRef(true)
 
   const fetchReports = useCallback(async (signal?: AbortSignal) => {
     try {
@@ -52,16 +53,17 @@ export default function ReportsPage() {
         throw new Error('Failed to fetch reports')
       }
 
-      const data = await response.json()
-      setReports(data.reports)
-      setTotalPages(data.pagination.totalPages)
+      const data = await response.json().catch(() => null)
+      const reportList = Array.isArray(data?.reports) ? data.reports : []
+      setReports(reportList)
+      const total = typeof data?.pagination?.totalPages === 'number' ? data.pagination.totalPages : 1
+      setTotalPages(total)
     } catch (err: any) {
       if (err.name === 'AbortError') return
       setError(err instanceof Error ? err.message : 'An error occurred')
     } finally {
-      if (!signal?.aborted) {
-        setLoading(false)
-      }
+      if (!isMountedRef.current) return
+      setLoading(false)
     }
   }, [page, statusFilter, router])
 
@@ -70,6 +72,12 @@ export default function ReportsPage() {
     fetchReports(controller.signal)
     return () => controller.abort()
   }, [fetchReports])
+
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false
+    }
+  }, [])
 
   const updateReportStatus = async (reportId: string, status: string) => {
     try {

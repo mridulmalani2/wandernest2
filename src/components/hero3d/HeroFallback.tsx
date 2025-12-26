@@ -21,7 +21,7 @@ export function HeroFallback() {
       <div className="image-layer-1 absolute top-[10%] left-[5%] w-[65%] h-[45%] rounded-3xl overflow-hidden shadow-2xl">
         <div className="relative w-full h-full">
           <Image
-            src="https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=800&q=80"
+            src="/images/backgrounds/cafe-ambiance.jpg"
             alt="Tourists exploring a European city together"
             fill
             loading="lazy"
@@ -37,7 +37,7 @@ export function HeroFallback() {
       <div className="image-layer-2 absolute top-[35%] right-[10%] w-[60%] h-[40%] rounded-3xl overflow-hidden shadow-2xl">
         <div className="relative w-full h-full">
           <Image
-            src="https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=800&q=80"
+            src="/images/backgrounds/cafe-ambiance.jpg"
             alt="London cityscape with iconic Tower Bridge at sunset"
             fill
             loading="lazy"
@@ -53,7 +53,7 @@ export function HeroFallback() {
       <div className="image-layer-3 absolute bottom-[8%] left-[15%] w-[55%] h-[38%] rounded-3xl overflow-hidden shadow-2xl">
         <div className="relative w-full h-full">
           <Image
-            src="https://images.unsplash.com/photo-1499856871958-5b9627545d1a?w=800&q=80"
+            src="/images/backgrounds/cafe-ambiance.jpg"
             alt="Beautiful European cafe street scene"
             fill
             loading="lazy"

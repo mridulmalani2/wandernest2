@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState, Suspense, useCallback } from 'react'
+import { useEffect, useMemo, useState, Suspense, useCallback, useRef } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { StudentProfileCard, StudentMatch } from '@/components/tourist/StudentProfileCard'
@@ -10,7 +10,25 @@ import { Loader2, AlertCircle, Info } from 'lucide-react'
 import { PrimaryCTAButton } from '@/components/ui/PrimaryCTAButton'
 import Navigation from '@/components/Navigation'
 
-const STUDENT_GROUP_IMAGE_URL = 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=1920&q=80'
+const STUDENT_GROUP_IMAGE_URL = '/images/backgrounds/cafe-ambiance.jpg'
+
+const isValidRequestId = (value: string) => /^[a-z0-9]+$/i.test(value)
+const isStudentMatchArray = (value: unknown): value is StudentMatch[] => Array.isArray(value)
+const normalizeStudentMatch = (match: any): StudentMatch => ({
+  selectionToken: typeof match?.selectionToken === 'string' ? match.selectionToken : '',
+  maskedId: typeof match?.maskedId === 'string' ? match.maskedId : 'Unknown',
+  displayName: typeof match?.displayName === 'string' ? match.displayName : 'Student Guide',
+  nationality: typeof match?.nationality === 'string' ? match.nationality : 'Unknown',
+  languages: Array.isArray(match?.languages) ? match.languages : [],
+  institute: typeof match?.institute === 'string' ? match.institute : 'Unknown',
+  tripsHosted: typeof match?.tripsHosted === 'number' ? match.tripsHosted : 0,
+  averageRating: typeof match?.averageRating === 'number' ? match.averageRating : null,
+  reviewCount: typeof match?.reviewCount === 'number' ? match.reviewCount : 0,
+  noShowCount: typeof match?.noShowCount === 'number' ? match.noShowCount : 0,
+  reliabilityBadge: typeof match?.reliabilityBadge === 'string' ? match.reliabilityBadge : null,
+  tags: Array.isArray(match?.tags) ? match.tags : [],
+  matchReasons: Array.isArray(match?.matchReasons) ? match.matchReasons : [],
+})
 
 function SelectGuideContent() {
   const searchParams = useSearchParams()
@@ -30,6 +48,7 @@ function SelectGuideContent() {
   const [suggestedPrice, setSuggestedPrice] = useState<any>(null)
   const [nationalityFilter, setNationalityFilter] = useState<string>('all')
   const [languageFilters, setLanguageFilters] = useState<string[]>([])
+  const isMountedRef = useRef(true)
   const [requestPreferences, setRequestPreferences] = useState<{
     preferredNationality: string | null
     preferredLanguages: string[]
@@ -45,7 +64,12 @@ function SelectGuideContent() {
   }, [errorType])
 
   const fetchMatches = useCallback(async (signal?: AbortSignal) => {
-    if (!requestId) return
+    if (!requestId || !isValidRequestId(requestId)) {
+      setError('Invalid booking request. Please start a new booking.')
+      setErrorType('notfound')
+      setLoading(false)
+      return
+    }
 
     try {
       setLoading(true)
@@ -74,9 +98,6 @@ function SelectGuideContent() {
 
         try {
           const data = await response.json()
-          // Sanitize: Don't show raw server errors if they assume internal knowledge
-          // But allow "friendly" errors from our API
-          errorMessage = data.error || errorMessage
 
           if (response.status === 404) {
             errType = 'notfound'
@@ -97,19 +118,20 @@ function SelectGuideContent() {
         return
       }
 
-      const data = await response.json()
+      const data = await response.json().catch(() => null)
 
-      if (data.success) {
-        setMatches(data.matches || [])
+      if (data?.success) {
+        const matchesList = isStudentMatchArray(data.matches) ? data.matches.map(normalizeStudentMatch) : []
+        setMatches(matchesList)
         setSuggestedPrice(data.suggestedPriceRange)
         setRequestPreferences({
-          preferredNationality: data.preferredNationality || null,
-          preferredLanguages: data.preferredLanguages || [],
+          preferredNationality: typeof data.preferredNationality === 'string' ? data.preferredNationality : null,
+          preferredLanguages: Array.isArray(data.preferredLanguages) ? data.preferredLanguages : [],
         })
         setError(null)
         setErrorType(null)
       } else {
-        setError(data.error || 'Unable to process your request. Please try again.')
+        setError('Unable to process your request. Please try again.')
         setErrorType('server')
       }
     } catch (err: any) {
@@ -119,14 +141,26 @@ function SelectGuideContent() {
       setError('Unable to connect to the server. This might be a network issue - please check your connection and try again.')
       setErrorType('network')
     } finally {
-      if (signal?.aborted) return
+      if (!isMountedRef.current) return
       setLoading(false)
     }
   }, [requestId])
 
   useEffect(() => {
+    return () => {
+      isMountedRef.current = false
+    }
+  }, [])
+
+  useEffect(() => {
     if (!requestId) {
       setError('No request ID provided. Please start a new booking from the booking page.')
+      setErrorType('notfound')
+      setLoading(false)
+      return
+    }
+    if (!isValidRequestId(requestId)) {
+      setError('Invalid booking request. Please start a new booking from the booking page.')
       setErrorType('notfound')
       setLoading(false)
       return
@@ -161,7 +195,9 @@ function SelectGuideContent() {
   const recommendedMatches = useMemo(() => {
     const { preferredNationality, preferredLanguages } = requestPreferences
 
-    return matches
+    const safeMatches = isStudentMatchArray(matches) ? matches : []
+
+    return safeMatches
       .map((student) => {
         const nationalityMatch =
           preferredNationality && student.nationality === preferredNationality
@@ -178,7 +214,7 @@ function SelectGuideContent() {
       .sort((a, b) => b.recommendationScore - a.recommendationScore)
       .slice(0, 3)
       .map(({ student }) => student)
-  }, [matches, requestPreferences])
+  }, [matches, requestPreferences.preferredLanguages, requestPreferences.preferredNationality])
 
   const recommendationSummary = useMemo(() => {
     const { preferredNationality, preferredLanguages } = requestPreferences
@@ -241,6 +277,10 @@ function SelectGuideContent() {
       setSubmitError('Missing booking request ID. Please refresh and try again.')
       return
     }
+    if (!isValidRequestId(requestId)) {
+      setSubmitError('Invalid booking request ID. Please start a new booking.')
+      return
+    }
 
     setSubmitting(true)
     try {
@@ -253,13 +293,13 @@ function SelectGuideContent() {
         }),
       })
 
-      const data = await response.json()
+      const data = await response.json().catch(() => null)
 
-      if (data.success) {
+      if (response.ok && data?.success) {
         // Redirect to confirmation page
         router.push(`/booking/pending?requestId=${encodeURIComponent(requestId)}`)
       } else {
-        setSubmitError(data.error || 'Failed to submit selection')
+        setSubmitError('Failed to submit selection. Please try again.')
       }
     } catch (err) {
       console.error('Error submitting selection:', err)
@@ -338,6 +378,7 @@ function SelectGuideContent() {
                   {errorType !== 'notfound' && (
                     <PrimaryCTAButton
                       onClick={() => fetchMatches()}
+                      disabled={loading}
                       variant="blue"
                       className="hover-lift"
                     >
@@ -404,7 +445,7 @@ function SelectGuideContent() {
         {/* Background Image with Overlays */}
         <div className="absolute inset-0" role="img" aria-label="Students working together and networking">
           <Image
-            src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=1920&q=80"
+            src={STUDENT_GROUP_IMAGE_URL}
             alt="Students working together and networking"
             fill
             priority

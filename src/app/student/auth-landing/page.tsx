@@ -11,7 +11,8 @@ export const dynamic = 'force-dynamic';
 function StudentAuthLandingContent() {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
-  const [debug, setDebug] = useState<any | null>(null);
+
+  const isSafeInternalPath = (path: string) => path.startsWith('/') && !path.startsWith('//');
 
   useEffect(() => {
     const checkSession = async () => {
@@ -26,17 +27,20 @@ function StudentAuthLandingContent() {
           return;
         }
 
-        const data = await res.json();
-        console.log('session-status response:', data);
-        setDebug(data);
-
         if (!res.ok) {
           setError('Something went wrong while checking your session.');
           return;
         }
 
+        const isJson = res.headers.get('content-type')?.includes('application/json');
+        const data = isJson ? await res.json().catch(() => null) : null;
+
         if (data?.nextPath) {
-          router.replace(data.nextPath);
+          if (typeof data.nextPath === 'string' && isSafeInternalPath(data.nextPath)) {
+            router.replace(data.nextPath);
+          } else {
+            setError('Could not determine where to send you. Please sign in again.');
+          }
         } else {
           setError('Could not determine where to send you. Please sign in again.');
         }
@@ -54,7 +58,7 @@ function StudentAuthLandingContent() {
       {/* Background */}
       <div className="absolute inset-0">
         <Image
-          src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=1920&q=80"
+          src="/images/backgrounds/cafe-ambiance.jpg"
           alt="Students collaborating on campus"
           fill
           priority
@@ -92,11 +96,6 @@ function StudentAuthLandingContent() {
                 Go back to sign in
               </button>
 
-              {debug && (
-                <pre className="mt-4 text-xs text-left text-gray-200 bg-black/30 p-3 rounded-lg max-h-40 overflow-auto">
-                  {JSON.stringify(debug, null, 2)}
-                </pre>
-              )}
             </>
           )}
         </div>
