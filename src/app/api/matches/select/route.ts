@@ -79,24 +79,6 @@ export async function POST(request: NextRequest) {
       where: { requestId }
     })
 
-    if (parsedGuideIds.some((id) => id === null)) {
-      return NextResponse.json(
-        { error: 'Invalid or expired guide selection token' },
-        { status: 400 }
-      )
-    }
-
-    const selectedGuideIds = Array.from(new Set(
-      parsedGuideIds.filter((id): id is string => Boolean(id))
-    ))
-
-    if (selectedGuideIds.length === 0) {
-      return NextResponse.json(
-        { error: 'No valid guide selections provided' },
-        { status: 400 }
-      )
-    }
-
     const matchedStudents = await db.student.findMany({
       where: {
         id: { in: selectedGuideIds },
