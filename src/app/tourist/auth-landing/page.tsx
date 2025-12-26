@@ -46,7 +46,7 @@ function TouristAuthLandingContent() {
     <div className="min-h-screen flex flex-col relative overflow-hidden">
       <div className="absolute inset-0" role="img" aria-label="Beautiful travel destination">
         <Image
-          src="https://images.unsplash.com/photo-1503220317375-aaad61436b1b?w=1920&q=80"
+          src="/images/backgrounds/cafe-ambiance.jpg"
           alt="Beautiful travel destination"
           fill
           priority

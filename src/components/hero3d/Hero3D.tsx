@@ -89,7 +89,7 @@ export function Hero3D({ className = '' }: Hero3DProps) {
       {/* Parallax background with blur - CSS handled, performant */}
       <div className="absolute inset-0">
         <Image
-          src="https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=1920&q=80"
+          src="/images/backgrounds/cafe-ambiance.jpg"
           alt="Beautiful Paris cityscape with Eiffel Tower"
           fill
           priority

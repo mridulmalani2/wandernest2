@@ -54,7 +54,7 @@ function StudentAuthLandingContent() {
       {/* Background */}
       <div className="absolute inset-0">
         <Image
-          src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?w=1920&q=80"
+          src="/images/backgrounds/cafe-ambiance.jpg"
           alt="Students collaborating on campus"
           fill
           priority

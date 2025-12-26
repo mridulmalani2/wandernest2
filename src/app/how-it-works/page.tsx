@@ -48,7 +48,7 @@ export const metadata: Metadata = {
     url: 'https://tourwiseco.vercel.app/how-it-works',
     images: [
       {
-        url: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=1200&h=630&fit=crop',
+        url: '/images/backgrounds/cafe-ambiance.jpg',
         width: 1200,
         height: 630,
         alt: 'Students and travelers exploring together',
@@ -59,7 +59,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'How TourWiseCo Works - Student-Led Local Experiences',
     description: 'Connect with verified local university students for authentic travel experiences.',
-    images: ['https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=1200&h=630&fit=crop'],
+    images: ['/images/backgrounds/cafe-ambiance.jpg'],
   },
   alternates: {
     canonical: 'https://tourwiseco.vercel.app/how-it-works',
@@ -220,7 +220,7 @@ export default function HowItWorksPage() {
       {/* Background - Optimized: Removed backdrop-blur-[2px] which kills performance on large screens */}
       <div className="absolute inset-0 z-0">
         <Image
-          src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f"
+          src="/images/backgrounds/cafe-ambiance.jpg"
           alt="Students and travelers exploring together"
           fill
           priority

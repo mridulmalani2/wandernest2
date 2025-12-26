@@ -37,7 +37,7 @@ const CARD_CONFIG = {
     icon: '✈️',
     color: COLORS.bluePrimary,
     glowColor: '#4A7FD6',
-    image: 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=600&q=80',
+    image: '/images/backgrounds/cafe-ambiance.jpg',
     delay: 0,
   },
   student: {
@@ -47,7 +47,7 @@ const CARD_CONFIG = {
     icon: '🎓',
     color: COLORS.purplePrimary,
     glowColor: '#8B5CD6',
-    image: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=600&q=80',
+    image: '/images/backgrounds/cafe-ambiance.jpg',
     delay: 0.15, // Slight delay for staggered animation
   },
 }

@@ -45,15 +45,16 @@ export default function StudentResetPasswordClient() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email }),
             });
-            const data = await res.json();
+            const isJson = res.headers.get('content-type')?.includes('application/json');
+            const data = isJson ? await res.json().catch(() => null) : null;
 
-            if (!data.success) {
-                throw new Error(data.error || 'Failed to send reset code');
+            if (!res.ok || !data?.success) {
+                throw new Error('Unable to send reset code. Please try again.');
             }
 
             setStep('otp');
         } catch (err: any) {
-            setError(err.message || 'Something went wrong');
+            setError(err?.message || 'Something went wrong');
         } finally {
             setLoading(false);
         }
@@ -98,6 +99,7 @@ export default function StudentResetPasswordClient() {
         }
 
         setLoading(true);
+        let shouldReturnToOtp = false;
         try {
             const res = await fetch('/api/student/auth/forgot-password/confirm', {
                 method: 'POST',
@@ -108,10 +110,12 @@ export default function StudentResetPasswordClient() {
                     newPassword
                 }),
             });
-            const data = await res.json();
+            const isJson = res.headers.get('content-type')?.includes('application/json');
+            const data = isJson ? await res.json().catch(() => null) : null;
 
-            if (!data.success) {
-                throw new Error(data.error || 'Failed to reset password');
+            if (!res.ok || !data?.success) {
+                shouldReturnToOtp = res.status === 400;
+                throw new Error('Unable to reset password. Please try again.');
             }
 
             setStep('success');
@@ -121,9 +125,8 @@ export default function StudentResetPasswordClient() {
             }, 3000);
 
         } catch (err: any) {
-            setError(err.message || 'Failed to reset password');
-            // If invalid code, maybe go back to OTP step?
-            if (err.message && (err.message.includes('code') || err.message.includes('expired'))) {
+            setError(err?.message || 'Failed to reset password');
+            if (err?.message && shouldReturnToOtp) {
                 setStep('otp');
             }
         } finally {
@@ -136,7 +139,7 @@ export default function StudentResetPasswordClient() {
             {/* Background */}
             <div className="absolute inset-0">
                 <Image
-                    src="https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1920&q=80"
+                    src="/images/backgrounds/cafe-ambiance.jpg"
                     alt="Night sky"
                     fill
                     priority

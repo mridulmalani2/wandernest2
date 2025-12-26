@@ -18,7 +18,7 @@ export default function BookingPage() {
       {/* Background Image with Overlays */}
       <div className="absolute inset-0" role="img" aria-label="Beautiful travel destination">
         <Image
-          src="https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1920&q=80"
+          src="/images/backgrounds/cafe-ambiance.jpg"
           alt="Starry night mountains"
           fill
           priority

@@ -334,7 +334,7 @@ export function OnboardingWizard({ session }: OnboardingWizardProps) {
       {/* Background */}
       <div className="absolute inset-0 z-0">
         <Image
-          src="https://images.unsplash.com/photo-1562774053-701939374585?w=1920&q=80"
+          src="/images/backgrounds/cafe-ambiance.jpg"
           alt="Background"
           fill
           className="object-cover opacity-40"

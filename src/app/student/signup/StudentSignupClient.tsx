@@ -16,6 +16,7 @@ export default function StudentSignupClient() {
     const [step, setStep] = useState<SignupStep>('email');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [accountExists, setAccountExists] = useState(false);
 
     // Form Data
     const [email, setEmail] = useState('');
@@ -29,6 +30,7 @@ export default function StudentSignupClient() {
     const handleSendOtp = async (e: React.FormEvent) => {
         e.preventDefault();
         setError(null);
+        setAccountExists(false);
 
         if (!isValidEmailFormat(email)) {
             setError('Please enter a valid email address.');
@@ -42,12 +44,13 @@ export default function StudentSignupClient() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email }),
             });
-            const data = await res.json();
-            if (!data.success) throw new Error(data.error);
+            const isJson = res.headers.get('content-type')?.includes('application/json');
+            const data = isJson ? await res.json().catch(() => null) : null;
+            if (!res.ok || !data?.success) throw new Error('Unable to send verification code. Please try again.');
 
             setStep('otp');
         } catch (err: any) {
-            setError(err.message || 'Failed to send OTP');
+            setError(err?.message || 'Failed to send verification code');
         } finally {
             setLoading(false);
         }
@@ -68,6 +71,7 @@ export default function StudentSignupClient() {
     const handleFinalSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError(null);
+        setAccountExists(false);
 
         // Validate terms acceptance
         if (!agreedToTerms) {
@@ -88,8 +92,14 @@ export default function StudentSignupClient() {
                     name,
                 }),
             });
-            const data = await res.json();
-            if (!data.success) throw new Error(data.error);
+            const isJson = res.headers.get('content-type')?.includes('application/json');
+            const data = isJson ? await res.json().catch(() => null) : null;
+            if (!res.ok || !data?.success) {
+                setAccountExists(res.status === 409);
+                throw new Error(res.status === 409
+                    ? 'An account already exists for this email.'
+                    : 'Unable to create your account. Please try again.');
+            }
 
             // 2. Set Password immediately
             const pwdRes = await fetch('/api/student/auth/set-password', {
@@ -105,7 +115,7 @@ export default function StudentSignupClient() {
 
             router.push('/student/dashboard');
         } catch (err: any) {
-            setError(err.message || 'Signup failed');
+            setError(err?.message || 'Signup failed');
         } finally {
             setLoading(false);
         }
@@ -116,7 +126,7 @@ export default function StudentSignupClient() {
             {/* Background Image with Overlays */}
             <div className="absolute inset-0">
                 <Image
-                    src="https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=1920&auto=format&fit=crop"
+                    src="/images/backgrounds/cafe-ambiance.jpg"
                     alt="University campus"
                     fill
                     priority
@@ -151,7 +161,7 @@ export default function StudentSignupClient() {
                                 <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0" />
                                 <div className="flex-1">
                                     <p className="text-sm text-red-300 font-semibold">{error}</p>
-                                    {error.includes('Account already exists') && (
+                                    {accountExists && (
                                         <Link href="/student/signin" className="text-sm text-red-200 hover:text-white underline mt-1 block">
                                             Sign in to your account &rarr;
                                         </Link>

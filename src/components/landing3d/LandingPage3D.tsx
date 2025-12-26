@@ -313,7 +313,7 @@ export function LandingPage3D({ className = '' }: LandingPage3DProps) {
         {/* Background */}
         <div className="absolute inset-0 z-0">
           <Image
-            src="https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=1920&q=80"
+            src="/images/backgrounds/cafe-ambiance.jpg"
             alt="Paris at night"
             fill
             priority
@@ -372,7 +372,7 @@ export function LandingPage3D({ className = '' }: LandingPage3DProps) {
       <section id="user-journey-carousel" className="relative min-h-screen overflow-hidden">
         <div className="absolute inset-0 z-0">
           <Image
-            src="https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=1920&q=80"
+            src="/images/backgrounds/cafe-ambiance.jpg"
             alt="Paris at night"
             fill
             className="object-cover"
