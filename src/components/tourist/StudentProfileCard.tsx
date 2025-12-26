@@ -5,6 +5,11 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Checkbox } from '@/components/ui/checkbox'
 
+const formatRating = (value: unknown): string | null => {
+  const rating = typeof value === 'number' ? value : typeof value === 'string' ? Number(value) : NaN
+  return Number.isFinite(rating) ? rating.toFixed(1) : null
+}
+
 export interface StudentMatch {
   selectionToken: string
   maskedId: string
@@ -107,9 +112,9 @@ export function StudentProfileCard({
               <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
               <span className="text-xs font-semibold">Rating</span>
             </div>
-            {student.averageRating != null ? (
+            {formatRating(student.averageRating) ? (
               <p className="text-lg font-bold text-gray-900">
-                {student.averageRating.toFixed(1)}/5
+                {formatRating(student.averageRating)}/5
                 <span className="text-xs text-gray-600 ml-1 font-medium">
                   ({student.reviewCount})
                 </span>

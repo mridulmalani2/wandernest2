@@ -7,6 +7,39 @@ import { prisma, requireDatabase } from "@/lib/prisma";
 import { config } from "@/lib/config";
 import { isStudentEmail, getStudentEmailErrorMessage } from "@/lib/email-validation";
 
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+function sanitizeEmailText(value: string): string {
+  return value.replace(/[\r\n]+/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
+function sanitizeMagicLinkUrl(url: string): string {
+  const baseUrl = config.app.baseUrl || 'https://tourwiseco.com';
+  const base = new URL(baseUrl);
+  try {
+    const parsedUrl = url.startsWith('/') ? new URL(url, base) : new URL(url);
+    if (parsedUrl.host !== base.host) {
+      return base.toString();
+    }
+    if (parsedUrl.protocol !== base.protocol) {
+      return base.toString();
+    }
+    if (parsedUrl.username || parsedUrl.password) {
+      return base.toString();
+    }
+    return new URL(`${parsedUrl.pathname}${parsedUrl.search}${parsedUrl.hash}`, base).toString();
+  } catch (error) {
+    return base.toString();
+  }
+}
+
 // Build providers array conditionally based on configuration
 const providers = [];
 
@@ -56,7 +89,9 @@ if (config.email.isConfigured) {
         // Removed Legacy Student Domain Check
         // Students now use /student/signup with OTP
 
-        const { host } = new URL(url)
+        const safeUrl = sanitizeMagicLinkUrl(url);
+        const safeHost = new URL(safeUrl).host;
+        const safeEmail = sanitizeEmailText(email);
 
         // Try Resend first if available
         if (config.email.resendApiKey) {
@@ -74,8 +109,8 @@ if (config.email.isConfigured) {
             const response = await resend.emails.send({
               from: provider.from,
               to: email,
-              subject: `Sign in to ${host}`,
-              html: html({ url, host, email }),
+              subject: `Sign in to ${safeHost}`,
+              html: html({ url: safeUrl, host: safeHost, email: safeEmail }),
             })
 
             if (response.error) {
@@ -126,9 +161,9 @@ if (config.email.isConfigured) {
           const result = await transport.sendMail({
             to: email,
             from: provider.from,
-            subject: `Sign in to ${host}`,
-            text: text({ url, host }),
-            html: html({ url, host, email }),
+            subject: `Sign in to ${safeHost}`,
+            text: text({ url: safeUrl, host: safeHost }),
+            html: html({ url: safeUrl, host: safeHost, email: safeEmail }),
           })
 
           const failed = result.rejected.concat(result.pending).filter(Boolean)
@@ -182,8 +217,9 @@ if (config.email.isConfigured) {
  * @returns HTML string for the email
  */
 function html({ url, host, email }: { url: string; host: string; email: string }) {
-  const escapedEmail = email.replace(/</g, '&lt;').replace(/>/g, '&gt;')
-  const escapedHost = host.replace(/</g, '&lt;').replace(/>/g, '&gt;')
+  const escapedEmail = escapeHtml(email)
+  const escapedHost = escapeHtml(host)
+  const escapedUrl = escapeHtml(url)
 
   return `
 <!DOCTYPE html>
@@ -239,7 +275,7 @@ function html({ url, host, email }: { url: string; host: string; email: string }
                       <table role="presentation" cellspacing="0" cellpadding="0" border="0">
                         <tr>
                           <td style="border-radius: 12px; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);">
-                            <a href="${url}" style="display: inline-block; padding: 18px 48px; font-size: 17px; font-weight: 700; color: #ffffff; text-decoration: none; border-radius: 12px;">
+                            <a href="${escapedUrl}" style="display: inline-block; padding: 18px 48px; font-size: 17px; font-weight: 700; color: #ffffff; text-decoration: none; border-radius: 12px;">
                               🔓 Sign in to TourWiseCo
                             </a>
                           </td>
@@ -256,7 +292,7 @@ function html({ url, host, email }: { url: string; host: string; email: string }
                 <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background: #f3f4f6; border-radius: 8px; padding: 16px; margin: 0 0 32px 0;">
                   <tr>
                     <td style="word-break: break-all; font-size: 13px; color: #6b7280; text-align: center; font-family: 'Courier New', monospace;">
-                      ${url}
+                      ${escapedUrl}
                     </td>
                   </tr>
                 </table>
@@ -301,7 +337,7 @@ function html({ url, host, email }: { url: string; host: string; email: string }
 
 // Email text template (fallback for email clients that don't support HTML)
 function text({ url, host }: { url: string; host: string }) {
-  return `Sign in to ${host}\n\n${url}\n\n`
+  return `Sign in to ${sanitizeEmailText(host)}\n\n${sanitizeEmailText(url)}\n\n`
 }
 
 // Always add GoogleProvider (required for authentication)

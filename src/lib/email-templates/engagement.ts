@@ -1,4 +1,4 @@
-import { theme, StartupEmailLayout, escapeHtml, validateUrl } from './shared';
+import { theme, StartupEmailLayout, escapeHtml, sanitizeEmailText, validateUrl } from './shared';
 
 /**
  * 10. Tour Reminder
@@ -15,6 +15,7 @@ export const getTourReminderHtml = (
   const safeName = escapeHtml(name);
   const safeGuide = escapeHtml(guideName);
   const safeCity = escapeHtml(city);
+  const safeCityText = sanitizeEmailText(city);
   const safeDate = escapeHtml(date);
   const safeTime = escapeHtml(time);
   const safeMeeting = escapeHtml(meetingPoint);
@@ -45,7 +46,7 @@ export const getTourReminderHtml = (
       </div>
     </div>
   `;
-  return StartupEmailLayout(content, 'Trip Reminder', `Your trip to ${safeCity} is tomorrow!`);
+  return StartupEmailLayout(content, 'Trip Reminder', `Your trip to ${safeCityText} is tomorrow!`);
 };
 
 /**
@@ -83,7 +84,8 @@ export const getReviewRequestHtml = (
 ) => {
   const safeName = escapeHtml(name);
   const safeGuide = escapeHtml(guideName);
-  const safeUrl = validateUrl(reviewUrl);
+  const safeGuideText = sanitizeEmailText(guideName);
+  const safeUrl = escapeHtml(validateUrl(reviewUrl));
 
   const content = `
     <div style="text-align: center;">
@@ -104,7 +106,7 @@ export const getReviewRequestHtml = (
       </a>
     </div>
   `;
-  return StartupEmailLayout(content, 'Rate your experience', `How was your trip with ${safeGuide}?`);
+  return StartupEmailLayout(content, 'Rate your experience', `How was your trip with ${safeGuideText}?`);
 };
 
 /**

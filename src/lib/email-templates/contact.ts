@@ -1,4 +1,4 @@
-import { theme, StartupEmailLayout, escapeHtml } from './shared';
+import { theme, StartupEmailLayout, escapeHtml, sanitizeEmailText, validateUrl } from './shared';
 
 /**
  * Contact Form Email Template (Existing)
@@ -14,7 +14,8 @@ export const getContactFormEmailHtml = (
     const safeEmail = escapeHtml(email);
     const safeMessage = escapeHtml(message);
     const safePhone = phone ? escapeHtml(phone) : undefined;
-    const safeFileUrl = fileUrl ? escapeHtml(fileUrl) : undefined;
+    const safeFileUrl = fileUrl ? escapeHtml(validateUrl(fileUrl)) : undefined;
+    const safeNameText = sanitizeEmailText(name);
 
     const content = `
     <div style="text-align: left;">
@@ -55,5 +56,5 @@ export const getContactFormEmailHtml = (
       </div>
     </div>
   `;
-    return StartupEmailLayout(content, 'New Contact Message', `New message from ${safeName}`);
+    return StartupEmailLayout(content, 'New Contact Message', `New message from ${safeNameText}`);
 };

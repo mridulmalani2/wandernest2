@@ -40,7 +40,7 @@ export const getOtpEmailHtml = (otp: string, title: string = 'Verify Your Accoun
       </p>
     </div>
   `;
-  return StartupEmailLayout(content, safeTitle, `Here is your secure code: ${safeOtp}`);
+  return StartupEmailLayout(content, safeTitle, 'Use this code to finish signing in to TourWiseCo.');
 };
 
 /**

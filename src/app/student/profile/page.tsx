@@ -101,6 +101,11 @@ const ProfileBackground = () => (
 const parseArrayInput = (value: string) =>
   value.split(',').map((s) => s.trim()).filter((s) => s.length > 0);
 
+const formatRating = (value: unknown): string | null => {
+  const rating = typeof value === 'number' ? value : typeof value === 'string' ? Number(value) : NaN;
+  return Number.isFinite(rating) ? rating.toFixed(1) : null;
+};
+
 interface ProfileActionsProps {
   isEditing: boolean;
   isSaving: boolean;
@@ -427,7 +432,7 @@ export default function StudentProfilePage() {
                   />
                   <StatCard
                     label="Rating"
-                    value={currentProfile?.averageRating?.toFixed(1) || 'N/A'}
+                    value={formatRating(currentProfile?.averageRating) ?? 'N/A'}
                     icon={Star}
                     accentColor="yellow"
                   />

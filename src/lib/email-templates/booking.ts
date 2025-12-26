@@ -1,4 +1,4 @@
-import { theme, StartupEmailLayout, escapeHtml, validateUrl, baseUrl } from './shared';
+import { theme, StartupEmailLayout, escapeHtml, sanitizeEmailText, validateUrl, baseUrl } from './shared';
 
 /**
  * 5. Booking Confirmation (to Tourist)
@@ -11,7 +11,9 @@ export const getBookingConfirmationHtml = (
     matchesCount: number = 0
 ) => {
     const safeCity = escapeHtml(city);
+    const safeCityText = sanitizeEmailText(city);
     const safeRequestId = escapeHtml(requestId);
+    const requestIdPath = encodeURIComponent(requestId);
     const safeMatchesCount = escapeHtml(matchesCount);
 
     const content = `
@@ -53,12 +55,12 @@ export const getBookingConfirmationHtml = (
         </div>
       ` : ''}
 
-      <a href="${baseUrl}/booking/status/${safeRequestId}" style="display: inline-block; background-color: ${theme.colors.primary}; color: white; font-weight: 600; font-size: 16px; padding: 16px 32px; border-radius: 50px; text-decoration: none; box-shadow: 0 4px 15px rgba(45, 183, 181, 0.3);">
+      <a href="${baseUrl}/booking/status/${requestIdPath}" style="display: inline-block; background-color: ${theme.colors.primary}; color: white; font-weight: 600; font-size: 16px; padding: 16px 32px; border-radius: 50px; text-decoration: none; box-shadow: 0 4px 15px rgba(45, 183, 181, 0.3);">
         View Booking Status
       </a>
     </div>
   `;
-    return StartupEmailLayout(content, 'Booking Request Received', `Your trip to ${safeCity} is in the works.`);
+    return StartupEmailLayout(content, 'Booking Request Received', `Your trip to ${safeCityText} is in the works.`);
 };
 
 /**
@@ -72,7 +74,8 @@ export const getStudentRequestNotificationHtml = (
 ) => {
     const safeName = escapeHtml(studentName);
     const safeCity = escapeHtml(city);
-    const safeUrl = validateUrl(acceptUrl);
+    const safeCityText = sanitizeEmailText(city);
+    const safeUrl = escapeHtml(validateUrl(acceptUrl));
 
     const content = `
     <div style="text-align: center;">
@@ -93,7 +96,7 @@ export const getStudentRequestNotificationHtml = (
       </a>
     </div>
   `;
-    return StartupEmailLayout(content, 'New Tourist Request', `You have a new request in ${safeCity}`);
+    return StartupEmailLayout(content, 'New Tourist Request', `You have a new request in ${safeCityText}`);
 };
 
 /**
@@ -123,6 +126,7 @@ export const getTouristAcceptanceNotificationHtml = (
 ) => {
     const safeStudent = escapeHtml(studentName);
     const safeCity = escapeHtml(city);
+    const safeStudentText = sanitizeEmailText(studentName);
     const safeInstitute = escapeHtml(studentProfile.institute);
     const safeLanguages = studentProfile.languages.map(l => escapeHtml(l)).join(', ');
     const safeEmail = escapeHtml(studentProfile.email);
@@ -164,7 +168,7 @@ export const getTouristAcceptanceNotificationHtml = (
       </div>
     </div>
   `;
-    return StartupEmailLayout(content, 'Guide Accepted', `${safeStudent} has accepted your request!`);
+    return StartupEmailLayout(content, 'Guide Accepted', `${safeStudentText} has accepted your request!`);
 };
 
 /**
@@ -178,6 +182,7 @@ export const getBookingDeclinedHtml = (
 ) => {
     const safeStudent = escapeHtml(studentName);
     const safeCity = escapeHtml(city);
+    const safeCityText = sanitizeEmailText(city);
 
     const content = `
     <div style="text-align: center;">
@@ -218,6 +223,7 @@ export const getStudentConfirmationHtml = (
     const safeStudent = escapeHtml(studentName);
     const safeTourist = escapeHtml(touristName);
     const safeCity = escapeHtml(city);
+    const safeCityText = sanitizeEmailText(city);
     const safeDates = escapeHtml(dates);
     const safeEmail = escapeHtml(touristEmail);
     const safePhone = touristPhone ? escapeHtml(touristPhone) : undefined;
@@ -271,5 +277,5 @@ export const getStudentConfirmationHtml = (
       </div>
     </div>
   `;
-    return StartupEmailLayout(content, 'Trip Confirmed', `You are confirmed for a trip in ${safeCity}`);
+    return StartupEmailLayout(content, 'Trip Confirmed', `You are confirmed for a trip in ${safeCityText}`);
 };

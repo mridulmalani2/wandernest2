@@ -1,4 +1,4 @@
-import { theme, StartupEmailLayout, escapeHtml, validateUrl } from './shared';
+import { theme, StartupEmailLayout, escapeHtml, sanitizeEmailText, validateUrl } from './shared';
 
 /**
  * 8. Payment Successful
@@ -10,6 +10,7 @@ export const getPaymentSuccessHtml = (
     invoiceId: string
 ) => {
     const safeAmount = escapeHtml(amount);
+    const safeAmountText = sanitizeEmailText(amount);
     const safeDate = escapeHtml(date);
     const safeInvoiceId = escapeHtml(invoiceId);
 
@@ -43,7 +44,7 @@ export const getPaymentSuccessHtml = (
       </div>
     </div>
   `;
-    return StartupEmailLayout(content, 'Payment Receipt', `Receipt for ${safeAmount}`);
+    return StartupEmailLayout(content, 'Payment Receipt', `Receipt for ${safeAmountText}`);
 };
 
 /**
@@ -51,7 +52,7 @@ export const getPaymentSuccessHtml = (
  * Tone: Calm, solution-oriented.
  */
 export const getPaymentFailedHtml = (retryUrl: string) => {
-    const safeUrl = validateUrl(retryUrl);
+    const safeUrl = escapeHtml(validateUrl(retryUrl));
 
     const content = `
     <div style="text-align: center;">
