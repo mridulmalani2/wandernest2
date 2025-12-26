@@ -223,6 +223,7 @@ export const getStudentConfirmationHtml = (
     const safeStudent = escapeHtml(studentName);
     const safeTourist = escapeHtml(touristName);
     const safeCity = escapeHtml(city);
+    const safeCityText = sanitizeEmailText(city);
     const safeDates = escapeHtml(dates);
     const safeEmail = escapeHtml(touristEmail);
     const safePhone = touristPhone ? escapeHtml(touristPhone) : undefined;
