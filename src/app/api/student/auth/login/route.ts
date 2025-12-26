@@ -2,19 +2,24 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { cookies } from 'next/headers'
 import bcrypt from 'bcryptjs'
+import { z } from 'zod'
+import { emailSchema } from '@/lib/schemas/common'
+import { createStudentSessionToken } from '@/lib/student-auth'
+import { logger } from '@/lib/logger'
 
 export const dynamic = 'force-dynamic'
 
+const loginSchema = z.object({
+    email: emailSchema,
+    password: z.string().min(8).max(128),
+    rememberMe: z.union([z.boolean(), z.literal('true'), z.literal('false')]).optional(),
+});
+
 export async function POST(req: Request) {
     try {
-        const { email, password, rememberMe } = await req.json()
-
-        if (!email || !password) {
-            return NextResponse.json(
-                { success: false, error: 'Email and password are required' },
-                { status: 400 }
-            )
-        }
+        const body = await req.json()
+        const { email, password, rememberMe } = loginSchema.parse(body)
+        const remember = rememberMe === true || rememberMe === 'true'
 
         // 1. Find Student
         const student = await prisma.student.findUnique({
@@ -46,24 +51,25 @@ export async function POST(req: Request) {
         }
 
         // 3. Create Session
-        const sessionDuration = rememberMe
+        const sessionDuration = remember
             ? 30 * 24 * 60 * 60 * 1000 // 30 days
             : 24 * 60 * 60 * 1000;     // 24 hours
 
         const expiresAt = new Date(Date.now() + sessionDuration)
+        const { token, tokenHash } = createStudentSessionToken()
 
-        const session = await prisma.studentSession.create({
+        await prisma.studentSession.create({
             data: {
                 email,
                 studentId: student.id,
                 isVerified: true,
                 expiresAt,
-                token: crypto.randomUUID(),
+                token: tokenHash,
             },
         })
 
         const cookieStore = await cookies()
-        cookieStore.set('student_session_token', session.token, {
+        cookieStore.set('student_session_token', token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'lax',
@@ -73,7 +79,16 @@ export async function POST(req: Request) {
 
         return NextResponse.json({ success: true, studentId: student.id })
     } catch (err) {
-        console.error('Error in login route:', err)
+        if (err instanceof z.ZodError) {
+            return NextResponse.json(
+                { success: false, error: 'Invalid login payload' },
+                { status: 400 }
+            )
+        }
+        logger.error('Error in login route', {
+            errorType: err instanceof Error ? err.name : 'unknown',
+            errorMessage: err instanceof Error ? err.message : 'Unknown error',
+        })
         return NextResponse.json(
             { success: false, error: 'Something went wrong' },
             { status: 500 }

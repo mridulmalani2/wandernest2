@@ -2,11 +2,12 @@
 export const dynamic = 'force-dynamic'
 
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth-options'
-import { prisma } from '@/lib/prisma'
 import { acceptRequest } from '../../accept-request'
 import { withErrorHandler, AppError } from '@/lib/error-handler'
+import { enforceSameOrigin } from '@/lib/csrf'
+import { cuidSchema } from '@/lib/schemas/common'
+import { z } from 'zod'
+import { validateBody } from '@/lib/api-handler'
 
 async function acceptStudentRequest(
   req: NextRequest,
@@ -16,14 +17,7 @@ async function acceptStudentRequest(
   const { verifyStudent } = await import('@/lib/api-auth')
 
   // CSRF Protection: Strict Origin Check
-  const origin = req.headers.get('origin')
-  const host = req.headers.get('host')
-  const protocol = req.headers.get('x-forwarded-proto') || 'http'
-  const expectedOrigin = `${protocol}://${host}`
-
-  if (origin && origin !== expectedOrigin) {
-    throw new AppError(403, 'Forbidden: Invalid Origin', 'CSRF_ERROR')
-  }
+  enforceSameOrigin(req)
 
   const authResult = await verifyStudent(req)
 
@@ -35,7 +29,8 @@ async function acceptStudentRequest(
 
   // Call the shared acceptRequest helper using the authenticated student ID
   // AppErrors from helper will be caught by withErrorHandler wrapper
-  const result = await acceptRequest(params.requestId, authenticatedStudentId)
+  const { requestId } = validateBody(z.object({ requestId: cuidSchema }), { requestId: params.requestId })
+  const result = await acceptRequest(requestId, authenticatedStudentId)
 
   return NextResponse.json({
     success: true,

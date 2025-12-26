@@ -2,19 +2,28 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { cookies } from 'next/headers'
 import { sendWelcomeEmail } from '@/lib/email'
+import { z } from 'zod'
+import { emailSchema, phoneSchema } from '@/lib/schemas/common'
+import { sanitizeText } from '@/lib/sanitization'
+import { createStudentSessionToken } from '@/lib/student-auth'
+import { logger } from '@/lib/logger'
 
 export const dynamic = 'force-dynamic'
 
+const signupSchema = z.object({
+    email: emailSchema,
+    code: z.string().min(1).max(12),
+    name: z.string().trim().min(1).max(100).optional(),
+    phone: phoneSchema.optional(),
+    city: z.string().trim().min(1).max(100).optional(),
+});
+
 export async function POST(req: Request) {
     try {
-        const { email, code, name, phone, city } = await req.json()
-
-        if (!email || !code) {
-            return NextResponse.json(
-                { success: false, error: 'Email and code are required' },
-                { status: 400 }
-            )
-        }
+        const body = await req.json()
+        const { email, code, name, phone, city } = signupSchema.parse(body)
+        const sanitizedName = name ? sanitizeText(name, 100) : undefined
+        const sanitizedCity = city ? sanitizeText(city, 100) : undefined
 
         // 1. Verify OTP
         const now = new Date()
@@ -51,9 +60,9 @@ export async function POST(req: Request) {
             student = await prisma.student.create({
                 data: {
                     email,
-                    name: name || undefined,
+                    name: sanitizedName,
                     phoneNumber: phone || undefined,
-                    city: city || undefined,
+                    city: sanitizedCity,
                     status: 'PENDING_APPROVAL',
                     emailVerified: true, // OTP verified ownership
                     profileCompleteness: 10, // Arbitrary starting value
@@ -61,12 +70,13 @@ export async function POST(req: Request) {
             })
 
             // Send Welcome Email for new signups
-            console.log(`✨ New user signed up: ${email}. Sending welcome email...`);
             try {
                 await sendWelcomeEmail(email);
-                console.log(`✅ Welcome email sent to ${email}`);
             } catch (emailErr) {
-                console.error('❌ Failed to send welcome email:', emailErr);
+                logger.warn('Failed to send welcome email', {
+                    errorType: emailErr instanceof Error ? emailErr.name : 'unknown',
+                    errorMessage: emailErr instanceof Error ? emailErr.message : 'Unknown error',
+                });
             }
         } else {
             // If student exists, we might just update the basic info if it's missing?
@@ -76,9 +86,9 @@ export async function POST(req: Request) {
             student = await prisma.student.update({
                 where: { id: student.id },
                 data: {
-                    name: name || student.name,
+                    name: sanitizedName || student.name,
                     phoneNumber: phone || student.phoneNumber,
-                    city: city || student.city,
+                    city: sanitizedCity || student.city,
                     emailVerified: true,
                 }
             })
@@ -88,18 +98,19 @@ export async function POST(req: Request) {
         const sessionDuration = 24 * 60 * 60 * 1000 // 24 hours
         const expiresAt = new Date(Date.now() + sessionDuration)
 
-        const session = await prisma.studentSession.create({
+        const { token, tokenHash } = createStudentSessionToken()
+        await prisma.studentSession.create({
             data: {
                 email,
                 studentId: student.id, // Link to the student record
                 isVerified: true,
                 expiresAt,
-                token: crypto.randomUUID(),
+                token: tokenHash,
             },
         })
 
         const cookieStore = await cookies()
-        cookieStore.set('student_session_token', session.token, {
+        cookieStore.set('student_session_token', token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'lax',
@@ -109,7 +120,16 @@ export async function POST(req: Request) {
 
         return NextResponse.json({ success: true, studentId: student.id })
     } catch (err) {
-        console.error('Error in signup route:', err)
+        if (err instanceof z.ZodError) {
+            return NextResponse.json(
+                { success: false, error: 'Invalid signup payload' },
+                { status: 400 }
+            )
+        }
+        logger.error('Error in signup route', {
+            errorType: err instanceof Error ? err.name : 'unknown',
+            errorMessage: err instanceof Error ? err.message : 'Unknown error',
+        })
         return NextResponse.json(
             { success: false, error: 'Something went wrong processing signup' },
             { status: 500 }

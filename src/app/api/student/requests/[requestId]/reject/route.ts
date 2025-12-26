@@ -4,13 +4,17 @@ export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server'
 import { requireDatabase } from '@/lib/prisma'
 import { withErrorHandler, withDatabaseRetry, AppError } from '@/lib/error-handler'
+import { enforceSameOrigin } from '@/lib/csrf'
+import { cuidSchema } from '@/lib/schemas/common'
+import { validateBody } from '@/lib/api-handler'
+import { z } from 'zod'
 
 async function rejectStudentRequest(
   req: NextRequest,
   { params }: { params: { requestId: string } }
 ) {
   const db = requireDatabase();
-  const { requestId } = params
+  const { requestId } = validateBody(z.object({ requestId: cuidSchema }), params)
 
   // Use verifyStudent for standardized authentication
   const { verifyStudent } = await import('@/lib/api-auth')
@@ -22,7 +26,7 @@ async function rejectStudentRequest(
 
   const studentId = authResult.student.id;
 
-
+  enforceSameOrigin(req)
 
   // Get the RequestSelection for this student
   const selection = await withDatabaseRetry(async () =>
@@ -42,15 +46,33 @@ async function rejectStudentRequest(
     throw new AppError(400, 'You have already rejected this request', 'ALREADY_REJECTED')
   }
 
+  if (selection.status === 'accepted') {
+    throw new AppError(400, 'Cannot reject an already accepted request', 'ALREADY_ACCEPTED')
+  }
+
   // Update the selection to rejected
-  const updatedSelection = await withDatabaseRetry(async () =>
-    db.requestSelection.update({
-      where: { id: selection.id },
+  const updateResult = await withDatabaseRetry(async () =>
+    db.requestSelection.updateMany({
+      where: { id: selection.id, status: 'pending' },
       data: {
         status: 'rejected',
       },
     })
   )
+
+  if (updateResult.count === 0) {
+    throw new AppError(409, 'Request status changed. Please refresh.', 'STATUS_CHANGED')
+  }
+
+  const updatedSelection = await withDatabaseRetry(async () =>
+    db.requestSelection.findUnique({
+      where: { id: selection.id },
+    })
+  )
+
+  if (!updatedSelection) {
+    throw new AppError(500, 'Failed to update selection', 'SELECTION_UPDATE_FAILED')
+  }
 
   return NextResponse.json({
     message: 'Request rejected successfully',

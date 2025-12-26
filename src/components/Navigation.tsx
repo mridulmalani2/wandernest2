@@ -21,7 +21,7 @@ export default function Navigation({ variant = 'default', showBackButton = false
   const pathname = usePathname()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
-  const [studentSession, setStudentSession] = useState<{ email: string; name?: string | null } | null>(null)
+  const [studentSession, setStudentSession] = useState<{ displayName: string; name?: string | null } | null>(null)
   const isProduction =
     process.env.NEXT_PUBLIC_VERCEL_ENV === 'production' || process.env.NODE_ENV === 'production'
 
@@ -76,8 +76,9 @@ export default function Navigation({ variant = 'default', showBackButton = false
         if (!res.ok) return
 
         const data = await res.json()
-        if (isMounted && data.ok && data.email) {
-          setStudentSession({ email: data.email, name: data.student?.name })
+        if (isMounted && data.ok) {
+          const displayName = data.displayName || data.student?.name || 'Student'
+          setStudentSession({ displayName, name: data.student?.name })
         }
       } catch (error) {
         console.error('Failed to load student session', error)
@@ -224,7 +225,7 @@ export default function Navigation({ variant = 'default', showBackButton = false
                       {(session?.user?.name || studentSession?.name)?.charAt(0)?.toUpperCase() || <User className="w-4 h-4" />}
                     </div>
                     <span className="text-sm font-medium text-white max-w-[120px] truncate">
-                      {session?.user?.name || studentSession?.name || studentSession?.email}
+                      {session?.user?.name || studentSession?.name || studentSession?.displayName}
                     </span>
                   </div>
                   <Button
@@ -321,7 +322,7 @@ export default function Navigation({ variant = 'default', showBackButton = false
                     {(session?.user?.name || studentSession?.name)?.charAt(0)?.toUpperCase() || <User className="w-4 h-4" />}
                   </div>
                   <span className="text-sm font-medium text-white">
-                    {session?.user?.name || studentSession?.name || studentSession?.email}
+                    {session?.user?.name || studentSession?.name || studentSession?.displayName}
                   </span>
                 </div>
                 {session?.user?.userType === 'tourist' && (

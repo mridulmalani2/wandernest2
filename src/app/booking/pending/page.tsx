@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, Suspense } from 'react'
+import { useEffect, useState, Suspense, useRef, useCallback } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -28,6 +28,16 @@ interface RequestStatus {
   selectionsCount: number
 }
 
+const isValidStatusPayload = (payload: any): payload is RequestStatus => {
+  if (!payload || typeof payload !== 'object') return false
+  if (typeof payload.status !== 'string') return false
+  if (!payload.city || typeof payload.city !== 'string') return false
+  if (!payload.dates || typeof payload.dates.start !== 'string') return false
+  if (typeof payload.numberOfGuests !== 'number') return false
+  if (typeof payload.expiresAt !== 'string') return false
+  return true
+}
+
 function PendingContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
@@ -36,6 +46,43 @@ function PendingContent() {
   const [status, setStatus] = useState<RequestStatus | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const abortRef = useRef<AbortController | null>(null)
+  const isFetchingRef = useRef(false)
+
+  const fetchStatus = useCallback(async () => {
+    if (!requestId || isFetchingRef.current) return
+    isFetchingRef.current = true
+    abortRef.current?.abort()
+    const controller = new AbortController()
+    abortRef.current = controller
+
+    try {
+      const response = await fetch(`/api/tourist/request/status?requestId=${encodeURIComponent(requestId)}`, {
+        signal: controller.signal,
+      })
+
+      if (!response.ok) {
+        setError('Unable to load request status')
+        return
+      }
+
+      const data = await response.json()
+
+      if (data?.success && isValidStatusPayload(data.status)) {
+        setStatus(data.status)
+      } else {
+        setError('Unable to load request status')
+      }
+    } catch (err) {
+      if ((err as Error).name !== 'AbortError') {
+        console.error('Error fetching status:', err)
+        setError('Failed to load request status')
+      }
+    } finally {
+      setLoading(false)
+      isFetchingRef.current = false
+    }
+  }, [requestId])
 
   useEffect(() => {
     if (!requestId) {
@@ -44,30 +91,21 @@ function PendingContent() {
       return
     }
 
+    if (!/^[a-z0-9]+$/i.test(requestId)) {
+      setError('Invalid request ID provided')
+      setLoading(false)
+      return
+    }
+
     fetchStatus()
     // Poll every 10 seconds for status updates
     const interval = setInterval(fetchStatus, 10000)
 
-    return () => clearInterval(interval)
-  }, [requestId])
-
-  const fetchStatus = async () => {
-    try {
-      const response = await fetch(`/api/tourist/request/status?requestId=${requestId}`)
-      const data = await response.json()
-
-      if (data.success) {
-        setStatus(data.status)
-      } else {
-        setError(data.error)
-      }
-    } catch (err) {
-      console.error('Error fetching status:', err)
-      setError('Failed to load request status')
-    } finally {
-      setLoading(false)
+    return () => {
+      clearInterval(interval)
+      abortRef.current?.abort()
     }
-  }
+  }, [requestId, fetchStatus])
 
   if (loading) {
     return (

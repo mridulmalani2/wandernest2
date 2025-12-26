@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { cookies } from 'next/headers'
 import bcrypt from 'bcryptjs'
+import { getValidStudentSession, readStudentTokenFromRequest } from '@/lib/student-auth'
+import { logger } from '@/lib/logger'
 
 export const dynamic = 'force-dynamic'
 
@@ -10,8 +11,7 @@ export async function POST(req: Request) {
         const { password } = await req.json()
 
         // 1. Verify Session
-        const cookieStore = await cookies()
-        const token = cookieStore.get('student_session_token')?.value
+        const token = await readStudentTokenFromRequest(req)
 
         if (!token) {
             return NextResponse.json(
@@ -20,11 +20,9 @@ export async function POST(req: Request) {
             )
         }
 
-        const session = await prisma.studentSession.findUnique({
-            where: { token }
-        })
+        const session = await getValidStudentSession(token)
 
-        if (!session || session.expiresAt < new Date()) {
+        if (!session) {
             return NextResponse.json(
                 { success: false, error: 'Session expired' },
                 { status: 401 }
@@ -42,16 +40,23 @@ export async function POST(req: Request) {
         // So `include: { student: true }` will fail.
 
         // Manual fetch
-        if (!session.studentId) {
-            // If session is not linked to a student (e.g. old OTP session), we try to find student by email
-            const student = await prisma.student.findUnique({ where: { email: session.email } })
-            if (!student) {
+        let studentId = session.studentId
+        if (!studentId) {
+            if (!session.email) {
                 return NextResponse.json(
-                    { success: false, error: 'Student profile found' },
+                    { success: false, error: 'Student profile not found' },
                     { status: 404 }
                 )
             }
-            // Link it? Ideally yes, but for now just use it.
+
+            const student = await prisma.student.findUnique({ where: { email: session.email } })
+            if (!student) {
+                return NextResponse.json(
+                    { success: false, error: 'Student profile not found' },
+                    { status: 404 }
+                )
+            }
+            studentId = student.id
         }
 
         // 2. Validate Password Strength (Minimal)
@@ -68,13 +73,16 @@ export async function POST(req: Request) {
         // 4. Update Student
         // Use session.email as the reliable identifier
         await prisma.student.update({
-            where: { email: session.email },
+            where: { id: studentId },
             data: { passwordHash: hashedPassword }
         })
 
         return NextResponse.json({ success: true })
     } catch (err) {
-        console.error('Error in set-password route:', err)
+        logger.error('Error in set-password route', {
+            errorType: err instanceof Error ? err.name : 'unknown',
+            errorMessage: err instanceof Error ? err.message : 'Unknown error',
+        })
         return NextResponse.json(
             { success: false, error: 'Something went wrong' },
             { status: 500 }

@@ -4,10 +4,17 @@ export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server'
 import { requireDatabase } from '@/lib/prisma'
 import { verifyStudent } from '@/lib/api-auth'
+import { enforceSameOrigin } from '@/lib/csrf'
+import { z } from 'zod'
+import { cuidSchema } from '@/lib/schemas/common'
+import { validateBody } from '@/lib/api-handler'
+import { handleApiError } from '@/lib/error-handler'
 
 export async function POST(req: NextRequest) {
   try {
     const db = requireDatabase()
+
+    enforceSameOrigin(req)
 
     const authResult = await verifyStudent(req)
     if (!authResult.authorized || !authResult.student) {
@@ -18,15 +25,8 @@ export async function POST(req: NextRequest) {
     }
     const { email: studentEmail } = authResult.student
 
-    const body = await req.json()
-    const { requestId } = body
-
-    if (!requestId) {
-      return NextResponse.json(
-        { error: 'Request ID is required' },
-        { status: 400 }
-      )
-    }
+    const bodySchema = z.object({ requestId: cuidSchema })
+    const { requestId } = validateBody(bodySchema, await req.json())
 
     // SECURITY: Ensure student can only reject requests for themselves
     // Find student by email
@@ -73,22 +73,25 @@ export async function POST(req: NextRequest) {
     }
 
     // Update the RequestSelection status to rejected
-    await db.requestSelection.update({
-      where: { id: selection.id },
+    const updateResult = await db.requestSelection.updateMany({
+      where: { id: selection.id, status: 'pending' },
       data: {
         status: 'rejected',
       },
     })
+
+    if (updateResult.count === 0) {
+      return NextResponse.json(
+        { error: 'Request status changed. Please refresh.' },
+        { status: 409 }
+      )
+    }
 
     return NextResponse.json({
       success: true,
       message: 'Request rejected successfully',
     })
   } catch (error: unknown) {
-    console.error('Error rejecting request:', error)
-    return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Failed to reject request' },
-      { status: 500 }
-    )
+    return handleApiError(error, 'POST /api/student/requests/reject')
   }
 }

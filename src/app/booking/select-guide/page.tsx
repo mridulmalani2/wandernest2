@@ -253,7 +253,7 @@ function SelectGuideContent() {
 
       if (data.success) {
         // Redirect to confirmation page
-        router.push(`/booking/pending?requestId=${requestId}`)
+        router.push(`/booking/pending?requestId=${encodeURIComponent(requestId)}`)
       } else {
         setSubmitError(data.error || 'Failed to submit selection')
       }

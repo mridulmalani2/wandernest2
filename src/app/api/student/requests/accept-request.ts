@@ -5,8 +5,10 @@ import {
 } from '@/lib/email'
 import type { Prisma } from '@prisma/client'
 import { AppError } from '@/lib/error-handler'
+import { cuidSchema } from '@/lib/schemas/common'
 
 export async function acceptRequest(requestId: string, studentId: string) {
+  const parsedRequestId = cuidSchema.parse(requestId)
   // Ensure database is available
   const db = requireDatabase()
 
@@ -14,7 +16,7 @@ export async function acceptRequest(requestId: string, studentId: string) {
   const result = await db.$transaction(async (tx: Prisma.TransactionClient) => {
     // Get the tourist request
     const touristRequest = await tx.touristRequest.findUnique({
-      where: { id: requestId },
+      where: { id: parsedRequestId },
     })
 
     if (!touristRequest) {
@@ -34,7 +36,7 @@ export async function acceptRequest(requestId: string, studentId: string) {
     // Get the RequestSelection for this student
     const selection = await tx.requestSelection.findFirst({
       where: {
-        requestId,
+        requestId: parsedRequestId,
         studentId,
       },
     })
@@ -45,6 +47,9 @@ export async function acceptRequest(requestId: string, studentId: string) {
 
     if (selection.status === 'accepted') {
       throw new AppError(400, 'You have already accepted this request', 'ALREADY_ACCEPTED')
+    }
+    if (selection.status === 'rejected') {
+      throw new AppError(400, 'You have already rejected this request', 'ALREADY_REJECTED')
     }
 
     // Get student details
@@ -61,18 +66,30 @@ export async function acceptRequest(requestId: string, studentId: string) {
     }
 
     // Update the selection to accepted
-    const updatedSelection = await tx.requestSelection.update({
-      where: { id: selection.id },
+    const updatedSelectionResult = await tx.requestSelection.updateMany({
+      where: { id: selection.id, status: 'pending' },
       data: {
         status: 'accepted',
         acceptedAt: new Date(),
       },
     })
 
+    if (updatedSelectionResult.count === 0) {
+      throw new AppError(409, 'Request status changed. Please refresh.', 'STATUS_CHANGED')
+    }
+
+    const updatedSelection = await tx.requestSelection.findUnique({
+      where: { id: selection.id },
+    })
+
+    if (!updatedSelection) {
+      throw new AppError(500, 'Failed to update selection', 'SELECTION_UPDATE_FAILED')
+    }
+
     // Reject all other selections for this request
     await tx.requestSelection.updateMany({
       where: {
-        requestId,
+        requestId: parsedRequestId,
         id: { not: selection.id },
       },
       data: {
@@ -82,17 +99,29 @@ export async function acceptRequest(requestId: string, studentId: string) {
 
     // Atomic Update: Ensure request is still PENDING and not expired at the moment of update
     // This prevents race conditions where two students accept simultaneously
-    const updatedRequest = await tx.touristRequest.update({
+    const updateRequestResult = await tx.touristRequest.updateMany({
       where: {
-        id: requestId,
+        id: parsedRequestId,
         status: 'PENDING',
-        expiresAt: { gt: new Date() } // Ensure not expired
+        expiresAt: { gt: new Date() }, // Ensure not expired
       },
       data: {
         status: 'ACCEPTED',
         assignedStudentId: studentId,
       },
     })
+
+    if (updateRequestResult.count === 0) {
+      throw new AppError(409, 'Request is no longer available', 'REQUEST_UNAVAILABLE')
+    }
+
+    const updatedRequest = await tx.touristRequest.findUnique({
+      where: { id: parsedRequestId },
+    })
+
+    if (!updatedRequest) {
+      throw new AppError(500, 'Failed to update request', 'REQUEST_UPDATE_FAILED')
+    }
 
     // If update fails (e.g. record not found because status changed or expired), it throws P2025
     // We catch this implicitly via the transaction failure or explicit check if we used updateMany (but update throws on missing).

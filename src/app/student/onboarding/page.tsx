@@ -24,7 +24,7 @@ export default function StudentOnboarding() {
         // ✅ Check our custom OTP session
         const res = await fetch('/api/student/auth/session-status');
 
-        if (!res.ok) {
+        if (res.status === 401) {
           router.push('/student/signin');
           return;
         }
@@ -43,15 +43,10 @@ export default function StudentOnboarding() {
           return;
         }
 
-        const email =
-          data.email ??
-          data.student?.email ??
-          null;
-
         // Create a session-like object for the wizard
         setSessionLike({
           user: {
-            email,
+            email: '',
             userType: 'student',
             name: data.student?.name ?? null,
           },

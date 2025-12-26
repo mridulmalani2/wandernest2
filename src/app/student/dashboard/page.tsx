@@ -46,8 +46,11 @@ export default function StudentDashboard() {
           const res = await fetch('/api/student/auth/session-status', {
             signal: controller.signal
           });
-          const data = await res.json();
-          if (data.ok) {
+          if (res.status === 401) {
+            isAuthenticated = false;
+          } else {
+            const data = await res.json();
+            if (data.ok) {
             isAuthenticated = true;
             if (data.student?.profileCompleteness !== undefined) {
               setProfileCompleteness(data.student.profileCompleteness);
@@ -55,6 +58,7 @@ export default function StudentDashboard() {
             if (data.student?.status) {
               setStudentStatus(data.student.status);
             }
+          }
           }
         } catch (error: any) {
           if (error.name !== 'AbortError') {
@@ -107,9 +111,11 @@ export default function StudentDashboard() {
             // For this iteration, let's assume session check covers it or we add a call.
             // Let's add a lightweight status check call here if we don't have it.
             const statusRes = await fetch('/api/student/auth/session-status', { signal: controller.signal });
-            const statusData = await statusRes.json();
-            if (statusData.student?.status) {
-              setStudentStatus(statusData.student.status);
+            if (statusRes.ok) {
+              const statusData = await statusRes.json();
+              if (statusData.student?.status) {
+                setStudentStatus(statusData.student.status);
+              }
             }
           }
         }

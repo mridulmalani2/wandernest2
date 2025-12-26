@@ -204,23 +204,19 @@ export async function GET(req: NextRequest) {
       await db.$transaction(async (tx) => {
         // 1. Atomic Update: Try to claim the request (must be PENDING)
         // This prevents race condition where multiple students accept locally
-        try {
-          await tx.touristRequest.update({
-            where: {
-              id: requestId,
-              status: 'PENDING' // Crucial: Atomic check
-            },
-            data: {
-              status: 'ACCEPTED',
-              assignedStudentId: studentId,
-            },
-          })
-        } catch (error: any) {
-          // Prisma error P2025 means 'Record to update not found', which implies status != PENDING
-          if (error.code === 'P2025') {
-            throw new Error('ALREADY_MATCHED');
-          }
-          throw error;
+        const updateResult = await tx.touristRequest.updateMany({
+          where: {
+            id: requestId,
+            status: 'PENDING' // Crucial: Atomic check
+          },
+          data: {
+            status: 'ACCEPTED',
+            assignedStudentId: studentId,
+          },
+        })
+
+        if (updateResult.count === 0) {
+          throw new Error('ALREADY_MATCHED');
         }
 
         console.log(`[match/respond] Updated TouristRequest ${requestId} to 'ACCEPTED'`)
