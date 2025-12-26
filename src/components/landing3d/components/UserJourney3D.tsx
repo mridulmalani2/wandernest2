@@ -313,11 +313,11 @@ export default function UserJourney3D({ onStudentClick }: { onStudentClick?: () 
 
   return (
     <div className="relative py-16 md:py-20">
-      {/* Background glow */}
+      {/* Subtle accent glow that complements the Paris background */}
       <div
         className="absolute inset-0 transition-all duration-700 pointer-events-none"
         style={{
-          background: `radial-gradient(ellipse 80% 50% at 50% 50%, ${currentSection.accentColor}15 0%, transparent 70%)`,
+          background: `radial-gradient(ellipse 60% 40% at 50% 50%, ${currentSection.accentColor}10 0%, transparent 60%)`,
         }}
       />
 

@@ -29,8 +29,8 @@ const CARDS: CardData[] = [
     title: 'STUDENT',
     subtitle: '',
     href: '/student',
-    image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1920&q=85',
-    imageAlt: 'Confident young professional in urban environment',
+    image: 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=1920&q=85',
+    imageAlt: 'University campus with students in an urban setting',
     delay: 0,
   },
   {

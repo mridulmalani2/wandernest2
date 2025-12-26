@@ -18,13 +18,10 @@ interface HeroSectionPhasedProps {
 /**
  * HeroSectionPhased - Hero content with phase-based animations
  *
- * Animation Phases:
- * 0: Initial state - nothing visible
- * 1: Title "Experience Authentic Travel" fades in
- * 2: Subtitle "with Local Student Guides" animates in
- * 3: Description text appears
- * 4: CTA cards animate into position (handled by PathwayCards)
- * 5: Complete - ready for normal scroll
+ * Simplified Animation Phases (step-based):
+ * 0: Initial state - nothing visible (scroll indicator shown in parent)
+ * 1: All text visible at once (title, subtitle, description)
+ * 2: Text fades out, CTA cards appear (frozen state)
  */
 
 // Decorative floating orbs
@@ -135,40 +132,36 @@ export function HeroSectionPhased({
 }: HeroSectionPhasedProps) {
   const groupRef = useRef<Group>(null)
 
-  // Calculate visibility for each element based on phase
-  // Text should fade OUT during phase 3-4 to avoid overlapping CTA cards
+  // Calculate visibility for each element based on simplified phase system
+  // Phase 0: Nothing visible, Phase 1: All text visible, Phase 2: Text fades out
   const titleOpacity = useMemo(() => {
-    if (currentPhase < 1) return phaseProgress * 0.3
-    if (currentPhase === 1) return 0.3 + phaseProgress * 0.7
-    if (currentPhase === 2) return 1
-    // Start fading out during phase 3, gone by phase 4
-    if (currentPhase === 3) return 1 - phaseProgress * 0.7
-    if (currentPhase >= 4) return 0.3 - phaseProgress * 0.3
+    if (currentPhase === 0) return 0
+    if (currentPhase === 1) return 1
+    if (currentPhase >= 2) return 0 // Fade out when cards appear
     return 0
-  }, [currentPhase, phaseProgress])
+  }, [currentPhase])
 
   const subtitleOpacity = useMemo(() => {
-    if (currentPhase < 2) return 0
-    if (currentPhase === 2) return phaseProgress
-    // Fade out faster than title
-    if (currentPhase === 3) return 1 - phaseProgress * 0.8
-    if (currentPhase >= 4) return 0.2 - phaseProgress * 0.2
+    if (currentPhase === 0) return 0
+    if (currentPhase === 1) return 1
+    if (currentPhase >= 2) return 0 // Fade out when cards appear
     return 0
-  }, [currentPhase, phaseProgress])
+  }, [currentPhase])
 
   const descriptionOpacity = useMemo(() => {
-    if (currentPhase < 3) return 0
-    if (currentPhase === 3) return phaseProgress * 0.8 // Fade in but not fully
-    // Fade out immediately when CTA cards start appearing
-    if (currentPhase >= 4) return (0.8 - phaseProgress * 0.8)
+    if (currentPhase === 0) return 0
+    if (currentPhase === 1) return 0.8
+    if (currentPhase >= 2) return 0 // Fade out when cards appear
     return 0
-  }, [currentPhase, phaseProgress])
+  }, [currentPhase])
 
   // For orbs visibility
   const orbsVisibility = useMemo(() => {
-    if (currentPhase < 1) return 0
-    return Math.min(1, (currentPhase - 1 + phaseProgress) / 2)
-  }, [currentPhase, phaseProgress])
+    if (currentPhase === 0) return 0
+    if (currentPhase === 1) return 1
+    if (currentPhase >= 2) return 0 // Hide with text
+    return 0
+  }, [currentPhase])
 
   // Fade out when transitioning to normal scroll
   const fadeOutProgress = useMemo(() => {
@@ -177,33 +170,27 @@ export function HeroSectionPhased({
     return Math.max(0, 1 - totalProgress * 2)
   }, [isHijackComplete, totalProgress])
 
-  // Entrance/exit animation progress - text moves up as it fades out
+  // Entrance/exit animation progress - simplified for step-based phases
   const titleEntranceY = useMemo(() => {
-    if (currentPhase < 1) return 30
-    if (currentPhase === 1) return 30 * (1 - phaseProgress)
-    if (currentPhase === 2) return 0
-    // Move up as it fades out
-    if (currentPhase === 3) return -phaseProgress * 40
-    if (currentPhase >= 4) return -40 - phaseProgress * 20
-    return -60
-  }, [currentPhase, phaseProgress])
+    if (currentPhase === 0) return 30 // Start below
+    if (currentPhase === 1) return 0  // In position
+    if (currentPhase >= 2) return -40 // Move up when fading out
+    return 0
+  }, [currentPhase])
 
   const subtitleEntranceY = useMemo(() => {
-    if (currentPhase < 2) return 20
-    if (currentPhase === 2) return 20 * (1 - phaseProgress)
-    // Move up faster than title
-    if (currentPhase === 3) return -phaseProgress * 50
-    if (currentPhase >= 4) return -50 - phaseProgress * 30
-    return -80
-  }, [currentPhase, phaseProgress])
+    if (currentPhase === 0) return 20 // Start below
+    if (currentPhase === 1) return 0  // In position
+    if (currentPhase >= 2) return -30 // Move up when fading out
+    return 0
+  }, [currentPhase])
 
   const descriptionEntranceY = useMemo(() => {
-    if (currentPhase < 3) return 15
-    if (currentPhase === 3) return 15 * (1 - phaseProgress) - phaseProgress * 30
-    // Move up immediately when CTA appears
-    if (currentPhase >= 4) return -30 - phaseProgress * 40
-    return -70
-  }, [currentPhase, phaseProgress])
+    if (currentPhase === 0) return 15 // Start below
+    if (currentPhase === 1) return 0  // In position
+    if (currentPhase >= 2) return -20 // Move up when fading out
+    return 0
+  }, [currentPhase])
 
   // Scale effect
   const scale = useMemo(() => {
@@ -289,11 +276,11 @@ export function HeroSectionPhased({
           <div
             className="mx-auto bg-gradient-to-r from-blue-400 to-purple-400 rounded-full"
             style={{
-              width: `${Math.min(1, (currentPhase >= 2 ? 1 : 0) + (currentPhase === 2 ? phaseProgress : 0)) * 120}px`,
+              width: `${currentPhase === 1 ? 120 : 0}px`,
               height: '3px',
               opacity: subtitleOpacity * 0.7,
               marginBottom: '1.5em',
-              transition: 'width 0.5s ease-out',
+              transition: 'width 0.5s ease-out, opacity 0.4s ease-out',
             }}
           />
 
@@ -320,7 +307,7 @@ export function HeroSectionPhased({
         position={[0, -0.8, 0]}
         width={2.5}
         opacity={overallOpacity * 0.5}
-        progress={currentPhase >= 2 ? 1 : currentPhase === 1 ? phaseProgress : 0}
+        progress={currentPhase === 1 ? 1 : 0}
       />
     </group>
   )
