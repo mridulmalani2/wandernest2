@@ -6,6 +6,7 @@ export const runtime = 'nodejs'
 import { NextRequest, NextResponse } from 'next/server'
 import { requireDatabase } from '@/lib/prisma'
 import { verifyAdmin } from '@/lib/api-auth'
+import { z } from 'zod'
 
 // Get all reports with optional filtering
 export async function GET(request: NextRequest) {
@@ -91,19 +92,30 @@ export async function PATCH(request: NextRequest) {
 
     const db = requireDatabase()
 
-    const { reportId, status } = await request.json()
-
-    if (!reportId || !status) {
+    const body = await request.json().catch(() => null)
+    const schema = z.object({
+      reportId: z.string().cuid(),
+      status: z.enum(['pending', 'reviewed', 'resolved']),
+    })
+    const parsed = schema.safeParse(body)
+    if (!parsed.success) {
       return NextResponse.json(
-        { error: 'Report ID and status are required' },
+        { error: 'Invalid request payload' },
         { status: 400 }
       )
     }
 
-    if (!['pending', 'reviewed', 'resolved'].includes(status)) {
+    const { reportId, status } = parsed.data
+
+    const existingReport = await db.report.findUnique({
+      where: { id: reportId },
+      select: { id: true },
+    })
+
+    if (!existingReport) {
       return NextResponse.json(
-        { error: 'Invalid status' },
-        { status: 400 }
+        { error: 'Report not found' },
+        { status: 404 }
       )
     }
 
