@@ -192,7 +192,7 @@ export function sanitizeObject<T extends Record<string, any>>(
       continue;
     }
     const value = sanitized[field];
-    if (typeof value === 'string' || value instanceof String) {
+    if (typeof value === 'string' || (typeof value === 'object' && value instanceof String)) {
       sanitized[field] = sanitizeText(String(value), maxLength) as T[keyof T];
     }
   }
