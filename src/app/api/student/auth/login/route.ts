@@ -6,6 +6,7 @@ import { z } from 'zod'
 import { emailSchema } from '@/lib/schemas/common'
 import { createStudentSessionToken } from '@/lib/student-auth'
 import { logger } from '@/lib/logger'
+import { isZodError } from '@/lib/error-handler'
 
 export const dynamic = 'force-dynamic'
 
@@ -79,7 +80,7 @@ export async function POST(req: Request) {
 
         return NextResponse.json({ success: true, studentId: student.id })
     } catch (err) {
-        if (err instanceof z.ZodError) {
+        if (isZodError(err)) {
             return NextResponse.json(
                 { success: false, error: 'Invalid login payload' },
                 { status: 400 }

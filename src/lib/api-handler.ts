@@ -25,10 +25,10 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { ZodError, z } from 'zod';
+import { z } from 'zod';
 import { verifyAdmin, verifyStudent, verifyTourist } from './api-auth';
 import { requireDatabase } from './prisma';
-import { AppError, handleApiError } from './error-handler';
+import { AppError, handleApiError, isZodError } from './error-handler';
 import { logger } from './logger';
 import { sanitizeText } from './sanitization';
 
@@ -263,7 +263,7 @@ export function createApiHandler<
         try {
           validatedQuery = querySchema.parse(rawQuery);
         } catch (error) {
-          if (error instanceof ZodError) {
+          if (isZodError(error)) {
             logger.warn(`[${requestId}] ${route} - Query validation failed`, {
               errors: error.errors,
             });
@@ -285,7 +285,7 @@ export function createApiHandler<
           const rawBody = await req.json();
           validatedBody = bodySchema.parse(rawBody);
         } catch (error) {
-          if (error instanceof ZodError) {
+          if (isZodError(error)) {
             logger.warn(`[${requestId}] ${route} - Body validation failed`, {
               errors: error.errors,
             });
@@ -406,7 +406,7 @@ export function validateBody<T>(schema: z.ZodType<T, any, any>, data: unknown): 
   try {
     return schema.parse(data);
   } catch (error) {
-    if (error instanceof ZodError) {
+    if (isZodError(error)) {
       // SECURITY FIX: Sanitize error details to prevent exposing raw Zod validation
       // structure which could reveal internal schema details or input values
       const sanitizedErrors = error.errors.map(err => ({
@@ -427,7 +427,7 @@ export function parseQuery<T>(schema: z.ZodType<T, any, any>, req: NextRequest):
   try {
     return schema.parse(params);
   } catch (error) {
-    if (error instanceof ZodError) {
+    if (isZodError(error)) {
       // SECURITY FIX: Sanitize error details consistently
       const sanitizedErrors = error.errors.map(err => ({
         path: err.path.join('.'),

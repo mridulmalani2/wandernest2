@@ -24,9 +24,28 @@ export class AppError extends Error {
     public code?: string,
     public details?: unknown
   ) {
-    super(message);
+    super(String(message));
     this.name = 'AppError';
+    if (process.env.NODE_ENV === 'production') {
+      this.details = undefined;
+    }
   }
+}
+
+export function isZodError(error: unknown): error is ZodError {
+  return (
+    !!error &&
+    typeof error === 'object' &&
+    (error as { name?: string }).name === 'ZodError' &&
+    Array.isArray((error as { errors?: unknown }).errors)
+  );
+}
+
+function formatZodErrors(error: ZodError): Array<{ path: string; message: string }> {
+  return error.errors.map((err) => ({
+    path: err.path.join('.'),
+    message: err.message,
+  }));
 }
 
 /**
@@ -42,14 +61,17 @@ export function logError(error: unknown, context?: string): void {
     errorContext.code = error.code;
     errorContext.statusCode = error.statusCode;
     logger.error(error.message, errorContext);
-  } else if (error instanceof ZodError) {
-    errorContext.validationErrors = error.errors.map((e) => ({
-      path: e.path.join('.'),
-      message: e.message,
-    }));
+  } else if (isZodError(error)) {
+    if (process.env.NODE_ENV !== 'production') {
+      errorContext.validationErrors = formatZodErrors(error);
+    } else {
+      errorContext.validationErrorCount = error.errors.length;
+    }
     logger.warn('Validation error', errorContext);
   } else if (error instanceof Prisma.PrismaClientKnownRequestError) {
-    errorContext.prismaCode = error.code;
+    if (process.env.NODE_ENV !== 'production') {
+      errorContext.prismaCode = error.code;
+    }
     // Don't log full error message in production (may contain sensitive data)
     logger.error('Database error', errorContext);
   } else if (error instanceof Error) {
@@ -72,7 +94,7 @@ function sanitizeErrorMessage(error: unknown): string {
     return error.message;
   }
 
-  if (error instanceof ZodError) {
+  if (isZodError(error)) {
     return 'Validation failed. Please check your input.';
   }
 
@@ -112,7 +134,7 @@ function getStatusCode(error: unknown): number {
     return error.statusCode;
   }
 
-  if (error instanceof ZodError) {
+  if (isZodError(error)) {
     return 400;
   }
 
@@ -159,11 +181,8 @@ function buildErrorResponse(error: unknown, includeDetails = false): ErrorRespon
 
   // Include validation details for ZodErrors (safe to show validation issues)
   // But strictly filter "details" for other errors
-  if (error instanceof ZodError) {
-    response.details = error.errors.map(err => ({
-      path: err.path.join('.'),
-      message: err.message,
-    }));
+  if (includeDetails && isZodError(error)) {
+    response.details = formatZodErrors(error);
   }
 
   // Include custom error details only if specifically allowed (dev mode or AppError)
@@ -232,23 +251,50 @@ export async function withDatabaseRetry<T>(
 ): Promise<T> {
   let lastError: unknown = new Error('Database retry loop did not execute');
 
+  const transientErrorCodes = new Set([
+    'ECONNREFUSED',
+    'ETIMEDOUT',
+    'ENOTFOUND',
+    'ECONNRESET',
+    'EAI_AGAIN',
+    'EPIPE',
+    'EHOSTUNREACH',
+    'ENETUNREACH',
+  ]);
+
   for (let attempt = 1; attempt <= Math.max(1, maxRetries); attempt++) {
     try {
       return await operation();
     } catch (error) {
       lastError = error;
 
+      const errorCode =
+        typeof error === 'object' && error !== null && 'code' in error
+          ? String((error as { code?: unknown }).code)
+          : undefined;
+
       // Only retry on transient errors
       const shouldRetry =
         error instanceof Prisma.PrismaClientInitializationError ||
         error instanceof Prisma.PrismaClientUnknownRequestError ||
+        error instanceof Prisma.PrismaClientRustPanicError ||
         (error instanceof Error &&
-          (error.message.includes('ECONNREFUSED') ||
+          (transientErrorCodes.has(errorCode ?? '') ||
+            error.message.includes('ECONNREFUSED') ||
             error.message.includes('ETIMEDOUT') ||
-            error.message.includes('ENOTFOUND')));
+            error.message.includes('ENOTFOUND') ||
+            error.message.includes('ECONNRESET')));
 
       if (!shouldRetry || attempt === maxRetries) {
-        throw error;
+        if (error instanceof AppError) {
+          throw error;
+        }
+
+        throw new AppError(
+          getStatusCode(error),
+          sanitizeErrorMessage(error),
+          error instanceof Prisma.PrismaClientKnownRequestError ? error.code : 'DB_OPERATION_FAILED'
+        );
       }
 
       // Wait before retrying (exponential backoff)
@@ -261,22 +307,31 @@ export async function withDatabaseRetry<T>(
     }
   }
 
-  throw lastError;
+  if (lastError instanceof AppError) {
+    throw lastError;
+  }
+
+  throw new AppError(
+    getStatusCode(lastError),
+    sanitizeErrorMessage(lastError),
+    lastError instanceof Prisma.PrismaClientKnownRequestError ? lastError.code : 'DB_OPERATION_FAILED'
+  );
 }
 
 /**
  * Validation helper that throws AppError on validation failure
  */
-export function validateOrThrow<T>(
-  schema: { parse: (data: unknown) => T },
+export async function validateOrThrow<T>(
+  schema: { parse: (data: unknown) => T | Promise<T> },
   data: unknown,
   message = 'Validation failed'
-): T {
+): Promise<T> {
   try {
-    return schema.parse(data);
+    const result = schema.parse(data);
+    return await Promise.resolve(result);
   } catch (error) {
-    if (error instanceof ZodError) {
-      throw new AppError(400, message, 'VALIDATION_ERROR', error.errors);
+    if (isZodError(error)) {
+      throw new AppError(400, message, 'VALIDATION_ERROR', formatZodErrors(error));
     }
     throw error;
   }

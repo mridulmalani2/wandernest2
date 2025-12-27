@@ -6,6 +6,7 @@ import { z } from 'zod'
 import { generateVerificationCode } from '@/lib/utils'
 import { deleteVerificationCode, storeVerificationCode } from '@/lib/redis'
 import { sendVerificationEmail } from '@/lib/email'
+import { isZodError } from '@/lib/error-handler'
 import { checkRateLimit, hashIdentifier } from '@/lib/rate-limit'
 import { sanitizeEmail } from '@/lib/sanitization'
 
@@ -114,7 +115,7 @@ export async function POST(req: NextRequest) {
       { status: 200 }
     )
   } catch (error) {
-    if (error instanceof z.ZodError) {
+    if (isZodError(error)) {
       return NextResponse.json(
         {
           success: false,

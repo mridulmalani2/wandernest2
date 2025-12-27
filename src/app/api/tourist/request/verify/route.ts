@@ -15,6 +15,7 @@ import {
 import { sendBookingConfirmation } from '@/lib/email'
 import { autoMatchAndInvite } from '@/lib/matching/autoMatch'
 import { sanitizeEmail } from '@/lib/sanitization'
+import { isZodError } from '@/lib/error-handler'
 
 // Validation schema for the verify request
 const verifySchema = z.object({
@@ -183,7 +184,7 @@ export async function POST(req: NextRequest) {
       { status: 201 }
     )
   } catch (error) {
-    if (error instanceof z.ZodError) {
+    if (isZodError(error)) {
       return NextResponse.json(
         {
           success: false,

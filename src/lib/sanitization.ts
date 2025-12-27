@@ -352,16 +352,21 @@ export function isValidTimeZone(value: string): boolean {
  * Escape special regex characters in a string
  * Useful when using user input in regex patterns
  */
-export function escapeRegex(str: string): string {
+export function escapeRegex(input: unknown): string {
+  const str = typeof input === 'string' ? input : input == null ? '' : String(input);
   return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 /**
  * Sanitize filename to prevent directory traversal attacks
  */
-export function sanitizeFilename(filename: string): string {
-  // Windows reserved names
-  const reserved = /^(con|prn|aux|nul|com[0-9]|lpt[0-9])$/i;
+export function sanitizeFilename(filename: unknown): string {
+  if (typeof filename !== 'string') {
+    return `file_${Date.now()}`;
+  }
+
+  // Windows reserved names (including extensions like "con.txt")
+  const reserved = /^(con|prn|aux|nul|com[0-9]|lpt[0-9])(\..*)?$/i;
 
   // Remove path separators and dangerous characters
   const sanitized = truncateUnicodeSafe(
