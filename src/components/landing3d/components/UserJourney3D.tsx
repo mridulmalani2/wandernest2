@@ -1,15 +1,22 @@
 'use client'
 
-import { useRef, useState, useCallback, useEffect } from 'react'
+import { useRef, useState, useEffect, useCallback } from 'react'
 import Image from 'next/image'
+import {
+  motion,
+  useMotionValue,
+  useAnimation,
+  useTransform,
+  PanInfo,
+  animate,
+  useMotionValueEvent
+} from 'framer-motion'
 
 /**
- * UserJourney3D - Horizontal 3D Carousel
+ * UserJourney3D - Fluid Physics Carousel
  *
- * A gamified horizontal carousel showing USPs:
- * - Current section is centered and fully visible
- * - Adjacent sections visible with glassmorphic blur
- * - Horizontal scroll/swipe to navigate
+ * Uses Framer Motion for 1:1 direct manipulation, inertia, and spring physics.
+ * Cards exist in a continuous unbounded space and wrap visually around the center.
  */
 
 interface JourneySection {
@@ -66,106 +73,116 @@ const journeySections: JourneySection[] = [
   },
 ]
 
-interface CardProps {
-  section: JourneySection
-  isActive: boolean
-  offset: number // -2, -1, 0, 1, 2
-  onClick: () => void
-  index: number
-  totalCards: number
-  onActionClick?: () => void
+// Constants
+const DRAG_FACTOR = 0.5 // Damping for horizontal 2-finger scroll
+const CARD_WIDTH = 400  // Width of card "slot" in pixels
+const SNAP_THRESHOLD = 50 // Pixels to drag before committed to snap to next
+
+// Helper to wrap value within a range [min, max)
+const wrap = (min: number, max: number, v: number) => {
+  const rangeSize = max - min
+  return ((((v - min) % rangeSize) + rangeSize) % rangeSize) + min
 }
 
-function JourneyCard({ section, isActive, offset, onClick, index, totalCards, onActionClick }: CardProps) {
+interface CardProps {
+  section: JourneySection
+  index: number
+  x: any // MotionValue<number>
+  total: number
+  onActionClick?: () => void
+  onCardClick: (index: number) => void // Used to snap to clicked card
+}
+
+function JourneyCard({ section, index, x, total, onActionClick, onCardClick }: CardProps) {
   const isStudentCard = section.id === 'student'
 
-  // Calculate visual properties based on offset
-  const getCardStyle = () => {
-    const absOffset = Math.abs(offset)
+  // Create a transform that maps the global `x` to this card's local properties.
+  // We need to calculate the card's position relative to the center *with wrapping*.
+  //
+  // Center of viewport is 0.
+  // Card's "base" position is index * CARD_WIDTH.
+  // Current scroll is x.
+  // Raw position = base + x.
+  // Wrapped position lies within [-totalWidth/2, totalWidth/2].
 
-    // Position calculation
-    const baseTranslate = offset * 380 // px between cards
+  const totalWidth = total * CARD_WIDTH
 
-    // Scale based on distance from center
-    const scale = offset === 0 ? 1 : absOffset === 1 ? 0.88 : 0.75
+  const childX = useTransform(x, (latestX: number) => {
+    // 1. Where is the card naturally?
+    const basePos = index * CARD_WIDTH
+    // 2. Add scroll
+    let pos = basePos + latestX
+    // 3. Wrap it so it stays within expected bounds around the center (0)
+    // We want the range [-totalWidth/2, totalWidth/2]
+    pos = wrap(-totalWidth / 2, totalWidth / 2, pos)
+    return pos
+  })
 
-    // Rotation for 3D effect
-    const rotateY = offset === 0 ? 0 : offset > 0 ? -15 : 15
+  // Derive visual props from childX (distance from center 0)
+  const scale = useTransform(childX, [-CARD_WIDTH, 0, CARD_WIDTH], [0.8, 1, 0.8])
+  const rotateY = useTransform(childX, [-CARD_WIDTH, 0, CARD_WIDTH], [15, 0, -15])
+  const opacity = useTransform(childX, [-CARD_WIDTH, 0, CARD_WIDTH], [0.5, 1, 0.5])
+  const zIndex = useTransform(childX, (latestX) => {
+    // Higher z-index when closer to 0
+    return Math.round(100 - Math.abs(latestX) / 10)
+  })
+  const blur = useTransform(childX, [-CARD_WIDTH, 0, CARD_WIDTH], ['4px', '0px', '4px'])
+  const brightness = useTransform(childX, [-CARD_WIDTH, 0, CARD_WIDTH], [0.6, 1, 0.6])
 
-    // Opacity
-    const opacity = offset === 0 ? 1 : absOffset === 1 ? 0.7 : 0.4
-
-    // Z-index (center card on top)
-    const zIndex = 10 - absOffset
-
-    // Blur for non-active cards
-    const blur = offset === 0 ? 0 : absOffset === 1 ? 2 : 6
-
-    return {
-      transform: `translateX(${baseTranslate}px) scale(${scale}) rotateY(${rotateY}deg)`,
-      opacity,
-      zIndex,
-      filter: blur > 0 ? `blur(${blur}px)` : 'none',
+  // Click handler to snap this card to center
+  const handleClick = useCallback(() => {
+    // Determine the current visual offset
+    const currentPos = childX.get()
+    // If it's close to center (e.g. < 10px), treat as active click (e.g. CTA)
+    if (Math.abs(currentPos) < 20) {
+      if (isStudentCard && onActionClick) {
+        onActionClick()
+      } else if (isStudentCard) {
+        window.location.href = '/student'
+      }
+      return
     }
-  }
-
-  const style = getCardStyle()
+    // Otherwise, request snap to this card
+    onCardClick(index)
+  }, [childX, index, isStudentCard, onActionClick, onCardClick])
 
   return (
-    <div
-      className={`absolute left-1/2 top-0 w-[340px] md:w-[380px] -ml-[170px] md:-ml-[190px] transition-all duration-500 ease-out ${isActive ? 'cursor-default' : 'cursor-pointer'
-        }`}
+    <motion.div
       style={{
-        ...style,
-        transformStyle: 'preserve-3d',
+        x: childX,
+        y: '-50%', // Center vertically
+        scale,
+        rotateY,
+        opacity,
+        zIndex,
+        filter: useTransform(blur, (b) => `blur(${b}) brightness(${brightness.get()})`),
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        marginLeft: -190, // Half of card width (380px)
+        width: 380,
       }}
-      onClick={!isActive ? onClick : undefined}
+      className="cursor-grab active:cursor-grabbing"
+      onClick={handleClick}
     >
-      {/* Card Container */}
       <div
-        className="relative rounded-3xl overflow-hidden"
-        style={{
-          background: isActive
-            ? `linear-gradient(145deg, ${section.accentColor}20, ${section.secondaryColor}15, rgba(10,10,26,0.95))`
-            : 'rgba(20, 20, 40, 0.8)',
-          border: `1px solid ${isActive ? section.accentColor + '50' : 'rgba(255,255,255,0.1)'}`,
-          boxShadow: isActive
-            ? `0 25px 60px -15px rgba(0,0,0,0.5), 0 0 60px ${section.accentColor}25, inset 0 1px 0 rgba(255,255,255,0.1)`
-            : '0 15px 40px -10px rgba(0,0,0,0.4)',
-        }}
+        className="relative rounded-3xl overflow-hidden shadow-2xl border border-white/10 bg-[#1a1a2e]"
       >
-        {/* Image Section */}
-        <div className="relative h-44 md:h-52 overflow-hidden">
+        {/* Image */}
+        <div className="relative h-52 w-full">
           <Image
             src={section.image}
             alt={section.headline}
             fill
             sizes="400px"
-            className="object-cover transition-all duration-500"
-            style={{
-              filter: isActive ? 'saturate(1.1)' : 'saturate(0.7) brightness(0.8)',
-            }}
+            className="object-cover"
           />
-          {/* Gradient overlay */}
-          <div
-            className="absolute inset-0"
-            style={{
-              background: `linear-gradient(180deg, transparent 20%, ${section.accentColor}30 60%, rgba(10,10,26,1) 100%)`,
-            }}
-          />
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent to-[#1a1a2e]" />
 
-          {/* Card Index */}
-          <div
-            className="absolute top-4 right-4 font-mono text-sm transition-opacity duration-300"
-            style={{ color: isActive ? 'rgba(255,255,255,0.6)' : 'rgba(255,255,255,0.3)' }}
-          >
-            {String(index + 1).padStart(2, '0')}/{String(totalCards).padStart(2, '0')}
-          </div>
         </div>
 
-        {/* Content Section */}
-        <div className="p-5 md:p-6">
-          {/* Tagline */}
+        {/* Content */}
+        <div className="p-6">
           <div
             className="inline-block px-3 py-1 rounded-full text-[10px] font-bold tracking-[0.2em] uppercase mb-3"
             style={{
@@ -177,142 +194,155 @@ function JourneyCard({ section, isActive, offset, onClick, index, totalCards, on
             {section.tagline}
           </div>
 
-          {/* Headlines - Engaging typography */}
           <h3 className="mb-4">
-            <span
-              className="block text-2xl md:text-3xl font-bold leading-tight tracking-tight"
-              style={{
-                fontFamily: 'Georgia, "Times New Roman", serif',
-                color: isActive ? '#ffffff' : 'rgba(255,255,255,0.6)',
-                letterSpacing: '-0.02em',
-                transition: 'all 0.3s ease',
-              }}
-            >
+            <span className="block text-3xl font-bold text-white mb-1 font-serif">
               {section.headline}
             </span>
             <span
-              className="block text-xl md:text-2xl font-light mt-1 italic"
-              style={{
-                fontFamily: 'Georgia, "Times New Roman", serif',
-                color: isActive ? section.accentColor : 'rgba(155,123,214,0.5)',
-                letterSpacing: '0.01em',
-                transition: 'all 0.3s ease',
-              }}
+              className="block text-xl italic font-serif"
+              style={{ color: section.accentColor }}
             >
               {section.subheadline}
             </span>
           </h3>
 
-          {/* Description */}
-          <p
-            className="text-sm md:text-base leading-relaxed transition-colors duration-300"
-            style={{ color: isActive ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.4)' }}
-          >
+          <p className="text-white/70 text-base md:text-lg leading-relaxed mb-4 font-light">
             {section.description}
           </p>
 
-          {/* CTA for student card */}
-          {isStudentCard && isActive && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                if (onActionClick) onActionClick();
-                else window.location.href = '/student';
-              }}
-              className="inline-flex items-center gap-2 mt-5 px-5 py-2.5 rounded-full font-semibold text-sm transition-all duration-300 hover:scale-105 hover:shadow-lg"
-              style={{
-                background: `linear-gradient(135deg, ${section.accentColor}, ${section.secondaryColor})`,
-                color: '#0a0a1a',
-                boxShadow: `0 8px 24px ${section.accentColor}50`,
-                border: 'none',
-                cursor: 'pointer'
-              }}
-            >
-              Become a Guide
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-              </svg>
-            </button>
-          )}
+
         </div>
       </div>
-    </div>
+    </motion.div>
   )
 }
 
 export default function UserJourney3D({ onStudentClick }: { onStudentClick?: () => void }) {
   const containerRef = useRef<HTMLDivElement>(null)
-  const [currentIndex, setCurrentIndex] = useState(0)
-  const [isDragging, setIsDragging] = useState(false)
-  const [startX, setStartX] = useState(0)
-  const [dragDelta, setDragDelta] = useState(0)
-  const lastWheelTime = useRef(0)
 
-  const totalSections = journeySections.length
+  // Global scroll value (pixels)
+  const x = useMotionValue(0)
 
-  // Navigate to specific index
-  const goToIndex = useCallback((index: number) => {
-    const clampedIndex = Math.max(0, Math.min(totalSections - 1, index))
-    setCurrentIndex(clampedIndex)
-  }, [totalSections])
+  // Track current centered index for dots updates
+  const [centeredIndex, setCenteredIndex] = useState(0)
 
-  // Mouse handlers
-  const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    setIsDragging(true)
-    setStartX(e.clientX)
-    setDragDelta(0)
-  }, [])
-
-  const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    if (!isDragging) return
-    setDragDelta(e.clientX - startX)
-  }, [isDragging, startX])
-
-  const handleMouseUp = useCallback(() => {
-    if (!isDragging) return
-    setIsDragging(false)
-
-    if (dragDelta < -60 && currentIndex < totalSections - 1) {
-      goToIndex(currentIndex + 1)
-    } else if (dragDelta > 60 && currentIndex > 0) {
-      goToIndex(currentIndex - 1)
+  // Update centered index when x changes
+  useMotionValueEvent(x, "change", (latest) => {
+    // Current logical position: -latest
+    // -latest / CARD_WIDTH gives us the "index" position
+    const rawIndex = Math.round(-latest / CARD_WIDTH)
+    const wrappedIndex = ((rawIndex % journeySections.length) + journeySections.length) % journeySections.length
+    if (wrappedIndex !== centeredIndex) {
+      setCenteredIndex(wrappedIndex)
     }
-    setDragDelta(0)
-  }, [isDragging, dragDelta, currentIndex, totalSections, goToIndex])
+  })
 
-  // Touch handlers
-  const handleTouchStart = useCallback((e: React.TouchEvent) => {
-    setIsDragging(true)
-    setStartX(e.touches[0].clientX)
-    setDragDelta(0)
-  }, [])
+  // Snap to nearest card logic
+  const snapToNearest = useCallback(() => {
+    const currentX = x.get()
+    const nearestSlot = Math.round(currentX / CARD_WIDTH) * CARD_WIDTH
+    animate(x, nearestSlot, {
+      type: "spring",
+      stiffness: 200,
+      damping: 30,
+      mass: 0.8
+    })
+  }, [x])
 
-  const handleTouchMove = useCallback((e: React.TouchEvent) => {
-    if (!isDragging) return
-    setDragDelta(e.touches[0].clientX - startX)
-  }, [isDragging, startX])
+  // Handle manual drag end
+  const handleDragEnd = (_: any, info: PanInfo) => {
+    const velocity = info.velocity.x
+    const offset = info.offset.x
+    const currentX = x.get()
 
-  const handleTouchEnd = useCallback(() => {
-    handleMouseUp()
-  }, [handleMouseUp])
+    // Predict where it would land with inertia
+    // (Simplification: just behave like standard carousel snap)
 
-  // Wheel handler REMOVED - vertical scroll should NOT change carousel
-  // Only horizontal swipe/drag and arrow keys navigate the carousel
+    // Find nearest slot
+    let targetIndex = Math.round(currentX / CARD_WIDTH)
 
-  // Keyboard navigation
+    // If dragged significantly or fast, force next/prev
+    if (offset < -SNAP_THRESHOLD || velocity < -500) {
+      targetIndex = Math.floor(currentX / CARD_WIDTH)
+    } else if (offset > SNAP_THRESHOLD || velocity > 500) {
+      targetIndex = Math.ceil(currentX / CARD_WIDTH)
+    }
+
+    animate(x, targetIndex * CARD_WIDTH, {
+      type: "spring",
+      stiffness: 200,
+      damping: 30,
+    })
+  }
+
+  // Handle Wheel (Trackpad)
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowRight') goToIndex(currentIndex + 1)
-      if (e.key === 'ArrowLeft') goToIndex(currentIndex - 1)
-    }
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [currentIndex, goToIndex])
+    const container = containerRef.current
+    if (!container) return
 
-  const currentSection = journeySections[currentIndex]
+    let wheelTimeout: NodeJS.Timeout
+
+    const handleWheel = (e: WheelEvent) => {
+      // Prioritize horizontal
+      if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+        e.preventDefault()
+        // Direct manipulation: Update x by delta
+        // Negative deltaX moves content left (which is "scrolling right" in interaction terms)
+        // Actually: Swipe Left (positive deltaX) -> Content moves Left (decrease x)
+        x.set(x.get() - e.deltaX)
+
+        // Clear timeout
+        clearTimeout(wheelTimeout)
+        // Set snap timeout
+        wheelTimeout = setTimeout(snapToNearest, 150)
+      }
+    }
+
+    container.addEventListener('wheel', handleWheel, { passive: false })
+    return () => {
+      container.removeEventListener('wheel', handleWheel)
+      clearTimeout(wheelTimeout)
+    }
+  }, [x, snapToNearest])
+
+  // Snap to specific card index 
+  // (We need to find the "closest" instance of this index to our current X)
+  const snapToCard = useCallback((targetIndex: number) => {
+    const currentX = x.get()
+    const currentRawIndex = -currentX / CARD_WIDTH
+
+    // We want to go to targetIndex, but wrapped closest to currentRawIndex
+    // e.g. Current = 10.2, Target = 2 (Total 4).
+    // Candidates for 2: ... -2, 2, 6, 10, 14 ... 
+    // 10 is current. Closest 2-equivalent is 10 (Wait 10 is 2 mod 4). 
+    // So if we are at 10.2, we snap to 10.
+
+    let closestDiff = Infinity
+    let bestTarget = 0
+
+    // Search a few loops around
+    for (let i = -2; i <= 2; i++) {
+      const testIndex = Math.floor(currentRawIndex / journeySections.length) * journeySections.length + (i * journeySections.length) + targetIndex
+      const diff = Math.abs(testIndex - currentRawIndex)
+      if (diff < closestDiff) {
+        closestDiff = diff
+        bestTarget = testIndex
+      }
+    }
+
+    // Target X is negative of index * width
+    animate(x, -bestTarget * CARD_WIDTH, {
+      type: "spring",
+      stiffness: 150,
+      damping: 30
+    })
+
+  }, [x])
+
+  const currentSection = journeySections[centeredIndex]
 
   return (
-    <div className="relative py-16 md:py-20">
+    <div className="relative py-20 min-h-[700px] flex flex-col justify-center overflow-hidden">
       {/* Background glow */}
       <div
         className="absolute inset-0 transition-all duration-700 pointer-events-none"
@@ -322,111 +352,77 @@ export default function UserJourney3D({ onStudentClick }: { onStudentClick?: () 
       />
 
       {/* Section Title */}
-      <div className="text-center mb-10 md:mb-12 px-4 relative z-10">
+      <div className="text-center mb-10 px-4 relative z-10">
         <h2 className="text-2xl md:text-4xl font-serif font-bold text-white mb-2">
           Why TourWiseCo?
         </h2>
-        <p className="text-white/50 text-sm md:text-base">
-          Swipe to discover what makes us different
-        </p>
+
       </div>
 
-      {/* Carousel Container */}
+      {/* Carousel Viewport */}
       <div
         ref={containerRef}
-        className={`relative h-[480px] md:h-[520px] overflow-hidden ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
+        className="relative h-[600px] w-full max-w-[1200px] mx-auto perspective-1000"
         style={{ perspective: '1000px' }}
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
       >
-        {/* Cards Container */}
-        <div className="relative h-full w-full" style={{ transformStyle: 'preserve-3d' }}>
-          {journeySections.map((section, index) => {
-            const offset = index - currentIndex
-            // Only render cards within range
-            if (Math.abs(offset) > 2) return null
+        <motion.div
+          className="absolute inset-0 flex items-center justify-center h-full w-full"
+          drag="x"
+          dragConstraints={{ left: -100000, right: 100000 }} // Effectively infinite
+          onDragEnd={handleDragEnd}
+          style={{ x }} // Bind motion value but we override visual pos in children
+        >
+          {/* 
+               We render cards as children. 
+               Note: `drag` on parent moves the parent's `x`.
+               Children use `useTransform(x)` to decide where to be.
+               Wait, if parent moves `x`, children move with parent naturally?
+               Yes, IF they are static children.
+               BUT we want infinite wrapping.
+               So we actually shouldn't move the PARENT visually. We should use `x` as a signal.
+               
+               Hack: Pass `style={{ x }}` to a non-rendering div or just don't pass it to style?
+               If we pass `style={{ x }}` to the drag container, the whole container slides.
+               This is fine for "standard" carousel, but for "infinite wrap", cards need to jump back.
+               
+               Better Approach:
+               Use a transparent "Drag Proxy" that captures gesture and updates `x`.
+               The Cards are siblings that listen to `x`.
+            */}
+        </motion.div>
 
-            return (
+        {/* Render Cards (Independent of drag container which just simulates input) */}
+        <div className="absolute inset-0 pointer-events-none">
+          {journeySections.map((section, idx) => (
+            <div key={section.id} className="pointer-events-auto">
               <JourneyCard
-                key={section.id}
                 section={section}
-                isActive={index === currentIndex}
-                offset={offset}
-                onClick={() => goToIndex(index)}
-                onActionClick={section.id === 'student' ? onStudentClick : undefined}
-                index={index}
-                totalCards={totalSections}
+                index={idx}
+                x={x}
+                total={journeySections.length}
+                onActionClick={onStudentClick}
+                onCardClick={snapToCard}
               />
-            )
-          })}
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* Navigation Dots */}
-      <div className="flex justify-center items-center gap-2 md:gap-3 mt-8">
-        {journeySections.map((section, index) => (
+      {/* Dots */}
+      <div className="flex justify-center items-center gap-2 mt-8 z-10">
+        {journeySections.map((_, idx) => (
           <button
-            key={section.id}
-            onClick={() => goToIndex(index)}
-            className={`relative h-2.5 md:h-3 rounded-full transition-all duration-300 ${index === currentIndex ? 'w-8 md:w-10' : 'w-2.5 md:w-3'
-              }`}
+            key={idx}
+            onClick={() => snapToCard(idx)}
+            className={`h-2 rounded-full transition-all duration-300 ${idx === centeredIndex ? 'w-8' : 'w-2'}`}
             style={{
-              background: index === currentIndex
-                ? `linear-gradient(90deg, ${section.accentColor}, ${section.secondaryColor})`
-                : 'rgba(255,255,255,0.25)',
-              boxShadow: index === currentIndex ? `0 0 15px ${section.accentColor}60` : 'none',
+              background: idx === centeredIndex
+                ? currentSection.accentColor
+                : 'rgba(255,255,255,0.2)'
             }}
-            aria-label={`Go to ${section.headline}`}
           />
         ))}
       </div>
-
-      {/* Navigation Arrows */}
-      <button
-        onClick={() => goToIndex(currentIndex - 1)}
-        disabled={currentIndex === 0}
-        className={`absolute left-2 md:left-6 top-1/2 -translate-y-1/2 z-20 p-3 md:p-4 rounded-full transition-all duration-300 ${currentIndex === 0
-          ? 'opacity-20 cursor-not-allowed'
-          : 'opacity-60 hover:opacity-100 hover:scale-110'
-          }`}
-        style={{
-          background: 'rgba(255,255,255,0.1)',
-          backdropFilter: 'blur(10px)',
-          border: '1px solid rgba(255,255,255,0.15)',
-        }}
-      >
-        <svg className="w-5 h-5 md:w-6 md:h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-        </svg>
-      </button>
-
-      <button
-        onClick={() => goToIndex(currentIndex + 1)}
-        disabled={currentIndex === totalSections - 1}
-        className={`absolute right-2 md:right-6 top-1/2 -translate-y-1/2 z-20 p-3 md:p-4 rounded-full transition-all duration-300 ${currentIndex === totalSections - 1
-          ? 'opacity-20 cursor-not-allowed'
-          : 'opacity-60 hover:opacity-100 hover:scale-110'
-          }`}
-        style={{
-          background: 'rgba(255,255,255,0.1)',
-          backdropFilter: 'blur(10px)',
-          border: '1px solid rgba(255,255,255,0.15)',
-        }}
-      >
-        <svg className="w-5 h-5 md:w-6 md:h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-        </svg>
-      </button>
-
-      {/* Mobile swipe hint */}
-      <p className="text-center text-white/30 text-xs mt-4 md:hidden">
-        ← Swipe to explore →
-      </p>
     </div>
   )
 }
