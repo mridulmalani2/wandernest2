@@ -1,37 +1,14 @@
 'use client'
 
-import Navigation from '@/components/Navigation'
 import Footer from '@/components/Footer'
 import { getWebsiteStructuredData, getOrganizationStructuredData } from '@/lib/structuredData'
-import dynamic from 'next/dynamic'
-
-// Lazy load the 3D Landing Page - reduces initial bundle size significantly
-// Falls back to static version on mobile/low-end devices
-const LandingPage3D = dynamic(
-  () => import('@/components/landing3d').then(mod => ({ default: mod.LandingPage3D })),
-  {
-    loading: () => (
-      <div className="min-h-screen bg-gradient-to-b from-[#0a0a1a] via-[#1a1a3a] to-[#0f0f2f] flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-12 h-12 border-2 border-white/20 border-t-white/80 rounded-full animate-spin mb-4 mx-auto" />
-          <p className="text-white/60 text-sm font-light">Loading experience...</p>
-        </div>
-      </div>
-    ),
-    ssr: false // 3D requires client-side rendering
-  }
-)
+import { LandingPage3D } from '@/components/landing3d'
 
 /**
  * Main Landing Page Component
  *
- * Features a spatial 3D journey experience:
- * - Scroll-driven camera movement through 3D space
- * - Three distinct zones: Gateway (hero), Crossroads (CTAs), Constellation (features)
- * - Mouse/touch parallax for depth feel
- * - Automatic fallback for mobile/low-end devices
- *
- * Includes SEO structured data and lazy-loaded components for performance.
+ * NOW: Cards Only (Student | Discover | Tourist) + Carousel
+ * Optimized for instant load (static import).
  */
 export default function MainLanding() {
   const structuredData = getWebsiteStructuredData()
@@ -50,10 +27,7 @@ export default function MainLanding() {
         dangerouslySetInnerHTML={{ __html: toSafeJsonLd(organizationData) }}
       />
 
-      {/* Fixed Navigation - overlays the 3D scene */}
-      <Navigation variant="default" />
-
-      {/* 3D Spatial Landing Experience */}
+      {/* Landing Experience (Cards + Carousel) */}
       <main className="flex-1 relative">
         <LandingPage3D />
       </main>

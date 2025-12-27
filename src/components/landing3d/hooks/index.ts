@@ -1,5 +1,1 @@
-export { useScrollProgress } from './useScrollProgress'
-export { usePointerParallax } from './usePointerParallax'
 export { useDeviceCapabilities } from './useDeviceCapabilities'
-export { useScrollHijack, ANIMATION_PHASES } from './useScrollHijack'
-export type { ScrollHijackState, AnimationPhase } from './useScrollHijack'
