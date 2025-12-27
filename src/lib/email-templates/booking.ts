@@ -124,11 +124,14 @@ export const getTouristAcceptanceNotificationHtml = (
         email: string;
     }
 ) => {
+    const safeTourist = escapeHtml(touristName);
     const safeStudent = escapeHtml(studentName);
     const safeCity = escapeHtml(city);
     const safeStudentText = sanitizeEmailText(studentName);
     const safeInstitute = escapeHtml(studentProfile.institute);
-    const safeLanguages = studentProfile.languages.map(l => escapeHtml(l)).join(', ');
+    const safeLanguages = Array.isArray(studentProfile.languages) && studentProfile.languages.length > 0
+        ? studentProfile.languages.map(l => escapeHtml(String(l))).join(', ')
+        : 'Not specified';
     const safeEmail = escapeHtml(studentProfile.email);
 
     const content = `
@@ -142,7 +145,7 @@ export const getTouristAcceptanceNotificationHtml = (
       </h2>
       
       <p style="margin: 0 0 32px; font-size: 16px; line-height: 1.6; color: ${theme.colors.textSecondary};">
-        Great news! <strong>${safeStudent}</strong> has accepted your request for <strong>${safeCity}</strong>.
+        Hi <strong>${safeTourist}</strong>, great news! <strong>${safeStudent}</strong> has accepted your request for <strong>${safeCity}</strong>.
       </p>
 
       <div style="text-align: left; background-color: ${theme.colors.background}; border-radius: 16px; padding: 24px; margin-bottom: 24px;">
@@ -180,6 +183,7 @@ export const getBookingDeclinedHtml = (
     studentName: string,
     city: string
 ) => {
+    const safeTourist = escapeHtml(touristName);
     const safeStudent = escapeHtml(studentName);
     const safeCity = escapeHtml(city);
     const safeCityText = sanitizeEmailText(city);
@@ -191,7 +195,7 @@ export const getBookingDeclinedHtml = (
       </h2>
       
       <p style="margin: 0 0 32px; font-size: 16px; line-height: 1.6; color: ${theme.colors.textSecondary};">
-        Unfortunately, <strong>${safeStudent}</strong> is not available for your trip to <strong>${safeCity}</strong>.
+        Hi <strong>${safeTourist}</strong>, unfortunately, <strong>${safeStudent}</strong> is not available for your trip to <strong>${safeCity}</strong>.
       </p>
 
       <div style="background-color: #FFF7ED; border: 1px solid #FFEDD5; border-radius: 16px; padding: 24px; margin-bottom: 32px;">

@@ -1,5 +1,5 @@
 import crypto from 'crypto'
-import { redis } from '@/lib/redis'
+import { getConnectedRedisClient } from '@/lib/redis'
 
 type RevocationEntry = {
   expiresAt: number
@@ -33,8 +33,9 @@ export async function revokeToken(token: string, expiresAtSeconds?: number) {
   const expiresAt = nowMs + ttlSeconds * 1000
   memoryRevocations.set(hashed, { expiresAt })
 
-  if (redis) {
-    await redis.setex(`revoked:token:${hashed}`, ttlSeconds, '1')
+  const client = await getConnectedRedisClient()
+  if (client) {
+    await client.setex(`revoked:token:${hashed}`, ttlSeconds, '1')
   }
 }
 
@@ -49,8 +50,9 @@ export async function isTokenRevoked(token: string): Promise<boolean> {
     return true
   }
 
-  if (redis) {
-    const result = await redis.get(`revoked:token:${hashed}`)
+  const client = await getConnectedRedisClient()
+  if (client) {
+    const result = await client.get(`revoked:token:${hashed}`)
     return Boolean(result)
   }
 

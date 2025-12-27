@@ -1,4 +1,4 @@
-import { redis } from './redis';
+import { getConnectedRedisClient } from './redis';
 
 export interface CacheOptions {
   ttl?: number; // Time to live in seconds
@@ -41,14 +41,15 @@ class CacheManager {
       return this.isRedisAvailable;
     }
 
-    if (!redis) {
+    const client = await getConnectedRedisClient();
+    if (!client) {
       this.isRedisAvailable = false;
       this.lastRedisCheck = now;
       return false;
     }
 
     try {
-      await redis.ping();
+      await client.ping();
       this.isRedisAvailable = true;
       this.lastRedisCheck = now;
       return true;
@@ -70,9 +71,10 @@ class CacheManager {
     this.validateKey(key);
     const isRedisAvailable = await this.checkRedis();
 
-    if (isRedisAvailable && redis) {
+    const client = isRedisAvailable ? await getConnectedRedisClient() : null;
+    if (client) {
       try {
-        const value = await redis.get(key);
+        const value = await client.get(key);
         if (value) {
           // Safe JSON parsing with validation
           try {
@@ -81,14 +83,14 @@ class CacheManager {
             if (parsed === null || (typeof parsed !== 'object' && typeof parsed !== 'boolean' && typeof parsed !== 'number' && typeof parsed !== 'string')) {
               console.warn(`[Cache] Invalid cached value type for key: ${key}`);
               // Delete invalid entry
-              await redis.del(key);
+              await client.del(key);
               return null;
             }
             return parsed as T;
           } catch (parseError) {
             console.error(`[Cache] JSON parse error for key ${key}:`, parseError instanceof Error ? parseError.message : 'Unknown');
             // Delete corrupted entry
-            await redis.del(key);
+            await client.del(key);
             return null;
           }
         }
@@ -121,9 +123,10 @@ class CacheManager {
     const { ttl = 300 } = options; // Default 5 minutes
     const isRedisAvailable = await this.checkRedis();
 
-    if (isRedisAvailable && redis) {
+    const client = isRedisAvailable ? await getConnectedRedisClient() : null;
+    if (client) {
       try {
-        await redis.setex(key, ttl, JSON.stringify(value));
+        await client.setex(key, ttl, JSON.stringify(value));
         return;
       } catch (error) {
         console.error('Redis set error', error instanceof Error ? error.message : 'Unknown');
@@ -156,9 +159,10 @@ class CacheManager {
     this.validateKey(key);
     const isRedisAvailable = await this.checkRedis();
 
-    if (isRedisAvailable && redis) {
+    const client = isRedisAvailable ? await getConnectedRedisClient() : null;
+    if (client) {
       try {
-        await redis.del(key);
+        await client.del(key);
       } catch (error) {
         console.error('Redis delete error', error instanceof Error ? error.message : 'Unknown');
         this.isRedisAvailable = false;
@@ -179,19 +183,20 @@ class CacheManager {
     }
     const isRedisAvailable = await this.checkRedis();
 
-    if (isRedisAvailable && redis) {
+    const client = isRedisAvailable ? await getConnectedRedisClient() : null;
+    if (client) {
       try {
         // SECURITY: Use SCAN instead of KEYS to avoid blocking the Redis server (DoS prevention)
         // KEYS is O(N) and blocks, while SCAN is O(1) per iteration.
         // Manual scan loop for ioredis
         let cursor = '0';
         do {
-          const result = await redis.scan(cursor, 'MATCH', pattern, 'COUNT', 100);
+          const result = await client.scan(cursor, 'MATCH', pattern, 'COUNT', 100);
           cursor = result[0];
           const keys = result[1];
 
           if (keys.length > 0) {
-            await redis.del(...keys);
+            await client.del(...keys);
           }
         } while (cursor !== '0');
 
@@ -326,9 +331,10 @@ export const cacheInvalidation = {
     }
 
     const isRedisAvailable = await cache.checkRedis();
-    if (isRedisAvailable && redis) {
+    const client = isRedisAvailable ? await getConnectedRedisClient() : null;
+    if (client) {
       try {
-        await redis.flushdb();
+        await client.flushdb();
         console.log('[Cache] Redis cache flushed');
       } catch (error) {
         console.error('Redis flushdb error:', error instanceof Error ? error.message : 'Unknown');

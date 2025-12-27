@@ -7,6 +7,7 @@ import { generateVerificationCode } from '@/lib/utils'
 import { deleteVerificationCode, storeVerificationCode } from '@/lib/redis'
 import { sendVerificationEmail } from '@/lib/email'
 import { checkRateLimit, hashIdentifier } from '@/lib/rate-limit'
+import { sanitizeEmail } from '@/lib/sanitization'
 
 // Validation schema for the initiate request
 const initiateSchema = z.object({
@@ -52,7 +53,15 @@ export async function POST(req: NextRequest) {
     // Validate request data
     const validatedData = initiateSchema.parse(body)
 
-    const normalizedEmail = validatedData.email.toLowerCase().trim()
+    let normalizedEmail = ''
+    try {
+      normalizedEmail = sanitizeEmail(validatedData.email)
+    } catch {
+      return NextResponse.json(
+        { success: false, error: 'Invalid email address' },
+        { status: 400 }
+      )
+    }
     const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown'
 
     const emailKey = `tourist-initiate:email:${hashIdentifier(normalizedEmail)}`
