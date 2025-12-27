@@ -11,6 +11,8 @@
 
 import * as crypto from 'crypto';
 
+const TOKEN_FAILURE_LOG = '[token-verification] Invalid or expired token';
+
 // Secret key for signing tokens - use env var or fallback to secure random string
 const TOKEN_SECRET = process.env.TOKEN_SECRET || process.env.NEXTAUTH_SECRET || 'tourwiseco-token-secret-change-in-production';
 
@@ -119,8 +121,46 @@ export function generateMatchToken(
  * @param token - The token string to verify
  * @returns Decoded payload if valid, null if invalid/expired
  */
+function timingSafeCompare(a: string, b: string): boolean {
+  const aBuf = Buffer.from(a);
+  const bBuf = Buffer.from(b);
+  const maxLength = Math.max(aBuf.length, bBuf.length);
+  const aPadded = aBuf.length === maxLength ? aBuf : Buffer.concat([aBuf, Buffer.alloc(maxLength - aBuf.length)]);
+  const bPadded = bBuf.length === maxLength ? bBuf : Buffer.concat([bBuf, Buffer.alloc(maxLength - bBuf.length)]);
+
+  const equal = crypto.timingSafeEqual(aPadded, bPadded);
+  return equal && aBuf.length === bBuf.length;
+}
+
+function logTokenFailure(): void {
+  if (process.env.NODE_ENV !== 'production') {
+    console.warn(TOKEN_FAILURE_LOG);
+  }
+}
+
+function normalizeBaseUrl(baseUrl: string): URL {
+  let url: URL;
+  try {
+    url = new URL(baseUrl);
+  } catch {
+    throw new Error('Invalid base URL configuration');
+  }
+
+  if (url.protocol !== 'https:' && url.protocol !== 'http:') {
+    throw new Error('Invalid base URL protocol');
+  }
+
+  url.search = '';
+  url.hash = '';
+  return url;
+}
+
 export function verifyMatchToken(token: string): MatchTokenPayload | null {
   try {
+    if (!token || typeof token !== 'string') {
+      return null;
+    }
+
     const parts = token.split('.');
     if (parts.length !== 2) {
       return null;
@@ -134,8 +174,8 @@ export function verifyMatchToken(token: string): MatchTokenPayload | null {
       .update(payloadB64)
       .digest('base64url');
 
-    if (signature !== expectedSignature) {
-      console.error('[verifyMatchToken] Invalid signature');
+    if (!timingSafeCompare(signature, expectedSignature)) {
+      logTokenFailure();
       return null;
     }
 
@@ -146,19 +186,19 @@ export function verifyMatchToken(token: string): MatchTokenPayload | null {
     // Validate payload structure
     const payload = validateMatchTokenPayload(parsed);
     if (!payload) {
-      console.error('[verifyMatchToken] Invalid payload structure');
+      logTokenFailure();
       return null;
     }
 
     // Check expiry
     if (Date.now() > payload.exp) {
-      console.error('[verifyMatchToken] Token expired');
+      logTokenFailure();
       return null;
     }
 
     return payload;
   } catch (error) {
-    console.error('[verifyMatchToken] Error verifying token:', error);
+    logTokenFailure();
     return null;
   }
 }
@@ -200,6 +240,10 @@ export function generateSelectionToken(
  */
 export function verifySelectionToken(token: string): SelectionTokenPayload | null {
   try {
+    if (!token || typeof token !== 'string') {
+      return null;
+    }
+
     const parts = token.split('.');
     if (parts.length !== 2) {
       return null;
@@ -212,8 +256,8 @@ export function verifySelectionToken(token: string): SelectionTokenPayload | nul
       .update(payloadB64)
       .digest('base64url');
 
-    if (signature !== expectedSignature) {
-      console.error('[verifySelectionToken] Invalid signature');
+    if (!timingSafeCompare(signature, expectedSignature)) {
+      logTokenFailure();
       return null;
     }
 
@@ -222,18 +266,18 @@ export function verifySelectionToken(token: string): SelectionTokenPayload | nul
 
     const payload = validateSelectionTokenPayload(parsed);
     if (!payload) {
-      console.error('[verifySelectionToken] Invalid payload structure');
+      logTokenFailure();
       return null;
     }
 
     if (Date.now() > payload.exp) {
-      console.error('[verifySelectionToken] Token expired');
+      logTokenFailure();
       return null;
     }
 
     return payload;
   } catch (error) {
-    console.error('[verifySelectionToken] Error verifying token:', error);
+    logTokenFailure();
     return null;
   }
 }
@@ -245,7 +289,7 @@ export function verifySelectionToken(token: string): SelectionTokenPayload | nul
  * @param requestId - TouristRequest ID
  * @param studentId - Student ID
  * @param selectionId - RequestSelection ID
- * @returns Object with acceptUrl and declineUrl
+ * @returns Object with acceptUrl and declineUrl (token stored in URL fragment)
  */
 export function generateMatchUrls(
   baseUrl: string,
@@ -253,6 +297,7 @@ export function generateMatchUrls(
   studentId: string,
   selectionId: string
 ): { acceptUrl: string; declineUrl: string } {
+  const safeBaseUrl = normalizeBaseUrl(baseUrl);
   const acceptToken = generateMatchToken({
     requestId,
     studentId,
@@ -267,8 +312,13 @@ export function generateMatchUrls(
     action: 'decline',
   });
 
+  const acceptUrl = new URL('/api/student/match/respond', safeBaseUrl);
+  acceptUrl.hash = `token=${encodeURIComponent(acceptToken)}`;
+  const declineUrl = new URL('/api/student/match/respond', safeBaseUrl);
+  declineUrl.hash = `token=${encodeURIComponent(declineToken)}`;
+
   return {
-    acceptUrl: `${baseUrl}/api/student/match/respond?token=${acceptToken}`,
-    declineUrl: `${baseUrl}/api/student/match/respond?token=${declineToken}`,
+    acceptUrl: acceptUrl.toString(),
+    declineUrl: declineUrl.toString(),
   };
 }

@@ -264,7 +264,7 @@ function setCache<T>(key: string, data: T, ttl: number): void {
 
 function buildUrl(
   baseUrl: string,
-  params?: Record<string, string | number | boolean | undefined>
+  params?: Record<string, string | number | boolean | Array<string | number | boolean> | undefined>
 ): string {
   if (!params) return baseUrl;
 
@@ -273,9 +273,19 @@ function buildUrl(
 
   const searchParams = new URLSearchParams(existingQuery || '');
   for (const [key, value] of Object.entries(params)) {
-    if (value !== undefined && value !== null) {
-      searchParams.set(key, String(value));
+    if (value === undefined || value === null) {
+      continue;
     }
+
+    if (Array.isArray(value)) {
+      searchParams.delete(key);
+      for (const entry of value) {
+        searchParams.append(key, String(entry));
+      }
+      continue;
+    }
+
+    searchParams.set(key, String(value));
   }
 
   const queryString = searchParams.toString();

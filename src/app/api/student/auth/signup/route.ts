@@ -7,6 +7,7 @@ import { emailSchema, phoneSchema } from '@/lib/schemas/common'
 import { sanitizeText } from '@/lib/sanitization'
 import { createStudentSessionToken } from '@/lib/student-auth'
 import { logger } from '@/lib/logger'
+import { isZodError } from '@/lib/error-handler'
 
 export const dynamic = 'force-dynamic'
 
@@ -120,7 +121,7 @@ export async function POST(req: Request) {
 
         return NextResponse.json({ success: true, studentId: student.id })
     } catch (err) {
-        if (err instanceof z.ZodError) {
+        if (isZodError(err)) {
             return NextResponse.json(
                 { success: false, error: 'Invalid signup payload' },
                 { status: 400 }

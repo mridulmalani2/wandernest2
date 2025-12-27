@@ -5,6 +5,7 @@ import { checkRateLimit, hashIdentifier } from '@/lib/rate-limit'
 import { z } from 'zod'
 import { emailSchema } from '@/lib/schemas/common'
 import { logger } from '@/lib/logger'
+import { isZodError } from '@/lib/error-handler'
 
 const otpRequestSchema = z.object({
   email: emailSchema,
@@ -98,7 +99,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ success: true })
   } catch (err) {
-    if (err instanceof z.ZodError) {
+    if (isZodError(err)) {
       return NextResponse.json(
         { success: false, error: 'Invalid email address' },
         { status: 400 }

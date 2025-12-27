@@ -7,6 +7,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { requireDatabase } from '@/lib/prisma'
 import { verifyAdmin } from '@/lib/api-auth'
 import { z } from 'zod'
+import { isZodError } from '@/lib/error-handler'
 
 const bulkApproveSchema = z.object({
   studentIds: z.array(z.string().cuid()).min(1),
@@ -47,7 +48,7 @@ export async function POST(request: NextRequest) {
       message: `${result.count} student(s) ${action === 'approve' ? 'approved' : 'suspended'}`,
     })
   } catch (error) {
-    if (error instanceof z.ZodError) {
+    if (isZodError(error)) {
       return NextResponse.json(
         { error: 'Invalid request payload' },
         { status: 400 }
