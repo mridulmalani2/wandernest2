@@ -1,5 +1,5 @@
 import crypto from 'crypto'
-import { redis } from '@/lib/redis'
+import { getConnectedRedisClient } from '@/lib/redis'
 
 type RateLimitResult = {
   allowed: boolean
@@ -26,14 +26,15 @@ export async function checkRateLimit(
   const now = Date.now()
   const windowMs = windowSeconds * 1000
 
-  if (redis) {
+  const client = await getConnectedRedisClient()
+  if (client) {
     try {
-      const count = await redis.incr(key)
+      const count = await client.incr(key)
       if (count === 1) {
-        await redis.expire(key, windowSeconds)
+        await client.expire(key, windowSeconds)
       }
 
-      const ttl = await redis.ttl(key)
+      const ttl = await client.ttl(key)
       const resetAt = now + (ttl > 0 ? ttl * 1000 : windowMs)
       const remaining = Math.max(limit - count, 0)
 

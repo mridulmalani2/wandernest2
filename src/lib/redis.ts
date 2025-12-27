@@ -2,6 +2,7 @@ import 'server-only'
 import Redis from 'ioredis'
 import { prisma } from '@/lib/prisma'
 import { config } from '@/lib/config'
+import { sanitizeEmail } from '@/lib/sanitization'
 import crypto from 'crypto'
 
 export function hashVerificationCode(code: string): string {
@@ -33,8 +34,12 @@ function validateVerificationPayload(parsed: unknown): VerificationPayload | nul
     return null
   }
 
-  // Validate 'attempts' is a number (default to 0 if missing for backwards compat)
+  // Validate 'attempts' is a non-negative integer (default to 0 if missing for backwards compat)
   const attempts = typeof obj.attempts === 'number' ? obj.attempts : 0
+  if (!Number.isFinite(attempts) || !Number.isInteger(attempts) || attempts < 0) {
+    console.warn('Redis payload validation failed: invalid "attempts" field')
+    return null
+  }
 
   return {
     code: obj.code,
@@ -63,7 +68,11 @@ function getRedisClient(): Redis | null {
 
   // Return cached client if available
   if (globalForRedis.redis !== undefined) {
-    return globalForRedis.redis
+    if (globalForRedis.redis && (globalForRedis.redis.status === 'end' || globalForRedis.redis.status === 'close')) {
+      globalForRedis.redis = undefined
+    } else {
+      return globalForRedis.redis
+    }
   }
 
   // Create new client with serverless-optimized settings
@@ -122,7 +131,13 @@ function getRedisClient(): Redis | null {
 }
 
 // Export the Redis client
-export const redis = getRedisClient()
+export function getConnectedRedisClient(): Promise<Redis | null> {
+  const client = getRedisClient()
+  if (!client) {
+    return Promise.resolve(null)
+  }
+  return ensureRedisConnection(client).then((connected) => (connected ? client : null))
+}
 
 /**
  * Ensure Redis connection is established
@@ -178,28 +193,45 @@ async function ensureRedisConnection(client: Redis): Promise<boolean> {
     return false
   } catch (error) {
     if (config.app.isDevelopment) {
-      console.warn('Failed to ensure Redis connection:', error)
+      const safeMessage = error instanceof Error ? error.message : 'Unknown error'
+      console.warn('Failed to ensure Redis connection:', safeMessage)
     }
     return false
   }
 }
 
 export async function checkRedisHealth(): Promise<{ available: boolean; healthy: boolean }> {
-  if (!redis) {
+  const client = await getConnectedRedisClient()
+  if (!client) {
     return { available: false, healthy: false }
   }
 
   try {
-    const connected = await ensureRedisConnection(redis)
-    if (!connected) {
-      return { available: true, healthy: false }
-    }
-
-    const pong = await redis.ping()
+    const pong = await client.ping()
     return { available: true, healthy: pong === 'PONG' }
   } catch (error) {
     return { available: true, healthy: false }
   }
+}
+
+const REDIS_OPERATION_TIMEOUT_MS = 8000
+
+async function withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => {
+      reject(new Error('Redis operation timed out'))
+    }, timeoutMs)
+
+    promise
+      .then((value) => {
+        clearTimeout(timer)
+        resolve(value)
+      })
+      .catch((error) => {
+        clearTimeout(timer)
+        reject(error)
+      })
+  })
 }
 
 /**
@@ -210,28 +242,36 @@ async function withRedis<T>(
   operation: (client: Redis) => Promise<T>,
   fallback: () => Promise<T>
 ): Promise<T> {
-  if (!redis) {
-    return fallback()
-  }
-
   try {
-    // Ensure connection is ready
-    const connected = await ensureRedisConnection(redis)
-    if (!connected) {
+    const client = await getConnectedRedisClient()
+    if (!client) {
       if (config.app.isDevelopment) {
         console.warn('Redis not connected, using fallback')
       }
       return fallback()
     }
 
-    // Execute operation
-    return await operation(redis)
+    return await withTimeout(operation(client), REDIS_OPERATION_TIMEOUT_MS)
   } catch (error) {
-    if (config.app.isDevelopment) {
-      console.warn('Redis operation failed, using fallback:', error)
-    }
+    const safeMessage = error instanceof Error ? error.message : 'Unknown error'
+    console.warn('Redis operation failed, using fallback:', safeMessage)
     return fallback()
   }
+}
+
+const VERIFICATION_KEY_PREFIX = 'verification:'
+const VERIFICATION_ATTEMPTS_PREFIX = 'verification:attempts:'
+
+function normalizeVerificationEmail(email: string): string {
+  return sanitizeEmail(email)
+}
+
+function verificationKey(email: string): string {
+  return `${VERIFICATION_KEY_PREFIX}${email}`
+}
+
+function verificationAttemptsKey(email: string): string {
+  return `${VERIFICATION_ATTEMPTS_PREFIX}${email}`
 }
 
 /**
@@ -249,18 +289,23 @@ async function withRedis<T>(
  * @returns Promise<void>
  */
 export async function storeVerificationCode(email: string, code: string, data: any): Promise<void> {
-  const normalizedEmail = email.toLowerCase().trim()
+  const normalizedEmail = normalizeVerificationEmail(email)
   const hashedCode = hashVerificationCode(code)
 
   await withRedis(
     // Redis operation
     async (client) => {
-      const key = `verification:${normalizedEmail}`
-      await client.setex(
-        key,
-        config.verification.codeExpiry,
-        JSON.stringify({ code: hashedCode, data, attempts: 0 })
-      )
+      const key = verificationKey(normalizedEmail)
+      const attemptsKey = verificationAttemptsKey(normalizedEmail)
+      await client
+        .multi()
+        .setex(
+          key,
+          config.verification.codeExpiry,
+          JSON.stringify({ code: hashedCode, data, attempts: 0 })
+        )
+        .setex(attemptsKey, config.verification.codeExpiry, '0')
+        .exec()
     },
     // Database fallback
     async () => {
@@ -281,6 +326,7 @@ export async function storeVerificationCode(email: string, code: string, data: a
             email: normalizedEmail,
             verificationCode: hashedCode,
             isVerified: false,
+            attempts: 0,
             expiresAt,
           },
         })
@@ -295,20 +341,32 @@ export async function storeVerificationCode(email: string, code: string, data: a
  * @returns Promise<any | null> - The stored data or null if not found/expired
  */
 export async function getVerificationData(email: string): Promise<any | null> {
-  const normalizedEmail = email.toLowerCase().trim()
+  const normalizedEmail = normalizeVerificationEmail(email)
 
   return await withRedis(
     // Redis operation
     async (client) => {
-      const key = `verification:${normalizedEmail}`
-      const data = await client.get(key)
+      const key = verificationKey(normalizedEmail)
+      const attemptsKey = verificationAttemptsKey(normalizedEmail)
+      const [data, attemptsValue] = await client.mget(key, attemptsKey)
       if (!data) return null
       try {
         const parsed = JSON.parse(data)
         // Structural validation: ensure required fields exist with correct types
-        return validateVerificationPayload(parsed)
+        const validated = validateVerificationPayload(parsed)
+        if (!validated) return null
+
+        if (attemptsValue !== null) {
+          const parsedAttempts = Number(attemptsValue)
+          if (Number.isInteger(parsedAttempts) && parsedAttempts >= 0) {
+            validated.attempts = parsedAttempts
+          }
+        }
+
+        return validated
       } catch (e) {
-        console.error('Failed to parse Redis data', e)
+        const safeMessage = e instanceof Error ? e.message : 'Unknown error'
+        console.error('Failed to parse Redis data', safeMessage)
         return null
       }
     },
@@ -331,7 +389,7 @@ export async function getVerificationData(email: string): Promise<any | null> {
       return {
         code: session.verificationCode,
         data: null, // TouristSession doesn't store additional data
-        attempts: 0, // Used for rate limiting, but DB doesn't track this yet so we assume 0
+        attempts: session.attempts,
       }
     }
   )
@@ -343,13 +401,14 @@ export async function getVerificationData(email: string): Promise<any | null> {
  * @returns Promise<void>
  */
 export async function deleteVerificationCode(email: string): Promise<void> {
-  const normalizedEmail = email.toLowerCase().trim()
+  const normalizedEmail = normalizeVerificationEmail(email)
 
   await withRedis(
     // Redis operation
     async (client) => {
-      const key = `verification:${normalizedEmail}`
-      await client.del(key)
+      const key = verificationKey(normalizedEmail)
+      const attemptsKey = verificationAttemptsKey(normalizedEmail)
+      await client.del(key, attemptsKey)
     },
     // Database fallback
     async () => {
@@ -368,33 +427,52 @@ export async function deleteVerificationCode(email: string): Promise<void> {
  * @returns Promise<number> - The new attempt count
  */
 export async function incrementVerificationAttempts(email: string): Promise<number> {
-  const normalizedEmail = email.toLowerCase().trim()
+  const normalizedEmail = normalizeVerificationEmail(email)
 
   return await withRedis(
     // Redis operation
     async (client) => {
-      const key = `verification:${normalizedEmail}`
-      const data = await client.get(key)
-      if (!data) return 0
+      const key = verificationKey(normalizedEmail)
+      const attemptsKey = verificationAttemptsKey(normalizedEmail)
 
-      try {
-        const parsed = JSON.parse(data)
-        // Structural validation: ensure payload is valid before incrementing
-        const validated = validateVerificationPayload(parsed)
-        if (!validated) return 0
+      const script = `
+        if redis.call("exists", KEYS[1]) == 0 then
+          return 0
+        end
+        local attempts = redis.call("incr", KEYS[2])
+        local ttl = redis.call("ttl", KEYS[1])
+        if ttl > 0 then
+          redis.call("expire", KEYS[2], ttl)
+        end
+        return attempts
+      `
 
-        validated.attempts = validated.attempts + 1
-        await client.setex(key, config.verification.codeExpiry, JSON.stringify(validated))
-        return validated.attempts
-      } catch (e) {
-        return 0
-      }
+      const result = await client.eval(script, 2, key, attemptsKey)
+      const attempts = typeof result === 'number' ? result : Number(result)
+      return Number.isInteger(attempts) && attempts >= 0 ? attempts : 0
     },
     // Database fallback
     async () => {
-      // Note: Attempts not tracked in DB version
-      // This is acceptable as the code expires after 10 minutes anyway
-      return 1
+      if (!prisma) return 0
+      const session = await prisma.touristSession.findFirst({
+        where: {
+          email: normalizedEmail,
+          isVerified: false,
+          expiresAt: { gt: new Date() },
+        },
+        orderBy: { createdAt: 'desc' },
+      })
+
+      if (!session) return 0
+
+      const updated = await prisma.touristSession.update({
+        where: { id: session.id },
+        data: {
+          attempts: { increment: 1 },
+        },
+      })
+
+      return updated.attempts
     }
   )
 }

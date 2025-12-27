@@ -21,7 +21,10 @@ function truncateUnicodeSafe(str: string, maxCodePoints: number): string {
 /**
  * Remove HTML tags from a string to prevent XSS attacks
  */
-export function stripHtml(input: string): string {
+export function stripHtml(input: unknown): string {
+  if (typeof input !== 'string') {
+    return '';
+  }
   // Remove script and style tags with their content
   let sanitized = input.replace(/<script\b[^>]*>([\s\S]*?)<\/script>/gim, "")
     .replace(/<style\b[^>]*>([\s\S]*?)<\/style>/gim, "");
@@ -32,9 +35,12 @@ export function stripHtml(input: string): string {
 /**
  * Sanitize text input by removing dangerous characters and HTML
  */
-export function sanitizeText(input: string, maxLength = 1000): string {
+export function sanitizeText(input: unknown, maxLength = 1000): string {
+  const raw = typeof input === 'string' ? input : '';
+  const bounded = raw.length > maxLength * 4 ? raw.slice(0, maxLength * 4) : raw;
+
   // Remove HTML tags
-  let sanitized = stripHtml(input);
+  let sanitized = stripHtml(bounded);
 
   // Trim whitespace
   sanitized = sanitized.trim();
@@ -48,15 +54,60 @@ export function sanitizeText(input: string, maxLength = 1000): string {
 /**
  * Sanitize email address
  */
-export function sanitizeEmail(email: string): string {
-  // Convert to lowercase and trim
-  const sanitized = email.toLowerCase().trim();
-
-  // Basic email validation pattern
-  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-  if (!emailPattern.test(sanitized)) {
+export function sanitizeEmail(email: unknown): string {
+  if (typeof email !== 'string') {
     throw new Error('Invalid email format');
+  }
+
+  const sanitized = email.trim().toLowerCase();
+
+  if (!sanitized || sanitized.length > 254) {
+    throw new Error('Invalid email format');
+  }
+
+  if (/[\u0000-\u001F\u007F\s]/.test(sanitized)) {
+    throw new Error('Invalid email format');
+  }
+
+  const parts = sanitized.split('@');
+  if (parts.length !== 2) {
+    throw new Error('Invalid email format');
+  }
+
+  const [local, domain] = parts;
+
+  if (!local || !domain || local.length > 64) {
+    throw new Error('Invalid email format');
+  }
+
+  if (local.startsWith('.') || local.endsWith('.') || local.includes('..')) {
+    throw new Error('Invalid email format');
+  }
+
+  if (domain.startsWith('.') || domain.endsWith('.') || domain.includes('..')) {
+    throw new Error('Invalid email format');
+  }
+
+  if (!domain.includes('.')) {
+    throw new Error('Invalid email format');
+  }
+
+  if (!/^[a-z0-9.!#$%&'*+/=?^_`{|}~-]+$/i.test(local)) {
+    throw new Error('Invalid email format');
+  }
+
+  if (!/^[a-z0-9.-]+$/i.test(domain)) {
+    throw new Error('Invalid email format');
+  }
+
+  const labels = domain.split('.');
+  for (const label of labels) {
+    if (!label || label.length > 63) {
+      throw new Error('Invalid email format');
+    }
+    if (label.startsWith('-') || label.endsWith('-')) {
+      throw new Error('Invalid email format');
+    }
   }
 
   return sanitized;
@@ -73,18 +124,40 @@ export function sanitizePhoneNumber(phone: string): string {
 /**
  * Sanitize URL to prevent javascript: and data: protocols
  */
-export function sanitizeUrl(url: string): string {
-  if (!url || !url.trim()) return '';
+export function sanitizeUrl(url: unknown): string {
+  if (typeof url !== 'string') {
+    throw new Error('Invalid URL');
+  }
+
+  if (!url.trim()) return '';
   const trimmed = url.trim();
 
-  // Block dangerous protocols
-  const dangerousProtocols = ['javascript:', 'data:', 'vbscript:', 'file:'];
-  const lowerUrl = trimmed.toLowerCase();
+  if (/[\u0000-\u001F\u007F]/.test(trimmed)) {
+    throw new Error('Invalid URL');
+  }
 
+  let decoded = trimmed;
+  try {
+    decoded = decodeURIComponent(trimmed);
+  } catch {
+    throw new Error('Invalid URL');
+  }
+
+  if (/[\u0000-\u001F\u007F]/.test(decoded)) {
+    throw new Error('Invalid URL');
+  }
+
+  const lowerDecoded = decoded.trim().toLowerCase();
+  const dangerousProtocols = ['javascript:', 'data:', 'vbscript:', 'file:'];
   for (const protocol of dangerousProtocols) {
-    if (lowerUrl.startsWith(protocol)) {
+    if (lowerDecoded.startsWith(protocol)) {
       throw new Error('Invalid URL protocol');
     }
+  }
+
+  const protocolMatch = /^[a-z][a-z0-9+.-]*:/i.exec(trimmed);
+  if (protocolMatch && !trimmed.toLowerCase().startsWith('http://') && !trimmed.toLowerCase().startsWith('https://')) {
+    throw new Error('Invalid URL protocol');
   }
 
   // Allow absolute paths, relative paths, or protocol-relative
@@ -109,10 +182,19 @@ export function sanitizeObject<T extends Record<string, any>>(
   maxLength = 1000
 ): T {
   const sanitized = { ...obj };
+  const blockedKeys = new Set(['__proto__', 'prototype', 'constructor']);
 
   for (const field of fieldsToSanitize) {
-    if (typeof sanitized[field] === 'string') {
-      sanitized[field] = sanitizeText(sanitized[field] as string, maxLength) as T[keyof T];
+    if (blockedKeys.has(String(field))) {
+      continue;
+    }
+    if (!Object.prototype.hasOwnProperty.call(sanitized, field)) {
+      continue;
+    }
+    const value = sanitized[field];
+    const isStringObject = Object.prototype.toString.call(value) === '[object String]';
+    if (typeof value === 'string' || isStringObject) {
+      sanitized[field] = sanitizeText(String(value), maxLength) as T[keyof T];
     }
   }
 
@@ -127,12 +209,32 @@ export function sanitizeInteger(
   min?: number,
   max?: number
 ): number {
-  // Ensure strict integer parsing
-  if (typeof value === 'string' && !/^-?\d+$/.test(value)) {
+  if (typeof value === 'number') {
+    if (!Number.isFinite(value) || !Number.isInteger(value) || !Number.isSafeInteger(value)) {
+      throw new Error('Invalid integer value');
+    }
+
+    if (min !== undefined && value < min) {
+      throw new Error(`Value must be at least ${min}`);
+    }
+
+    if (max !== undefined && value > max) {
+      throw new Error(`Value must be at most ${max}`);
+    }
+
+    return value;
+  }
+
+  if (typeof value !== 'string') {
     throw new Error('Invalid integer format');
   }
 
-  const parsed = Number(value);
+  const trimmed = value.trim();
+  if (!/^[+-]?\d+$/.test(trimmed)) {
+    throw new Error('Invalid integer format');
+  }
+
+  const parsed = Number(trimmed);
 
   if (!Number.isInteger(parsed) || !Number.isSafeInteger(parsed)) {
     throw new Error('Invalid integer value');
@@ -158,26 +260,40 @@ export function sanitizeFloat(
   max?: number,
   decimals = 2
 ): number {
-  if (decimals < 0 || decimals > 20) {
+  if (!Number.isInteger(decimals) || decimals < 0 || decimals > 20) {
     throw new Error('Invalid decimals value');
   }
 
-  const parsed = parseFloat(value);
+  let parsed: number;
+
+  if (typeof value === 'number') {
+    parsed = value;
+  } else if (typeof value === 'string') {
+    const trimmed = value.trim();
+    if (!/^[+-]?(?:\d+|\d*\.\d+)$/.test(trimmed)) {
+      throw new Error('Invalid number value');
+    }
+    parsed = Number(trimmed);
+  } else {
+    throw new Error('Invalid number value');
+  }
 
   if (!Number.isFinite(parsed)) {
     throw new Error('Invalid number value');
   }
 
-  if (min !== undefined && parsed < min) {
+  // Round to specified decimal places
+  const rounded = Number(parsed.toFixed(decimals));
+
+  if (min !== undefined && rounded < min) {
     throw new Error(`Value must be at least ${min}`);
   }
 
-  if (max !== undefined && parsed > max) {
+  if (max !== undefined && rounded > max) {
     throw new Error(`Value must be at most ${max}`);
   }
 
-  // Round to specified decimal places
-  return parseFloat(parsed.toFixed(decimals));
+  return rounded;
 }
 
 /**

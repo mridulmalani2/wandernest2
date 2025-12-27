@@ -14,6 +14,7 @@ import {
 } from '@/lib/redis'
 import { sendBookingConfirmation } from '@/lib/email'
 import { autoMatchAndInvite } from '@/lib/matching/autoMatch'
+import { sanitizeEmail } from '@/lib/sanitization'
 
 // Validation schema for the verify request
 const verifySchema = z.object({
@@ -50,9 +51,18 @@ export async function POST(req: NextRequest) {
     const db = requireDatabase()
     const body = await req.json()
     const validatedData = verifySchema.parse(body)
+    let normalizedEmail = ''
+    try {
+      normalizedEmail = sanitizeEmail(validatedData.email)
+    } catch {
+      return NextResponse.json(
+        { success: false, error: 'Invalid email address' },
+        { status: 400 }
+      )
+    }
 
     // Get stored verification data from Redis
-    const storedData = await getVerificationData(validatedData.email)
+    const storedData = await getVerificationData(normalizedEmail)
 
     if (!storedData) {
       return NextResponse.json(
@@ -67,7 +77,7 @@ export async function POST(req: NextRequest) {
 
     // Check if max attempts exceeded (3 attempts)
     if (storedData.attempts >= 3) {
-      await deleteVerificationCode(validatedData.email)
+      await deleteVerificationCode(normalizedEmail)
       return NextResponse.json(
         {
           success: false,
@@ -81,7 +91,7 @@ export async function POST(req: NextRequest) {
     // Verify the code
     if (storedData.code !== hashVerificationCode(validatedData.code)) {
       // Increment attempts
-      const newAttempts = await incrementVerificationAttempts(validatedData.email)
+      const newAttempts = await incrementVerificationAttempts(normalizedEmail)
 
       return NextResponse.json(
         {
@@ -99,7 +109,7 @@ export async function POST(req: NextRequest) {
 
     const touristRequest = await db.touristRequest.create({
       data: {
-        email: validatedData.email,
+        email: normalizedEmail,
         emailVerified: true,
         city: validatedData.city,
         dates: validatedData.dates,
@@ -124,7 +134,7 @@ export async function POST(req: NextRequest) {
     })
 
     // Delete verification code from Redis
-    await deleteVerificationCode(validatedData.email)
+    await deleteVerificationCode(normalizedEmail)
 
     // AUTOMATIC MATCHING: Find and invite candidate students (do this BEFORE sending email)
     console.log(`[verifyTouristRequest] Triggering automatic matching for request ${touristRequest.id}`)
@@ -148,7 +158,7 @@ export async function POST(req: NextRequest) {
     // Send booking confirmation email with match status (non-critical)
     try {
       const emailResult = await sendBookingConfirmation(
-        validatedData.email,
+        normalizedEmail,
         touristRequest.id,
         touristRequest.city,
         { matchesFound: matchResult.candidatesFound }
