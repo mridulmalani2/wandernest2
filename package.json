@@ -19,7 +19,7 @@
     "schema": "./src/prisma/schema.prisma"
   },
   "engines": {
-    "node": ">=20.0.0 <23.0.0",
+    "node": ">=18.17.0",
     "npm": ">=10.0.0"
   },
   "dependencies": {
