@@ -1,5 +1,7 @@
 'use client'
 
+import { Vector3Tuple } from 'three'
+
 
 // ============================================
 // Core Types
@@ -70,3 +72,20 @@ export const COLORS = {
   glassBackground: 'rgba(255, 255, 255, 0.05)',
   glassBorder: 'rgba(255, 255, 255, 0.1)',
 } as const
+
+// ============================================
+// Camera & Animation Types
+// ============================================
+
+export interface CameraKeyframe {
+  scroll: number
+  position: Vector3Tuple
+  lookAt: Vector3Tuple
+  fov?: number
+}
+
+export interface CameraPath {
+  keyframes: CameraKeyframe[]
+  easing: 'linear' | 'easeInOut' | 'easeOut' | 'easeIn' | 'smoothstep'
+}
+
