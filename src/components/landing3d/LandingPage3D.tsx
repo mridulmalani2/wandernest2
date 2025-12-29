@@ -9,7 +9,6 @@ import { useScrollHijack, usePointerParallax, useDeviceCapabilities } from './ho
 import { LandingFallback } from './LandingFallback'
 import {
   AtmosphericBackground,
-  ScrollProgressIndicator,
   FinalStepCards,
 } from './components'
 import UserJourney3D from '@/components/landing3d/components/UserJourney3D'
@@ -101,11 +100,14 @@ function HeroScene({ pointerState }: { pointerState: PointerState }) {
 }
 
 // Scroll indicator
-function ScrollIndicator({ show, label = 'Scroll' }: { show: boolean; label?: string }) {
+function ScrollIndicator({ show, label = 'Scroll', onClick }: { show: boolean; label?: string; onClick?: () => void }) {
   if (!show) return null
 
   return (
-    <div className="absolute bottom-12 left-1/2 -translate-x-1/2 z-30 animate-fade-in">
+    <div
+      className="absolute bottom-12 inset-x-0 flex justify-center z-30 animate-fade-in cursor-pointer"
+      onClick={onClick}
+    >
       <div className="flex flex-col items-center gap-3">
         <span className="text-white/50 text-xs uppercase tracking-[0.2em] font-light">
           {label}
@@ -113,7 +115,7 @@ function ScrollIndicator({ show, label = 'Scroll' }: { show: boolean; label?: st
         <div className="relative">
           <div className="absolute inset-0 bg-gradient-to-b from-purple-500/30 to-blue-500/30 rounded-full blur-xl scale-150" />
           <div
-            className="relative w-10 h-10 rounded-full border border-white/20 flex items-center justify-center bg-white/5 backdrop-blur-sm"
+            className="relative w-10 h-10 rounded-full border border-white/20 flex items-center justify-center bg-white/5 backdrop-blur-sm transition-transform duration-300 hover:scale-110"
             style={{ animation: 'bounce 2s infinite' }}
           >
             <svg className="w-5 h-5 text-white/70" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -226,21 +228,15 @@ function Tagline({ show }: { show: boolean }) {
 export function LandingPage3D({ className = '' }: LandingPage3DProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [isReady, setIsReady] = useState(false)
-  const [phase1EnteredAt, setPhase1EnteredAt] = useState<number | null>(null)
-  const [showContinue, setShowContinue] = useState(false)
+
   const [cardsEntranceProgress, setCardsEntranceProgress] = useState(0)
 
   const { canRender3D, isMobile, prefersReducedMotion, pixelRatio } = useDeviceCapabilities()
 
   // Block phase 1→2 for 1 second
   const canAdvancePhase = useCallback((currentPhase: number) => {
-    if (currentPhase === 0) return true
-    if (currentPhase === 1) {
-      if (!phase1EnteredAt) return false
-      return Date.now() - phase1EnteredAt >= 1000
-    }
     return true
-  }, [phase1EnteredAt])
+  }, [])
 
   const hijackState = useScrollHijack({
     enabled: canRender3D && !prefersReducedMotion && isReady,
@@ -250,14 +246,7 @@ export function LandingPage3D({ className = '' }: LandingPage3DProps) {
   const pointerState = usePointerParallax(canRender3D && !isMobile)
 
   // Mark when we enter phase 1 and show continue after delay
-  useEffect(() => {
-    if (hijackState.currentPhase === 1 && phase1EnteredAt === null) {
-      setPhase1EnteredAt(Date.now())
-      // Show continue indicator after 1s
-      const timer = setTimeout(() => setShowContinue(true), 1000)
-      return () => clearTimeout(timer)
-    }
-  }, [hijackState.currentPhase, phase1EnteredAt])
+
 
   // Animate cards entrance when entering phase 2
   useEffect(() => {
@@ -361,8 +350,16 @@ export function LandingPage3D({ className = '' }: LandingPage3DProps) {
         />
 
         {/* Scroll indicators */}
-        <ScrollIndicator show={currentPhase === 0 && isReady} label="Scroll to Explore" />
-        <ScrollIndicator show={currentPhase === 1 && showContinue} label="Continue" />
+        <ScrollIndicator
+          show={currentPhase === 0 && isReady}
+          label="Scroll to Explore"
+          onClick={hijackState.advancePhase}
+        />
+        <ScrollIndicator
+          show={currentPhase === 1}
+          label="Scroll to Explore"
+          onClick={hijackState.advancePhase}
+        />
       </section>
 
       {/* Spacer when hero is fixed */}

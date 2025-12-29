@@ -33,6 +33,7 @@ export interface ScrollHijackState {
   cumulativeDelta: number
   isComplete: boolean
   direction: 'forward' | 'reverse' | 'none'
+  advancePhase: () => void
 }
 
 export interface UseScrollHijackOptions {
@@ -63,6 +64,7 @@ export function useScrollHijack(options: UseScrollHijackOptions | boolean = true
     cumulativeDelta: 0,
     isComplete: false,
     direction: 'forward',
+    advancePhase: () => { },
   })
 
   const currentPhaseRef = useRef(0)
@@ -113,6 +115,7 @@ export function useScrollHijack(options: UseScrollHijackOptions | boolean = true
       cumulativeDelta: newPhase,
       isComplete,
       direction: 'forward',
+      advancePhase,
     })
   }, [maxPhase, canAdvance])
 
@@ -255,5 +258,5 @@ export function useScrollHijack(options: UseScrollHijackOptions | boolean = true
     }
   }, [enabled, handleWheel, handleTouchStart, handleTouchMove, preventScroll, advancePhase])
 
-  return state
+  return { ...state, advancePhase }
 }

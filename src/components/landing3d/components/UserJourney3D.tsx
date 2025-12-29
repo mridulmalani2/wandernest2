@@ -296,8 +296,30 @@ export default function UserJourney3D({ onStudentClick }: { onStudentClick?: () 
     handleMouseUp()
   }, [handleMouseUp])
 
-  // Wheel handler REMOVED - vertical scroll should NOT change carousel
-  // Only horizontal swipe/drag and arrow keys navigate the carousel
+  // Wheel handler for trackpad/mouse wheel smoothing
+  const handleWheel = useCallback((e: React.WheelEvent) => {
+    // Only capture mainly horizontal scrolls to avoid blocking vertical page scroll
+    if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+      // Prevent browser back/forward navigation gestures if possible
+      // Note: React's event pooling might make e.preventDefault() tricky depending on React version,
+      // but usually fine for onWheel.
+
+      const now = Date.now()
+      // Cooldown to prevent "machine gun" card switching
+      if (now - lastWheelTime.current < 600) return
+
+      // Threshold to ignore tiny accidental movements
+      if (Math.abs(e.deltaX) > 10) {
+        if (e.deltaX > 0 && currentIndex < totalSections - 1) {
+          goToIndex(currentIndex + 1)
+          lastWheelTime.current = now
+        } else if (e.deltaX < 0 && currentIndex > 0) {
+          goToIndex(currentIndex - 1)
+          lastWheelTime.current = now
+        }
+      }
+    }
+  }, [currentIndex, totalSections, goToIndex])
 
   // Keyboard navigation
   useEffect(() => {
@@ -312,7 +334,17 @@ export default function UserJourney3D({ onStudentClick }: { onStudentClick?: () 
   const currentSection = journeySections[currentIndex]
 
   return (
-    <div className="relative py-16 md:py-20">
+    <div
+      className="relative py-16 md:py-20"
+      onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={handleMouseUp}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+      onWheel={handleWheel}
+    >
       {/* Subtle accent glow that complements the Paris background */}
       <div
         className="absolute inset-0 transition-all duration-700 pointer-events-none"
@@ -334,15 +366,8 @@ export default function UserJourney3D({ onStudentClick }: { onStudentClick?: () 
       {/* Carousel Container */}
       <div
         ref={containerRef}
-        className={`relative h-[480px] md:h-[520px] overflow-hidden ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
+        className={`relative h-[480px] md:h-[520px] ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
         style={{ perspective: '1000px' }}
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
       >
         {/* Cards Container */}
         <div className="relative h-full w-full" style={{ transformStyle: 'preserve-3d' }}>
