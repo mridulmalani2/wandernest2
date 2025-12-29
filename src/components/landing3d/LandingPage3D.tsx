@@ -369,7 +369,7 @@ export function LandingPage3D({ className = '' }: LandingPage3DProps) {
       <section id="user-journey-carousel" className="relative min-h-screen overflow-hidden">
         <div className="absolute inset-0 z-0">
           <Image
-            src="/images/backgrounds/cafe-ambiance.jpg"
+            src="/images/backgrounds/big_ben.jpg"
             alt="Paris at night"
             fill
             className="object-cover"
