@@ -313,8 +313,8 @@ export function LandingPage3D({ className = '' }: LandingPage3DProps) {
         {/* Background */}
         <div className="absolute inset-0 z-0">
           <Image
-            src="/images/backgrounds/cafe-ambiance.jpg"
-            alt="Paris at night"
+            src="/images/backgrounds/eifel_background.jpg"
+            alt="Eiffel Tower skyline"
             fill
             priority
             className="object-cover"

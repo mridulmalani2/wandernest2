@@ -301,7 +301,7 @@ export function LandingFallback() {
       {/* Paris Night Background */}
       <div className="fixed inset-0 z-0">
         <Image
-          src="/images/backgrounds/cafe-ambiance.jpg"
+          src="/images/backgrounds/eifel_background.jpg"
           alt=""
           fill
           className="object-cover opacity-30"
