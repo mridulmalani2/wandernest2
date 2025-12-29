@@ -136,16 +136,26 @@ export default function Navigation({ variant = 'default', showBackButton = false
 
             {!session && variant === 'default' && (
               <>
-                <Link href="/student">
-                  <Button variant="ghost" className="rounded-full px-4 py-2 h-auto text-blue-50 border border-white/20 hover:bg-white/10 hover:text-white transition-all duration-200 hover:scale-105 active:scale-95 font-sans text-sm font-medium">
-                    I&apos;m a Student
-                  </Button>
-                </Link>
-                <Link href="/tourist">
-                  <Button className="rounded-full px-4 py-2 h-auto bg-white/15 hover:bg-white/25 border border-white/30 text-white font-sans text-sm font-semibold transition-all duration-200 hover:scale-105 hover:-translate-y-0.5 active:scale-95 backdrop-blur-sm">
-                    I&apos;m a Tourist
-                  </Button>
-                </Link>
+                {pathname === '/booking' ? (
+                  <Link href="/">
+                    <Button variant="ghost" className="rounded-full px-4 py-2 h-auto text-blue-50 hover:bg-white/10 hover:text-white transition-all duration-200 hover:scale-105 active:scale-95 font-sans text-sm font-medium">
+                      <ChevronLeft className="w-3.5 h-3.5 mr-1" /> Back to Home
+                    </Button>
+                  </Link>
+                ) : (
+                  <>
+                    <Link href="/student">
+                      <Button variant="ghost" className="rounded-full px-4 py-2 h-auto text-blue-50 border border-white/20 hover:bg-white/10 hover:text-white transition-all duration-200 hover:scale-105 active:scale-95 font-sans text-sm font-medium">
+                        I&apos;m a Student
+                      </Button>
+                    </Link>
+                    <Link href="/tourist">
+                      <Button className="rounded-full px-4 py-2 h-auto bg-white/15 hover:bg-white/25 border border-white/30 text-white font-sans text-sm font-semibold transition-all duration-200 hover:scale-105 hover:-translate-y-0.5 active:scale-95 backdrop-blur-sm">
+                        I&apos;m a Tourist
+                      </Button>
+                    </Link>
+                  </>
+                )}
               </>
             )}
 
@@ -156,11 +166,13 @@ export default function Navigation({ variant = 'default', showBackButton = false
                     <ChevronLeft className="w-3.5 h-3.5 mr-1" /> Back to Home
                   </Button>
                 </Link>
-                <Link href="/tourist">
-                  <Button className="rounded-full px-4 py-2 h-auto bg-white/15 hover:bg-white/25 border border-white/30 text-white font-sans text-sm font-semibold transition-all duration-200 hover:scale-105 hover:-translate-y-0.5 active:scale-95 backdrop-blur-sm">
-                    I&apos;m a Tourist
-                  </Button>
-                </Link>
+                {pathname !== '/booking' && (
+                  <Link href="/booking">
+                    <Button variant="ghost" className="rounded-full px-5 py-2 h-auto text-blue-50 border border-white/20 hover:bg-white/10 hover:text-white transition-all duration-200 hover:scale-105 active:scale-95 font-sans text-sm font-medium">
+                      Sign In
+                    </Button>
+                  </Link>
+                )}
               </>
             )}
 
@@ -272,16 +284,26 @@ export default function Navigation({ variant = 'default', showBackButton = false
 
             {!session && variant === 'default' && (
               <>
-                <Link href="/student" onClick={() => setMobileMenuOpen(false)}>
-                  <Button variant="ghost" className="w-full rounded-full text-blue-50 border border-white/20 hover:bg-white/10 hover:text-white transition-all font-sans text-sm font-medium">
-                    I&apos;m a Student
-                  </Button>
-                </Link>
-                <Link href="/tourist" onClick={() => setMobileMenuOpen(false)}>
-                  <Button className="w-full rounded-full bg-white/15 hover:bg-white/25 border border-white/30 text-white font-sans text-sm font-semibold transition-all backdrop-blur-sm">
-                    I&apos;m a Tourist
-                  </Button>
-                </Link>
+                {pathname === '/booking' ? (
+                  <Link href="/" onClick={() => setMobileMenuOpen(false)}>
+                    <Button variant="ghost" className="w-full justify-start rounded-full text-blue-50 hover:bg-white/10 hover:text-white transition-all font-sans text-sm font-medium">
+                      <ChevronLeft className="w-4 h-4 mr-2" /> Back to Home
+                    </Button>
+                  </Link>
+                ) : (
+                  <>
+                    <Link href="/student" onClick={() => setMobileMenuOpen(false)}>
+                      <Button variant="ghost" className="w-full rounded-full text-blue-50 border border-white/20 hover:bg-white/10 hover:text-white transition-all font-sans text-sm font-medium">
+                        I&apos;m a Student
+                      </Button>
+                    </Link>
+                    <Link href="/tourist" onClick={() => setMobileMenuOpen(false)}>
+                      <Button className="w-full rounded-full bg-white/15 hover:bg-white/25 border border-white/30 text-white font-sans text-sm font-semibold transition-all backdrop-blur-sm">
+                        I&apos;m a Tourist
+                      </Button>
+                    </Link>
+                  </>
+                )}
               </>
             )}
 
@@ -292,11 +314,13 @@ export default function Navigation({ variant = 'default', showBackButton = false
                     <ChevronLeft className="w-4 h-4 mr-2" /> Back to Home
                   </Button>
                 </Link>
-                <Link href="/tourist" onClick={() => setMobileMenuOpen(false)}>
-                  <Button className="w-full rounded-full bg-white/15 hover:bg-white/25 border border-white/30 text-white font-sans text-sm font-semibold transition-all backdrop-blur-sm">
-                    I&apos;m a Tourist
-                  </Button>
-                </Link>
+                {pathname !== '/booking' && (
+                  <Link href="/booking" onClick={() => setMobileMenuOpen(false)}>
+                    <Button variant="ghost" className="w-full rounded-full text-blue-50 border border-white/20 hover:bg-white/10 hover:text-white transition-all font-sans text-sm font-medium">
+                      Sign In
+                    </Button>
+                  </Link>
+                )}
               </>
             )}
 
