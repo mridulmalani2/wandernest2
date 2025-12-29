@@ -43,7 +43,7 @@ const journeySections: JourneySection[] = [
     description: 'Match with student guides from your home country who speak your language and understand your culture.',
     accentColor: '#6B8DD6',
     secondaryColor: '#9B7BD6',
-    image: '/images/backgrounds/paths.jpg',
+    image: '/images/backgrounds/student%201.png',
   },
   {
     id: 'authentic',
@@ -53,7 +53,7 @@ const journeySections: JourneySection[] = [
     description: 'Every recommendation comes from lived experience. The café where locals actually go.',
     accentColor: '#9B7BD6',
     secondaryColor: '#D67B8D',
-    image: '/images/backgrounds/cafe-ambiance.jpg',
+    image: '/images/backgrounds/student%202.jpg',
   },
   {
     id: 'concierge',
@@ -63,7 +63,7 @@ const journeySections: JourneySection[] = [
     description: 'Custom itineraries. Public transport mastered. Hidden gems discovered.',
     accentColor: '#D67B8D',
     secondaryColor: '#6BD6C5',
-    image: '/images/backgrounds/moret.jpg',
+    image: '/images/backgrounds/student%203.avif',
   },
   {
     id: 'student',
