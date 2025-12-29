@@ -68,7 +68,7 @@ export default function Footer({ variant = 'default' }: FooterProps) {
                 </li>
                 <li>
                   <Link
-                    href="/booking"
+                    href="/tourist"
                     className="text-base text-white/80 hover:text-white transition-colors duration-200 inline-block hover:translate-x-1 transform"
                   >
                     I&apos;m a Tourist
