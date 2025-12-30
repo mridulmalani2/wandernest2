@@ -42,7 +42,7 @@ const journeySections: JourneySection[] = [
     description: 'Every recommendation comes from lived experience. The café where locals actually go. The viewpoint not on Instagram.',
     accentColor: '#9B7BD6',
     secondaryColor: '#D67B8D',
-    image: '/images/backgrounds/cafe-ambiance.jpg',
+    image: '/images/backgrounds/orsay.jpg',
   },
   {
     id: 'concierge',
