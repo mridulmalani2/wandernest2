@@ -5,11 +5,11 @@ import Image from 'next/image'
 import { GraduationCap, MessageCircle, Star, AlertTriangle, Users, MapPin } from 'lucide-react'
 import Footer from '@/components/Footer'
 import { PrimaryCTAButton } from '@/components/ui/PrimaryCTAButton'
-import { motion } from 'framer-motion'
+import { motion, Variants } from 'framer-motion'
 import { useRef } from 'react'
 
 // Animation Variants
-const staggerContainer = {
+const staggerContainer: Variants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
@@ -20,7 +20,7 @@ const staggerContainer = {
   },
 }
 
-const fadeInUp = {
+const fadeInUp: Variants = {
   hidden: { opacity: 0, y: 30 },
   visible: {
     opacity: 1,
@@ -33,7 +33,7 @@ const fadeInUp = {
   },
 }
 
-const scaleIn = {
+const scaleIn: Variants = {
   hidden: { opacity: 0, scale: 0.9 },
   visible: {
     opacity: 1,
@@ -47,7 +47,7 @@ const scaleIn = {
   },
 }
 
-const cardHover = {
+const cardHover: Variants = {
   hover: {
     y: -8,
     transition: {
