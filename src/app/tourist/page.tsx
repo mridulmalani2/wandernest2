@@ -1,13 +1,70 @@
+'use client'
+
 import Link from 'next/link'
 import Image from 'next/image'
 import { GraduationCap, MessageCircle, Star, AlertTriangle, Users, MapPin } from 'lucide-react'
 import Footer from '@/components/Footer'
 import { PrimaryCTAButton } from '@/components/ui/PrimaryCTAButton'
+import { motion } from 'framer-motion'
+import { useRef } from 'react'
+
+// Animation Variants
+const staggerContainer = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.1,
+    },
+  },
+}
+
+const fadeInUp = {
+  hidden: { opacity: 0, y: 30 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      type: 'spring',
+      damping: 25,
+      stiffness: 100,
+    },
+  },
+}
+
+const scaleIn = {
+  hidden: { opacity: 0, scale: 0.9 },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    transition: {
+      type: 'spring',
+      damping: 25,
+      stiffness: 100,
+      duration: 0.5,
+    },
+  },
+}
+
+const cardHover = {
+  hover: {
+    y: -8,
+    transition: {
+      type: 'spring',
+      stiffness: 400,
+      damping: 25,
+    },
+  },
+}
 
 export default function TouristLanding() {
+  const containerRef = useRef(null)
+
   return (
-    <div className="min-h-screen flex flex-col relative overflow-hidden">
-      <div className="absolute inset-0">
+    <div className="min-h-screen flex flex-col relative overflow-hidden bg-black selection:bg-ui-blue-primary/30">
+      {/* Background with optimized loading */}
+      <div className="fixed inset-0 z-0">
         <Image
           src="/images/backgrounds/cafe-ambiance.jpg"
           alt="Beautiful London Thames River with iconic architecture"
@@ -15,384 +72,305 @@ export default function TouristLanding() {
           priority
           quality={70}
           sizes="100vw"
-          className="object-cover"
+          className="object-cover opacity-60"
         />
-        <div className="absolute inset-0 bg-black/30 backdrop-blur-[4px]" />
-        <div className="absolute inset-0 bg-gradient-to-br from-ui-blue-primary/20 via-ui-blue-accent/15 to-ui-purple-primary/20" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/40 to-black/90 backdrop-blur-[2px]" />
+        <div className="absolute inset-0 bg-gradient-to-br from-ui-blue-primary/10 via-transparent to-ui-purple-primary/10 mix-blend-overlay" />
       </div>
-      <div className="absolute inset-0 pattern-dots opacity-15" />
 
-      <div className="relative z-10 flex flex-col min-h-screen">
-        {/* Hero Section - Optimized for mobile: reduced padding */}
-        <main className="flex-1 container mx-auto px-4 pt-24 pb-8 md:pt-32 md:pb-16">
-          <div className="max-w-5xl mx-auto space-y-10 md:space-y-16">
-            <div className="text-center space-y-6 md:space-y-8 will-change-transform">
-              <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold leading-[1.2] tracking-tight text-white text-shadow-lg">
+      <div className="absolute inset-0 pattern-dots opacity-10 z-[1] pointer-events-none" />
+
+      <div className="relative z-10 flex flex-col min-h-screen" ref={containerRef}>
+        {/* Hero Section */}
+        <motion.main
+          className="flex-1 container mx-auto px-4 pt-24 pb-8 md:pt-36 md:pb-20"
+          initial="hidden"
+          animate="visible"
+          variants={staggerContainer}
+        >
+          <div className="max-w-5xl mx-auto space-y-12 md:space-y-20">
+            <div className="text-center space-y-8 md:space-y-10">
+              <motion.h1
+                className="text-5xl sm:text-6xl md:text-7xl font-bold leading-[1.1] tracking-tight text-white drop-shadow-2xl"
+                variants={fadeInUp}
+              >
                 Experience Authentic Travel
                 <br />
-                with Local Student Guides
-              </h1>
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-300 via-purple-300 to-indigo-300 animate-gradient-shift">
+                  with Local Student Guides
+                </span>
+              </motion.h1>
 
-              <p className="text-lg sm:text-xl md:text-2xl text-white max-w-3xl mx-auto leading-relaxed font-medium text-shadow">
+              <motion.p
+                className="text-lg sm:text-xl md:text-2xl text-blue-50/90 max-w-3xl mx-auto leading-relaxed font-medium drop-shadow-lg"
+                variants={fadeInUp}
+              >
                 Connect with verified university students who will show you their city
                 through a local&apos;s eyes. Get personalized recommendations and authentic
                 experiences.
-              </p>
+              </motion.p>
 
-              <p className="text-sm sm:text-sm md:text-base text-white/90 max-w-2xl mx-auto leading-relaxed text-shadow-sm">
-                Choose a guide from your home country for added comfort, or explore connections with local students—it&apos;s entirely up to you.
-              </p>
+              <motion.p
+                className="text-base sm:text-lg text-blue-100/70 max-w-2xl mx-auto leading-relaxed"
+                variants={fadeInUp}
+              >
+                Choose a guide from your home country for added comfort, or explore connections with local students.
+              </motion.p>
 
-              <div className="flex justify-center gap-3 sm:gap-4 pt-6">
+              <motion.div
+                className="flex justify-center gap-4 pt-4"
+                variants={fadeInUp}
+              >
                 <PrimaryCTAButton
                   href="/booking"
                   showArrow
                   variant="blue"
-                  className="text-lg"
+                  className="text-lg px-8 py-6 shadow-glow-blue hover:shadow-glow-blue-lg transition-shadow duration-300"
                 >
                   Start Your Adventure
                 </PrimaryCTAButton>
-              </div>
+              </motion.div>
             </div>
 
             {/* Features */}
-            <div className="pt-12">
-              <div className="text-center space-y-3 mb-12">
-                <h2 className="text-3xl md:text-4xl lg:text-5xl font-serif font-bold text-white text-shadow-lg">
+            <motion.div
+              className="pt-16"
+              variants={staggerContainer}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-100px" }}
+            >
+              <div className="text-center space-y-4 mb-16">
+                <motion.h2
+                  className="text-3xl md:text-5xl font-serif font-bold text-white drop-shadow-lg"
+                  variants={fadeInUp}
+                >
                   Why Choose TourWiseCo?
-                </h2>
-                <p className="text-base md:text-lg text-white/90 text-shadow max-w-2xl mx-auto">
+                </motion.h2>
+                <motion.p
+                  className="text-lg text-blue-100/80 max-w-2xl mx-auto"
+                  variants={fadeInUp}
+                >
                   Authentic travel experiences with verified local student guides
-                </p>
+                </motion.p>
               </div>
-              <div className="grid md:grid-cols-3 gap-6 lg:gap-8 max-w-6xl mx-auto">
-                <div className="group rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 relative overflow-hidden h-full min-h-[280px] transform-gpu">
-                  <div className="absolute inset-0">
-                    <Image
-                      src="/images/backgrounds/cafe-ambiance.jpg"
-                      alt="University students studying together with books and laptops"
-                      fill
-                      quality={60}
-                      sizes="(max-width: 768px) 100vw, 33vw"
-                      className="object-cover"
+
+              <div className="grid md:grid-cols-3 gap-8 lg:gap-10 max-w-6xl mx-auto">
+                {[
+                  {
+                    icon: GraduationCap,
+                    title: "Verified Students",
+                    desc: "All guides are verified university students with local knowledge",
+                    color: "text-blue-400"
+                  },
+                  {
+                    icon: MessageCircle,
+                    title: "Personalized Experience",
+                    desc: "Get custom itineraries based on your interests and preferences",
+                    color: "text-purple-400"
+                  },
+                  {
+                    icon: Star,
+                    title: "Authentic Adventures",
+                    desc: "Discover hidden gems and local favorites off the beaten path",
+                    color: "text-amber-400"
+                  }
+                ].map((feature, idx) => (
+                  <motion.div
+                    key={idx}
+                    className="group relative rounded-3xl overflow-hidden h-full min-h-[320px] bg-white/5 border border-white/10 backdrop-blur-md"
+                    variants={scaleIn}
+                    whileHover="hover"
+                  >
+                    <motion.div
+                      className="absolute inset-0 bg-gradient-to-b from-transparent to-black/60 z-0"
+                      variants={{ hover: { opacity: 0.8 } }}
                     />
-                    <div className="absolute inset-0 bg-black/40"></div>
-                  </div>
-                  <div className="relative z-10 p-8 h-full backdrop-blur-sm bg-white/10 border border-white/20 rounded-2xl group-hover:bg-white/15 transition-all">
-                    <div className="inline-flex p-4 rounded-2xl bg-white/10 text-white mb-6 group-hover:scale-105 transition-all duration-300 shadow-md border border-white/20">
-                      <GraduationCap className="w-8 h-8" />
-                    </div>
-                    <h3 className="text-xl font-bold mb-3 text-white group-hover:text-ui-blue-accent transition-colors">
-                      Verified Students
-                    </h3>
-                    <p className="text-base text-white/90 leading-relaxed">
-                      All guides are verified university students with local knowledge
-                    </p>
-                  </div>
-                </div>
 
-                <div className="group rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 relative overflow-hidden h-full min-h-[280px] transform-gpu">
-                  <div className="absolute inset-0">
-                    <Image
-                      src="/images/backgrounds/cafe-ambiance.jpg"
-                      alt="Cozy Parisian cafe with authentic ambiance"
-                      fill
-                      quality={60}
-                      sizes="(max-width: 768px) 100vw, 33vw"
-                      className="object-cover"
-                    />
-                    <div className="absolute inset-0 bg-black/40"></div>
-                  </div>
-                  <div className="relative z-10 p-8 h-full backdrop-blur-sm bg-white/10 border border-white/20 rounded-2xl group-hover:bg-white/15 transition-all">
-                    <div className="inline-flex p-4 rounded-2xl bg-white/10 text-white mb-6 group-hover:scale-105 transition-all duration-300 shadow-md border border-white/20">
-                      <MessageCircle className="w-8 h-8" />
-                    </div>
-                    <h3 className="text-xl font-bold mb-3 text-white group-hover:text-ui-purple-accent transition-colors">
-                      Personalized Experience
-                    </h3>
-                    <p className="text-base text-white/90 leading-relaxed">
-                      Get custom itineraries based on your interests and preferences
-                    </p>
-                  </div>
-                </div>
+                    <div className="relative z-10 p-8 h-full flex flex-col items-start">
+                      <motion.div
+                        className={`inline-flex p-4 rounded-2xl bg-white/10 ${feature.color} mb-6 shadow-lg border border-white/10 backdrop-blur-sm`}
+                        variants={cardHover}
+                      >
+                        <feature.icon className="w-8 h-8" />
+                      </motion.div>
 
-                <div className="group rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 relative overflow-hidden h-full min-h-[280px] transform-gpu">
-                  <div className="absolute inset-0">
-                    <Image
-                      src="/images/backgrounds/cafe-ambiance.jpg"
-                      alt="Iconic London bridge and cityscape"
-                      fill
-                      quality={60}
-                      sizes="(max-width: 768px) 100vw, 33vw"
-                      className="object-cover"
-                    />
-                    <div className="absolute inset-0 bg-black/40"></div>
-                  </div>
-                  <div className="relative z-10 p-8 h-full backdrop-blur-sm bg-white/10 border border-white/20 rounded-2xl group-hover:bg-white/15 transition-all">
-                    <div className="inline-flex p-4 rounded-2xl bg-white/10 text-white mb-6 group-hover:scale-105 transition-all duration-300 shadow-md border border-white/20">
-                      <Star className="w-8 h-8" />
-                    </div>
-                    <h3 className="text-xl font-bold mb-3 text-white group-hover:text-amber-300 transition-colors">
-                      Authentic Adventures
-                    </h3>
-                    <p className="text-base text-white/90 leading-relaxed">
-                      Discover hidden gems and local favorites off the beaten path
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* How It Works Section - Compact & Consistent */}
-            <div className="space-y-6 pt-12 transform-gpu">
-              <h2 className="text-3xl md:text-4xl font-bold text-center text-white text-shadow-lg">How It Works</h2>
-
-              {/* Desktop Timeline */}
-              <div className="hidden md:block relative max-w-4xl mx-auto">
-                <div className="grid md:grid-cols-3 gap-8">
-                  {/* Step 1 */}
-                  <div className="text-center group">
-                    <div className="min-h-[120px] space-y-2 backdrop-blur-sm bg-white/10 rounded-xl p-5 border border-white/20 group-hover:bg-white/20 transition-all">
-                      <h3 className="font-bold text-lg text-white">Submit Your Request</h3>
-                      <p className="text-sm text-white/90 leading-relaxed">
-                        Tell us about your trip preferences, dates, and interests
+                      <h3 className={`text-2xl font-bold mb-4 text-white group-hover:${feature.color.replace('text-', 'text-')} transition-colors`}>
+                        {feature.title}
+                      </h3>
+                      <p className="text-lg text-blue-100/70 leading-relaxed">
+                        {feature.desc}
                       </p>
                     </div>
-                  </div>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
 
-                  {/* Step 2 */}
-                  <div className="text-center group">
-                    <div className="min-h-[120px] space-y-2 backdrop-blur-sm bg-white/10 rounded-xl p-5 border border-white/20 group-hover:bg-white/20 transition-all">
-                      <h3 className="font-bold text-lg text-white">Get Matched with Guides</h3>
-                      <p className="text-sm text-white/90 leading-relaxed">
-                        We match you with verified student guides who fit your needs
-                      </p>
-                    </div>
-                  </div>
+            {/* How It Works Section */}
+            <motion.div
+              className="space-y-12 pt-24"
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              variants={staggerContainer}
+            >
+              <motion.h2
+                className="text-3xl md:text-5xl font-bold text-center text-white drop-shadow-lg"
+                variants={fadeInUp}
+              >
+                How It Works
+              </motion.h2>
 
-                  {/* Step 3 */}
-                  <div className="text-center group">
-                    <div className="min-h-[120px] space-y-2 backdrop-blur-sm bg-white/10 rounded-xl p-5 border border-white/20 group-hover:bg-white/20 transition-all">
-                      <h3 className="font-bold text-lg text-white">Experience the City</h3>
-                      <p className="text-sm text-white/90 leading-relaxed">
-                        Connect directly with your guide and enjoy an authentic local experience
-                      </p>
-                    </div>
-                  </div>
+              <div className="relative max-w-5xl mx-auto">
+                <div className="grid md:grid-cols-3 gap-8 md:gap-12">
+                  {[
+                    "Submit Your Request",
+                    "Get Matched with Guides",
+                    "Experience the City"
+                  ].map((step, idx) => (
+                    <motion.div
+                      key={idx}
+                      className="text-center group relative"
+                      variants={fadeInUp}
+                    >
+                      <div className="min-h-[160px] flex flex-col items-center justify-center space-y-4 backdrop-blur-md bg-white/5 rounded-3xl p-8 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all duration-300 shadow-premium">
+                        <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-300 font-bold text-lg border border-blue-500/30 mb-2">
+                          {idx + 1}
+                        </div>
+                        <h3 className="font-bold text-xl text-white">{step}</h3>
+                      </div>
+                    </motion.div>
+                  ))}
                 </div>
               </div>
-
-              {/* Mobile Vertical Timeline */}
-              <div className="md:hidden space-y-4 max-w-md mx-auto">
-                {/* Step 1 */}
-                <div className="space-y-2 backdrop-blur-sm bg-white/10 rounded-xl p-4 border border-white/20">
-                  <h3 className="font-bold text-base text-white">Submit Your Request</h3>
-                  <p className="text-sm text-white/90 leading-relaxed">
-                    Tell us about your trip preferences, dates, and interests
-                  </p>
-                </div>
-
-                {/* Step 2 */}
-                <div className="space-y-2 backdrop-blur-sm bg-white/10 rounded-xl p-4 border border-white/20">
-                  <h3 className="font-bold text-base text-white">Get Matched with Guides</h3>
-                  <p className="text-sm text-white/90 leading-relaxed">
-                    We match you with verified student guides who fit your needs
-                  </p>
-                </div>
-
-                {/* Step 3 */}
-                <div className="space-y-2 backdrop-blur-sm bg-white/10 rounded-xl p-4 border border-white/20">
-                  <h3 className="font-bold text-base text-white">Experience the City</h3>
-                  <p className="text-sm text-white/90 leading-relaxed">
-                    Connect directly with your guide and enjoy an authentic local experience
-                  </p>
-                </div>
-              </div>
-            </div>
+            </motion.div>
 
             {/* City Destination Cards */}
-            <div className="space-y-8 pt-12">
-              <div className="text-center">
-                <h2 className="text-4xl md:text-5xl font-bold text-white text-shadow-lg">Choose Your Destination</h2>
-              </div>
+            <motion.div
+              className="space-y-12 pt-24"
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              variants={staggerContainer}
+            >
+              <motion.div className="text-center" variants={fadeInUp}>
+                <h2 className="text-4xl md:text-5xl font-bold text-white drop-shadow-lg">
+                  Choose Your Destination
+                </h2>
+              </motion.div>
 
-              <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-                {/* Paris Card */}
-                <Link href="/booking" className="group block transform-gpu">
-                  <div className="relative h-96 rounded-3xl overflow-hidden shadow-premium hover:shadow-elevated transition-all duration-500 hover:-translate-y-2">
-                    {/* Background Image */}
-                    <Image
-                      src="/images/backgrounds/eifel_background.jpg"
-                      alt="Iconic Paris architecture and streets"
-                      fill
-                      quality={75}
-                      sizes="(max-width: 768px) 100vw, 50vw"
-                      className="object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
+              <div className="grid md:grid-cols-2 gap-8 md:gap-12 max-w-5xl mx-auto">
+                {[
+                  {
+                    city: "Paris",
+                    country: "France",
+                    image: "/images/backgrounds/eifel_background.jpg",
+                    stats: "45+ guides",
+                    color: "group-hover:text-purple-300"
+                  },
+                  {
+                    city: "London",
+                    country: "United Kingdom",
+                    image: "/images/backgrounds/big_ben.jpg",
+                    stats: "60+ guides",
+                    color: "group-hover:text-blue-300"
+                  }
+                ].map((dest, idx) => (
+                  <Link key={idx} href="/booking" className="group block h-full">
+                    <motion.div
+                      className="relative h-[480px] rounded-[2rem] overflow-hidden shadow-2xl border border-white/10"
+                      variants={scaleIn}
+                      whileHover={{ y: -10, transition: { duration: 0.3 } }}
+                    >
+                      {/* Background Image */}
+                      <Image
+                        src={dest.image}
+                        alt={`Iconic ${dest.city} architecture`}
+                        fill
+                        quality={85}
+                        sizes="(max-width: 768px) 100vw, 50vw"
+                        className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                      />
 
-                    {/* Gradient Overlays */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
-                    <div className="absolute inset-0 bg-gradient-to-br from-ui-purple-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                      {/* Overlays */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
 
-                    {/* Content */}
-                    <div className="absolute inset-0 flex flex-col justify-end p-8">
-                      {/* City Badge */}
-                      <div className="mb-4 inline-flex items-center gap-2 self-start backdrop-blur-md bg-white/20 px-4 py-2 rounded-full border border-white/30 group-hover:bg-white/30 transition-colors">
-                        <MapPin className="w-4 h-4 text-white" />
-                        <span className="text-white text-sm font-medium">France</span>
-                      </div>
+                      {/* Content */}
+                      <div className="absolute inset-0 flex flex-col justify-end p-10">
+                        <div className="mb-auto self-end opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                          <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/30">
+                            <span className="text-white text-xl">→</span>
+                          </div>
+                        </div>
 
-                      {/* City Name */}
-                      <h3 className="text-4xl font-bold text-white mb-3 text-shadow-lg group-hover:text-ui-purple-primary transition-colors">
-                        Paris
-                      </h3>
+                        <div className="mb-4 inline-flex items-center gap-2 self-start backdrop-blur-md bg-white/10 px-4 py-2 rounded-full border border-white/20">
+                          <MapPin className="w-4 h-4 text-white" />
+                          <span className="text-white text-sm font-medium">{dest.country}</span>
+                        </div>
 
-                      {/* Description */}
-                      <p className="text-white/90 text-sm mb-4 leading-relaxed backdrop-blur-sm bg-black/20 px-4 py-3 rounded-xl inline-block">
-                        Explore the City of Light with local students
-                      </p>
+                        <h3 className={`text-5xl font-bold text-white mb-4 drop-shadow-lg ${dest.color} transition-colors`}>
+                          {dest.city}
+                        </h3>
 
-                      {/* Stats */}
-                      <div className="flex gap-6 text-white/80 text-sm">
-                        <div className="flex items-center gap-2">
-                          <Users className="w-4 h-4" />
-                          <span>45+ guides</span>
+                        <div className="flex items-center gap-2 text-blue-100/80">
+                          <Users className="w-5 h-5" />
+                          <span className="text-lg font-medium">{dest.stats}</span>
                         </div>
                       </div>
-
-                      {/* Hover Arrow */}
-                      <div className="absolute top-6 right-6 w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 border border-white/30">
-                        <span className="text-white text-xl">→</span>
-                      </div>
-                    </div>
-                  </div>
-                </Link>
-
-                {/* London Card */}
-                <Link href="/booking" className="group block transform-gpu">
-                  <div className="relative h-96 rounded-3xl overflow-hidden shadow-premium hover:shadow-elevated transition-all duration-500 hover:-translate-y-2">
-                    {/* Background Image */}
-                    <Image
-                      src="/images/backgrounds/big_ben.jpg"
-                      alt="Iconic London landmarks and architecture"
-                      fill
-                      quality={75}
-                      sizes="(max-width: 768px) 100vw, 50vw"
-                      className="object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-
-                    {/* Gradient Overlays */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
-                    <div className="absolute inset-0 bg-gradient-to-br from-ui-blue-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-
-                    {/* Content */}
-                    <div className="absolute inset-0 flex flex-col justify-end p-8">
-                      {/* City Badge */}
-                      <div className="mb-4 inline-flex items-center gap-2 self-start backdrop-blur-md bg-white/20 px-4 py-2 rounded-full border border-white/30 group-hover:bg-white/30 transition-colors">
-                        <MapPin className="w-4 h-4 text-white" />
-                        <span className="text-white text-sm font-medium">United Kingdom</span>
-                      </div>
-
-                      {/* City Name */}
-                      <h3 className="text-4xl font-bold text-white mb-3 text-shadow-lg group-hover:text-ui-blue-primary transition-colors">
-                        London
-                      </h3>
-
-                      {/* Description */}
-                      <p className="text-white/90 text-sm mb-4 leading-relaxed backdrop-blur-sm bg-black/20 px-4 py-3 rounded-xl inline-block">
-                        Discover royal history and modern culture
-                      </p>
-
-                      {/* Stats */}
-                      <div className="flex gap-6 text-white/80 text-sm">
-                        <div className="flex items-center gap-2">
-                          <Users className="w-4 h-4" />
-                          <span>60+ guides</span>
-                        </div>
-                      </div>
-
-                      {/* Hover Arrow */}
-                      <div className="absolute top-6 right-6 w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 border border-white/30">
-                        <span className="text-white text-xl">→</span>
-                      </div>
-                    </div>
-                  </div>
-                </Link>
-
+                    </motion.div>
+                  </Link>
+                ))}
               </div>
-            </div>
+            </motion.div>
 
             {/* Marketplace Disclaimer */}
-            <div className="mt-16 max-w-3xl mx-auto transform-gpu">
-              <div className="relative overflow-hidden backdrop-blur-md bg-white/5 border border-white/10 rounded-3xl shadow-premium hover:shadow-elevated transition-all duration-300">
-                <div className="relative p-6 md:p-8">
-                  <div className="flex flex-col md:flex-row md:items-start gap-6">
-                    {/* Icon Section */}
+            <motion.div
+              className="mt-24 max-w-4xl mx-auto"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.2 }}
+            >
+              <div className="relative overflow-hidden backdrop-blur-xl bg-white/5 border border-white/10 rounded-3xl shadow-2xl">
+                <div className="relative p-8 md:p-10">
+                  <div className="flex flex-col md:flex-row md:items-start gap-8">
                     <div className="flex-shrink-0">
-                      <div className="p-3 rounded-xl bg-white/10 text-white shadow-lg border border-white/10">
-                        <AlertTriangle className="w-6 h-6" strokeWidth={2} />
+                      <div className="p-4 rounded-2xl bg-amber-500/10 text-amber-400 shadow-inner border border-amber-500/20">
+                        <AlertTriangle className="w-8 h-8" strokeWidth={2} />
                       </div>
                     </div>
 
-                    {/* Content Section */}
-                    <div className="flex-1 space-y-4">
-                      {/* Title */}
+                    <div className="flex-1 space-y-6">
                       <div>
-                        <h2 className="font-bold text-white text-xl md:text-2xl">Important Notice</h2>
-                        <div className="h-1 w-12 bg-white/20 rounded-full mt-2"></div>
+                        <h2 className="font-bold text-white text-2xl">Important Notice</h2>
+                        <div className="h-1 w-12 bg-amber-500/50 rounded-full mt-3"></div>
                       </div>
 
-                      {/* Main Text */}
-                      <div className="space-y-4">
-                        <p className="text-sm md:text-base text-white/80 leading-relaxed font-light">
-                          <strong className="text-white font-medium">TourWiseCo is a marketplace connector only.</strong> We facilitate connections between tourists and local student guides but do not:
+                      <div className="space-y-6">
+                        <p className="text-base md:text-lg text-blue-50/80 leading-relaxed font-light">
+                          <strong className="text-white font-medium">TourWiseCo is a marketplace connector only.</strong> We facilitate connections between tourists and local student guides.
                         </p>
 
-                        {/* List of Items */}
-                        <div className="grid md:grid-cols-2 gap-3">
-                          <div className="flex items-center gap-3">
-                            <div className="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0 border border-white/10">
-                              <span className="text-white text-xs">✕</span>
+                        <div className="grid sm:grid-cols-2 gap-4">
+                          {["Handle any payments", "Guarantee service quality", "Act as an employer", "Assume liability"].map((item, i) => (
+                            <div key={i} className="flex items-center gap-3">
+                              <div className="w-6 h-6 rounded-full bg-red-500/10 flex items-center justify-center flex-shrink-0 border border-red-500/20">
+                                <span className="text-red-400 text-xs font-bold">✕</span>
+                              </div>
+                              <span className="text-sm text-blue-100/60 font-medium">{item}</span>
                             </div>
-                            <span className="text-sm text-white/70 font-light">Handle any payments</span>
-                          </div>
-
-                          <div className="flex items-center gap-3">
-                            <div className="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0 border border-white/10">
-                              <span className="text-white text-xs">✕</span>
-                            </div>
-                            <span className="text-sm text-white/70 font-light">Guarantee service quality</span>
-                          </div>
-
-                          <div className="flex items-center gap-3">
-                            <div className="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0 border border-white/10">
-                              <span className="text-white text-xs">✕</span>
-                            </div>
-                            <span className="text-sm text-white/70 font-light">Act as an employer</span>
-                          </div>
-
-                          <div className="flex items-center gap-3">
-                            <div className="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0 border border-white/10">
-                              <span className="text-white text-xs">✕</span>
-                            </div>
-                            <span className="text-sm text-white/70 font-light">Assume liability</span>
-                          </div>
+                          ))}
                         </div>
-
-                        {/* Footer Note */}
-                        <p className="text-xs md:text-sm text-white/60 leading-relaxed italic border-l-2 border-white/20 pl-4">
-                          All arrangements, payments, and services are agreed upon directly between you and your guide.
-                        </p>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
+            </motion.div>
           </div>
-        </main>
+        </motion.main>
 
-        {/* Footer */}
         <Footer />
       </div>
     </div>
