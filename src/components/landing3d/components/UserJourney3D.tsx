@@ -32,7 +32,7 @@ const journeySections: JourneySection[] = [
     description: 'Match with student guides from your home country who speak your language and understand your culture.',
     accentColor: '#6B8DD6',
     secondaryColor: '#9B7BD6',
-    image: '/images/backgrounds/cafe-ambiance.jpg',
+    image: '/images/backgrounds/paths.jpg',
   },
   {
     id: 'authentic',
@@ -52,7 +52,7 @@ const journeySections: JourneySection[] = [
     description: 'Custom itineraries. Public transport mastered. Hidden gems discovered. Someone who actually shows you around.',
     accentColor: '#D67B8D',
     secondaryColor: '#6BD6C5',
-    image: '/images/backgrounds/cafe-ambiance.jpg',
+    image: '/images/backgrounds/moret_sur.jpg',
   },
   {
     id: 'student',
@@ -62,7 +62,7 @@ const journeySections: JourneySection[] = [
     description: 'Share your city. Meet travelers. Earn more than double what typical campus jobs pay. Flexible hours.',
     accentColor: '#6BD6C5',
     secondaryColor: '#6B8DD6',
-    image: '/images/backgrounds/cafe-ambiance.jpg',
+    image: '/images/backgrounds/grad.jpg',
   },
 ]
 

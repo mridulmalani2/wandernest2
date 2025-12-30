@@ -222,7 +222,7 @@ export default function TouristLanding() {
                   <div className="relative h-96 rounded-3xl overflow-hidden shadow-premium hover:shadow-elevated transition-all duration-500 hover:-translate-y-2">
                     {/* Background Image */}
                     <Image
-                      src="/images/backgrounds/cafe-ambiance.jpg"
+                      src="/images/backgrounds/eifel_background.jpg"
                       alt="Iconic Paris architecture and streets"
                       fill
                       quality={75}
@@ -273,7 +273,7 @@ export default function TouristLanding() {
                   <div className="relative h-96 rounded-3xl overflow-hidden shadow-premium hover:shadow-elevated transition-all duration-500 hover:-translate-y-2">
                     {/* Background Image */}
                     <Image
-                      src="/images/backgrounds/cafe-ambiance.jpg"
+                      src="/images/backgrounds/big_ben.jpg"
                       alt="Iconic London landmarks and architecture"
                       fill
                       quality={75}

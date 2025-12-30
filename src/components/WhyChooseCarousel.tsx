@@ -24,8 +24,8 @@ const features: Feature[] = [
       'Cultural insights from a local perspective',
       'Personalized recommendations for your interests',
     ],
-    image: '/images/backgrounds/cafe-ambiance.jpg',
-    imageAlt: 'Local cafe experience with authentic ambiance',
+    image: '/images/backgrounds/student%201.png',
+    imageAlt: 'Student guide showing travelers a local experience',
     accentColor: 'blue',
   },
   {
@@ -37,8 +37,8 @@ const features: Feature[] = [
       'Match with guides from your home country for added comfort',
       'Rated and reviewed by past travelers',
     ],
-    image: '/images/backgrounds/cafe-ambiance.jpg',
-    imageAlt: 'University students working together in modern campus setting',
+    image: '/images/backgrounds/student%202.jpg',
+    imageAlt: 'Verified university students collaborating on campus',
     accentColor: 'purple',
   },
   {
@@ -50,8 +50,8 @@ const features: Feature[] = [
       'Flexible scheduling around your travel plans',
       'Small group or one-on-one experiences',
     ],
-    image: '/images/backgrounds/cafe-ambiance.jpg',
-    imageAlt: 'Friends enjoying flexible travel together in a European city',
+    image: '/images/backgrounds/student%203.avif',
+    imageAlt: 'Travelers enjoying a flexible, personalized city tour',
     accentColor: 'green',
   },
 ]

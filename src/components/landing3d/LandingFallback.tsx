@@ -63,7 +63,7 @@ const journeySections: JourneySection[] = [
     description: 'Custom itineraries. Public transport mastered. Hidden gems discovered.',
     accentColor: '#D67B8D',
     secondaryColor: '#6BD6C5',
-    image: '/images/backgrounds/moret.jpg',
+    image: '/images/backgrounds/moret_sur.jpg',
   },
   {
     id: 'student',
