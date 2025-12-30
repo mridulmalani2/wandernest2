@@ -24,7 +24,7 @@ const features: Feature[] = [
       'Cultural insights from a local perspective',
       'Personalized recommendations for your interests',
     ],
-    image: '/images/backgrounds/student%201.png',
+    image: '/images/backgrounds/orsay.jpg',
     imageAlt: 'Student guide showing travelers a local experience',
     accentColor: 'blue',
   },
