@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "preinstall": "node scripts/verify-dependency-allowlist.js",
     "postinstall": "prisma generate --schema=./src/prisma/schema.prisma",
     "vercel-build": "node scripts/check-db-url.js && prisma generate --schema=./src/prisma/schema.prisma && prisma migrate deploy --schema=./src/prisma/schema.prisma && next build",
     "db:reset": "echo '⚠️  DISABLED FOR SAFETY: This would delete ALL data. Use db:reset:dev ONLY against a local/dev database.' && exit 1",
