@@ -3,18 +3,19 @@ import { prisma } from '@/lib/prisma';
 import { sendVerificationEmail } from '@/lib/email';
 import { randomInt } from 'crypto';
 import { checkRateLimit, hashIdentifier } from '@/lib/rate-limit';
+import { z } from 'zod';
+import { emailSchema } from '@/lib/schemas/common';
+import { logger } from '@/lib/logger';
+import { isZodError } from '@/lib/error-handler';
+
+const forgotPasswordSchema = z.object({
+    email: emailSchema,
+});
 
 export async function POST(req: Request) {
     try {
-        const { email } = await req.json();
-
-        if (!email) {
-            return NextResponse.json(
-                { success: false, error: 'Email is required' },
-                { status: 400 }
-            );
-        }
-
+        const body = await req.json();
+        const { email } = forgotPasswordSchema.parse(body);
         const normalizedEmail = email.toLowerCase().trim();
         const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
 
@@ -39,19 +40,10 @@ export async function POST(req: Request) {
         });
 
         if (!student) {
-            // Security: Don't reveal if user exists or not, but for UX we might want to tell them "If an account exists..."
-            // However, specific requirement was to be like OTP reset.
-            // Let's return success even if user doesn't exist to prevent enumeration, or return specific error if UX prefers.
-            // Given the previous "Account already exists" feature, we seem to be okay with some information leakage for UX.
-            // But for password reset, it's safer to say "If an account exists, we sent a code".
-            // BUT, the client needs to know if they should show the OTP input. 
-            // If we return success false, they might retry. 
-            // Let's return success: false with a generic message or handle it gracefully.
-            // actually, if we want to mimic the signup flow, we should probably be explicit for now as it's an MVP-ish/Student app.
-            return NextResponse.json(
-                { success: false, error: 'No account found with this email.' },
-                { status: 404 }
-            );
+            return NextResponse.json({
+                success: true,
+                message: 'If an account exists, a verification code has been sent.',
+            });
         }
 
         // 2. Generate OTP
@@ -93,10 +85,22 @@ export async function POST(req: Request) {
             );
         }
 
-        return NextResponse.json({ success: true });
+        return NextResponse.json({
+            success: true,
+            message: 'If an account exists, a verification code has been sent.',
+        });
 
     } catch (error) {
-        console.error('Password reset request error:', error);
+        if (isZodError(error)) {
+            return NextResponse.json(
+                { success: false, error: 'Invalid email address' },
+                { status: 400 }
+            );
+        }
+        logger.error('Password reset request error', {
+            errorType: error instanceof Error ? error.name : 'unknown',
+            errorMessage: error instanceof Error ? error.message : 'Unknown error',
+        });
         return NextResponse.json(
             { success: false, error: 'Internal server error' },
             { status: 500 }

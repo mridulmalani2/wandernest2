@@ -5,6 +5,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { checkDatabaseHealth, requireDatabase } from '@/lib/prisma'
 import { verifyPassword, generateToken, hashPassword } from '@/lib/auth'
 import { withErrorHandler, withDatabaseRetry, AppError } from '@/lib/error-handler'
+import { checkRateLimit, hashIdentifier } from '@/lib/rate-limit'
+import { z } from 'zod'
+import { emailSchema } from '@/lib/schemas/common'
 
 const FALLBACK_ADMIN = {
   id: 'env-admin',
@@ -66,9 +69,30 @@ function createAdminResponse(admin: { id: string; email: string; name: string; r
   return response
 }
 
+const adminLoginSchema = z.object({
+  email: emailSchema,
+  password: z.string().min(8).max(128),
+});
+
 async function adminLogin(request: NextRequest) {
-  const { email: identifier, password } = await request.json()
-  const normalizedIdentifier = identifier?.trim()
+  const body = await request.json().catch(() => null)
+  const parsed = adminLoginSchema.safeParse(body)
+  if (!parsed.success) {
+    throw new AppError(400, 'Invalid login payload', 'INVALID_PAYLOAD')
+  }
+
+  const { email, password } = parsed.data
+  const normalizedIdentifier = email.toLowerCase().trim()
+  const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown'
+
+  const [emailLimit, ipLimit] = await Promise.all([
+    checkRateLimit(`admin-login:email:${hashIdentifier(normalizedIdentifier)}`, 5, 60 * 10),
+    checkRateLimit(`admin-login:ip:${hashIdentifier(ip)}`, 20, 60 * 10),
+  ])
+
+  if (!emailLimit.allowed || !ipLimit.allowed) {
+    throw new AppError(429, 'Too many login attempts. Please try again later.', 'RATE_LIMITED')
+  }
 
   if (!normalizedIdentifier || !password) {
     throw new AppError(400, 'Username/email and password are required', 'MISSING_CREDENTIALS')

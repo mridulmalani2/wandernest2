@@ -8,6 +8,7 @@ import { sanitizeText } from '@/lib/sanitization'
 import { createStudentSessionToken } from '@/lib/student-auth'
 import { logger } from '@/lib/logger'
 import { isZodError } from '@/lib/error-handler'
+import { checkRateLimit, hashIdentifier } from '@/lib/rate-limit'
 
 export const dynamic = 'force-dynamic'
 
@@ -25,6 +26,19 @@ export async function POST(req: Request) {
         const { email, code, name, phone, city } = signupSchema.parse(body)
         const sanitizedName = name ? sanitizeText(name, 100) : undefined
         const sanitizedCity = city ? sanitizeText(city, 100) : undefined
+        const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown'
+
+        const [emailLimit, ipLimit] = await Promise.all([
+            checkRateLimit(`student-signup:email:${hashIdentifier(email)}`, 5, 60 * 10),
+            checkRateLimit(`student-signup:ip:${hashIdentifier(ip)}`, 20, 60 * 10),
+        ])
+
+        if (!emailLimit.allowed || !ipLimit.allowed) {
+            return NextResponse.json(
+                { success: false, error: 'Too many signup attempts. Please try again later.' },
+                { status: 429 }
+            )
+        }
 
         // 1. Verify OTP
         const now = new Date()

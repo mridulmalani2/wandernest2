@@ -7,6 +7,7 @@ import { emailSchema } from '@/lib/schemas/common'
 import { createStudentSessionToken } from '@/lib/student-auth'
 import { logger } from '@/lib/logger'
 import { isZodError } from '@/lib/error-handler'
+import { checkRateLimit, hashIdentifier } from '@/lib/rate-limit'
 
 export const dynamic = 'force-dynamic'
 
@@ -21,6 +22,19 @@ export async function POST(req: Request) {
         const body = await req.json()
         const { email, password, rememberMe } = loginSchema.parse(body)
         const remember = rememberMe === true || rememberMe === 'true'
+        const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown'
+
+        const [emailLimit, ipLimit] = await Promise.all([
+            checkRateLimit(`student-login:email:${hashIdentifier(email)}`, 5, 60 * 10),
+            checkRateLimit(`student-login:ip:${hashIdentifier(ip)}`, 20, 60 * 10),
+        ])
+
+        if (!emailLimit.allowed || !ipLimit.allowed) {
+            return NextResponse.json(
+                { success: false, error: 'Too many login attempts. Please try again later.' },
+                { status: 429 }
+            )
+        }
 
         // 1. Find Student
         const student = await prisma.student.findUnique({
