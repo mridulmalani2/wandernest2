@@ -39,8 +39,9 @@ export async function GET(request: NextRequest) {
       where.status = status as 'PENDING_APPROVAL' | 'APPROVED' | 'SUSPENDED'
     }
 
-    if (city) {
-      where.city = city
+    // SECURITY: Validate city parameter to prevent enumeration and ensure clean input
+    if (city && typeof city === 'string' && city.trim().length > 0) {
+      where.city = city.trim()
     }
 
     const [students, total] = await Promise.all([
