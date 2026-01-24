@@ -34,22 +34,25 @@ rg -n "setCookie|cookies\(|response\.cookies|res\.cookie|httpOnly|httponly" --gl
 
 3) `src/app/api/student/match/respond/route.ts`
 
-- Lines: 93-165.
-- Context: the route returns an HTML page string that includes inline JS which writes into `container.innerHTML`.
-- Risk assessment:
-  - User-controlled fields from the response (`data.message`, `data.title`, `data.nextSteps[*]`, and `data.contactDetails.*`) are escaped via `escapeHtml(...)` before inclusion.
-  - The redirect URL is now sanitized to same-origin relative paths via `sanitizeUrl(...)` prior to insertion into the `href` attribute.
-- Classification: **SAFE (sanitized)** after the redirect URL fix.
+- Result after refactor: no `innerHTML` usage remains in this file (verified via scan command).
+- Current approach: DOM nodes are constructed via `document.createElement`, `textContent`, and `setAttribute`.
+- URL safety: `sanitizeUrl(...)` now rejects protocol-relative values like `//attacker.com`, parses via the `URL` API, enforces same-origin, and preserves `pathname + search + hash`.
+- Classification: **SAFE (refactored away from `innerHTML` and hardened URL handling)**.
 
-Safe refactor (preferred): avoid `innerHTML` altogether by constructing DOM nodes and setting `textContent` and `setAttribute` values explicitly.
+Safe refactor (implemented): build the result UI via DOM APIs instead of string concatenation.
 
 ## Minimal security fix applied
 
-Although most user-controlled fields were escaped, `data.redirectUrl` was previously written directly into an `href` attribute in an `innerHTML` string.
+The earlier fix still allowed protocol-relative URLs (e.g., `//attacker.com`) and relied on `innerHTML` string concatenation.
 
-This allowed payloads like `javascript:alert(1)` or attribute-breakout attempts to execute if `redirectUrl` ever became user-controlled.
+Fixes applied:
 
-Fix: introduce `sanitizeUrl(...)` that enforces a relative path (must start with `/`) and escapes quotes before interpolation, and use it for the `href`.
+- Replace `innerHTML` rendering with DOM construction (`createElement`, `textContent`, `setAttribute`).
+- Harden `sanitizeUrl(...)` by:
+  - rejecting empty values and protocol-relative inputs starting with `//`
+  - parsing with the `URL` API using `window.location.origin` as the base
+  - enforcing `parsed.origin === window.location.origin`
+  - returning normalized `pathname + search + hash`
 
 ## CSP header verification
 

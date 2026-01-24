@@ -91,7 +91,15 @@ function renderProcessingPage(): string {
             var container = document.getElementById('result');
 
             if (!token) {
-              container.innerHTML = '<h1>❌ Invalid Link</h1><p>This link is missing required parameters.</p><a href="/" class="button">Return to Home</a>';
+              renderResult(container, {
+                title: '❌ Invalid Link',
+                message: 'This link is missing required parameters.',
+                redirectUrl: '/',
+                buttonLabel: 'Return to Home',
+                nextSteps: [],
+                contactIntro: '',
+                contactItems: [],
+              });
               return;
             }
 
@@ -99,24 +107,72 @@ function renderProcessingPage(): string {
               window.history.replaceState({}, document.title, window.location.pathname);
             }
 
-            function escapeHtml(value) {
-              return String(value || '')
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/\"/g, '&quot;')
-                .replace(/'/g, '&#39;');
-            }
-
             function sanitizeUrl(value) {
               if (!value || typeof value !== 'string') {
                 return '/';
               }
               var trimmed = value.trim();
-              if (!trimmed.startsWith('/')) {
+              if (!trimmed || trimmed.startsWith('//')) {
                 return '/';
               }
-              return trimmed.replace(/\"/g, '&quot;').replace(/'/g, '&#39;');
+              try {
+                var parsed = new URL(trimmed, window.location.origin);
+                if (parsed.origin !== window.location.origin) {
+                  return '/';
+                }
+                return parsed.pathname + parsed.search + parsed.hash;
+              } catch (err) {
+                return '/';
+              }
+            }
+
+            function appendHeading(target, text) {
+              var h1 = document.createElement('h1');
+              h1.textContent = text;
+              target.appendChild(h1);
+            }
+
+            function appendParagraph(target, text) {
+              var p = document.createElement('p');
+              p.textContent = text;
+              target.appendChild(p);
+            }
+
+            function appendList(target, items, ordered) {
+              var list = document.createElement(ordered ? 'ol' : 'ul');
+              list.style.textAlign = 'left';
+              list.style.display = 'inline-block';
+              items.forEach(function (item) {
+                var li = document.createElement('li');
+                li.textContent = item;
+                list.appendChild(li);
+              });
+              target.appendChild(list);
+            }
+
+            function appendButton(target, href, label) {
+              var link = document.createElement('a');
+              link.className = 'button';
+              link.setAttribute('href', href);
+              link.textContent = label;
+              target.appendChild(link);
+            }
+
+            function renderResult(target, payload) {
+              target.textContent = '';
+              appendHeading(target, payload.title);
+              appendParagraph(target, payload.message);
+
+              if (payload.contactItems && payload.contactItems.length > 0) {
+                appendParagraph(target, payload.contactIntro);
+                appendList(target, payload.contactItems, false);
+              }
+
+              if (payload.nextSteps && payload.nextSteps.length > 0) {
+                appendList(target, payload.nextSteps, true);
+              }
+
+              appendButton(target, payload.redirectUrl, payload.buttonLabel);
             }
 
             fetch('/api/student/match/respond', {
@@ -133,46 +189,53 @@ function renderProcessingPage(): string {
                 });
               })
               .then(function (result) {
-                var data = result.data;
-                var message = escapeHtml(data.message || 'We were unable to process your response.');
-                var title = escapeHtml(data.title || 'Request Failed');
+                var data = result.data || {};
+                var message = typeof data.message === 'string' && data.message.trim()
+                  ? data.message
+                  : 'We were unable to process your response.';
+                var title = typeof data.title === 'string' && data.title.trim()
+                  ? data.title
+                  : 'Request Failed';
                 var redirectUrl = sanitizeUrl(data.redirectUrl);
                 var buttonLabel = redirectUrl !== '/' ? 'Go to Dashboard' : 'Return to Home';
 
-                var nextStepsHtml = '';
-                if (Array.isArray(data.nextSteps) && data.nextSteps.length > 0) {
-                  nextStepsHtml = '<ol style="text-align: left; display: inline-block;">' + data.nextSteps.map(function (step) {
-                    return '<li>' + escapeHtml(step) + '</li>';
-                  }).join('') + '</ol>';
-                }
+                var nextSteps = Array.isArray(data.nextSteps)
+                  ? data.nextSteps.filter(function (step) { return typeof step === 'string' && step.trim(); })
+                  : [];
 
-                var contactHtml = '';
+                var contactItems = [];
                 if (data.contactDetails) {
-                  var items = [];
-                  if (data.contactDetails.email) {
-                    items.push('<li>Tourist email: <strong>' + escapeHtml(data.contactDetails.email) + '</strong></li>');
+                  if (typeof data.contactDetails.email === 'string' && data.contactDetails.email.trim()) {
+                    contactItems.push('Tourist email: ' + data.contactDetails.email.trim());
                   }
-                  if (data.contactDetails.phone) {
-                    items.push('<li>Phone: <strong>' + escapeHtml(data.contactDetails.phone) + '</strong></li>');
+                  if (typeof data.contactDetails.phone === 'string' && data.contactDetails.phone.trim()) {
+                    contactItems.push('Phone: ' + data.contactDetails.phone.trim());
                   }
-                  if (data.contactDetails.whatsapp) {
-                    items.push('<li>WhatsApp: <strong>' + escapeHtml(data.contactDetails.whatsapp) + '</strong></li>');
-                  }
-                  if (items.length > 0) {
-                    contactHtml = '<p>We\'ve sent you an email with the tourist\'s contact details:</p>' +
-                      '<ul style="text-align: left; display: inline-block;">' + items.join('') + '</ul>';
+                  if (typeof data.contactDetails.whatsapp === 'string' && data.contactDetails.whatsapp.trim()) {
+                    contactItems.push('WhatsApp: ' + data.contactDetails.whatsapp.trim());
                   }
                 }
 
-                container.innerHTML =
-                  '<h1>' + title + '</h1>' +
-                  '<p>' + message + '</p>' +
-                  contactHtml +
-                  nextStepsHtml +
-                  '<a href="' + redirectUrl + '" class="button">' + buttonLabel + '</a>';
+                renderResult(container, {
+                  title: title,
+                  message: message,
+                  redirectUrl: redirectUrl,
+                  buttonLabel: buttonLabel,
+                  nextSteps: nextSteps,
+                  contactIntro: "We've sent you an email with the tourist's contact details:",
+                  contactItems: contactItems,
+                });
               })
               .catch(function () {
-                container.innerHTML = '<h1>⚠️ Server Error</h1><p>An unexpected error occurred while processing your response.</p><a href="/" class="button">Return to Home</a>';
+                renderResult(container, {
+                  title: '⚠️ Server Error',
+                  message: 'An unexpected error occurred while processing your response.',
+                  redirectUrl: '/',
+                  buttonLabel: 'Return to Home',
+                  nextSteps: [],
+                  contactIntro: '',
+                  contactItems: [],
+                });
               });
           })();
         </script>
