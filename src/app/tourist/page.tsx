@@ -66,15 +66,15 @@ export default function TouristLanding() {
       {/* Background with optimized loading */}
       <div className="fixed inset-0 z-0">
         <Image
-          src="/images/backgrounds/cafe-ambiance.jpg"
-          alt="Beautiful London Thames River with iconic architecture"
+          src="https://tse3.mm.bing.net/th?id=OIP.D36ufR41fVwXihJmhecGkQHaJQ"
+          alt="Beautiful travel destination scenery"
           fill
           priority
           quality={70}
           sizes="100vw"
-          className="object-cover opacity-60"
+          className="object-cover opacity-60 blur-[2px]"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/40 to-black/90 backdrop-blur-[2px]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/40 to-black/90" />
         <div className="absolute inset-0 bg-gradient-to-br from-ui-blue-primary/10 via-transparent to-ui-purple-primary/10 mix-blend-overlay" />
       </div>
 
