@@ -108,6 +108,17 @@ function renderProcessingPage(): string {
                 .replace(/'/g, '&#39;');
             }
 
+            function sanitizeUrl(value) {
+              if (!value || typeof value !== 'string') {
+                return '/';
+              }
+              var trimmed = value.trim();
+              if (!trimmed.startsWith('/')) {
+                return '/';
+              }
+              return trimmed.replace(/\"/g, '&quot;').replace(/'/g, '&#39;');
+            }
+
             fetch('/api/student/match/respond', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
@@ -125,8 +136,8 @@ function renderProcessingPage(): string {
                 var data = result.data;
                 var message = escapeHtml(data.message || 'We were unable to process your response.');
                 var title = escapeHtml(data.title || 'Request Failed');
-                var redirectUrl = data.redirectUrl || '/';
-                var buttonLabel = data.redirectUrl ? 'Go to Dashboard' : 'Return to Home';
+                var redirectUrl = sanitizeUrl(data.redirectUrl);
+                var buttonLabel = redirectUrl !== '/' ? 'Go to Dashboard' : 'Return to Home';
 
                 var nextStepsHtml = '';
                 if (Array.isArray(data.nextSteps) && data.nextSteps.length > 0) {
