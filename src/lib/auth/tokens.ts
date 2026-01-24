@@ -13,8 +13,21 @@ import * as crypto from 'crypto';
 
 const TOKEN_FAILURE_LOG = '[token-verification] Invalid or expired token';
 
-// Secret key for signing tokens - use env var or fallback to secure random string
-const TOKEN_SECRET = process.env.TOKEN_SECRET || process.env.NEXTAUTH_SECRET || 'tourwiseco-token-secret-change-in-production';
+const MIN_TOKEN_SECRET_LENGTH = 32;
+
+function loadTokenSecret(): crypto.KeyObject {
+  const secret = process.env.TOKEN_SECRET || process.env.NEXTAUTH_SECRET;
+  if (!secret) {
+    throw new Error('TOKEN_SECRET or NEXTAUTH_SECRET environment variable is required but not set');
+  }
+  if (secret.length < MIN_TOKEN_SECRET_LENGTH) {
+    throw new Error(`TOKEN_SECRET must be at least ${MIN_TOKEN_SECRET_LENGTH} characters (got ${secret.length})`);
+  }
+  return crypto.createSecretKey(Buffer.from(secret, 'utf8'));
+}
+
+// Fail fast at module initialization and reuse the validated binary key
+const TOKEN_SECRET_KEY = loadTokenSecret();
 
 export interface MatchTokenPayload {
   requestId: string;
@@ -107,7 +120,7 @@ export function generateMatchToken(
 
   // Sign with HMAC-SHA256
   const signature = crypto
-    .createHmac('sha256', TOKEN_SECRET)
+    .createHmac('sha256', TOKEN_SECRET_KEY)
     .update(payloadB64)
     .digest('base64url');
 
@@ -170,7 +183,7 @@ export function verifyMatchToken(token: string): MatchTokenPayload | null {
 
     // Verify signature
     const expectedSignature = crypto
-      .createHmac('sha256', TOKEN_SECRET)
+      .createHmac('sha256', TOKEN_SECRET_KEY)
       .update(payloadB64)
       .digest('base64url');
 
@@ -225,7 +238,7 @@ export function generateSelectionToken(
   const payloadB64 = Buffer.from(payloadJson).toString('base64url');
 
   const signature = crypto
-    .createHmac('sha256', TOKEN_SECRET)
+    .createHmac('sha256', TOKEN_SECRET_KEY)
     .update(payloadB64)
     .digest('base64url');
 
@@ -252,7 +265,7 @@ export function verifySelectionToken(token: string): SelectionTokenPayload | nul
     const [payloadB64, signature] = parts;
 
     const expectedSignature = crypto
-      .createHmac('sha256', TOKEN_SECRET)
+      .createHmac('sha256', TOKEN_SECRET_KEY)
       .update(payloadB64)
       .digest('base64url');
 
