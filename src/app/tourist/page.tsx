@@ -66,15 +66,15 @@ export default function TouristLanding() {
       {/* Background with optimized loading */}
       <div className="fixed inset-0 z-0">
         <Image
-          src="/images/backgrounds/wallpaper.jpeg"
-          alt="Travel adventure background"
+          src="https://tse3.mm.bing.net/th?id=OIP.D36ufR41fVwXihJmhecGkQHaJQ"
+          alt="Beautiful travel destination scenery"
           fill
           priority
           quality={70}
           sizes="100vw"
-          className="object-cover opacity-60"
+          className="object-cover opacity-60 blur-[2px]"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/40 to-black/90 backdrop-blur-[2px]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/40 to-black/90" />
         <div className="absolute inset-0 bg-gradient-to-br from-ui-blue-primary/10 via-transparent to-ui-purple-primary/10 mix-blend-overlay" />
       </div>
 
@@ -234,11 +234,11 @@ export default function TouristLanding() {
                       className="text-center group relative"
                       variants={fadeInUp}
                     >
-                      <div className="min-h-[160px] flex flex-col items-center justify-center space-y-4 backdrop-blur-md bg-white/5 rounded-3xl p-8 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all duration-300 shadow-premium">
+                      <div className="h-[160px] flex flex-col items-center justify-center space-y-4 backdrop-blur-md bg-white/5 rounded-3xl p-8 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all duration-300 shadow-premium">
                         <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-300 font-bold text-lg border border-blue-500/30 mb-2">
                           {idx + 1}
                         </div>
-                        <h3 className="font-bold text-xl text-white">{step}</h3>
+                        <h3 className="font-bold text-xl text-white text-center">{step}</h3>
                       </div>
                     </motion.div>
                   ))}

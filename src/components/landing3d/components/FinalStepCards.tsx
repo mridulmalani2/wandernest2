@@ -29,7 +29,7 @@ const CARDS: CardData[] = [
     title: 'STUDENT',
     subtitle: '',
     href: '/student',
-    image: '/images/backgrounds/Euler.jpg',
+    image: 'https://m.media-amazon.com/images/I/71B-wgg3DtL._AC_SX679_.jpg',
     imageAlt: 'University campus with students in an urban setting',
     delay: 0,
   },
@@ -46,7 +46,7 @@ const CARDS: CardData[] = [
     title: 'TOURIST',
     subtitle: '',
     href: '/tourist',
-    image: '/images/backgrounds/Manet.jpg',
+    image: 'https://images.squarespace-cdn.com/content/v1/5a08d022fe54ef52c475ff8c/1737679063696-IJT7YCMJ55WZKKIC97O9/image-asset.jpg?format=2500w',
     imageAlt: 'Tokyo cityscape at dusk with neon lights',
     delay: 0.2,
   },
@@ -135,11 +135,12 @@ function FinalStepCard({ card, entranceProgress, onLearnMoreClick }: FinalStepCa
         {/* Subtitle - only show if not empty */}
         {card.subtitle && (
           <p
-            className="text-white/80 text-center mb-8 font-light tracking-wide"
+            className="text-white/90 text-center mb-8 font-medium tracking-wide"
             style={{
-              fontFamily: 'Georgia, "Times New Roman", serif',
-              fontSize: 'clamp(0.875rem, 2vw, 1.125rem)',
-              letterSpacing: '0.05em',
+              fontFamily: '"Inter", "Helvetica Neue", Arial, sans-serif',
+              fontSize: 'clamp(0.9rem, 2.2vw, 1.2rem)',
+              letterSpacing: '0.08em',
+              textShadow: '0 2px 10px rgba(0,0,0,0.5)',
             }}
           >
             {card.subtitle}
