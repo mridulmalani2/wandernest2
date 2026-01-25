@@ -66,8 +66,8 @@ export default function TouristLanding() {
       {/* Background with optimized loading */}
       <div className="fixed inset-0 z-0">
         <Image
-          src="/images/backgrounds/cafe-ambiance.jpg"
-          alt="Beautiful London Thames River with iconic architecture"
+          src="/images/backgrounds/wallpaper.jpeg"
+          alt="Travel adventure background"
           fill
           priority
           quality={70}

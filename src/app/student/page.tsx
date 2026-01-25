@@ -58,8 +58,8 @@ export default function StudentLandingPage() {
       {/* Background with optimized loading - matches tourist page */}
       <div className="fixed inset-0 z-0">
         <Image
-          src="/images/backgrounds/cafe-ambiance.jpg"
-          alt="Students collaborating on campus"
+          src="/images/backgrounds/wallpaper.jpeg"
+          alt="Travel adventure background"
           fill
           priority
           quality={70}
