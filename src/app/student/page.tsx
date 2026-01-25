@@ -67,7 +67,7 @@ export default function StudentLandingPage() {
           className="object-cover opacity-60"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/40 to-black/90 backdrop-blur-[2px]" />
-        <div className="absolute inset-0 bg-gradient-to-br from-ui-purple-primary/10 via-transparent to-ui-blue-primary/10 mix-blend-overlay" />
+        <div className="absolute inset-0 bg-gradient-to-br from-ui-blue-primary/10 via-transparent to-ui-purple-primary/10 mix-blend-overlay" />
       </div>
 
       <div className="absolute inset-0 pattern-dots opacity-10 z-[1] pointer-events-none" />
