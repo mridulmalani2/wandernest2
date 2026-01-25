@@ -234,11 +234,11 @@ export default function TouristLanding() {
                       className="text-center group relative"
                       variants={fadeInUp}
                     >
-                      <div className="min-h-[160px] flex flex-col items-center justify-center space-y-4 backdrop-blur-md bg-white/5 rounded-3xl p-8 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all duration-300 shadow-premium">
+                      <div className="h-[160px] flex flex-col items-center justify-center space-y-4 backdrop-blur-md bg-white/5 rounded-3xl p-8 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all duration-300 shadow-premium">
                         <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-300 font-bold text-lg border border-blue-500/30 mb-2">
                           {idx + 1}
                         </div>
-                        <h3 className="font-bold text-xl text-white">{step}</h3>
+                        <h3 className="font-bold text-xl text-white text-center">{step}</h3>
                       </div>
                     </motion.div>
                   ))}
