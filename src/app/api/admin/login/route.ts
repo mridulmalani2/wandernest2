@@ -10,6 +10,11 @@ import { z } from 'zod'
 import { emailSchema } from '@/lib/schemas/common'
 import { rateLimitByIp } from '@/lib/rateLimit/rateLimit'
 import { validateJson } from '@/lib/validation/validate'
+import {
+  getLockoutUntil,
+  isLockoutActive,
+  shouldLockout,
+} from '@/lib/auth/securityPolicy'
 
 const FALLBACK_ADMIN = {
   id: 'env-admin',
@@ -18,6 +23,9 @@ const FALLBACK_ADMIN = {
   name: process.env.ADMIN_NAME || 'Admin',
   role: 'SUPER_ADMIN' as const,
 }
+
+const DUMMY_BCRYPT_HASH =
+  '$2a$10$txxd33/oxVxxykdFk4.Wx.DejyScXefQyL8rA/16dEj9o.or5z15S'
 
 async function ensureDefaultAdminSeeded() {
   if (!FALLBACK_ADMIN.email || !FALLBACK_ADMIN.password) {
@@ -133,18 +141,48 @@ async function adminLogin(request: NextRequest) {
     })
   )
 
-  if (!admin || !admin.isActive) {
+  const now = new Date()
+  const isLocked = isLockoutActive(admin?.lockoutUntil, now)
+
+  const passwordHash = admin?.passwordHash || DUMMY_BCRYPT_HASH
+  const isValid = await verifyPassword(password, passwordHash)
+
+  if (isLocked) {
     throw new AppError(401, 'Invalid credentials', 'INVALID_CREDENTIALS')
   }
 
-  // Verify password
-  const isValid = await verifyPassword(password, admin.passwordHash)
+  if (!admin || !admin.isActive || !isValid) {
+    if (admin) {
+      const updated = await db.admin.update({
+        where: { id: admin.id },
+        data: {
+          failedLoginAttempts: { increment: 1 },
+          lastFailedLoginAt: now,
+        },
+      })
 
-  if (!isValid) {
+      if (shouldLockout(updated.failedLoginAttempts)) {
+        await db.admin.update({
+          where: { id: admin.id },
+          data: {
+            failedLoginAttempts: 0,
+            lockoutUntil: getLockoutUntil(now),
+          },
+        })
+      }
+    }
     throw new AppError(401, 'Invalid credentials', 'INVALID_CREDENTIALS')
   }
 
   // Generate JWT token
+  await db.admin.update({
+    where: { id: admin.id },
+    data: {
+      failedLoginAttempts: 0,
+      lockoutUntil: null,
+      lastFailedLoginAt: null,
+    },
+  })
   return createAdminResponse(admin)
 }
 

@@ -49,6 +49,9 @@ model Student {
   passwordHash      String?  // Optional for initial OTP signup, set later
   googleId          String?  @unique  // Now optional - supports both Google OAuth and email verification
   name              String?  // Optional until onboarding is completed
+  failedLoginAttempts Int    @default(0)
+  lockoutUntil      DateTime?
+  lastFailedLoginAt DateTime?
 
   // Personal Details
   dateOfBirth       DateTime?
@@ -292,6 +295,9 @@ model Admin {
   name              String
   role              AdminRole @default(MODERATOR)
   isActive          Boolean  @default(true)
+  failedLoginAttempts Int    @default(0)
+  lockoutUntil      DateTime?
+  lastFailedLoginAt DateTime?
 
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt @default(now())
@@ -303,8 +309,9 @@ model Admin {
 model StudentOtp {
   id        String   @id @default(cuid())
   email     String
-  code      String   // 6-digit OTP
+  otpHmac   String   // HMAC-SHA256 of OTP with scoped payload
   expiresAt DateTime
+  otpAttempts Int    @default(0)
   used      Boolean  @default(false)
   createdAt DateTime @default(now())
 

@@ -8,10 +8,13 @@ import { logger } from '@/lib/logger'
 import { isZodError } from '@/lib/error-handler'
 import { rateLimitByIp } from '@/lib/rateLimit/rateLimit'
 import { validateJson } from '@/lib/validation/validate'
+import { generateOtpHmac } from '@/lib/auth/otp'
 
 const otpRequestSchema = z.object({
   email: emailSchema,
 }).strict();
+
+const OTP_SCOPE = 'student-signup'
 
 export async function POST(req: NextRequest) {
   try {
@@ -56,6 +59,12 @@ export async function POST(req: NextRequest) {
     const { randomInt } = await import('crypto');
     const code = randomInt(100000, 1000000).toString();
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000) // 10 minutes
+    const otpHmac = generateOtpHmac({
+      scope: OTP_SCOPE,
+      identifier: normalizedEmail,
+      otp: code,
+      expiresAt,
+    })
 
     // Optimize DB operations: Invalidate old OTPs and create new one in a single transaction
     await prisma.$transaction([
@@ -71,8 +80,9 @@ export async function POST(req: NextRequest) {
       prisma.studentOtp.create({
         data: {
           email: normalizedEmail,
-          code,
+          otpHmac,
           expiresAt,
+          otpAttempts: 0,
         },
       }),
     ])
@@ -90,7 +100,7 @@ export async function POST(req: NextRequest) {
       await prisma.studentOtp.deleteMany({
         where: {
           email: normalizedEmail,
-          code,
+          otpHmac,
           used: false,
         },
       })
