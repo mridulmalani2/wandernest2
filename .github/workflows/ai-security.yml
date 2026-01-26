@@ -1,0 +1,27 @@
+name: AI Security Checks
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  ai-security:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install ripgrep
+        run: |
+          if ! command -v rg >/dev/null 2>&1; then
+            sudo apt-get update
+            sudo apt-get install -y ripgrep
+          fi
+
+      - name: Prompt injection scan
+        run: ./scripts/scan-for-prompt-injection.sh
+
+      - name: Verify npm dependencies
+        run: node scripts/verify-npm-deps.mjs

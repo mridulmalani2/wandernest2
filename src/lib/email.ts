@@ -4,6 +4,8 @@ import { Resend } from 'resend'
 import type { Student, TouristRequest } from '@prisma/client'
 import { config } from '@/lib/config'
 import { generateMatchUrls } from '@/lib/auth/tokens'
+import { logger } from '@/lib/logger'
+import { maskEmail } from '@/lib/utils'
 import {
   getOtpEmailHtml,
   getBookingConfirmationHtml,
@@ -34,9 +36,7 @@ import {
 function getBaseUrl(): string {
   const baseUrl = config.app.baseUrl
   if (!baseUrl) {
-    console.warn(
-      '⚠️  NEXT_PUBLIC_BASE_URL not configured - email links will use fallback'
-    )
+    logger.warn('NEXT_PUBLIC_BASE_URL not configured - email links will use fallback')
     return 'https://tourwiseco.com' // Fallback URL
   }
   return baseUrl
@@ -52,10 +52,12 @@ if (config.email.resendApiKey) {
   try {
     resend = new Resend(config.email.resendApiKey)
     if (config.app.isDevelopment) {
-      console.log('✅ Resend email client initialized')
+      logger.info('Resend email client initialized')
     }
   } catch (error) {
-    console.error('❌ Failed to initialize Resend client:', error)
+    logger.error('Failed to initialize Resend client', {
+      error: error instanceof Error ? error.message : String(error),
+    })
     resend = null
   }
 }
@@ -81,21 +83,21 @@ if (config.email.host && config.email.user && config.email.pass) {
     } as any)
 
     if (config.app.isDevelopment) {
-      console.log('✅ SMTP Email transporter initialized')
+      logger.info('SMTP email transporter initialized')
     }
   } catch (error) {
-    console.error('❌ Failed to initialize SMTP email transporter:', error)
+    logger.error('Failed to initialize SMTP email transporter', {
+      error: error instanceof Error ? error.message : String(error),
+    })
     transporter = null
   }
 }
 
 if (!resend && !transporter) {
   if (config.app.isDevelopment) {
-    console.log('⚠️  Email not configured - using mock mode')
+    logger.warn('Email not configured - using mock mode')
   } else if (config.app.isProduction) {
-    console.warn(
-      '⚠️  WARNING: Email not configured in production - emails will not be sent'
-    )
+    logger.warn('Email not configured in production - emails will not be sent')
   }
 }
 
@@ -113,13 +115,19 @@ async function sendEmail(
   },
   context: string
 ): Promise<{ success: boolean; error?: string }> {
-  console.log(`🚀 sendEmail called for context: ${context}`);
-  console.log(`   To: ${options.to}`);
-  console.log(`   Resend Client Available: ${!!resend}`);
+  logger.info('sendEmail called', {
+    context,
+    to: maskEmail(options.to),
+    resendAvailable: !!resend,
+  })
   const isTestKey = config.email.resendApiKey?.startsWith('re_test_');
-  console.log(`   Resend API Key Type: ${config.email.resendApiKey ? (isTestKey ? '⚠️ TEST KEY (Sandbox Mode - Only sends to you)' : '✅ LIVE KEY') : '❌ NOT CONFIGURED'}`);
-  console.log(`   Resend API Key Configured: ${!!config.email.resendApiKey}`);
-  console.log(`   From: ${config.email.from}`);
+  logger.info('Resend API key status', {
+    keyType: config.email.resendApiKey
+      ? (isTestKey ? 'test' : 'live')
+      : 'not-configured',
+    configured: !!config.email.resendApiKey,
+    from: config.email.from,
+  })
 
   // 1. Try Resend first
   if (resend) {
@@ -138,14 +146,20 @@ async function sendEmail(
         throw new Error(response.error.message)
       }
 
-      console.log(`✅ Email sent via Resend: ${context} to ${options.to}`)
+      logger.info('Email sent via Resend', {
+        context,
+        to: maskEmail(options.to),
+      })
       if (config.app.isDevelopment && response.data) {
-        console.log('   Message ID:', response.data.id)
+        logger.info('Resend message ID', { messageId: response.data.id })
       }
 
       return { success: true }
     } catch (error) {
-      console.error(`❌ Failed to send email via Resend: ${context}`, error)
+      logger.error('Failed to send email via Resend', {
+        context,
+        error: error instanceof Error ? error.message : String(error),
+      })
       // Fallback to SMTP if available
       if (!transporter) {
         return {
@@ -153,7 +167,7 @@ async function sendEmail(
           error: error instanceof Error ? error.message : 'Unknown Resend error',
         }
       }
-      console.log('🔄 Falling back to SMTP...')
+      logger.warn('Falling back to SMTP')
     }
   }
 
@@ -170,20 +184,27 @@ async function sendEmail(
       })
 
       if (config.app.isDevelopment) {
-        console.log(`✅ Email sent via SMTP: ${context} to ${options.to}`)
+        logger.info('Email sent via SMTP', {
+          context,
+          to: maskEmail(options.to),
+        })
       }
 
       return { success: true }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error'
 
-      console.error(`❌ Failed to send email via SMTP: ${context}`)
-      console.error(`   To: ${options.to}`)
-      console.error(`   Error: ${errorMessage}`)
+      logger.error('Failed to send email via SMTP', {
+        context,
+        to: maskEmail(options.to),
+        error: errorMessage,
+      })
 
       // Log full error in development
       if (config.app.isDevelopment) {
-        console.error('   Full error:', error)
+        logger.error('SMTP error details', {
+          error: error instanceof Error ? error.message : String(error),
+        })
       }
 
       return {
@@ -194,14 +215,13 @@ async function sendEmail(
   }
 
   // 3. Mock mode - log instead of sending
-  console.log('⚠️  FALLING BACK TO MOCK EMAIL MODE - NO REAL EMAIL WILL BE SENT');
+  logger.warn('Falling back to mock email mode - no real email will be sent');
   if (config.app.isDevelopment || !config.email.isConfigured) {
-    console.log('\n===========================================')
-    console.log(`📧 MOCK EMAIL - ${context}`)
-    console.log('===========================================')
-    console.log(`To: ${options.to}`)
-    console.log(`Subject: ${options.subject}`)
-    console.log('===========================================\n')
+    logger.info('Mock email', {
+      context,
+      to: maskEmail(options.to),
+      subject: options.subject,
+    })
   }
 
   if (config.app.isProduction && !config.email.isConfigured) {
@@ -480,9 +500,15 @@ export async function sendAdminApprovalReminder(student: {
   // Log any failures
   results.forEach((result, index) => {
     if (result.status === 'rejected') {
-      console.error(`Failed to send reminder to ${adminEmails[index]}:`, result.reason)
+      logger.error('Failed to send reminder', {
+        to: maskEmail(adminEmails[index]),
+        error: result.reason,
+      })
     } else if (!result.value.success) {
-      console.error(`Failed to send reminder to ${adminEmails[index]}:`, result.value.error)
+      logger.error('Failed to send reminder', {
+        to: maskEmail(adminEmails[index]),
+        error: result.value.error,
+      })
     }
   })
 
