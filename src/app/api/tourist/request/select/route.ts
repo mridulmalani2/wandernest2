@@ -34,10 +34,11 @@ async function selectStudents(req: NextRequest) {
   // Ensure database is available
   const db = requireDatabase()
 
-  const validatedData = await validateJson<any>(req, selectSchema)
-
-  const { requestId, selectedStudentTokens } = validatedData
-  const selectedStudentIds = Array.from(new Set(
+  const { requestId, selectedStudentTokens } = await validateJson<{
+    requestId: string
+    selectedStudentTokens: string[]
+  }>(req, selectSchema)
+  const selectedStudentIds: string[] = Array.from(new Set(
     selectedStudentTokens.map((token: string) => {
       const payload = verifySelectionToken(token)
       if (!payload || payload.requestId !== requestId) {
