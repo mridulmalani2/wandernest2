@@ -9,10 +9,10 @@ import { sendVerificationEmail } from '@/lib/email'
 import { isZodError } from '@/lib/error-handler'
 import { checkRateLimit, hashIdentifier } from '@/lib/rate-limit'
 import { sanitizeEmail } from '@/lib/sanitization'
+import { rateLimitByIp } from '@/lib/rateLimit/rateLimit'
+import { validateJson } from '@/lib/validation/validate'
 
-// Validation schema for the initiate request
 const initiateSchema = z.object({
-  // Step 1: Trip Details
   city: z.string().min(1, 'City is required'),
   dates: z.object({
     start: z.string(),
@@ -25,8 +25,6 @@ const initiateSchema = z.object({
   groupType: z.enum(['family', 'friends', 'solo', 'business'], {
     required_error: 'Group type is required',
   }),
-
-  // Step 2: Preferences
   preferredNationality: z.string().optional(),
   preferredLanguages: z.array(z.string()).min(1, 'At least one language required'),
   preferredGender: z.enum(['male', 'female', 'no_preference']).optional(),
@@ -35,8 +33,6 @@ const initiateSchema = z.object({
   }),
   interests: z.array(z.string()).min(1, 'At least one interest required'),
   budget: z.number().positive().optional(),
-
-  // Step 3: Contact
   email: z.string().email('Invalid email address'),
   phone: z.string().optional(),
   whatsapp: z.string().optional(),
@@ -45,14 +41,13 @@ const initiateSchema = z.object({
   }),
   tripNotes: z.string().optional(),
   accessibilityNeeds: z.string().optional(),
-})
+}).strict()
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json()
-
-    // Validate request data
-    const validatedData = initiateSchema.parse(body)
+    await rateLimitByIp(req, 5, 60, 'tourist-request-initiate')
+    await rateLimitByIp(req, 20, 60 * 60, 'tourist-request-initiate-hour')
+    const validatedData = await validateJson<any>(req, initiateSchema)
 
     let normalizedEmail = ''
     try {
@@ -80,18 +75,14 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Generate 6-digit verification code
     const verificationCode = generateVerificationCode()
 
-    // Store code in Redis with 10-minute TTL
     await storeVerificationCode(
       normalizedEmail,
       verificationCode,
       parseInt(process.env.VERIFICATION_CODE_EXPIRY || '600')
     )
 
-    // Send verification email
-    // Send verification email
     const emailResult = await sendVerificationEmail(normalizedEmail, verificationCode)
 
     if (!emailResult.success) {
@@ -106,7 +97,6 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Return success with email (no requestId yet - will be created after verification)
     return NextResponse.json(
       {
         success: true,
@@ -115,6 +105,9 @@ export async function POST(req: NextRequest) {
       { status: 200 }
     )
   } catch (error) {
+    if (error instanceof NextResponse) {
+      return error
+    }
     if (isZodError(error)) {
       return NextResponse.json(
         {

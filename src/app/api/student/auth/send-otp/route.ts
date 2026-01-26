@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { sendVerificationEmail } from '@/lib/email'
 import { checkRateLimit, hashIdentifier } from '@/lib/rate-limit'
@@ -6,15 +6,18 @@ import { z } from 'zod'
 import { emailSchema } from '@/lib/schemas/common'
 import { logger } from '@/lib/logger'
 import { isZodError } from '@/lib/error-handler'
+import { rateLimitByIp } from '@/lib/rateLimit/rateLimit'
+import { validateJson } from '@/lib/validation/validate'
 
 const otpRequestSchema = z.object({
   email: emailSchema,
-});
+}).strict();
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
-    const body = await req.json()
-    const { email } = otpRequestSchema.parse(body)
+    await rateLimitByIp(req, 5, 60, 'student-send-otp')
+    await rateLimitByIp(req, 20, 60 * 60, 'student-send-otp-hour')
+    const { email } = await validateJson<{ email: string }>(req, otpRequestSchema)
     const normalizedEmail = email.toLowerCase().trim()
     const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown'
 
@@ -99,6 +102,9 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ success: true })
   } catch (err) {
+    if (err instanceof NextResponse) {
+      return err
+    }
     if (isZodError(err)) {
       return NextResponse.json(
         { success: false, error: 'Invalid email address' },

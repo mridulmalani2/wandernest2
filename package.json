@@ -14,7 +14,8 @@
     "db:reset:dev": "ALLOW_DB_RESET=true NODE_ENV=development node scripts/reset-neon-db.js && prisma migrate deploy --schema=./src/prisma/schema.prisma",
     "db:verify": "node scripts/verify-migration-status.js",
     "db:migrate": "prisma migrate deploy --schema=./src/prisma/schema.prisma",
-    "db:generate": "prisma generate --schema=./src/prisma/schema.prisma"
+    "db:generate": "prisma generate --schema=./src/prisma/schema.prisma",
+    "test:api-exposure": "node scripts/api-exposure-smoke.js"
   },
   "prisma": {
     "schema": "./src/prisma/schema.prisma"

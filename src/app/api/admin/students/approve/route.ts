@@ -7,6 +7,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createApiHandler, validateBody } from '@/lib/api-handler'
 import { studentApprovalSchema, type StudentApprovalInput } from '@/lib/schemas'
 import { AppError } from '@/lib/error-handler'
+import { rateLimitByIp } from '@/lib/rateLimit/rateLimit'
 
 /**
  * POST /api/admin/students/approve
@@ -19,7 +20,8 @@ export const POST = createApiHandler<StudentApprovalInput>({
   auth: 'admin',
   route: 'POST /api/admin/students/approve',
 
-  async handler({ body, db }) {
+  async handler({ body, db, req }) {
+    await rateLimitByIp(req, 30, 60, 'admin-students-approve')
     const { studentId, action } = body
 
     // Execute atomically to prevent race conditions

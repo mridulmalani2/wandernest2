@@ -6,12 +6,14 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth-options';
 import { requireDatabase } from '@/lib/prisma';
 import { withErrorHandler, withDatabaseRetry, AppError } from '@/lib/error-handler';
+import { rateLimitByIp } from '@/lib/rateLimit/rateLimit';
 
 /**
  * GET /api/tourist/bookings
  * Fetch all bookings for the authenticated tourist
  */
 async function getTouristBookings(request: NextRequest) {
+  await rateLimitByIp(request, 60, 60, 'tourist-bookings');
   // Get session from NextAuth
   const session = await getServerSession(authOptions);
 

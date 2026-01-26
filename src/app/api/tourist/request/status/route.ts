@@ -5,22 +5,23 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth-options'
 import { requireDatabase } from '@/lib/prisma'
+import { rateLimitByIp } from '@/lib/rateLimit/rateLimit'
+import { validateInput, z } from '@/lib/validation/validate'
 
 export async function GET(req: NextRequest) {
   try {
+    await rateLimitByIp(req, 60, 60, 'tourist-request-status')
     const db = requireDatabase()
     const searchParams = req.nextUrl.searchParams
     const requestId = searchParams.get('requestId')
 
-    if (!requestId) {
-      return NextResponse.json(
-        { success: false, error: 'Request ID is required' },
-        { status: 400 }
-      )
-    }
+    const validated = validateInput<{ requestId: string }>(
+      { requestId },
+      z.object({ requestId: z.string().min(1) }).strict()
+    )
 
     const touristRequest = await db.touristRequest.findUnique({
-      where: { id: requestId },
+      where: { id: validated.requestId },
       include: {
         selections: {
           include: {
@@ -49,8 +50,6 @@ export async function GET(req: NextRequest) {
       )
     }
 
-    // SECURITY: Authorize access
-    // Only the creator (Tourist) or an Admin should see full status
     const session = await getServerSession(authOptions)
     if (!session?.user?.email) {
       return NextResponse.json(
@@ -59,31 +58,23 @@ export async function GET(req: NextRequest) {
       )
     }
 
-    // Verify ownership
-    // Note: session.user.email is reliable.
-    // If we wanted to be stricter, we'd check touristId if available in schema vs session.
     const userType = session.user.userType as string | undefined
     const isAdmin = userType === 'admin'
     if (touristRequest.email !== session.user.email && !isAdmin) {
-      // Allow admins or maybe the assigned student?
-      // For now, strictly restrict to owner to fix IDOR.
       return NextResponse.json(
         { success: false, error: 'Access denied' },
         { status: 403 }
       )
     }
 
-    // Check if request is expired
     if (new Date() > touristRequest.expiresAt && touristRequest.status === 'PENDING') {
-      // Auto-expire the request
       await db.touristRequest.update({
-        where: { id: requestId },
+        where: { id: validated.requestId },
         data: { status: 'EXPIRED' },
       })
       touristRequest.status = 'EXPIRED'
     }
 
-    // Build response based on status
     const response: {
       status: string;
       city: string;
@@ -112,7 +103,6 @@ export async function GET(req: NextRequest) {
       assignedStudent: null,
     }
 
-    // If accepted, include student details
     if (touristRequest.status === 'ACCEPTED' && touristRequest.assignedStudentId) {
       const assignedStudent = touristRequest.selections.find(
         (s: any) => s.studentId === touristRequest.assignedStudentId && s.status === 'accepted'
@@ -123,7 +113,7 @@ export async function GET(req: NextRequest) {
           name: assignedStudent.student.name,
           email: assignedStudent.student.email,
           phone: assignedStudent.student.phoneNumber,
-          whatsapp: null, // Add if stored
+          whatsapp: null,
           institute: assignedStudent.student.institute,
           nationality: assignedStudent.student.nationality,
           languages: assignedStudent.student.languages,
@@ -138,6 +128,9 @@ export async function GET(req: NextRequest) {
       status: response,
     })
   } catch (error) {
+    if (error instanceof NextResponse) {
+      return error
+    }
     console.error('Error fetching request status:', error)
     return NextResponse.json(
       {

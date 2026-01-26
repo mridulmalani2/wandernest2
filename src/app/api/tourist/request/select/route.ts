@@ -9,13 +9,16 @@ import { requireDatabase } from '@/lib/prisma'
 import { sendStudentRequestNotification } from '@/lib/email'
 import { withErrorHandler, withDatabaseRetry, AppError } from '@/lib/error-handler'
 import { verifySelectionToken } from '@/lib/auth/tokens'
+import { rateLimitByIp } from '@/lib/rateLimit/rateLimit'
+import { validateJson } from '@/lib/validation/validate'
 
 const selectSchema = z.object({
   requestId: z.string().min(1),
   selectedStudentTokens: z.array(z.string().min(1)).min(1).max(4),
-})
+}).strict()
 
 async function selectStudents(req: NextRequest) {
+  await rateLimitByIp(req, 60, 60, 'tourist-request-select')
   // SECURITY: Verify authentication
   const session = await getServerSession(authOptions)
 
@@ -31,8 +34,7 @@ async function selectStudents(req: NextRequest) {
   // Ensure database is available
   const db = requireDatabase()
 
-  const body = await req.json()
-  const validatedData = selectSchema.parse(body)
+  const validatedData = await validateJson<any>(req, selectSchema)
 
   const { requestId, selectedStudentTokens } = validatedData
   const selectedStudentIds = Array.from(new Set(

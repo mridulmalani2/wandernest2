@@ -1,24 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { config } from '@/lib/config'
 import { verifyAdmin } from '@/lib/api-auth'
+import { rateLimitByIp } from '@/lib/rateLimit/rateLimit'
+import { validateJson, z } from '@/lib/validation/validate'
 
-// Force this route to be dynamic
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
-/**
- * GET /api/admin/test-email
- *
- * Diagnostic endpoint to check email configuration status.
- * This helps administrators diagnose magic link authentication issues.
- *
- * Returns detailed information about:
- * - Whether email is configured
- * - Which environment variables are set
- * - SMTP connection details (without exposing secrets)
- */
 export async function GET(request: NextRequest) {
   try {
+    await rateLimitByIp(request, 30, 60, 'admin-test-email-get')
     const authResult = await verifyAdmin(request)
     if (!authResult.authorized) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -47,6 +38,9 @@ export async function GET(request: NextRequest) {
       },
     })
   } catch (error) {
+    if (error instanceof NextResponse) {
+      return error
+    }
     return NextResponse.json(
       { error: 'Failed to load email configuration' },
       { status: 500 }
@@ -54,32 +48,21 @@ export async function GET(request: NextRequest) {
   }
 }
 
-/**
- * POST /api/admin/test-email
- *
- * Send a test email to verify SMTP configuration.
- * Requires a recipient email in the request body.
- */
+const testEmailSchema = z.object({
+  to: z.string().email(),
+}).strict()
+
 export async function POST(request: NextRequest) {
   try {
+    await rateLimitByIp(request, 30, 60, 'admin-test-email-post')
     const authResult = await verifyAdmin(request)
 
     if (!authResult.authorized) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { to } = await request.json()
+    const { to } = await validateJson<{ to: string }>(request, testEmailSchema)
 
-    // Basic email validation regex
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!to || typeof to !== 'string' || !emailRegex.test(to)) {
-      return NextResponse.json(
-        { error: 'Invalid recipient email address' },
-        { status: 400 }
-      )
-    }
-
-    // Check if email is configured
     if (!config.email.isConfigured) {
       return NextResponse.json(
         {
@@ -91,7 +74,6 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Dynamically import nodemailer to avoid loading it if not needed
     const nodemailer = (await import('nodemailer')).default
 
     const transport = nodemailer.createTransport({
@@ -149,6 +131,9 @@ export async function POST(request: NextRequest) {
       messageId: result.messageId,
     })
   } catch (error) {
+    if (error instanceof NextResponse) {
+      return error
+    }
     const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     console.error('❌ Error sending test email:', errorMessage)
 

@@ -9,6 +9,8 @@ import { z } from 'zod';
 import { withErrorHandler, withDatabaseRetry, AppError } from '@/lib/error-handler';
 import * as bcrypt from 'bcryptjs';
 import { normalizeTag, sanitizeText } from '@/lib/sanitization';
+import { rateLimitByIp } from '@/lib/rateLimit/rateLimit';
+import { validateJson } from '@/lib/validation/validate';
 
 const GENERIC_DOMAINS = ['gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com', 'aol.com', 'icloud.com'];
 
@@ -68,15 +70,15 @@ const onboardingSchema = z.object({
   independentGuideAcknowledged: z.literal(true),
   emergencyContactName: z.string().optional().transform((val) => (val ? sanitizeText(val, 100) : val)).refine((val) => !val || val.length > 0),
   emergencyContactPhone: z.string().optional().refine((val) => !val || /^\+?[0-9\s\-\(\)]+$/.test(val), { message: "Invalid emergency contact phone" }),
-});
+}).strict();
 
 import { calculateProfileCompleteness } from '@/lib/student-utils';
 
 async function submitOnboarding(req: NextRequest) {
-  const body = await req.json();
+  await rateLimitByIp(req, 5, 60, 'student-onboarding');
+  await rateLimitByIp(req, 20, 60 * 60, 'student-onboarding-hour');
 
-  // Validate input
-  const validatedData = onboardingSchema.parse(body);
+  const validatedData = await validateJson<any>(req, onboardingSchema);
 
   // Validate OTP-backed student session and ensure ownership
   const sessionToken = await readStudentTokenFromRequest(req);

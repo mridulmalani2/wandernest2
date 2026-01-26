@@ -9,6 +9,8 @@ import { authOptions } from '@/lib/auth-options';
 import { requireDatabase } from '@/lib/prisma';
 import { sendBookingConfirmation } from '@/lib/transactional-email';
 import { withErrorHandler, withDatabaseRetry, AppError } from '@/lib/error-handler';
+import { rateLimitByIp } from '@/lib/rateLimit/rateLimit';
+import { validateJson } from '@/lib/validation/validate';
 
 // In-memory storage for demo mode (when database is unavailable)
 const demoRequests = new Map<string, any>();
@@ -43,13 +45,14 @@ const createBookingSchema = z.object({
   contactMethod: z.enum(['email', 'phone', 'whatsapp']),
   tripNotes: z.string().optional(),
   referralEmail: z.string().email('Invalid referral email').optional().or(z.literal('')),
-});
+}).strict();
 
 /**
  * POST /api/tourist/request/create
  * Create a new booking request for an authenticated tourist
  */
 async function createTouristRequest(req: NextRequest) {
+  await rateLimitByIp(req, 60, 60, 'tourist-request-create');
   const db = requireDatabase();
   // Get session from NextAuth
   const session = await getServerSession(authOptions);
@@ -71,8 +74,7 @@ async function createTouristRequest(req: NextRequest) {
   }
 
   // Parse and validate request body
-  const body = await req.json();
-  const validatedData = createBookingSchema.parse(body);
+  const validatedData = await validateJson<any>(req, createBookingSchema);
 
   // Ensure database is available (throws clear error if not)
 

@@ -6,10 +6,12 @@ export const runtime = 'nodejs'
 import { NextRequest, NextResponse } from 'next/server'
 import { requireDatabase } from '@/lib/prisma'
 import { verifyAdmin } from '@/lib/api-auth'
+import { rateLimitByIp } from '@/lib/rateLimit/rateLimit'
 
 // Get pending student approvals
 export async function GET(request: NextRequest) {
   try {
+    await rateLimitByIp(request, 30, 60, 'admin-students-pending')
     const authResult = await verifyAdmin(request)
 
     if (!authResult.authorized) {

@@ -1,7 +1,8 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { checkDatabaseHealth } from '@/lib/prisma'
 import { getConfigSummary } from '@/lib/config'
 import { checkRedisHealth } from '@/lib/redis'
+import { rateLimitByIp } from '@/lib/rateLimit/rateLimit'
 
 /**
  * Health check endpoint for monitoring
@@ -18,10 +19,11 @@ import { checkRedisHealth } from '@/lib/redis'
  * Set up alerts if this endpoint returns a non-200 status or if
  * any critical components are unhealthy.
  */
-export async function GET() {
+export async function GET(request: NextRequest) {
   const timestamp = new Date().toISOString()
 
   try {
+    await rateLimitByIp(request, 60, 60, 'health')
     // Check database health
     const dbHealth = await checkDatabaseHealth()
 
@@ -84,6 +86,9 @@ export async function GET() {
 
     return NextResponse.json(response, { status: httpStatus })
   } catch (error) {
+    if (error instanceof NextResponse) {
+      return error
+    }
     console.error('❌ Health check failed:', error instanceof Error ? error.message : 'Unknown error')
 
     return NextResponse.json(

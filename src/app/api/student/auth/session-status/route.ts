@@ -1,13 +1,15 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { prisma } from '@/lib/prisma';
 import { getValidStudentSession } from '@/lib/student-auth';
 import { logger } from '@/lib/logger';
+import { rateLimitByIp } from '@/lib/rateLimit/rateLimit';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    await rateLimitByIp(request, 60, 60, 'student-session-status');
     const cookieStore = await cookies();
     const token = cookieStore.get('student_session_token')?.value;
 
@@ -69,13 +71,13 @@ export async function GET() {
             ok: true,
             nextPath: hasCompletedOnboarding ? '/student/dashboard' : '/student/onboarding',
             linkedExistingStudent: true,
-            hasCompletedOnboarding, // Directly return this flag
+            hasCompletedOnboarding,
             displayName: studentName,
             student: {
               name: studentName,
               profileCompleteness: profileCompleteness,
               status: studentStatus,
-              hasCompletedOnboarding // Also keep inside student object for compatibility
+              hasCompletedOnboarding
             }
           },
           { status: 200 }
@@ -89,14 +91,15 @@ export async function GET() {
       { status: 401 }
     );
 
-    // If a token was present but invalid/expired, clear it to prevent loops
     if (token) {
       response.cookies.delete('student_session_token');
     }
 
     return response;
-
   } catch (error) {
+    if (error instanceof NextResponse) {
+      return error;
+    }
     logger.error('Student session-status error', {
       errorType: error instanceof Error ? error.name : 'unknown',
       errorMessage: error instanceof Error ? error.message : 'Unknown error',

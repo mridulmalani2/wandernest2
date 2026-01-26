@@ -6,6 +6,8 @@ import { createApiHandler } from '@/lib/api-handler'
 import { reviewCreateSchema, type ReviewCreateInput } from '@/lib/schemas'
 import { createReview } from '@/lib/reviews/service'
 import { AppError } from '@/lib/error-handler'
+import { rateLimitByIp } from '@/lib/rateLimit/rateLimit'
+import { serializeReviewPublic } from '@/lib/response/serialize'
 
 /**
  * POST /api/reviews
@@ -16,7 +18,8 @@ export const POST = createApiHandler<ReviewCreateInput>({
   auth: 'tourist',
   route: 'POST /api/reviews',
 
-  async handler({ body, db, auth }) {
+  async handler({ body, db, auth, req }) {
+    await rateLimitByIp(req, 30, 60, 'reviews-create')
     // Ensure tourist is authenticated
     if (!auth.tourist?.email) {
       throw new AppError(401, 'Unauthorized. Please sign in.', 'UNAUTHORIZED')
@@ -26,7 +29,7 @@ export const POST = createApiHandler<ReviewCreateInput>({
     if (body.requestId) {
       const touristRequest = await db.touristRequest.findUnique({
         where: { id: body.requestId },
-        select: { email: true }
+        select: { email: true, assignedStudentId: true }
       })
 
       if (!touristRequest) {
@@ -37,6 +40,10 @@ export const POST = createApiHandler<ReviewCreateInput>({
       if (touristRequest.email !== auth.tourist.email) {
         throw new AppError(403, 'Access denied. You can only review your own bookings.', 'FORBIDDEN')
       }
+
+      if (touristRequest.assignedStudentId && touristRequest.assignedStudentId !== body.studentId) {
+        throw new AppError(403, 'Access denied. Review must match assigned student.', 'FORBIDDEN')
+      }
     }
 
     // Create the review with validated and sanitized data
@@ -44,7 +51,7 @@ export const POST = createApiHandler<ReviewCreateInput>({
 
     return NextResponse.json({
       success: true,
-      data: review,
+      data: serializeReviewPublic(review),
     }, { status: 201 })
   },
 })
