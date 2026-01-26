@@ -38,7 +38,7 @@ async function selectStudents(req: NextRequest) {
 
   const { requestId, selectedStudentTokens } = validatedData
   const selectedStudentIds = Array.from(new Set(
-    selectedStudentTokens.map((token) => {
+    selectedStudentTokens.map((token: string) => {
       const payload = verifySelectionToken(token)
       if (!payload || payload.requestId !== requestId) {
         throw new AppError(400, 'Invalid or expired selection token', 'INVALID_SELECTION_TOKEN')
