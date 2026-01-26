@@ -12,6 +12,7 @@ This document outlines the security measures implemented in TourWiseCo and best 
 6. [Data Protection](#data-protection)
 7. [API Security](#api-security)
 8. [Monitoring & Logging](#monitoring--logging)
+9. [AI-Specific Risks](#ai-specific-risks)
 
 ## Error Handling
 
@@ -388,3 +389,49 @@ If you discover a security vulnerability, please email security@tourwiseco.com i
 - [Next.js Security Best Practices](https://nextjs.org/docs/app/building-your-application/security)
 - [Vercel Security](https://vercel.com/docs/security)
 - [Prisma Security](https://www.prisma.io/docs/guides/security)
+
+## AI-Specific Risks
+
+AI-assisted development introduces unique risks such as prompt injection, slopsquatting, and MCP-based zero-click RCE. Use the following workflow whenever working with untrusted repositories or AI-suggested dependencies.
+
+### Prompt Injection Defense
+
+- Review AI-related configuration files before enabling AI tools: `.cursorrules`, `.claude`, `.github/copilot-instructions.md`.
+- Run the repository scan before importing into AI-enabled editors:
+  ```bash
+  ./scripts/scan-for-prompt-injection.sh
+  ```
+- Disable AI auto-execution features for untrusted repositories.
+- Require explicit confirmation before executing commands suggested by AI tools.
+
+### Package Verification (Slopsquatting Defense)
+
+Before installing any AI-suggested package:
+
+- Verify the package exists on the official registry (npm/PyPI).
+- Check download counts, age, and maintainer history.
+- Confirm the official package name in vendor documentation.
+- Review the source repository before installation.
+
+### MCP / Zero-Click RCE Defense
+
+- Keep MCP integrations disabled for untrusted sources.
+- Do not open shared documents (Google Docs, shared files) in development environments.
+- Use isolated VMs or containers for untrusted codebases.
+- Review MCP permissions regularly; only enable trusted sources.
+
+### Privacy & Data Exfiltration Controls
+
+- Never paste production secrets into AI prompts.
+- Enable privacy mode or enterprise tiers where available.
+- Sanitize code before sharing with AI tools.
+
+### AI Security Checklist (Operational)
+
+- [ ] Prompt injection scan completed on new repositories
+- [ ] AI config files reviewed (`.cursorrules`, `.claude`, `copilot-instructions.md`)
+- [ ] Auto-execution disabled for untrusted repos
+- [ ] Package verification completed for AI-suggested dependencies
+- [ ] MCP integrations reviewed and restricted to trusted sources
+- [ ] Privacy mode enabled for sensitive work
+- [ ] Team trained on AI-specific risks
