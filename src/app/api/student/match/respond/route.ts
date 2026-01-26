@@ -9,6 +9,8 @@ import {
   sendTouristAcceptanceNotification,
   sendStudentConfirmation,
 } from '@/lib/email'
+import { rateLimitByIp, rateLimitByIdentity } from '@/lib/rateLimit/rateLimit'
+import { validateJson, z } from '@/lib/validation/validate'
 
 interface MatchResponsePayload {
   success: boolean
@@ -444,6 +446,7 @@ async function processMatchToken(token: string) {
 }
 
 export async function GET(req: NextRequest) {
+  await rateLimitByIp(req, 30, 60, 'student-match-respond-view')
   return new NextResponse(renderProcessingPage(), {
     status: 200,
     headers: {
@@ -456,9 +459,14 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    let body: unknown
+    await rateLimitByIp(req, 30, 60, 'student-match-respond')
+    let token = ''
     try {
-      body = await req.json()
+      const parsedBody = await validateJson<{ token: string }>(
+        req,
+        z.object({ token: z.string().min(1) }).strict()
+      )
+      token = parsedBody.token
     } catch {
       const { statusCode, payload } = buildPayload(
         400,
@@ -471,11 +479,6 @@ export async function POST(req: NextRequest) {
         headers: { 'Cache-Control': 'no-store' },
       })
     }
-
-    const token =
-      typeof (body as { token?: unknown })?.token === 'string'
-        ? (body as { token: string }).token
-        : ''
 
     if (!token) {
       const { statusCode, payload } = buildPayload(
@@ -490,6 +493,7 @@ export async function POST(req: NextRequest) {
       })
     }
 
+    await rateLimitByIdentity(req, token, 10, 60, 'student-match-respond-token')
     const result = await processMatchToken(token)
     return NextResponse.json(result.payload, {
       status: result.statusCode,

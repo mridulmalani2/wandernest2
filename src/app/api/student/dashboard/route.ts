@@ -9,9 +9,11 @@ import { CACHE_TTL } from '@/lib/constants'
 import { withErrorHandler, AppError } from '@/lib/error-handler'
 import { cookies } from 'next/headers'
 import { getValidStudentSession } from '@/lib/student-auth'
+import { rateLimitByIp } from '@/lib/rateLimit/rateLimit'
 
 async function getStudentDashboard(req: NextRequest) {
   const db = requireDatabase()
+  await rateLimitByIp(req, 60, 60, 'student-dashboard')
 
   // 1. Validate Session
   const cookieStore = await cookies()

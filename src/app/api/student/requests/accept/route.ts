@@ -6,14 +6,16 @@ import { verifyStudent } from '@/lib/api-auth'
 import { acceptRequest } from '../accept-request'
 import { requireDatabase } from '@/lib/prisma'
 import { enforceSameOrigin } from '@/lib/csrf'
-import { z } from 'zod'
 import { cuidSchema } from '@/lib/schemas/common'
-import { validateBody } from '@/lib/api-handler'
 import { handleApiError } from '@/lib/error-handler'
+import { rateLimitByIp } from '@/lib/rateLimit/rateLimit'
+import { validateJson, z } from '@/lib/validation/validate'
 
 export async function POST(req: NextRequest) {
   try {
     const db = requireDatabase()
+
+    await rateLimitByIp(req, 60, 60, 'student-request-accept')
 
     // CSRF Protection: Strict Origin Check
     enforceSameOrigin(req)
@@ -27,10 +29,9 @@ export async function POST(req: NextRequest) {
     }
     const { email: studentEmail } = authResult.student
 
-    const bodySchema = z.object({ requestId: cuidSchema })
-    const { requestId } = validateBody(bodySchema, await req.json())
+    const bodySchema = z.object({ requestId: cuidSchema }).strict()
+    const { requestId } = await validateJson<{ requestId: string }>(req, bodySchema)
 
-    // Find student by email
     const student = await db.student.findUnique({
       where: { email: studentEmail },
     })
@@ -44,7 +45,6 @@ export async function POST(req: NextRequest) {
 
     const studentId = student.id
 
-    // Call the acceptRequest helper
     const result = await acceptRequest(requestId, studentId)
 
     return NextResponse.json({

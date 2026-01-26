@@ -25,7 +25,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { z } from 'zod';
+import { z, ZodObject } from 'zod';
 import { verifyAdmin, verifyStudent, verifyTourist } from './api-auth';
 import { requireDatabase } from './prisma';
 import { AppError, handleApiError, isZodError } from './error-handler';
@@ -283,7 +283,8 @@ export function createApiHandler<
       if (bodySchema && ['POST', 'PUT', 'PATCH'].includes(req.method || '')) {
         try {
           const rawBody = await req.json();
-          validatedBody = bodySchema.parse(rawBody);
+          const strictSchema = bodySchema instanceof ZodObject ? bodySchema.strict() : bodySchema;
+          validatedBody = strictSchema.parse(rawBody);
         } catch (error) {
           if (isZodError(error)) {
             logger.warn(`[${requestId}] ${route} - Body validation failed`, {

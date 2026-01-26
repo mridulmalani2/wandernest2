@@ -11,6 +11,7 @@ import { cache } from '@/lib/cache'
 import { CACHE_TTL } from '@/lib/constants'
 import { AppError } from '@/lib/error-handler'
 import { generateSelectionToken } from '@/lib/auth/tokens'
+import { rateLimitByIp } from '@/lib/rateLimit/rateLimit'
 
 // Query schema for GET endpoint
 const matchesQuerySchema = z.object({
@@ -39,7 +40,8 @@ export const POST = createApiHandler<FindMatchesInput>({
   auth: 'tourist',
   route: 'POST /api/matches',
 
-  async handler({ body, db, auth }) {
+  async handler({ body, db, auth, req }) {
+    await rateLimitByIp(req, 60, 60, 'matches-post')
     const { requestId } = body
 
     // Fetch the tourist request
@@ -87,7 +89,8 @@ export const GET = createApiHandler({
   auth: 'tourist',
   route: 'GET /api/matches',
 
-  async handler({ query, db, auth }) {
+  async handler({ query, db, auth, req }) {
+    await rateLimitByIp(req, 60, 60, 'matches-get')
     const { requestId } = query
 
     // Fetch the tourist request with selections
@@ -96,7 +99,16 @@ export const GET = createApiHandler({
       include: {
         selections: {
           include: {
-            student: true
+            student: {
+              select: {
+                id: true,
+                institute: true,
+                languages: true,
+                tripsHosted: true,
+                averageRating: true,
+                reliabilityBadge: true,
+              }
+            }
           }
         }
       }

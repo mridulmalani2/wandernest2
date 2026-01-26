@@ -6,9 +6,11 @@ export const runtime = 'nodejs'
 import { NextRequest, NextResponse } from 'next/server'
 import { requireDatabase } from '@/lib/prisma'
 import { verifyTourist } from '@/lib/api-auth'
+import { rateLimitByIp } from '@/lib/rateLimit/rateLimit'
 
 // Get tourist's past requests
 export async function GET(request: NextRequest) {
+  await rateLimitByIp(request, 60, 60, 'tourist-dashboard-requests')
   const authResult = await verifyTourist(request)
 
   if (!authResult.authorized) {

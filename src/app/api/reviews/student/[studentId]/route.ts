@@ -5,6 +5,7 @@ export const revalidate = 600 // 10 minutes
 import { NextRequest, NextResponse } from 'next/server'
 import { getStudentReviews } from '@/lib/reviews/service'
 import { CACHE_TTL } from '@/lib/constants'
+import { rateLimitByIp } from '@/lib/rateLimit/rateLimit'
 
 /**
  * GET /api/reviews/student/:studentId
@@ -15,6 +16,7 @@ export async function GET(
   { params }: { params: { studentId: string } }
 ) {
   try {
+    await rateLimitByIp(request, 60, 60, 'reviews-student')
     const studentId = params.studentId
     const reviews = await getStudentReviews(studentId)
 
@@ -27,6 +29,9 @@ export async function GET(
       },
     })
   } catch (error: unknown) {
+    if (error instanceof NextResponse) {
+      return error
+    }
     console.error('Error fetching reviews:', error)
     return NextResponse.json({
       success: false,

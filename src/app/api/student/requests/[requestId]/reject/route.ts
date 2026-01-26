@@ -6,18 +6,24 @@ import { requireDatabase } from '@/lib/prisma'
 import { withErrorHandler, withDatabaseRetry, AppError } from '@/lib/error-handler'
 import { enforceSameOrigin } from '@/lib/csrf'
 import { cuidSchema } from '@/lib/schemas/common'
-import { validateBody } from '@/lib/api-handler'
-import { z } from 'zod'
+import { rateLimitByIp } from '@/lib/rateLimit/rateLimit'
+import { validateInput, z } from '@/lib/validation/validate'
+import { serializeSelectionPublic } from '@/lib/response/serialize'
 
 async function rejectStudentRequest(
   req: NextRequest,
   { params }: { params: { requestId: string } }
 ) {
   const db = requireDatabase();
-  const { requestId } = validateBody(z.object({ requestId: cuidSchema }), params)
+  const { requestId } = validateInput<{ requestId: string }>(
+    params,
+    z.object({ requestId: cuidSchema }).strict()
+  )
 
-  // Use verifyStudent for standardized authentication
   const { verifyStudent } = await import('@/lib/api-auth')
+
+  await rateLimitByIp(req, 60, 60, 'student-request-reject-id')
+
   const authResult = await verifyStudent(req)
 
   if (!authResult.authorized || !authResult.student?.id) {
@@ -28,7 +34,6 @@ async function rejectStudentRequest(
 
   enforceSameOrigin(req)
 
-  // Get the RequestSelection for this student
   const selection = await withDatabaseRetry(async () =>
     db.requestSelection.findFirst({
       where: {
@@ -50,7 +55,6 @@ async function rejectStudentRequest(
     throw new AppError(400, 'Cannot reject an already accepted request', 'ALREADY_ACCEPTED')
   }
 
-  // Update the selection to rejected
   const updateResult = await withDatabaseRetry(async () =>
     db.requestSelection.updateMany({
       where: { id: selection.id, status: 'pending' },
@@ -76,7 +80,7 @@ async function rejectStudentRequest(
 
   return NextResponse.json({
     message: 'Request rejected successfully',
-    selection: updatedSelection,
+    selection: serializeSelectionPublic(updatedSelection),
   })
 }
 

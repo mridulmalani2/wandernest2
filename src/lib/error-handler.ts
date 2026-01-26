@@ -205,6 +205,9 @@ export function handleApiError(
   error: unknown,
   context?: string
 ): NextResponse<ErrorResponse> {
+  if (error instanceof NextResponse) {
+    return error;
+  }
   // Log the error securely
   logError(error, context);
 

@@ -7,9 +7,11 @@ import { getValidStudentSession, readStudentTokenFromRequest } from '@/lib/stude
 import { sanitizeFilename } from '@/lib/sanitization';
 import { encryptFileContent } from '@/lib/file-encryption';
 import { logger } from '@/lib/logger';
+import { rateLimitByIp } from '@/lib/rateLimit/rateLimit';
 
 export async function POST(req: NextRequest) {
   try {
+    await rateLimitByIp(req, 30, 60, 'student-upload');
     // SECURITY: Verify authentication - only authenticated students can upload
     const token = await readStudentTokenFromRequest(req);
     const session = await getValidStudentSession(token);
@@ -118,6 +120,9 @@ export async function POST(req: NextRequest) {
       contentType: file.type,
     });
   } catch (error) {
+    if (error instanceof NextResponse) {
+      return error;
+    }
     logger.error('File upload error', {
       errorType: error instanceof Error ? error.name : 'unknown',
       errorMessage: error instanceof Error ? error.message : 'Unknown error',

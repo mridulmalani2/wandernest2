@@ -1,91 +1,49 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import bcrypt from 'bcryptjs'
-import { getValidStudentSession, readStudentTokenFromRequest } from '@/lib/student-auth'
 import { logger } from '@/lib/logger'
+import { rateLimitByIp } from '@/lib/rateLimit/rateLimit'
+import { validateJson, z } from '@/lib/validation/validate'
+import { requireAuth } from '@/lib/auth/requireAuth'
 
 export const dynamic = 'force-dynamic'
 
-export async function POST(req: Request) {
-    try {
-        const { password } = await req.json()
+const setPasswordSchema = z
+  .object({
+    password: z.string().min(8).max(128),
+  })
+  .strict()
 
-        // 1. Verify Session
-        const token = await readStudentTokenFromRequest(req)
+export async function POST(req: NextRequest) {
+  try {
+    await rateLimitByIp(req, 5, 60, 'student-set-password')
+    await rateLimitByIp(req, 20, 60 * 60, 'student-set-password-hour')
+    const { password } = await validateJson<{ password: string }>(req, setPasswordSchema)
 
-        if (!token) {
-            return NextResponse.json(
-                { success: false, error: 'Unauthorized' },
-                { status: 401 }
-            )
-        }
+    const identity = await requireAuth(req, 'student')
+    const studentId = identity.userId
 
-        const session = await getValidStudentSession(token)
+    // 3. Hash Password
+    const hashedPassword = await bcrypt.hash(password, 10)
 
-        if (!session) {
-            return NextResponse.json(
-                { success: false, error: 'Session expired' },
-                { status: 401 }
-            )
-        }
+    // 4. Update Student
+    await prisma.student.update({
+      where: { id: studentId },
+      data: { passwordHash: hashedPassword },
+    })
 
-        // In schema, StudentSession might not have logical relation mapped in Prisma schema strictly if I recall `schema.prisma`.
-        // Let's check relation. The schema has `studentId` in StudentSession but relation `student`... 
-        // Wait, checking schema defined earlier:
-        // model StudentSession { ... studentId String? ... } 
-        // It DOES NOT have a `@relation` field defined in the `StudentSession` model block in the file I viewed ?
-        // Let me re-read schema content from step 386.
-        // Line 327: studentId String? // Links to Student model after onboarding
-        // There is NO `student Student @relation(...)` line in StudentSession.
-        // So `include: { student: true }` will fail.
-
-        // Manual fetch
-        let studentId = session.studentId
-        if (!studentId) {
-            if (!session.email) {
-                return NextResponse.json(
-                    { success: false, error: 'Student profile not found' },
-                    { status: 404 }
-                )
-            }
-
-            const student = await prisma.student.findUnique({ where: { email: session.email } })
-            if (!student) {
-                return NextResponse.json(
-                    { success: false, error: 'Student profile not found' },
-                    { status: 404 }
-                )
-            }
-            studentId = student.id
-        }
-
-        // 2. Validate Password Strength (Minimal)
-        if (!password || password.length < 8) {
-            return NextResponse.json(
-                { success: false, error: 'Password must be at least 8 characters' },
-                { status: 400 }
-            )
-        }
-
-        // 3. Hash Password
-        const hashedPassword = await bcrypt.hash(password, 10)
-
-        // 4. Update Student
-        // Use session.email as the reliable identifier
-        await prisma.student.update({
-            where: { id: studentId },
-            data: { passwordHash: hashedPassword }
-        })
-
-        return NextResponse.json({ success: true })
-    } catch (err) {
-        logger.error('Error in set-password route', {
-            errorType: err instanceof Error ? err.name : 'unknown',
-            errorMessage: err instanceof Error ? err.message : 'Unknown error',
-        })
-        return NextResponse.json(
-            { success: false, error: 'Something went wrong' },
-            { status: 500 }
-        )
+    return NextResponse.json({ success: true })
+  } catch (err) {
+    if (err instanceof NextResponse) {
+      return err
     }
+    logger.error('Error in set-password route', {
+      errorType: err instanceof Error ? err.name : 'unknown',
+      errorMessage: err instanceof Error ? err.message : 'Unknown error',
+    })
+    return NextResponse.json(
+      { success: false, error: 'Something went wrong' },
+      { status: 500 }
+    )
+  }
 }

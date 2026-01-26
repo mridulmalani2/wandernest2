@@ -7,9 +7,11 @@ import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdmin } from '@/lib/api-auth'
 import { requireDatabase } from '@/lib/prisma'
 import { formatDateFromRange } from '@/lib/date-utils'
+import { rateLimitByIp } from '@/lib/rateLimit/rateLimit'
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
+    await rateLimitByIp(request, 30, 60, 'admin-bookings-detail')
     const authResult = await verifyAdmin(request)
 
     if (!authResult.authorized) {

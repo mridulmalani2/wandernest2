@@ -7,10 +7,18 @@ import { NextRequest, NextResponse } from 'next/server'
 import { requireDatabase } from '@/lib/prisma'
 import { verifyAdmin } from '@/lib/api-auth'
 import { z } from 'zod'
+import { rateLimitByIp } from '@/lib/rateLimit/rateLimit'
+import { validateJson } from '@/lib/validation/validate'
+import { serializeReportPublic } from '@/lib/response/serialize'
 
-// Get all reports with optional filtering
+const reportStatusSchema = z.object({
+  reportId: z.string().cuid(),
+  status: z.enum(['pending', 'reviewed', 'resolved']),
+}).strict()
+
 export async function GET(request: NextRequest) {
   try {
+    await rateLimitByIp(request, 30, 60, 'admin-reports')
     const authResult = await verifyAdmin(request)
 
     if (!authResult.authorized) {
@@ -50,7 +58,6 @@ export async function GET(request: NextRequest) {
             select: {
               id: true,
               name: true,
-              email: true,
               city: true,
               status: true,
             },
@@ -61,7 +68,7 @@ export async function GET(request: NextRequest) {
     ])
 
     return NextResponse.json({
-      reports,
+      reports: reports.map(serializeReportPublic),
       pagination: {
         total,
         page,
@@ -70,6 +77,9 @@ export async function GET(request: NextRequest) {
       },
     })
   } catch (error) {
+    if (error instanceof NextResponse) {
+      return error
+    }
     console.error('Error fetching reports:', error instanceof Error ? error.message : 'Unknown error')
     return NextResponse.json(
       { error: 'Internal server error' },
@@ -78,9 +88,9 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// Update report status
 export async function PATCH(request: NextRequest) {
   try {
+    await rateLimitByIp(request, 30, 60, 'admin-reports-update')
     const authResult = await verifyAdmin(request)
 
     if (!authResult.authorized) {
@@ -92,20 +102,10 @@ export async function PATCH(request: NextRequest) {
 
     const db = requireDatabase()
 
-    const body = await request.json().catch(() => null)
-    const schema = z.object({
-      reportId: z.string().cuid(),
-      status: z.enum(['pending', 'reviewed', 'resolved']),
-    })
-    const parsed = schema.safeParse(body)
-    if (!parsed.success) {
-      return NextResponse.json(
-        { error: 'Invalid request payload' },
-        { status: 400 }
-      )
-    }
-
-    const { reportId, status } = parsed.data
+    const { reportId, status } = await validateJson<{ reportId: string; status: 'pending' | 'reviewed' | 'resolved' }>(
+      request,
+      reportStatusSchema
+    )
 
     const existingReport = await db.report.findUnique({
       where: { id: reportId },
@@ -127,14 +127,16 @@ export async function PATCH(request: NextRequest) {
           select: {
             id: true,
             name: true,
-            email: true,
           },
         },
       },
     })
 
-    return NextResponse.json({ success: true, report })
+    return NextResponse.json({ success: true, report: serializeReportPublic(report) })
   } catch (error) {
+    if (error instanceof NextResponse) {
+      return error
+    }
     console.error('Error updating report:', error instanceof Error ? error.message : 'Unknown error')
     return NextResponse.json(
       { error: 'Internal server error' },

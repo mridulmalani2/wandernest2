@@ -5,12 +5,14 @@ import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
 import { verifyAdmin } from '@/lib/api-auth';
 import { decryptFileContent } from '@/lib/file-encryption';
+import { rateLimitByIp } from '@/lib/rateLimit/rateLimit';
 
 export async function GET(
     req: NextRequest,
     { params }: { params: { id: string } }
 ) {
     try {
+        await rateLimitByIp(req, 30, 60, 'files-download');
         const fileId = params.id;
 
         if (!fileId) {

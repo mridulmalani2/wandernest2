@@ -9,13 +9,16 @@ import { requireDatabase } from '@/lib/prisma'
 import { sendStudentRequestNotification } from '@/lib/email'
 import { withErrorHandler, withDatabaseRetry, AppError } from '@/lib/error-handler'
 import { verifySelectionToken } from '@/lib/auth/tokens'
+import { rateLimitByIp } from '@/lib/rateLimit/rateLimit'
+import { validateJson } from '@/lib/validation/validate'
 
 const selectSchema = z.object({
   requestId: z.string().min(1),
   selectedStudentTokens: z.array(z.string().min(1)).min(1).max(4),
-})
+}).strict()
 
 async function selectStudents(req: NextRequest) {
+  await rateLimitByIp(req, 60, 60, 'tourist-request-select')
   // SECURITY: Verify authentication
   const session = await getServerSession(authOptions)
 
@@ -31,12 +34,12 @@ async function selectStudents(req: NextRequest) {
   // Ensure database is available
   const db = requireDatabase()
 
-  const body = await req.json()
-  const validatedData = selectSchema.parse(body)
-
-  const { requestId, selectedStudentTokens } = validatedData
-  const selectedStudentIds = Array.from(new Set(
-    selectedStudentTokens.map((token) => {
+  const { requestId, selectedStudentTokens } = await validateJson<{
+    requestId: string
+    selectedStudentTokens: string[]
+  }>(req, selectSchema)
+  const selectedStudentIds: string[] = Array.from(new Set(
+    selectedStudentTokens.map((token: string) => {
       const payload = verifySelectionToken(token)
       if (!payload || payload.requestId !== requestId) {
         throw new AppError(400, 'Invalid or expired selection token', 'INVALID_SELECTION_TOKEN')

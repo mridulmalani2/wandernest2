@@ -16,6 +16,8 @@ import { sendBookingConfirmation } from '@/lib/email'
 import { autoMatchAndInvite } from '@/lib/matching/autoMatch'
 import { sanitizeEmail } from '@/lib/sanitization'
 import { isZodError } from '@/lib/error-handler'
+import { rateLimitByIp } from '@/lib/rateLimit/rateLimit'
+import { validateJson } from '@/lib/validation/validate'
 
 // Validation schema for the verify request
 const verifySchema = z.object({
@@ -45,13 +47,14 @@ const verifySchema = z.object({
   contactMethod: z.enum(['email', 'phone', 'whatsapp']),
   tripNotes: z.string().optional(),
   accessibilityNeeds: z.string().optional(),
-})
+}).strict()
 
 export async function POST(req: NextRequest) {
   try {
+    await rateLimitByIp(req, 5, 60, 'tourist-request-verify')
+    await rateLimitByIp(req, 20, 60 * 60, 'tourist-request-verify-hour')
     const db = requireDatabase()
-    const body = await req.json()
-    const validatedData = verifySchema.parse(body)
+    const validatedData = await validateJson<any>(req, verifySchema)
     let normalizedEmail = ''
     try {
       normalizedEmail = sanitizeEmail(validatedData.email)
@@ -184,6 +187,9 @@ export async function POST(req: NextRequest) {
       { status: 201 }
     )
   } catch (error) {
+    if (error instanceof NextResponse) {
+      return error
+    }
     if (isZodError(error)) {
       return NextResponse.json(
         {
