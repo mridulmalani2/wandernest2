@@ -12,3 +12,15 @@ export function generateVerificationCode(): string {
   // to include 999999 in the possible range (100000-999999 inclusive)
   return crypto.randomInt(100000, 1000000).toString()
 }
+
+export function maskEmail(email?: string | null): string {
+  if (!email) return '[unknown]'
+  const [localPart, domain] = email.split('@')
+  if (!domain) return '[invalid-email]'
+  const trimmedLocal = localPart.trim()
+  if (trimmedLocal.length <= 1) {
+    return `*@${domain}`
+  }
+  const firstChar = trimmedLocal[0]
+  return `${firstChar}***@${domain}`
+}

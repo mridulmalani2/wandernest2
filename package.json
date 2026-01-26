@@ -15,7 +15,9 @@
     "db:verify": "node scripts/verify-migration-status.js",
     "db:migrate": "prisma migrate deploy --schema=./src/prisma/schema.prisma",
     "db:generate": "prisma generate --schema=./src/prisma/schema.prisma",
-    "test:api-exposure": "node scripts/api-exposure-smoke.js"
+    "test:api-exposure": "node scripts/api-exposure-smoke.js",
+    "ai:deps": "node scripts/verify-npm-deps.mjs",
+    "ai:security": "./scripts/scan-for-prompt-injection.sh && node scripts/verify-npm-deps.mjs"
   },
   "prisma": {
     "schema": "./src/prisma/schema.prisma"

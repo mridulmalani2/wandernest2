@@ -6,6 +6,8 @@ import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma, requireDatabase } from "@/lib/prisma";
 import { config } from "@/lib/config";
 import { isStudentEmail, getStudentEmailErrorMessage } from "@/lib/email-validation";
+import { logger } from "@/lib/logger";
+import { maskEmail } from "@/lib/utils";
 
 function escapeHtml(value: string): string {
   return value
@@ -100,9 +102,10 @@ if (config.email.isConfigured) {
             const resend = new Resend(config.email.resendApiKey)
 
             if (config.app.isDevelopment) {
-              console.log('📧 Attempting to send magic link email via Resend...')
-              console.log('   To:', email)
-              console.log('   From:', provider.from)
+              logger.info('Magic link email via Resend - sending', {
+                to: maskEmail(email),
+                from: provider.from,
+              })
             }
 
             // Resend SDK v6+ returns { data, error }
@@ -117,18 +120,20 @@ if (config.email.isConfigured) {
               throw new Error(response.error.message)
             }
 
-            console.log('✅ Magic link email sent successfully via Resend to:', email)
-            if (config.app.isDevelopment && response.data) {
-              console.log('   Message ID:', response.data.id)
-            }
+            logger.info('Magic link email via Resend - sent', {
+              to: maskEmail(email),
+              messageId: response.data?.id,
+            })
             return
           } catch (error) {
-            console.error('❌ Error sending magic link email via Resend:', error)
+            logger.error('Magic link email via Resend - failed', {
+              error: error instanceof Error ? error.message : String(error),
+            })
             // Fall through to SMTP if Resend fails
             if (!config.email.host) {
               throw error // No fallback available
             }
-            console.log('🔄 Falling back to SMTP...')
+            logger.warn('Magic link email via Resend - falling back to SMTP')
           }
         }
 
@@ -151,11 +156,12 @@ if (config.email.isConfigured) {
 
         try {
           if (config.app.isDevelopment) {
-            console.log('📧 Attempting to send magic link email via SMTP...')
-            console.log('   To:', email)
-            console.log('   From:', provider.from)
-            console.log('   SMTP Host:', config.email.host)
-            console.log('   SMTP Port:', config.email.port)
+            logger.info('Magic link email via SMTP - sending', {
+              to: maskEmail(email),
+              from: provider.from,
+              host: config.email.host,
+              port: config.email.port,
+            })
           }
 
           const result = await transport.sendMail({
@@ -168,46 +174,41 @@ if (config.email.isConfigured) {
 
           const failed = result.rejected.concat(result.pending).filter(Boolean)
           if (failed.length) {
-            console.error('❌ Email failed to send:', failed.join(', '))
-            console.error('   SMTP Response:', JSON.stringify(result, null, 2))
+            logger.error('Magic link email via SMTP - failed', {
+              failed,
+            })
             throw new Error(`Email (${failed.join(', ')}) could not be sent`)
           }
 
-          console.log('✅ Magic link email sent successfully via SMTP to:', email)
-          console.log('   Message ID:', result.messageId)
+          logger.info('Magic link email via SMTP - sent', {
+            to: maskEmail(email),
+            messageId: result.messageId,
+          })
         } catch (error) {
-          console.error('❌ Error sending magic link email via SMTP:', error)
-          if (error instanceof Error) {
-            console.error('   Error message:', error.message)
-            console.error('   Error name:', error.name)
-            if ('code' in error) {
-              console.error('   Error code:', (error as any).code)
-            }
-            if ('command' in error) {
-              console.error('   SMTP command:', (error as any).command)
-            }
-            console.error('   Error stack:', error.stack)
-          }
-          console.error('   Email config check:')
-          console.error('     - RESEND_API_KEY set:', !!config.email.resendApiKey)
-          console.error('     - EMAIL_HOST set:', !!config.email.host)
-          console.error('     - EMAIL_USER set:', !!config.email.user)
-          console.error('     - EMAIL_PASS set:', !!config.email.pass)
-          console.error('     - isConfigured:', config.email.isConfigured)
+          logger.error('Magic link email via SMTP - failed', {
+            error: error instanceof Error ? error.message : String(error),
+            code: error instanceof Error ? (error as any).code : undefined,
+            command: error instanceof Error ? (error as any).command : undefined,
+            resendConfigured: !!config.email.resendApiKey,
+            smtpHostConfigured: !!config.email.host,
+            smtpUserConfigured: !!config.email.user,
+            smtpPassConfigured: !!config.email.pass,
+            isConfigured: config.email.isConfigured,
+          })
           throw error
         }
       },
     })
   );
-  console.log('✅ EmailProvider configured - magic link authentication enabled');
+  logger.info('EmailProvider configured - magic link authentication enabled');
   if (config.email.resendApiKey) {
-    console.log('   Using Resend API for magic links');
+    logger.info('Magic link provider: Resend API');
   } else {
-    console.log('   Using SMTP for magic links');
+    logger.info('Magic link provider: SMTP');
   }
 } else {
-  console.log('⚠️  EmailProvider not configured - magic link authentication disabled');
-  console.log('   Set RESEND_API_KEY or EMAIL_HOST/EMAIL_USER/EMAIL_PASS environment variables to enable');
+  logger.warn('EmailProvider not configured - magic link authentication disabled');
+  logger.warn('Set RESEND_API_KEY or EMAIL_HOST/EMAIL_USER/EMAIL_PASS to enable magic links');
 }
 
 // Email HTML template
@@ -388,18 +389,18 @@ export const authOptions: NextAuthOptions = {
       try {
         // Log sign-in attempt for debugging
         if (config.app.isDevelopment) {
-          console.log('🔐 Auth: Sign-in attempt', {
+          logger.info('Auth: Sign-in attempt', {
             provider: account?.provider,
-            email: user.email,
+            email: maskEmail(user.email),
             userId: user.id,
-            accountId: account?.providerAccountId
+            accountId: account?.providerAccountId,
           })
         }
 
         if (!user.email) {
-          console.error('❌ Auth: Sign-in failed - no email provided')
-          console.error('   Provider:', account?.provider)
-          console.error('   Profile:', profile)
+          logger.error('Auth: Sign-in failed - no email provided', {
+            provider: account?.provider,
+          })
           return false
         }
 
@@ -411,7 +412,9 @@ export const authOptions: NextAuthOptions = {
         // ====================================================================
 
         if (isStudentEmail(user.email)) {
-          console.log('🚫 Auth: Student email detected in NextAuth flow. Blocking sign-in.', user.email);
+          logger.info('Auth: Student email detected in NextAuth flow. Blocking sign-in.', {
+            email: maskEmail(user.email),
+          })
           // Return false to deny access. 
           // Ideally we'd redirect to /student/signin but NextAuth callbacks are limited.
           return false;
@@ -428,15 +431,17 @@ export const authOptions: NextAuthOptions = {
           isNewUser = !existingRecord;
 
           if (config.app.isDevelopment) {
-            console.log('🔍 Auth: User type determined:', {
+            logger.info('Auth: User type determined', {
               userType,
               isNewUser,
               emailDomain: user.email.split('@')[1],
-              isEducationalDomain: isStudentEmail(user.email)
+              isEducationalDomain: isStudentEmail(user.email),
             })
           }
         } catch (error) {
-          console.error('⚠️  Auth: Error checking existing record:', error)
+          logger.error('Auth: Error checking existing record', {
+            error: error instanceof Error ? error.message : String(error),
+          })
           // Assume new user on error to ensure record creation
           isNewUser = true;
         }
@@ -450,10 +455,12 @@ export const authOptions: NextAuthOptions = {
             })
 
             if (config.app.isDevelopment) {
-              console.log('✅ Auth: Updated user record with userType:', userType)
+              logger.info('Auth: Updated user record with userType', { userType })
             }
           } catch (error) {
-            console.error('⚠️  Auth: Error updating user record:', error)
+            logger.error('Auth: Error updating user record', {
+              error: error instanceof Error ? error.message : String(error),
+            })
             // Continue anyway - this is not critical for sign-in
           }
         }
@@ -476,29 +483,32 @@ export const authOptions: NextAuthOptions = {
           });
 
           if (config.app.isDevelopment) {
-            console.log(`✅ Auth: ${isNewUser ? 'Created' : 'Updated'} Tourist record:`, {
+            logger.info(`Auth: ${isNewUser ? 'Created' : 'Updated'} Tourist record`, {
               touristId: tourist.id,
-              email: user.email,
+              email: maskEmail(user.email),
               isNewUser
             })
           }
         } catch (error) {
-          console.error('⚠️  Auth: Error creating/updating Tourist record:', error)
+          logger.error('Auth: Error creating/updating Tourist record', {
+            error: error instanceof Error ? error.message : String(error),
+          })
           // Log but continue - we want to allow sign-in even if this fails
         }
 
         if (config.app.isDevelopment) {
-          console.log('✅ Auth: Sign-in successful for', user.email, 'as', userType)
+          logger.info('Auth: Sign-in successful', {
+            email: maskEmail(user.email),
+            userType,
+          })
         }
 
         return true
       } catch (error) {
-        console.error('❌ Auth: Sign-in callback failed:', error)
-        console.error('   User email:', user.email)
-        if (error instanceof Error) {
-          console.error('   Error message:', error.message)
-          console.error('   Stack:', error.stack)
-        }
+        logger.error('Auth: Sign-in callback failed', {
+          error: error instanceof Error ? error.message : String(error),
+          email: maskEmail(user.email),
+        })
         return false
       }
     },
@@ -509,7 +519,7 @@ export const authOptions: NextAuthOptions = {
           session.user.id = user.id
 
           if (!prisma) {
-            console.warn('⚠️  Auth: Database not available - session will have limited data')
+            logger.warn('Auth: Database not available - session will have limited data')
             return session
           }
 
@@ -539,8 +549,10 @@ export const authOptions: NextAuthOptions = {
         }
         return session
       } catch (error) {
-        console.error('❌ Auth: Session callback failed:', error)
-        console.error('   User ID:', user?.id)
+        logger.error('Auth: Session callback failed', {
+          error: error instanceof Error ? error.message : String(error),
+          userId: user?.id,
+        })
         // Return session with partial data rather than failing completely
         return session
       }
@@ -580,7 +592,7 @@ export const authOptions: NextAuthOptions = {
         }
 
         if (!prisma) {
-          console.warn('⚠️  Auth: Database not available - JWT will have limited data')
+          logger.warn('Auth: Database not available - JWT will have limited data')
           return token
         }
 
@@ -603,8 +615,10 @@ export const authOptions: NextAuthOptions = {
 
         return token
       } catch (error) {
-        console.error('❌ Auth: JWT callback failed:', error)
-        console.error('   Token email:', token.email)
+        logger.error('Auth: JWT callback failed', {
+          error: error instanceof Error ? error.message : String(error),
+          email: maskEmail(token.email),
+        })
         // Return token with partial data rather than failing completely
         return token
       }
