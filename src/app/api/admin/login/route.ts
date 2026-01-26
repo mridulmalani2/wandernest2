@@ -8,6 +8,8 @@ import { withErrorHandler, withDatabaseRetry, AppError } from '@/lib/error-handl
 import { checkRateLimit, hashIdentifier } from '@/lib/rate-limit'
 import { z } from 'zod'
 import { emailSchema } from '@/lib/schemas/common'
+import { rateLimitByIp } from '@/lib/rateLimit/rateLimit'
+import { validateJson } from '@/lib/validation/validate'
 
 const FALLBACK_ADMIN = {
   id: 'env-admin',
@@ -72,16 +74,12 @@ function createAdminResponse(admin: { id: string; email: string; name: string; r
 const adminLoginSchema = z.object({
   email: emailSchema,
   password: z.string().min(8).max(128),
-});
+}).strict();
 
 async function adminLogin(request: NextRequest) {
-  const body = await request.json().catch(() => null)
-  const parsed = adminLoginSchema.safeParse(body)
-  if (!parsed.success) {
-    throw new AppError(400, 'Invalid login payload', 'INVALID_PAYLOAD')
-  }
-
-  const { email, password } = parsed.data
+  await rateLimitByIp(request, 5, 60, 'admin-login')
+  await rateLimitByIp(request, 20, 60 * 60, 'admin-login-hour')
+  const { email, password } = await validateJson<{ email: string; password: string }>(request, adminLoginSchema)
   const normalizedIdentifier = email.toLowerCase().trim()
   const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown'
 

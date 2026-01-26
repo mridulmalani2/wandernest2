@@ -8,15 +8,17 @@ import { requireDatabase } from '@/lib/prisma'
 import { verifyAdmin } from '@/lib/api-auth'
 import { z } from 'zod'
 import { isZodError } from '@/lib/error-handler'
+import { rateLimitByIp } from '@/lib/rateLimit/rateLimit'
+import { validateJson } from '@/lib/validation/validate'
 
 const bulkApproveSchema = z.object({
   studentIds: z.array(z.string().cuid()).min(1),
   action: z.enum(['approve', 'reject']),
-})
+}).strict()
 
-// Bulk approve or reject students
 export async function POST(request: NextRequest) {
   try {
+    await rateLimitByIp(request, 30, 60, 'admin-students-bulk-approve')
     const authResult = await verifyAdmin(request)
 
     if (!authResult.authorized) {
@@ -28,10 +30,11 @@ export async function POST(request: NextRequest) {
 
     const db = requireDatabase()
 
-    const body = await request.json()
-    const { studentIds, action } = bulkApproveSchema.parse(body)
+    const { studentIds, action } = await validateJson<{ studentIds: string[]; action: 'approve' | 'reject' }>(
+      request,
+      bulkApproveSchema
+    )
 
-    // Update all students in bulk
     const result = await db.student.updateMany({
       where: {
         id: { in: studentIds },
@@ -48,6 +51,9 @@ export async function POST(request: NextRequest) {
       message: `${result.count} student(s) ${action === 'approve' ? 'approved' : 'suspended'}`,
     })
   } catch (error) {
+    if (error instanceof NextResponse) {
+      return error
+    }
     if (isZodError(error)) {
       return NextResponse.json(
         { error: 'Invalid request payload' },

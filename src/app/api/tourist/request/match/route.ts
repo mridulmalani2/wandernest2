@@ -8,6 +8,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { requireDatabase } from '@/lib/prisma'
 import { AppError } from '@/lib/error-handler'
 import { generateSelectionToken } from '@/lib/auth/tokens'
+import { rateLimitByIp } from '@/lib/rateLimit/rateLimit'
+import { validateJson, z } from '@/lib/validation/validate'
+import { requireAuth } from '@/lib/auth/requireAuth'
 
 // Helper function to calculate suggested price range
 function calculateSuggestedPrice(city: string, serviceType: string): { min: number; max: number } {
@@ -22,7 +25,6 @@ function calculateSuggestedPrice(city: string, serviceType: string): { min: numb
   const baseRate = cityRates[normalizedCity] || { min: 20, max: 40 }
   const normalizedServiceType = typeof serviceType === 'string' ? serviceType.trim().toLowerCase() : ''
 
-  // Adjust for service type
   if (normalizedServiceType === 'guided_experience') {
     return {
       min: Math.round(baseRate.min * 1.2),
@@ -32,7 +34,6 @@ function calculateSuggestedPrice(city: string, serviceType: string): { min: numb
 
   return baseRate
 }
-
 
 interface MatchingCriteria {
   city: string
@@ -72,7 +73,6 @@ function calculateMatchScore(
   let score = 0
   const reasons: string[] = []
 
-  // 1. Nationality match (high priority)
   if (criteria.preferredNationality && student.nationality === criteria.preferredNationality) {
     score += 50
     reasons.push('Matches your preferred nationality')
@@ -81,7 +81,6 @@ function calculateMatchScore(
   const preferredLanguages = Array.isArray(criteria.preferredLanguages) ? criteria.preferredLanguages : []
   const interests = Array.isArray(criteria.interests) ? criteria.interests : []
 
-  // 2. Language match (high priority)
   const languageMatches = preferredLanguages.filter((lang) =>
     student.languages.includes(lang)
   )
@@ -90,7 +89,6 @@ function calculateMatchScore(
     reasons.push(`Speaks ${languageMatches.join(', ')}`)
   }
 
-  // 3. Interest overlap
   const interestMatches = interests.filter((interest) =>
     student.interests.includes(interest)
   )
@@ -99,7 +97,6 @@ function calculateMatchScore(
     reasons.push(`Shares interests: ${interestMatches.slice(0, 3).join(', ')}`)
   }
 
-  // 4. Rating (if exists)
   if (student.averageRating !== null) {
     score += student.averageRating * 10
     if (student.averageRating >= 4.5) {
@@ -107,7 +104,6 @@ function calculateMatchScore(
     }
   }
 
-  // 5. Experience (trips hosted)
   if (student.tripsHosted > 10) {
     score += 30
     reasons.push('Experienced guide')
@@ -117,7 +113,6 @@ function calculateMatchScore(
     score += 5
   }
 
-  // 6. Reliability (no-shows)
   if (student.noShowCount === 0 && student.tripsHosted > 0) {
     score += 20
     reasons.push('Perfect attendance record')
@@ -125,7 +120,6 @@ function calculateMatchScore(
     score -= 30
   }
 
-  // 7. Reliability badge
   if (student.reliabilityBadge === 'gold') {
     score += 25
     reasons.push('Gold reliability badge')
@@ -136,7 +130,6 @@ function calculateMatchScore(
     score += 5
   }
 
-  // 8. Acceptance rate
   if (student.acceptanceRate !== null && student.acceptanceRate >= 0.8) {
     score += 10
   }
@@ -145,7 +138,6 @@ function calculateMatchScore(
 }
 
 function maskStudentIdentity(student: { id: string }, index: number): string {
-  // Use index to create a deterministic but anonymous alias for this list
   return `Guide #${(index + 101).toString()}`
 }
 
@@ -194,22 +186,22 @@ function extractTags(student: { coverLetter: string | null; bio: string | null }
     }
   })
 
-  return Array.from(new Set(tags)).slice(0, 5) // Unique tags, max 5
+  return Array.from(new Set(tags)).slice(0, 5)
 }
+
+const matchSchema = z.object({
+  requestId: z.string().min(1),
+}).strict()
 
 async function matchStudents(req: NextRequest) {
   try {
-    const body = await req.json()
-    const { requestId } = body
+    await rateLimitByIp(req, 60, 60, 'tourist-request-match')
+    const identity = await requireAuth(req, 'tourist')
 
-    if (!requestId) {
-      throw new AppError(400, 'Request ID is required', 'MISSING_REQUEST_ID')
-    }
+    const { requestId } = await validateJson<{ requestId: string }>(req, matchSchema)
 
-    // Ensure database is available
     const prisma = requireDatabase()
 
-    // Get the tourist request from database
     const touristRequest = await prisma.touristRequest.findUnique({
       where: { id: requestId },
     });
@@ -218,7 +210,9 @@ async function matchStudents(req: NextRequest) {
       throw new AppError(404, 'Request not found', 'REQUEST_NOT_FOUND')
     }
 
-    const db = prisma
+    if (touristRequest.email !== identity.email && touristRequest.touristId !== identity.userId) {
+      throw new AppError(403, 'Access denied', 'FORBIDDEN')
+    }
 
     const criteria: MatchingCriteria = {
       city: touristRequest.city,
@@ -230,21 +224,18 @@ async function matchStudents(req: NextRequest) {
       preferredTime: touristRequest.preferredTime,
     }
 
-    // STEP 1: Build optimized WHERE clause for database-level filtering
     const whereClause: any = {
       city: criteria.city,
       status: 'APPROVED',
-      // Only include students with availability set
       availability: {
         some: {},
       },
     }
 
-    // Try to fetch students matching nationality first
     let candidatePool: any[] = []
 
     if (criteria.preferredNationality) {
-      const nationalityMatches = await db.student.findMany({
+      const nationalityMatches = await prisma.student.findMany({
         where: {
           ...whereClause,
           nationality: criteria.preferredNationality,
@@ -285,9 +276,8 @@ async function matchStudents(req: NextRequest) {
       }
     }
 
-    // If not enough nationality matches, try language matches
     if (candidatePool.length < 3 && criteria.preferredLanguages.length > 0) {
-      const languageMatches = await db.student.findMany({
+      const languageMatches = await prisma.student.findMany({
         where: {
           ...whereClause,
           languages: {
@@ -323,9 +313,8 @@ async function matchStudents(req: NextRequest) {
       candidatePool = languageMatches
     }
 
-    // If still not enough, expand to all approved students in city
     if (candidatePool.length < 3) {
-      candidatePool = await db.student.findMany({
+      candidatePool = await prisma.student.findMany({
         where: whereClause,
         select: {
           id: true,
@@ -354,7 +343,6 @@ async function matchStudents(req: NextRequest) {
       })
     }
 
-    // Zero matches is a valid success state - booking was created successfully
     if (candidatePool.length === 0) {
       console.log(`[matchStudents] No matches found for request ${requestId} in ${criteria.city}`)
       return NextResponse.json({
@@ -365,7 +353,6 @@ async function matchStudents(req: NextRequest) {
       })
     }
 
-    // STEP 5: Score and sort candidates
     const scoredStudents: ScoredStudent[] = candidatePool.map((student, index) => {
       const { score, reasons } = calculateMatchScore(student, criteria)
       const tags = extractTags(student)
@@ -391,13 +378,10 @@ async function matchStudents(req: NextRequest) {
       }
     })
 
-    // Sort by score (descending)
     scoredStudents.sort((a, b) => b.score - a.score)
 
-    // STEP 6: Select top 3-4 candidates
     const topCandidates = scoredStudents.slice(0, 4)
 
-    // Calculate suggested price range based on city
     const suggestedPriceRange = calculateSuggestedPrice(criteria.city, criteria.serviceType)
 
     console.log(`[matchStudents] Found ${topCandidates.length} matches for request ${requestId}`)
@@ -411,7 +395,6 @@ async function matchStudents(req: NextRequest) {
           studentId: student.id,
         }),
         maskedId: student.maskedId,
-        // Partially mask name (show first name + initial)
         displayName: student.displayName,
         nationality: student.nationality,
         languages: student.languages,
@@ -430,6 +413,9 @@ async function matchStudents(req: NextRequest) {
       preferredLanguages: touristRequest.preferredLanguages,
     })
   } catch (error) {
+    if (error instanceof NextResponse) {
+      return error
+    }
     if (error instanceof AppError) {
       return NextResponse.json(
         { success: false, error: error.message },
@@ -452,5 +438,4 @@ function maskName(fullName: string | null): string {
   return parts[0] || 'Anonymous'
 }
 
-// Export the POST handler (this was missing, causing 404 errors in production)
 export const POST = matchStudents

@@ -6,6 +6,8 @@ import { z } from 'zod'
 import { AppError, withErrorHandler, withDatabaseRetry } from '@/lib/error-handler'
 import { sendContactFormEmails } from '@/lib/email'
 import { sanitizeEmail, sanitizePhoneNumber, sanitizeText, sanitizeUrl } from '@/lib/sanitization'
+import { rateLimitByIp } from '@/lib/rateLimit/rateLimit'
+import { validateJson } from '@/lib/validation/validate'
 
 // Validation schema
 const contactSchema = z.object({
@@ -14,17 +16,18 @@ const contactSchema = z.object({
   phone: z.string().optional(),
   message: z.string().min(1, 'Message is required').max(2000),
   fileUrl: z.string().url().optional(),
-}).strip()
+}).strict()
 
 /**
  * POST /api/contact
  * Handle contact form submissions
  */
 async function handleContactSubmission(req: NextRequest) {
-  const body = await req.json()
+  await rateLimitByIp(req, 3, 60, 'contact')
+  const body = await validateJson<any>(req, contactSchema)
 
   // Validate input
-  const validatedData = contactSchema.parse(body)
+  const validatedData = body
   let sanitizedEmail: string
   let sanitizedPhone: string | undefined
   let sanitizedFileUrl: string | undefined

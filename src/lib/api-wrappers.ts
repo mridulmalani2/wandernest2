@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyStudent, verifyTourist, verifyAdmin } from '@/lib/api-auth';
 import { logger } from '@/lib/logger';
+import { rateLimitByIp } from '@/lib/rateLimit/rateLimit';
 
 // Define types for the handler functions
 type StudentHandler = (req: NextRequest, student: { email: string; id?: string | null }) => Promise<NextResponse>;
@@ -13,6 +14,7 @@ type AdminHandler = (req: NextRequest, admin: { id: string; email: string; role:
 export function withStudent(handler: StudentHandler) {
     return async (request: NextRequest) => {
         try {
+            await rateLimitByIp(request, 60, 60, 'student-api');
             const authResult = await verifyStudent(request);
             if (!authResult.authorized || !authResult.student) {
                 return NextResponse.json(
@@ -36,6 +38,7 @@ export function withStudent(handler: StudentHandler) {
 export function withTourist(handler: TouristHandler) {
     return async (request: NextRequest) => {
         try {
+            await rateLimitByIp(request, 60, 60, 'tourist-api');
             const authResult = await verifyTourist(request);
             if (!authResult.authorized || !authResult.tourist) {
                 return NextResponse.json(
@@ -59,6 +62,7 @@ export function withTourist(handler: TouristHandler) {
 export function withAdmin(handler: AdminHandler) {
     return async (request: NextRequest) => {
         try {
+            await rateLimitByIp(request, 30, 60, 'admin-api');
             const authResult = await verifyAdmin(request);
             if (!authResult.authorized || !authResult.admin) {
                 return NextResponse.json(

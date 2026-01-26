@@ -1,5 +1,6 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { config } from '@/lib/config'
+import { rateLimitByIp } from '@/lib/rateLimit/rateLimit'
 
 // Force this route to be dynamic to prevent caching
 export const dynamic = 'force-dynamic'
@@ -14,7 +15,8 @@ export const revalidate = 0
  * This route is explicitly dynamic to ensure it always returns current
  * configuration status based on runtime environment variables.
  */
-export async function GET() {
+export async function GET(request: NextRequest) {
+  await rateLimitByIp(request, 60, 60, 'auth-provider-status')
   // Always evaluate config freshly to catch runtime environment variables
   const providerStatus = {
     providers: {

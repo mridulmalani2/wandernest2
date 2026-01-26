@@ -7,9 +7,17 @@ import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdmin } from '@/lib/api-auth'
 import { requireDatabase } from '@/lib/prisma'
 import { sendStudentConfirmation, sendTouristAcceptanceNotification } from '@/lib/email'
+import { rateLimitByIp } from '@/lib/rateLimit/rateLimit'
+import { validateJson, z } from '@/lib/validation/validate'
+
+const assignSchema = z.object({
+  requestId: z.string().min(1),
+  studentId: z.string().min(1),
+}).strict()
 
 export async function POST(request: NextRequest) {
   try {
+    await rateLimitByIp(request, 30, 60, 'admin-bookings-assign')
     const authResult = await verifyAdmin(request)
 
     if (!authResult.authorized) {
@@ -17,8 +25,7 @@ export async function POST(request: NextRequest) {
     }
 
     const prisma = requireDatabase()
-    const body = await request.json()
-    const { requestId, studentId } = body as { requestId?: string; studentId?: string }
+    const { requestId, studentId } = await validateJson<{ requestId: string; studentId: string }>(request, assignSchema)
 
     if (!requestId || !studentId) {
       return NextResponse.json({ error: 'requestId and studentId are required' }, { status: 400 })
@@ -89,7 +96,6 @@ export async function POST(request: NextRequest) {
       })
 
       if (!wasAccepted || previousAssignmentId !== studentId) {
-        // Increment for new student
         await tx.student.update({
           where: { id: studentId },
           data: {
@@ -97,7 +103,6 @@ export async function POST(request: NextRequest) {
           },
         })
 
-        // Decrement for previous student if applicable
         if (wasAccepted && previousAssignmentId && previousAssignmentId !== studentId) {
           await tx.student.update({
             where: { id: previousAssignmentId },
@@ -132,6 +137,9 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true, selectionId: selection.id })
   } catch (error) {
+    if (error instanceof NextResponse) {
+      return error
+    }
     console.error('[admin/bookings/assign] Failed to assign student', error instanceof Error ? error.message : 'Unknown error')
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }

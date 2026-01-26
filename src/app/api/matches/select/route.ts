@@ -4,16 +4,20 @@ export const dynamic = 'force-dynamic'
 import { NextRequest, NextResponse } from 'next/server'
 import { requireDatabase } from '@/lib/prisma'
 import { verifySelectionToken } from '@/lib/auth/tokens'
-
-/**
- * POST /api/matches/select
- * Save tourist's guide selections
- */
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth-options'
+import { rateLimitByIp } from '@/lib/rateLimit/rateLimit'
+import { validateJson, z } from '@/lib/validation/validate'
+import { serializeSelectionPublic } from '@/lib/response/serialize'
+
+const selectSchema = z.object({
+  requestId: z.string().min(1),
+  selectedGuideTokens: z.array(z.string().min(1)).min(1),
+}).strict()
 
 export async function POST(request: NextRequest) {
   try {
+    await rateLimitByIp(request, 60, 60, 'matches-select')
     const session = await getServerSession(authOptions)
     if (!session?.user?.email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -21,22 +25,13 @@ export async function POST(request: NextRequest) {
 
     const db = requireDatabase()
 
-    const body = await request.json()
+    const body = await validateJson<{ requestId: string; selectedGuideTokens: string[] }>(request, selectSchema)
     const { requestId, selectedGuideTokens } = body
 
-    if (!requestId || !selectedGuideTokens || !Array.isArray(selectedGuideTokens)) {
-      return NextResponse.json(
-        { error: 'Request ID and selected guide tokens are required' },
-        { status: 400 }
-      )
-    }
-
-    // Verify the request exists
     const touristRequest = await db.touristRequest.findUnique({
       where: { id: requestId }
     })
 
-    // Verify ownership
     if (touristRequest && (touristRequest.email !== session.user.email)) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
@@ -74,7 +69,6 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Delete existing selections
     await db.requestSelection.deleteMany({
       where: { requestId }
     })
@@ -121,10 +115,13 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      selections,
+      selections: selections.map(serializeSelectionPublic),
       message: 'Guides selected successfully'
     })
   } catch (error) {
+    if (error instanceof NextResponse) {
+      return error
+    }
     console.error('Error saving selections:', error instanceof Error ? error.message : 'Unknown error')
     return NextResponse.json(
       { error: 'Failed to save guide selections' },

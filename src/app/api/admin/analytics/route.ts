@@ -9,10 +9,12 @@ import { requireDatabase } from '@/lib/prisma'
 import { verifyAdmin } from '@/lib/api-auth'
 import { cache } from '@/lib/cache'
 import { CACHE_TTL } from '@/lib/constants'
+import { rateLimitByIp } from '@/lib/rateLimit/rateLimit'
 
 // Get platform analytics
 export async function GET(request: NextRequest) {
   try {
+    await rateLimitByIp(request, 30, 60, 'admin-analytics')
     const authResult = await verifyAdmin(request)
 
     if (!authResult.authorized) {

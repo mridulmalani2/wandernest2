@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { sendAdminApprovalReminder } from '@/lib/email';
+import { rateLimitByIp } from '@/lib/rateLimit/rateLimit';
 
 export const dynamic = 'force-dynamic';
 
@@ -27,19 +28,17 @@ export const dynamic = 'force-dynamic';
  */
 export async function GET(request: NextRequest) {
     try {
+        await rateLimitByIp(request, 30, 60, 'cron-approval-follow-up');
         // Verify this is a legitimate cron request
         // Vercel Cron sends a special header
         const authHeader = request.headers.get('authorization');
         const cronSecret = process.env.CRON_SECRET;
 
-        // In production, verify the cron secret
-        if (process.env.NODE_ENV === 'production') {
-            if (!authHeader || authHeader !== `Bearer ${cronSecret}`) {
-                return NextResponse.json(
-                    { error: 'Unauthorized' },
-                    { status: 401 }
-                );
-            }
+        if (!cronSecret || !authHeader || authHeader !== `Bearer ${cronSecret}`) {
+            return NextResponse.json(
+                { error: 'Unauthorized' },
+                { status: 401 }
+            );
         }
 
         // Calculate the date 3 days ago
@@ -94,7 +93,6 @@ export async function GET(request: NextRequest) {
 
                 results.push({
                     studentId: student.id,
-                    studentEmail: student.email,
                     success: true,
                     emailsSent: emailResult.sentTo,
                 });
@@ -104,7 +102,6 @@ export async function GET(request: NextRequest) {
                 console.error(`❌ Failed to send follow-up for ${student.email}:`, error);
                 results.push({
                     studentId: student.id,
-                    studentEmail: student.email,
                     success: false,
                     error: error instanceof Error ? error.message : 'Unknown error',
                 });
@@ -120,6 +117,9 @@ export async function GET(request: NextRequest) {
             timestamp: new Date().toISOString(),
         });
     } catch (error) {
+        if (error instanceof NextResponse) {
+            return error;
+        }
         console.error('Error in approval follow-up cron:', error);
         return NextResponse.json(
             {

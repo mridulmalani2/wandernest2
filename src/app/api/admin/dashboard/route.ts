@@ -7,6 +7,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { verifyAdmin } from '@/lib/api-auth'
 import { requireDatabase } from '@/lib/prisma'
 import { formatDateFromRange } from '@/lib/date-utils'
+import { rateLimitByIp } from '@/lib/rateLimit/rateLimit'
 
 type DashboardBooking = {
   id: string
@@ -24,6 +25,7 @@ type DashboardBooking = {
 
 export async function GET(request: NextRequest) {
   try {
+    await rateLimitByIp(request, 30, 60, 'admin-dashboard')
     const authResult = await verifyAdmin(request)
 
     if (!authResult.authorized) {

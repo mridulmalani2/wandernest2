@@ -6,17 +6,17 @@ import { acceptRequest } from '../../accept-request'
 import { withErrorHandler, AppError } from '@/lib/error-handler'
 import { enforceSameOrigin } from '@/lib/csrf'
 import { cuidSchema } from '@/lib/schemas/common'
-import { z } from 'zod'
-import { validateBody } from '@/lib/api-handler'
+import { rateLimitByIp } from '@/lib/rateLimit/rateLimit'
+import { validateInput, z } from '@/lib/validation/validate'
 
 async function acceptStudentRequest(
   req: NextRequest,
   { params }: { params: { requestId: string } }
 ) {
-  // Use verifyStudent for standardized authentication (handles Session and Token)
   const { verifyStudent } = await import('@/lib/api-auth')
 
-  // CSRF Protection: Strict Origin Check
+  await rateLimitByIp(req, 60, 60, 'student-request-accept-id')
+
   enforceSameOrigin(req)
 
   const authResult = await verifyStudent(req)
@@ -27,9 +27,10 @@ async function acceptStudentRequest(
 
   const authenticatedStudentId = authResult.student.id
 
-  // Call the shared acceptRequest helper using the authenticated student ID
-  // AppErrors from helper will be caught by withErrorHandler wrapper
-  const { requestId } = validateBody(z.object({ requestId: cuidSchema }), { requestId: params.requestId })
+  const { requestId } = validateInput<{ requestId: string }>(
+    { requestId: params.requestId },
+    z.object({ requestId: cuidSchema }).strict()
+  )
   const result = await acceptRequest(requestId, authenticatedStudentId)
 
   return NextResponse.json({
