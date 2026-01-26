@@ -10,8 +10,16 @@ import { isZodError } from '@/lib/error-handler'
 import { checkRateLimit, hashIdentifier } from '@/lib/rate-limit'
 import { rateLimitByIp } from '@/lib/rateLimit/rateLimit'
 import { validateJson } from '@/lib/validation/validate'
+import {
+  getLockoutUntil,
+  isLockoutActive,
+  shouldLockout,
+} from '@/lib/auth/securityPolicy'
 
 export const dynamic = 'force-dynamic'
+
+const DUMMY_BCRYPT_HASH =
+  '$2a$10$txxd33/oxVxxykdFk4.Wx.DejyScXefQyL8rA/16dEj9o.or5z15S'
 
 const loginSchema = z.object({
   email: emailSchema,
@@ -24,11 +32,12 @@ export async function POST(req: NextRequest) {
     await rateLimitByIp(req, 5, 60, 'student-login')
     await rateLimitByIp(req, 20, 60 * 60, 'student-login-hour')
     const { email, password, rememberMe } = await validateJson<{ email: string; password: string; rememberMe?: boolean | string }>(req, loginSchema)
+    const normalizedEmail = email.toLowerCase().trim()
     const remember = rememberMe === true || rememberMe === 'true'
     const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown'
 
     const [emailLimit, ipLimit] = await Promise.all([
-      checkRateLimit(`student-login:email:${hashIdentifier(email)}`, 5, 60 * 10),
+      checkRateLimit(`student-login:email:${hashIdentifier(normalizedEmail)}`, 5, 60 * 10),
       checkRateLimit(`student-login:ip:${hashIdentifier(ip)}`, 20, 60 * 10),
     ])
 
@@ -41,27 +50,43 @@ export async function POST(req: NextRequest) {
 
     // 1. Find Student
     const student = await prisma.student.findUnique({
-      where: { email },
+      where: { email: normalizedEmail },
     })
 
-    if (!student) {
-      return NextResponse.json(
-        { success: false, error: 'Account does not exist' },
-        { status: 404 }
-      )
-    }
+    const now = new Date()
+    const isLocked = isLockoutActive(student?.lockoutUntil, now)
 
-    if (!student.passwordHash) {
+    // 2. Verify Password (always compare to avoid timing leaks)
+    const passwordHash = student?.passwordHash || DUMMY_BCRYPT_HASH
+    const isValid = await bcrypt.compare(password, passwordHash)
+
+    if (isLocked) {
       return NextResponse.json(
-        { success: false, error: 'Password not set. Please reset your password.' },
+        { success: false, error: 'Invalid credentials' },
         { status: 401 }
       )
     }
 
-    // 2. Verify Password
-    const isValid = await bcrypt.compare(password, student.passwordHash)
+    if (!student || !student.passwordHash || !isValid) {
+      if (student) {
+        const updated = await prisma.student.update({
+          where: { id: student.id },
+          data: {
+            failedLoginAttempts: { increment: 1 },
+            lastFailedLoginAt: now,
+          },
+        })
 
-    if (!isValid) {
+        if (shouldLockout(updated.failedLoginAttempts)) {
+          await prisma.student.update({
+            where: { id: student.id },
+            data: {
+              failedLoginAttempts: 0,
+              lockoutUntil: getLockoutUntil(now),
+            },
+          })
+        }
+      }
       return NextResponse.json(
         { success: false, error: 'Invalid credentials' },
         { status: 401 }
@@ -78,11 +103,20 @@ export async function POST(req: NextRequest) {
 
     await prisma.studentSession.create({
       data: {
-        email,
+        email: normalizedEmail,
         studentId: student.id,
         isVerified: true,
         expiresAt,
         token: tokenHash,
+      },
+    })
+
+    await prisma.student.update({
+      where: { id: student.id },
+      data: {
+        failedLoginAttempts: 0,
+        lockoutUntil: null,
+        lastFailedLoginAt: null,
       },
     })
 

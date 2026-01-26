@@ -11,6 +11,8 @@ import { isZodError } from '@/lib/error-handler'
 import { checkRateLimit, hashIdentifier } from '@/lib/rate-limit'
 import { rateLimitByIp } from '@/lib/rateLimit/rateLimit'
 import { validateJson } from '@/lib/validation/validate'
+import { generateOtpHmac, timingSafeEqualHex } from '@/lib/auth/otp'
+import { shouldInvalidateOtp } from '@/lib/auth/securityPolicy'
 
 export const dynamic = 'force-dynamic'
 
@@ -21,6 +23,8 @@ const signupSchema = z.object({
   phone: phoneSchema.optional(),
   city: z.string().trim().min(1).max(100).optional(),
 }).strict()
+
+const OTP_SCOPE = 'student-signup'
 
 export async function POST(req: NextRequest) {
   try {
@@ -36,9 +40,10 @@ export async function POST(req: NextRequest) {
     const sanitizedName = name ? sanitizeText(name, 100) : undefined
     const sanitizedCity = city ? sanitizeText(city, 100) : undefined
     const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown'
+    const normalizedEmail = email.toLowerCase().trim()
 
     const [emailLimit, ipLimit] = await Promise.all([
-      checkRateLimit(`student-signup:email:${hashIdentifier(email)}`, 5, 60 * 10),
+      checkRateLimit(`student-signup:email:${hashIdentifier(normalizedEmail)}`, 5, 60 * 10),
       checkRateLimit(`student-signup:ip:${hashIdentifier(ip)}`, 20, 60 * 10),
     ])
 
@@ -51,34 +56,64 @@ export async function POST(req: NextRequest) {
 
     // 1. Verify OTP
     const now = new Date()
-    const updateResult = await prisma.studentOtp.updateMany({
+    const otpRecord = await prisma.studentOtp.findFirst({
       where: {
-        email,
-        code,
+        email: normalizedEmail,
         used: false,
         expiresAt: { gt: now },
       },
-      data: {
-        used: true,
-      },
+      orderBy: { createdAt: 'desc' },
     })
 
-    if (updateResult.count === 0) {
+    if (!otpRecord) {
       return NextResponse.json(
         { success: false, error: 'Invalid or expired code' },
         { status: 400 }
       )
     }
 
+    const expectedHmac = generateOtpHmac({
+      scope: OTP_SCOPE,
+      identifier: normalizedEmail,
+      otp: code,
+      expiresAt: otpRecord.expiresAt,
+    })
+
+    const isValidOtp = timingSafeEqualHex(otpRecord.otpHmac, expectedHmac)
+
+    if (!isValidOtp) {
+      const updated = await prisma.studentOtp.update({
+        where: { id: otpRecord.id },
+        data: { otpAttempts: { increment: 1 } },
+      })
+
+      if (shouldInvalidateOtp(updated.otpAttempts)) {
+        await prisma.studentOtp.update({
+          where: { id: otpRecord.id },
+          data: { used: true },
+        })
+      }
+
+      return NextResponse.json(
+        { success: false, error: 'Invalid or expired code' },
+        { status: 400 }
+      )
+    }
+
+    await prisma.studentOtp.update({
+      where: { id: otpRecord.id },
+      data: { used: true, otpAttempts: 0 },
+    })
+
     // 2. Create or Update Student Record
     let student = await prisma.student.findUnique({
-      where: { email },
+      where: { email: normalizedEmail },
     })
 
     if (!student) {
       student = await prisma.student.create({
         data: {
-          email,
+          email: normalizedEmail,
           name: sanitizedName,
           phoneNumber: phone || undefined,
           city: sanitizedCity,
@@ -89,7 +124,7 @@ export async function POST(req: NextRequest) {
       })
 
       try {
-        await sendWelcomeEmail(email)
+        await sendWelcomeEmail(normalizedEmail)
       } catch (emailErr) {
         logger.warn('Failed to send welcome email', {
           errorType: emailErr instanceof Error ? emailErr.name : 'unknown',
@@ -115,7 +150,7 @@ export async function POST(req: NextRequest) {
     const { token, tokenHash } = createStudentSessionToken()
     await prisma.studentSession.create({
       data: {
-        email,
+        email: normalizedEmail,
         studentId: student.id,
         isVerified: true,
         expiresAt,

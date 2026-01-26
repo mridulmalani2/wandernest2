@@ -8,12 +8,16 @@ import { logger } from '@/lib/logger'
 import { isZodError } from '@/lib/error-handler'
 import { rateLimitByIp } from '@/lib/rateLimit/rateLimit'
 import { validateJson } from '@/lib/validation/validate'
+import { generateOtpHmac, timingSafeEqualHex } from '@/lib/auth/otp'
+import { shouldInvalidateOtp } from '@/lib/auth/securityPolicy'
 
 const confirmResetSchema = z.object({
   email: emailSchema,
   code: z.string().min(1).max(12),
   newPassword: z.string().min(8).max(128),
 }).strict()
+
+const OTP_SCOPE = 'student-password-reset'
 
 export async function POST(req: NextRequest) {
   try {
@@ -41,13 +45,41 @@ export async function POST(req: NextRequest) {
     const otpRecord = await prisma.studentOtp.findFirst({
       where: {
         email: normalizedEmail,
-        code,
         used: false,
         expiresAt: { gt: new Date() },
       },
+      orderBy: { createdAt: 'desc' },
     })
 
     if (!otpRecord) {
+      return NextResponse.json(
+        { success: false, error: 'Invalid or expired code' },
+        { status: 400 }
+      )
+    }
+
+    const expectedHmac = generateOtpHmac({
+      scope: OTP_SCOPE,
+      identifier: normalizedEmail,
+      otp: code,
+      expiresAt: otpRecord.expiresAt,
+    })
+
+    const isValid = timingSafeEqualHex(otpRecord.otpHmac, expectedHmac)
+
+    if (!isValid) {
+      const updated = await prisma.studentOtp.update({
+        where: { id: otpRecord.id },
+        data: { otpAttempts: { increment: 1 } },
+      })
+
+      if (shouldInvalidateOtp(updated.otpAttempts)) {
+        await prisma.studentOtp.update({
+          where: { id: otpRecord.id },
+          data: { used: true },
+        })
+      }
+
       return NextResponse.json(
         { success: false, error: 'Invalid or expired code' },
         { status: 400 }
@@ -59,7 +91,7 @@ export async function POST(req: NextRequest) {
     await prisma.$transaction([
       prisma.studentOtp.update({
         where: { id: otpRecord.id },
-        data: { used: true },
+        data: { used: true, otpAttempts: 0 },
       }),
       prisma.student.update({
         where: { email: normalizedEmail },
